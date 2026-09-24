@@ -1,0 +1,144 @@
+@quiz id="demo"
+# 數位邏輯與基礎數學
+
+從邏輯閘到二次方程式，用七道題檢查你的理解。先試著獨立作答，再用提示與完整解答補齊觀念。
+
+:::question id="q1" type="single" points="2"
+### 認識 AND Gate
+下列哪一個是兩個輸入 $A$、$B$ 的 **AND Gate** Boolean expression？
+:::options
+- [ ] a | $A + B$
+- [x] b | $AB$
+- [ ] c | $\overline{A}$
+- [ ] d | $A \oplus B$
+:::hint
+AND 代表「而且」：兩個輸入都成立時，輸出才成立。
+:::solution
+AND Gate 只有在兩個輸入皆為 $1$ 時輸出 $1$，因此 Boolean expression 為 $Y = AB$。
+
+$$
+1 \cdot 1 = 1,\qquad 1 \cdot 0 = 0
+$$
+:::end
+
+:::question id="q2" type="single" points="2"
+### 找出方程式的解
+下列哪一組數值是這個方程式的所有實數解？
+
+$$
+x^2 - 5x + 6 = 0
+$$
+:::options
+- [ ] a | $x = 1$ 或 $x = 6$
+- [x] b | $x = 2$ 或 $x = 3$
+- [ ] c | $x = -2$ 或 $x = -3$
+- [ ] d | $x = 0$ 或 $x = 5$
+:::hint
+尋找兩個相乘為 $6$、相加為 $5$ 的數。
+:::solution
+將左式因式分解：
+
+$$
+x^2 - 5x + 6 = (x-2)(x-3) = 0
+$$
+
+因此 $x=2$ 或 $x=3$。
+:::end
+
+:::question id="q3" type="multiple" points="3"
+### OR Gate 的輸入組合
+對於 $Y = A + B$ 的 **OR Gate**，哪些輸入組合會使 $Y=1$？請選出所有正確選項。
+:::options
+- [ ] a | $A=0,\ B=0$
+- [x] b | $A=0,\ B=1$
+- [x] c | $A=1,\ B=0$
+- [x] d | $A=1,\ B=1$
+:::hint
+只要至少一個輸入為 $1$，OR Gate 就會輸出 $1$。
+:::solution
+正確選項是 **B、C、D**。Boolean algebra 中的 $+$ 代表 OR 運算，因此 $1+1=1$。
+:::end
+
+:::question id="q4" type="true-false" points="1"
+### 德摩根定律
+以下等式對所有 Boolean 輸入皆成立。
+
+$$
+\overline{AB} = \overline{A} + \overline{B}
+$$
+:::answer
+true
+:::hint
+把「不是兩者都成立」想成「至少一個不成立」。
+:::solution
+**正確。** 這是德摩根定律。對 AND 的輸出取反，相當於先對兩個輸入取反，再做 OR 運算。
+:::end
+
+:::question id="q5" type="fill" points="2" match="case-insensitive"
+### 寫出邏輯閘名稱
+只有在兩個輸入**不同**時才輸出 $1$ 的邏輯閘，英文縮寫是什麼？
+
+請輸入三個英文字母，不區分大小寫。
+:::answer
+XOR
+:::hint
+它的完整名稱是 Exclusive OR，符號是 $\oplus$。
+:::solution
+答案是 **XOR**（互斥或）。當 $A \ne B$ 時，$A \oplus B = 1$。
+:::end
+
+:::question id="q6" type="calculation" points="6"
+### 把解題過程寫下來
+請解出以下方程式，並寫出**完整推導**與代回檢查的過程。
+
+$$
+2x^2 - 7x + 3 = 0
+$$
+:::answer
+$x=3$ 或 $x=\frac{1}{2}$。
+:::hint
+試著將左式寫成 $(2x-1)(x-3)$。
+:::solution
+1. 因式分解：$2x^2-7x+3=(2x-1)(x-3)$。
+2. 由零乘積性質，$2x-1=0$ 或 $x-3=0$。
+3. 解得 $x=\frac{1}{2}$ 或 $x=3$。
+4. 代回確認：
+
+$$
+2(3)^2-7(3)+3=0
+$$
+
+$$
+2\left(\frac{1}{2}\right)^2-7\left(\frac{1}{2}\right)+3=0
+$$
+:::rubric
+- 2 | 正確因式分解為 $(2x-1)(x-3)$。
+- 2 | 寫出兩個根 $x=3$ 與 $x=\frac{1}{2}$。
+- 2 | 將兩個根代回原式，確認等式成立。
+:::end
+
+:::question id="q7" type="drawing" points="4"
+### 畫出你的邏輯
+畫出具有兩個輸入 **A、B** 與一個輸出 **Y** 的 **AND Gate** 示意圖。
+
+標示輸入、輸出與邏輯閘的外形，並註記 $Y=AB$。
+:::drawing
+width=800
+height=600
+:::answer
+AND Gate 的左側為一直線，右側為半圓，整體呈 **D 形**。左側接兩條輸入線，分別標示 **A** 與 **B**；右側接一條輸出線，標示 **Y**，並寫上 $Y=AB$。
+:::hint
+先畫 D 形閘體，再加上左邊兩條線與右邊一條線。
+:::solution
+確認圖中具有：
+
+- 左側兩個獨立輸入 A、B。
+- AND Gate 的 D 形外框（輸出端沒有反相小圓圈）。
+- 右側一個輸出 Y。
+- 與圖一致的 Boolean expression：$Y=AB$。
+:::rubric
+- 1 | 正確畫出 AND Gate 的 D 形外框。
+- 1 | 正確標示兩個輸入 A、B。
+- 1 | 正確標示輸出 Y。
+- 1 | 正確註記 $Y=AB$。
+:::end

@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Test artifacts
+.vitest/
+coverage/
+output/
+.playwright-cli/
+.playwright-mcp/
