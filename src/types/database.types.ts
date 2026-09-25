@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_requests: {
+        Row: {
+          attempt_id: string
+          cached_input_tokens: number | null
+          completed_at: string | null
+          created_at: string
+          credits: number
+          error_code: string | null
+          feature: string
+          id: string
+          input_tokens: number | null
+          model: string
+          output_tokens: number | null
+          provider_response_id: string | null
+          question_id: string
+          reasoning_effort: string
+          reasoning_tokens: number | null
+          refunded_at: string | null
+          request_id: string
+          reserved_until: string
+          response: Json | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          attempt_id: string
+          cached_input_tokens?: number | null
+          completed_at?: string | null
+          created_at?: string
+          credits: number
+          error_code?: string | null
+          feature: string
+          id?: string
+          input_tokens?: number | null
+          model: string
+          output_tokens?: number | null
+          provider_response_id?: string | null
+          question_id: string
+          reasoning_effort: string
+          reasoning_tokens?: number | null
+          refunded_at?: string | null
+          request_id: string
+          reserved_until: string
+          response?: Json | null
+          status: string
+          user_id: string
+        }
+        Update: {
+          attempt_id?: string
+          cached_input_tokens?: number | null
+          completed_at?: string | null
+          created_at?: string
+          credits?: number
+          error_code?: string | null
+          feature?: string
+          id?: string
+          input_tokens?: number | null
+          model?: string
+          output_tokens?: number | null
+          provider_response_id?: string | null
+          question_id?: string
+          reasoning_effort?: string
+          reasoning_tokens?: number | null
+          refunded_at?: string | null
+          request_id?: string
+          reserved_until?: string
+          response?: Json | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       answers: {
         Row: {
           answer: Json
@@ -156,6 +228,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      complete_ai_request: {
+        Args: {
+          p_cached_input_tokens: number
+          p_input_tokens: number
+          p_output_tokens: number
+          p_provider_response_id: string
+          p_reasoning_tokens: number
+          p_request_id: string
+          p_response: Json
+          p_user_id: string
+        }
+        Returns: boolean
+      }
+      find_ai_request: {
+        Args: {
+          p_attempt_id: string
+          p_feature: string
+          p_model: string
+          p_question_id: string
+          p_reasoning_effort: string
+          p_request_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      get_ai_quota_status: { Args: { p_user_id: string }; Returns: Json }
       get_or_create_quiz_draft: {
         Args: { p_owner_id: string; p_quiz_id: string; p_quiz_revision: string }
         Returns: {
@@ -182,8 +280,24 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      refund_ai_request: {
+        Args: { p_error_code: string; p_request_id: string; p_user_id: string }
+        Returns: boolean
+      }
       request_password_hint: {
         Args: { p_ip_hash: string; p_username: string }
+        Returns: Json
+      }
+      reserve_ai_request: {
+        Args: {
+          p_attempt_id: string
+          p_feature: string
+          p_model: string
+          p_question_id: string
+          p_reasoning_effort: string
+          p_request_id: string
+          p_user_id: string
+        }
         Returns: Json
       }
       save_quiz_attempt: {

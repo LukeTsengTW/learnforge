@@ -1,8 +1,8 @@
 # LearnForge
 
-**Current status: v0.3 — Quiz Library & Practice History**。
+**Current status: v0.4 — AI Tutor + rolling AI credit quota（程式碼；遠端部署狀態見 [v0.4 交付報告](docs/v0.4-delivery.md)）**。
 
-LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧。原本 parser、grading、drawing engine 與 Auth 架構保留。沒有 AI 功能。
+LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor。原本 parser、grading、drawing engine 與 Auth 架構保留。
 
 ## 功能
 
@@ -17,6 +17,8 @@ LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫
 - 未完成客觀題時先警告，再由使用者決定是否提交。
 - HashRouter：公開 `#/`、`#/library` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
+- AI Tutor：草稿可主動取得 AI 提示；提交後，答錯的客觀題可取得錯誤說明，非畫圖題可取得另一種解答說明。AI 僅供學習參考，以題庫答案與解析為主要依據。
+- 每位已登入使用者有 5 小時滾動 20 credits；提示與錯誤說明各 1 credit，解答說明 2 credits。額度不足時隱藏相應操作，由 server 原子保留／完成／退還額度。
 
 ## Tech stack
 
@@ -46,6 +48,8 @@ npm run dev
 
 `.env.example` 僅列 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`，值為空白。從 Supabase project 的 Connect／API Keys 取得 project URL 與 `sb_publishable_…` key，填入 `.env.local`。缺少或錯誤設定會顯示 configuration error。只有 publishable client key 能放入 Vite；它會出現在公開 bundle 中。不要填入 server secret、service-role key 或 database password。`.env`、`.env.*` 均被 Git 忽略，只有 `.env.example` 例外。
 
+AI Tutor 僅在 Supabase Edge Function 的 server environment 讀取 `OPENAI_API_KEY`。請透過 Supabase Dashboard 的 Edge Function Secrets 安全設定；不要寫入 `.env.local`、Vite 變數、GitHub Actions 公開變數、資料庫或原始碼。缺少 secret 時 Tutor 安全回傳服務暫不可用，且不保留額度。模型固定 `gpt-6-luna`，使用 Responses API、`reasoning.effort=low`、Structured Outputs、`store=false`；不啟用工具或一般聊天。
+
 若 Windows 的 `npm.ps1` 出現 `Cannot find module ... npm-cli.js`，可改用同一套 Node.js 24.21.0 環境中的 `npm.cmd`，不必修改系統設定。
 
 ## 驗證指令
@@ -55,6 +59,8 @@ npm run lint
 npm run test
 npm run build
 npm run preview
+npm run generate:ai-context # 題庫 Markdown 更新後重新產生 server manifest
+npm run check:ai-context    # CI/test/build 自動檢查 manifest drift
 ```
 
 - `lint`：原有 Oxlint + ESLint，包含 TypeScript 與 React Hooks 檢查。
@@ -80,6 +86,7 @@ src/
   components/               # Markdown、Layout、Brand、error UI
   features/auth/            # Auth service / Provider、pure validation、route guard
   features/quiz/            # catalog、domain ↔ DB mapping、repositories、sync store、quiz UI
+  features/ai/              # quota / Tutor service、狀態與操作 UI
   types/database.types.ts   # 從 linked project schema 產生，非手寫 row interfaces
   pages/                    # Home / Library / Quiz / Result / History / Mistakes / Auth
   styles/global.css         # base / layout / components / responsive layers
@@ -90,11 +97,16 @@ docs/implementation-plan.md
 docs/v0.1-delivery.md        # 歷史交付紀錄
 docs/v0.2-delivery.md        # v0.2 歷史交付紀錄
 docs/v0.3-delivery.md        # v0.3 實際驗證與限制
+docs/v0.4-delivery.md        # v0.4 實際驗證與限制
+scripts/generate-ai-quiz-context.mjs
+scripts/ai-quiz-context.ts  # 使用既有 parser 的 manifest 投影與大小限制
 supabase/
   config.toml
   migrations/               # 所有 schema / grants / RLS / RPC / triggers
-  functions/password-hint/  # 唯一 Edge Function
-  functions/_shared/        # 前後端共用 username 純函式
+  functions/password-hint/  # 既有公開密碼提示
+  functions/ai-tutor/       # 已登入 Tutor request
+  functions/ai-quota/       # 已登入 quota status
+  functions/_shared/        # username 與生成的 server quiz context
   tests/security.sql        # rollback transaction 的角色／RLS 整合檢查
 ```
 
@@ -115,6 +127,16 @@ quizzes/**/*.quiz.md -> parseQuiz() -> version-aware catalog / Quiz discriminate
 React component 不解析 raw DSL、不計算正確性。Parser 與 grading 不依賴 React。`Question` 使用六個明確分支，不以大量 optional properties 混用不同題型。`QuestionAnswer` 與 `QuestionGrade` 也是 discriminated unions；manual grade 的 score/maxScore 是 `null`。
 
 ## Supabase 與 Auth 架構
+
+### AI Tutor 與額度（v0.4）
+
+Browser 只送 `requestId`、`feature`、`attemptId`、`questionId`。Edge Function 用 `@supabase/server` 的 `auth: 'user'` 驗證身份，以 RLS-scoped client 讀取本人作答，再用 `quiz_id + quiz_revision + question_id` 精確查找生成的 canonical manifest。題庫仍只在 Git Markdown，沒有搬進 Supabase；題目與標準答案不能由 request 決定。生成器設有每題 32 KiB 上限及個別欄位限制，測試與 build 都會拒絕 stale manifest。
+
+OpenAI 回應使用嚴格 JSON schema，文字透過既有安全 Markdown/KaTeX 元件顯示。草稿提示不傳標準答案或完整解答；提交後錯誤說明只對已判錯的客觀題開放，解答說明支援客觀題與計算題。畫圖內容不送至 OpenAI，也不顯示 AI 操作。學生答案視為不可信資料；Tutor 不是正式評分者。
+
+`ai_requests` 啟用 RLS 且不授權 browser role。Edge 以 server privileged RPC 查額度、保留、完成與退還；`reserve_ai_request` 在 per-user transaction advisory lock 內計算最近 5 小時已完成與有效保留 credits，防止同時呼叫超額。保留 15 分鐘後可自動失效；同一 `requestId` 完成後重試回傳已保存結果，不再次呼叫 OpenAI。安全拒答已消耗 provider usage，記為完成；失敗、格式錯誤或未完成輸出會退還。Rolling 額度顯示 `nextCreditAt`，不宣稱有固定整批 reset 時間。
+
+套用 v0.4 時先比對 linked migration list，執行 `npx supabase db push --linked --dry-run --skip-vault`，確認只有 v0.4 migration 後才使用 `npx supabase db push --linked --skip-vault --yes`。成功後重新執行 `npx supabase gen types typescript --linked --schema public` 更新 generated DB types，部署 `ai-tutor` 與 `ai-quota`，兩者都需 `verify_jwt=true`。`password-hint` 的既有設定維持不變。
 
 `AuthProvider` 管理 session、loading、失敗狀態與帳號；頁面只呼叫 `AuthService`。Supabase SDK 持久化並自動更新 session；恢復時再呼叫 `getUser()` 驗證，讀取自己的 profile。失效 token 清除本機 session 並回到登入；短暫斷網且尚未到期的 session 可繼續使用帳號隔離的 cache。要求有 15 秒 timeout，失敗不會直接刪除作答。
 
@@ -369,9 +391,9 @@ npm run build -- --base=/learnforge/
 
 ## Future roadmap
 
-下一個 milestone 建議 **v0.4 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
+下一個 milestone 建議 **v0.5 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
 
-後續可分階段評估 regex／numeric tolerance、AI hints、計算題參考評分、畫圖 multimodal 分析與 usage quota。AI 不影響正式答案。這些尚未實作；本版也不含 admin dashboard、quiz editor、cloud image upload、leaderboard、social、PWA 或 SSR。
+後續可分階段評估 regex／numeric tolerance、計算題參考評分、畫圖 multimodal 分析與更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、quiz editor、cloud image upload、leaderboard、social、PWA 或 SSR。
 
 ## 上游參考
 

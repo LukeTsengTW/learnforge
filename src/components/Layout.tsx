@@ -26,7 +26,7 @@ export function Layout() {
           setLoggingOut(true); setLogoutError(null)
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
-        <span className="version-label">v0.3</span>
+        <span className="version-label">v0.4</span>
       </nav>
     </div></header>
     <main id="main-content" ref={main} tabIndex={-1} className="main-container">

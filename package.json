@@ -1,16 +1,18 @@
 {
   "name": "learnforge",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.4.0",
   "type": "module",
   "packageManager": "npm@11.19.0",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run check:ai-context && tsc -b && vite build",
     "lint": "oxlint && eslint . --max-warnings 0",
-    "test": "vitest run",
+    "test": "npm run check:ai-context && vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:ai-context": "node scripts/generate-ai-quiz-context.mjs",
+    "check:ai-context": "node scripts/generate-ai-quiz-context.mjs --check"
   },
   "engines": {
     "node": "24.21.0"

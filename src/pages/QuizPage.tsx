@@ -5,12 +5,17 @@ import { QuestionCard } from '../features/quiz/QuestionCard'
 import { useAttempt } from '../features/quiz/attempt-context'
 import { gradeQuiz, hasAnswer } from '../lib/grading'
 import { quizCatalog } from '../features/quiz/quiz-loader'
+import { usePracticeRepository } from '../features/quiz/practice-context'
+import { AiQuotaStatus } from '../features/ai/AiTutorControls'
+import { useAiTutor } from '../features/ai/use-ai-tutor'
 
 export function QuizPage() {
   const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, pendingSubmission, retry, importLegacy } = useAttempt()
   const [confirmIncomplete, setConfirmIncomplete] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
   const navigate = useNavigate()
+  const repo = usePracticeRepository()
+  const tutor = useAiTutor(attemptId)
   if (attempt.status === 'submitted') {
     if (pendingSubmission) return <div className="empty-state" role="status"><h1>正在完成舊版作答同步</h1>
       <p>此裝置保留了一份已提交的作答，正在將它寫入雲端。請保持連線。</p>
@@ -27,11 +32,21 @@ export function QuizPage() {
     heading?.focus({ preventScroll: true })
     setConfirmIncomplete(false)
   }
+  async function ensureDraftSynced(questionId: string) {
+    if (!attemptId || !retry) throw new Error('draft_not_synced')
+    await retry()
+    const remote = await repo.loadAttempt(attemptId)
+    if (remote?.row.status !== 'draft' || remote.attempt?.status !== 'in-progress'
+      || JSON.stringify(remote.attempt.answers[questionId] ?? null) !== JSON.stringify(attempt.answers[questionId] ?? null)) {
+      throw new Error('draft_not_synced')
+    }
+  }
   return <>
     <div className="breadcrumb"><Link to="/library">題庫</Link><span aria-hidden="true">/</span><span>正在練習</span></div>
     <header className="page-heading"><span className="subject-label">基礎練習</span><h1>{quiz.title}</h1><Markdown>{quiz.description}</Markdown></header>
     {quizCatalog.getCurrentQuiz(quiz.id)?.revision !== quiz.revision && <div className="notice warning" role="status">此未完成練習使用舊版題目（{quiz.revision}）。你可以繼續完成，或捨棄草稿並使用最新版重新開始。</div>}
     {storageNotice && <div className="notice warning" role="status">{storageNotice}</div>}
+    <AiQuotaStatus tutor={tutor} />
     {retry && <div className="sync-bar"><span role="status">{syncing ? '正在同步…' : '本機即時暫存 · 雲端批次同步'}</span><button type="button" disabled={syncing} onClick={() => { void retry() }}>重試同步</button></div>}
     {importLegacy && <details className="legacy-import"><summary>此裝置有 v0.1 未綁定帳號的進度</summary><p>請確認這是你的作答，再匯入目前帳號。舊版原始資料會保留。</p><button type="button" onClick={() => { void importLegacy() }}>匯入我的舊版進度</button></details>}
     {confirmRestart && <div className="notice warning" role="alert"><strong>重新開始會清除目前的所有答案與繪圖。</strong>
@@ -52,7 +67,8 @@ export function QuizPage() {
     </aside>
     <form className="question-stack" onSubmit={(event) => { event.preventDefault(); if (unanswered) setConfirmIncomplete(true); else submitQuiz() }}>
       {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
-        answer={attempt.answers[question.id]} onChange={(answer) => { answerQuestion(question.id, answer); setConfirmIncomplete(false) }} />)}
+        answer={attempt.answers[question.id]} onChange={(answer) => { answerQuestion(question.id, answer); setConfirmIncomplete(false) }}
+        aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} />)}
       <section className="submit-panel"><div><h2>準備好對照答案了嗎？</h2><p>提交後會保留這次作答，並顯示完整解答。</p></div>
         <button className="button primary" type="submit">提交測驗</button>
         {confirmIncomplete && <div className="notice warning submit-warning" role="alert"><strong>還有 {unanswered} 題自動評分題未作答。</strong><p>未作答題會以 0 分計算，仍要提交嗎？</p>

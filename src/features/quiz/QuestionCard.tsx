@@ -4,9 +4,12 @@ import { hasAnswer } from '../../lib/grading'
 import { isObjectiveQuestion, QUESTION_LABEL, type Question } from '../../models/quiz'
 import type { QuestionAnswer } from '../../models/attempt'
 import { QuestionInput } from './QuestionInput'
+import { AiTutorControls } from '../ai/AiTutorControls'
+import type { AiTutorState } from '../ai/use-ai-tutor'
 
-export function QuestionCard({ question, index, answer, onChange }: {
+export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint }: {
   question: Question; index: number; answer: QuestionAnswer | undefined; onChange: (answer: QuestionAnswer) => void
+  aiTutor?: AiTutorState; beforeAiHint?: () => Promise<void>
 }) {
   const [hintOpen, setHintOpen] = useState(false)
   return <section className="question-card" aria-labelledby={`heading-${question.id}`}>
@@ -20,5 +23,7 @@ export function QuestionCard({ question, index, answer, onChange }: {
       aria-controls={`hint-${question.id}`} onClick={() => setHintOpen(!hintOpen)}><span aria-hidden="true">{hintOpen ? '−' : '+'}</span> {hintOpen ? '收起提示' : '需要一點提示？'}</button>
       {hintOpen && <div id={`hint-${question.id}`} className="hint-content"><Markdown>{question.hint}</Markdown></div>}
     </div>}
+    {question.type !== 'drawing' && aiTutor && <AiTutorControls tutor={aiTutor} questionId={question.id}
+      features={['hint']} beforeRun={beforeAiHint} />}
   </section>
 }

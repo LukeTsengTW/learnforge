@@ -116,5 +116,98 @@ do $$ declare result jsonb; begin
     raise exception 'FAIL durable limit'; end if;
 end $$;
 reset role;
+-- v0.4 AI ledger is never directly exposed to browser roles, nor are its RPCs.
+set local role anon;
+do $$ begin
+  begin perform 1 from public.ai_requests; raise exception 'FAIL anon AI read'; exception when insufficient_privilege then null; end;
+  begin insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+    values(current_setting('test.user_a')::uuid,gen_random_uuid(),gen_random_uuid(),'q1','hint',1,'gpt-6-luna','low','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL anon AI insert'; exception when insufficient_privilege then null; end;
+  begin update public.ai_requests set credits = 1; raise exception 'FAIL anon AI update'; exception when insufficient_privilege then null; end;
+  begin delete from public.ai_requests; raise exception 'FAIL anon AI delete'; exception when insufficient_privilege then null; end;
+  begin perform public.get_ai_quota_status(current_setting('test.user_a')::uuid); raise exception 'FAIL anon AI status RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.reserve_ai_request(current_setting('test.user_a')::uuid, gen_random_uuid(), gen_random_uuid(), 'q1', 'hint', 'gpt-6-luna', 'low');
+    raise exception 'FAIL anon AI reservation RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ begin
+  begin perform 1 from public.ai_requests; raise exception 'FAIL authenticated AI read'; exception when insufficient_privilege then null; end;
+  begin insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+    values(auth.uid(),gen_random_uuid(),gen_random_uuid(),'q1','hint',1,'gpt-6-luna','low','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL authenticated AI insert'; exception when insufficient_privilege then null; end;
+  begin update public.ai_requests set credits = 1; raise exception 'FAIL authenticated AI update'; exception when insufficient_privilege then null; end;
+  begin delete from public.ai_requests; raise exception 'FAIL authenticated AI delete'; exception when insufficient_privilege then null; end;
+  begin perform public.get_ai_quota_status(auth.uid()); raise exception 'FAIL authenticated AI status RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.find_ai_request(auth.uid(), gen_random_uuid(), gen_random_uuid(), 'q1', 'hint', 'gpt-6-luna', 'low');
+    raise exception 'FAIL authenticated AI lookup RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.reserve_ai_request(auth.uid(), gen_random_uuid(), gen_random_uuid(), 'q1', 'hint', 'gpt-6-luna', 'low');
+    raise exception 'FAIL authenticated AI reservation RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.complete_ai_request(auth.uid(), gen_random_uuid(), '{}'::jsonb, null,0,0,0,0);
+    raise exception 'FAIL authenticated AI completion RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.refund_ai_request(auth.uid(), gen_random_uuid(), 'test');
+    raise exception 'FAIL authenticated AI refund RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+set local role service_role;
+do $$ declare
+  a uuid := current_setting('test.user_a')::uuid; b uuid := current_setting('test.user_b')::uuid;
+  attempt_id uuid := gen_random_uuid(); one_id uuid := gen_random_uuid(); two_id uuid := gen_random_uuid();
+  req_id uuid; result jsonb; quota jsonb; response jsonb := '{"title":"test","message":"test","keyPoints":[],"nextStep":null}'::jsonb;
+  first_credit timestamptz;
+begin
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 20 then raise exception 'FAIL fresh quota'; end if;
+  result := public.reserve_ai_request(a, one_id, attempt_id, 'q1', 'hint', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'created' or (result->>'remaining')::integer <> 19 then raise exception 'FAIL hint cost'; end if;
+  result := public.reserve_ai_request(a, one_id, attempt_id, 'q1', 'hint', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'reserved' or (select count(*) from public.ai_requests where user_id=a) <> 1 then
+    raise exception 'FAIL idempotent active reservation'; end if;
+  result := public.reserve_ai_request(a, one_id, attempt_id, 'q2', 'hint', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'mismatch' then raise exception 'FAIL request identity binding'; end if;
+  result := public.reserve_ai_request(a, two_id, attempt_id, 'q2', 'explain_solution', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'created' or (result->>'remaining')::integer <> 17 then raise exception 'FAIL solution cost'; end if;
+  if not public.refund_ai_request(a, one_id, 'fixture_failure') then raise exception 'FAIL refund'; end if;
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 18 then raise exception 'FAIL refunded credit returned'; end if;
+  if not public.complete_ai_request(a, two_id, response, 'resp_fixture', 10, 2, 20, 3) then raise exception 'FAIL complete'; end if;
+  result := public.reserve_ai_request(a, two_id, attempt_id, 'q2', 'explain_solution', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'completed' or result->'response' is distinct from response then raise exception 'FAIL completed retry'; end if;
+  if public.refund_ai_request(a, two_id, 'late_refund') then raise exception 'FAIL completed cannot refund'; end if;
+  if (public.get_ai_quota_status(b)->>'remaining')::integer <> 20 then raise exception 'FAIL user isolation'; end if;
+  update public.ai_requests set created_at = now() - interval '5 hours 1 second' where user_id=a and request_id=two_id;
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 20 then raise exception 'FAIL rolling five hours'; end if;
+  req_id := gen_random_uuid();
+  perform public.reserve_ai_request(a, req_id, attempt_id, 'q3', 'hint', 'gpt-6-luna', 'low');
+  update public.ai_requests set reserved_until = now() - interval '1 second' where user_id=a and request_id=req_id;
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 20 then raise exception 'FAIL expired reservation excluded'; end if;
+  if (select status from public.ai_requests where user_id=a and request_id=req_id) <> 'expired' then raise exception 'FAIL lazy expiry'; end if;
+  -- Sequential boundary checks plus the lock assertion below document the concurrent algorithm.
+  for i in 1..19 loop
+    req_id := gen_random_uuid();
+    result := public.reserve_ai_request(a, req_id, attempt_id, 'q1', 'hint', 'gpt-6-luna', 'low');
+    if result->>'state' <> 'created' then raise exception 'FAIL reserve fixture %', i; end if;
+    if not public.complete_ai_request(a, req_id, response, null, 1, 0, 1, 0) then raise exception 'FAIL complete fixture %', i; end if;
+  end loop;
+  first_credit := (select min(created_at + interval '5 hours') from public.ai_requests
+    where user_id=a and status='completed' and created_at > now()-interval '5 hours');
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 1 or (quota->>'nextCreditAt')::timestamptz is distinct from first_credit then
+    raise exception 'FAIL 19 credits or nextCreditAt'; end if;
+  result := public.reserve_ai_request(a, gen_random_uuid(), attempt_id, 'q2', 'explain_solution', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'denied' then raise exception 'FAIL 19+2 must deny'; end if;
+  req_id := gen_random_uuid();
+  result := public.reserve_ai_request(a, req_id, attempt_id, 'q1', 'hint', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'created' or (result->>'remaining')::integer <> 0 then raise exception 'FAIL 19+1'; end if;
+  result := public.reserve_ai_request(a, gen_random_uuid(), attempt_id, 'q1', 'hint', 'gpt-6-luna', 'low');
+  if result->>'state' <> 'denied' then raise exception 'FAIL 20 used'; end if;
+  if position('pg_advisory_xact_lock' in pg_get_functiondef('public.reserve_ai_request(uuid,uuid,uuid,text,text,text,text)'::regprocedure)) = 0 then
+    raise exception 'FAIL transaction serialization is missing'; end if;
+end $$;
+reset role;
+
 rollback;
-select 'PASS: v0.3 draft uniqueness, repeat submissions, immutable history, RLS, CAS, owner binding, answers and hints' as verification;
+select 'PASS: v0.3 practice security and v0.4 private atomic AI quota' as verification;

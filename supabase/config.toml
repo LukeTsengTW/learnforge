@@ -7,6 +7,12 @@ project_id = "learnforge"
 [functions.password-hint]
 verify_jwt = false
 
+[functions.ai-tutor]
+verify_jwt = false
+
+[functions.ai-quota]
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.

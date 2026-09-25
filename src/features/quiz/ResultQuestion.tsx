@@ -4,6 +4,9 @@ import { QUESTION_LABEL, QUESTION_TYPE, type Question } from '../../models/quiz'
 import { hasAnswer } from '../../lib/grading'
 import { DrawingPreview } from './DrawingPreview'
 import { MANUAL_NOTICE } from './QuestionInput'
+import { AiTutorControls } from '../ai/AiTutorControls'
+import type { AiTutorState } from '../ai/use-ai-tutor'
+import type { TutorFeature } from '../ai/tutor-service'
 
 const STATUS_LABEL = {
   [GRADE_STATUS.correct]: '✓ 正確', [GRADE_STATUS.incorrect]: '✕ 錯誤',
@@ -40,10 +43,13 @@ function CorrectAnswer({ question }: { question: Question }) {
   }
 }
 
-export function ResultQuestion({ question, answer, grade, index, idPrefix = '' }: {
+export function ResultQuestion({ question, answer, grade, index, idPrefix = '', aiTutor }: {
   question: Question; answer: QuestionAnswer | undefined; grade: QuestionGrade; index: number; idPrefix?: string
+  aiTutor?: AiTutorState
 }) {
   const manual = grade.status === GRADE_STATUS.manual
+  const aiFeatures: TutorFeature[] = question.type === 'drawing' ? []
+    : grade.status === GRADE_STATUS.incorrect ? ['explain_mistake', 'explain_solution'] : ['explain_solution']
   return <section className="question-card result-question" aria-labelledby={`result-heading-${idPrefix}${question.id}`}>
     <div className="question-meta"><h2 id={`result-heading-${idPrefix}${question.id}`}><span className="question-number">{String(index + 1).padStart(2, '0')}</span>{QUESTION_LABEL[question.type]}</h2>
       <div className="question-meta-right"><span className={`status-badge status-${grade.status}`}>{STATUS_LABEL[grade.status]}</span>
@@ -60,5 +66,6 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '' }
       {question.rubric.map((criterion, index) => <li key={index}><Markdown>{criterion.description}</Markdown>
         {criterion.score !== null && <span>{criterion.score} 分</span>}</li>)}
     </ul></div>}
+    {aiTutor && aiFeatures.length > 0 && <AiTutorControls tutor={aiTutor} questionId={question.id} features={aiFeatures} />}
   </section>
 }
