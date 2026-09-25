@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createQuotaHandler } from '../../../supabase/functions/ai-quota/handler'
 
 const quota = { limit: 20, used: 3, remaining: 17, windowSeconds: 18000,
-  nextCreditAt: '2026-09-25T13:00:00Z',
+  serverNow: '2026-09-25T12:00:00Z', nextCreditAt: '2026-09-25T13:00:00Z',
   featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2 } }
 
 describe('AI quota endpoint', () => {

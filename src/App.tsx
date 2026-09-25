@@ -7,6 +7,7 @@ import { LibraryPage } from './pages/LibraryPage'
 import { HistoryPage } from './pages/HistoryPage'
 import { MistakesPage } from './pages/MistakesPage'
 import { ResultPage } from './pages/ResultPage'
+import { AiUsagePage } from './pages/AiUsagePage'
 import { PracticeQuizRoute } from './features/quiz/PracticeQuizRoute'
 import { AuthPage } from './pages/AuthPage'
 import { AuthProvider } from './features/auth/AuthProvider'
@@ -31,6 +32,7 @@ export function AppRoutes() {
       <Route path="result/:attemptId" element={<ResultPage />} />
       <Route path="history" element={<HistoryPage />} />
       <Route path="mistakes" element={<MistakesPage />} />
+      <Route path="ai-usage" element={<AiUsagePage />} />
     </Route>
     <Route path="*" element={<NotFoundPage />} />
   </Route></Routes>

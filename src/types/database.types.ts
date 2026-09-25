@@ -254,6 +254,34 @@ export type Database = {
         Returns: Json
       }
       get_ai_quota_status: { Args: { p_user_id: string }; Returns: Json }
+      get_ai_responses_for_attempt: {
+        Args: { p_attempt_id: string; p_user_id: string }
+        Returns: {
+          completed_at: string
+          feature: string
+          pending: boolean
+          question_id: string
+          response: Json
+        }[]
+      }
+      get_ai_usage_page: {
+        Args: {
+          p_cursor_at?: string
+          p_cursor_id?: string
+          p_limit?: number
+          p_user_id: string
+        }
+        Returns: {
+          attempt_id: string
+          created_at: string
+          credits: number
+          feature: string
+          id: string
+          question_id: string
+          status: string
+        }[]
+      }
+      get_ai_usage_summary: { Args: { p_user_id: string }; Returns: Json }
       get_or_create_quiz_draft: {
         Args: { p_owner_id: string; p_quiz_id: string; p_quiz_revision: string }
         Returns: {

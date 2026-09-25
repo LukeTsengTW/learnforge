@@ -209,5 +209,134 @@ begin
 end $$;
 reset role;
 
+-- v0.5 private read projections remain unavailable to browser roles.
+set local role anon;
+do $$ begin
+  begin perform * from public.get_ai_responses_for_attempt(gen_random_uuid(), gen_random_uuid());
+    raise exception 'FAIL anon AI restore RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.get_ai_usage_summary(gen_random_uuid());
+    raise exception 'FAIL anon AI summary RPC'; exception when insufficient_privilege then null; end;
+  begin perform * from public.get_ai_usage_page(gen_random_uuid());
+    raise exception 'FAIL anon AI page RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ begin
+  begin perform * from public.get_ai_responses_for_attempt(auth.uid(), gen_random_uuid());
+    raise exception 'FAIL authenticated AI restore RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.get_ai_usage_summary(auth.uid());
+    raise exception 'FAIL authenticated AI summary RPC'; exception when insufficient_privilege then null; end;
+  begin perform * from public.get_ai_usage_page(auth.uid());
+    raise exception 'FAIL authenticated AI page RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+set local role service_role;
+do $$ declare
+  a uuid := current_setting('test.user_a')::uuid; b uuid := current_setting('test.user_b')::uuid;
+  attempt_b uuid := gen_random_uuid(); t timestamptz := statement_timestamp();
+  response jsonb := '{"title":"base","message":"test","keyPoints":[],"nextStep":null}'::jsonb;
+  summary jsonb; first_page uuid[]; next_page uuid[]; last_id uuid; last_at timestamptz;
+begin
+  summary := public.get_ai_usage_summary(b);
+  if (summary->'last5Hours'->>'requestCount')::integer <> 0
+    or (summary->'last5Hours'->>'inputTokens')::integer <> 0 then raise exception 'FAIL empty usage summary'; end if;
+
+  -- Same timestamp and creation time: UUID descending breaks the final tie.
+  insert into public.ai_requests(id,user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until,completed_at,response,input_tokens,cached_input_tokens,output_tokens,reasoning_tokens)
+  values
+    ('00000000-0000-4000-8000-000000000001',b,gen_random_uuid(),attempt_b,'q1','hint',1,'gpt-6-luna','low',
+      'completed',t-interval '3 minutes',t+interval '15 minutes',t-interval '2 minutes',
+      jsonb_set(response,'{title}','"old"'::jsonb),null,null,null,null),
+    ('00000000-0000-4000-8000-000000000002',b,gen_random_uuid(),attempt_b,'q1','hint',1,'gpt-6-luna','low',
+      'completed',t-interval '1 minute',t+interval '15 minutes',t,
+      jsonb_set(response,'{title}','"lower-id"'::jsonb),10,2,5,1),
+    ('00000000-0000-4000-8000-000000000003',b,gen_random_uuid(),attempt_b,'q1','hint',1,'gpt-6-luna','low',
+      'completed',t-interval '1 minute',t+interval '15 minutes',t,
+      jsonb_set(response,'{title}','"latest-id"'::jsonb),null,null,null,null),
+    (gen_random_uuid(),b,gen_random_uuid(),attempt_b,'q1','explain_mistake',1,'gpt-6-luna','low',
+      'completed',t-interval '2 minutes',t+interval '15 minutes',t,
+      jsonb_set(response,'{title}','"mistake"'::jsonb),null,null,null,null),
+    (gen_random_uuid(),b,gen_random_uuid(),attempt_b,'q2','explain_solution',2,'gpt-6-luna','low',
+      'completed',t-interval '2 minutes',t+interval '15 minutes',t,
+      jsonb_set(response,'{title}','"solution"'::jsonb),null,null,null,null);
+  insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until,refunded_at)
+  values (b,gen_random_uuid(),attempt_b,'q3','hint',1,'gpt-6-luna','low',
+    'refunded',t-interval '2 minutes',t+interval '15 minutes',t);
+  insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until)
+  values
+    (b,gen_random_uuid(),attempt_b,'q4','hint',1,'gpt-6-luna','low','expired',t-interval '2 minutes',t-interval '1 minute'),
+    (b,gen_random_uuid(),attempt_b,'q5','hint',1,'gpt-6-luna','low','reserved',t-interval '2 minutes',t+interval '15 minutes');
+  insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until,completed_at,response)
+  values (a,gen_random_uuid(),attempt_b,'q1','hint',1,'gpt-6-luna','low',
+    'completed',t-interval '1 minute',t+interval '15 minutes',t,
+    jsonb_set(response,'{title}','"other-user"'::jsonb));
+
+  if (select r.response->>'title' from public.get_ai_responses_for_attempt(b,attempt_b) r
+      where r.question_id='q1' and r.feature='hint') <> 'latest-id' then raise exception 'FAIL latest completed order'; end if;
+  if (select count(*) from public.get_ai_responses_for_attempt(b,attempt_b) where not pending) <> 3 then
+    raise exception 'FAIL completed feature/question projection'; end if;
+  if (select count(*) from public.get_ai_responses_for_attempt(b,attempt_b) where pending) <> 1 then
+    raise exception 'FAIL pending projection'; end if;
+  if exists(select 1 from public.get_ai_responses_for_attempt(b,attempt_b) where question_id in ('q3','q4')) then
+    raise exception 'FAIL refunded or expired restored'; end if;
+  if (select r.response->>'title' from public.get_ai_responses_for_attempt(a,attempt_b) r
+      where r.question_id='q1' and r.feature='hint') <> 'other-user' then raise exception 'FAIL user response isolation'; end if;
+
+  summary := public.get_ai_usage_summary(b);
+  if (summary->'last5Hours'->>'requestCount')::integer <> 8
+    or (summary->'last5Hours'->>'completedCount')::integer <> 5
+    or (summary->'last5Hours'->>'refundedCount')::integer <> 1
+    or (summary->'last5Hours'->>'expiredCount')::integer <> 1
+    or (summary->'last5Hours'->>'hintCount')::integer <> 3
+    or (summary->'last5Hours'->>'inputTokens')::integer <> 10
+    or (summary->'last5Hours'->>'cachedInputTokens')::integer <> 2
+    or (summary->'last5Hours'->>'outputTokens')::integer <> 5
+    or (summary->'last5Hours'->>'reasoningTokens')::integer <> 1
+    or (summary->'last5Hours'->>'usageReportedCount')::integer <> 1 then
+    raise exception 'FAIL five-hour counts or token sums'; end if;
+  if (public.get_ai_usage_summary(a)->'last5Hours'->>'requestCount')::integer
+    <= (summary->'last5Hours'->>'requestCount')::integer then
+    raise exception 'FAIL user summary isolation fixture'; end if;
+
+  insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until,completed_at,response)
+  values
+    (b,gen_random_uuid(),attempt_b,'old-6h','hint',1,'gpt-6-luna','low',
+      'completed',t-interval '6 hours',t-interval '5 hours',t-interval '6 hours',response),
+    (b,gen_random_uuid(),attempt_b,'old-25h','hint',1,'gpt-6-luna','low',
+      'completed',t-interval '25 hours',t-interval '24 hours',t-interval '25 hours',response);
+  summary := public.get_ai_usage_summary(b);
+  if (summary->'last5Hours'->>'requestCount')::integer <> 8
+    or (summary->'last24Hours'->>'requestCount')::integer <> 9
+    or (summary->'allTime'->>'requestCount')::integer <> 10 then
+    raise exception 'FAIL 5h/24h/all-time boundaries'; end if;
+
+  insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,
+    status,created_at,reserved_until,refunded_at)
+  select b,gen_random_uuid(),attempt_b,'page-'||i,'hint',1,'gpt-6-luna','low',
+    'refunded',t+interval '1 minute',t+interval '16 minutes',t
+    from generate_series(1,21) i;
+  select array_agg(p.id order by p.created_at desc,p.id desc) into first_page
+    from public.get_ai_usage_page(b,null,null,20) p;
+  select p.created_at,p.id into last_at,last_id from public.get_ai_usage_page(b,null,null,20) p
+    order by p.created_at,p.id limit 1;
+  select array_agg(p.id order by p.created_at desc,p.id desc) into next_page
+    from public.get_ai_usage_page(b,last_at,last_id,20) p;
+  if array_length(first_page,1) <> 20 or array_length(next_page,1) <> 11 then
+    raise exception 'FAIL stable 20-row cursor pages'; end if;
+  if (select count(distinct id) from unnest(first_page || next_page) as x(id)) <> 31 then
+    raise exception 'FAIL duplicate or missing cursor rows'; end if;
+  if (select count(*) from public.get_ai_usage_page(a,null,null,21) where question_id like 'page-%') <> 0 then
+    raise exception 'FAIL usage page ownership isolation'; end if;
+end $$;
+reset role;
+
 rollback;
-select 'PASS: v0.3 practice security and v0.4 private atomic AI quota' as verification;
+select 'PASS: practice security, private atomic AI quota, v0.5 restore and usage projections' as verification;

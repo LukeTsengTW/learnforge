@@ -205,6 +205,16 @@
   .ai-tutor-response li + li { margin-top: 6px; }
   .ai-next-step { margin-top: 12px; }
   .ai-next-step .markdown { display: inline; }
+  .ai-usage-summary { border: 1px solid #b9d9d5; border-radius: 10px; background: #f3faf9; padding: 20px 24px; margin-bottom: 30px; }
+  .ai-usage-summary h2 { margin: 0 0 10px; }
+  .ai-usage-summary p { margin: 6px 0; overflow-wrap: anywhere; }
+  .ai-usage-list { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 12px; }
+  .ai-usage-item { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: 18px 22px; border: 1px solid var(--line); border-radius: 10px; background: white; min-width: 0; }
+  .ai-usage-item > div { min-width: 0; }
+  .ai-usage-item h3 { margin: 0 0 6px; overflow-wrap: anywhere; }
+  .ai-usage-item p { margin: 0; color: var(--muted); overflow-wrap: anywhere; }
+  .ai-usage-item time { color: var(--muted); font-size: 13px; }
+  .ai-usage-item > div:last-child { text-align: right; flex-shrink: 0; }
   .text-answer label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
   .text-answer input { max-width: 460px; }
   .field-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
@@ -342,6 +352,9 @@
     .ai-tutor-buttons { flex-direction: column; }
     .ai-tutor-buttons .button { width: 100%; }
     .ai-tutor-response { padding: 14px; }
+    .ai-usage-summary { padding: 18px; }
+    .ai-usage-item { flex-direction: column; gap: 10px; padding: 16px; }
+    .ai-usage-item > div:last-child { text-align: left; }
     .question-meta { gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
     .question-meta h2 { gap: 8px; font-size: 12px; }
     .question-meta-right { gap: 8px; font-size: 11px; }

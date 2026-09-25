@@ -21,12 +21,13 @@ export function Layout() {
         <Link to="/" aria-current={pathname === '/' ? 'page' : undefined}>練習首頁</Link>
         <Link to="/library" aria-current={pathname === '/library' ? 'page' : undefined}>題庫</Link>
         {account && <><Link to="/history" aria-current={pathname === '/history' ? 'page' : undefined}>練習紀錄</Link>
-          <Link to="/mistakes" aria-current={pathname === '/mistakes' ? 'page' : undefined}>錯題</Link></>}
+          <Link to="/mistakes" aria-current={pathname === '/mistakes' ? 'page' : undefined}>錯題</Link>
+          <Link to="/ai-usage" aria-current={pathname === '/ai-usage' ? 'page' : undefined}>AI 使用紀錄</Link></>}
         {account ? <><span className="account-name" title={account.username}>{account.username}</span><button type="button" disabled={loggingOut} onClick={async () => {
           setLoggingOut(true); setLogoutError(null)
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
-        <span className="version-label">v0.4</span>
+        <span className="version-label">v0.5</span>
       </nav>
     </div></header>
     <main id="main-content" ref={main} tabIndex={-1} className="main-container">

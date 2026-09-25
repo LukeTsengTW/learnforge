@@ -13,6 +13,12 @@ verify_jwt = false
 [functions.ai-quota]
 verify_jwt = false
 
+[functions.ai-responses]
+verify_jwt = false
+
+[functions.ai-usage]
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.

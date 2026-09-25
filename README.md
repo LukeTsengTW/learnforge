@@ -1,8 +1,8 @@
 # LearnForge
 
-**Current status: v0.4 — AI Tutor + rolling AI credit quota（程式碼；遠端部署狀態見 [v0.4 交付報告](docs/v0.4-delivery.md)）**。
+**Current status: v0.5 — AI Experience, Persistence & Observability（實作與遠端驗證見 [v0.5 交付報告](docs/v0.5-delivery.md)）**。
 
-LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor。原本 parser、grading、drawing engine 與 Auth 架構保留。
+LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor；v0.5 讓已完成的 AI 建議可在重新整理及歷史紀錄中恢復，並提供個人使用紀錄。原本 parser、grading、drawing engine 與 Auth 架構保留。
 
 ## 功能
 
@@ -15,10 +15,12 @@ LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫
 - `#/history` 以每頁 20 筆載入提交紀錄；`#/mistakes` 從歷次答案及當時的題目版本重新評分，列出答錯的客觀題。
 - 註冊／登入／登出、session 恢復、自己的 profile、限流的密碼提示查詢。
 - 未完成客觀題時先警告，再由使用者決定是否提交。
-- HashRouter：公開 `#/`、`#/library` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
+- HashRouter：公開 `#/`、`#/library` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes`、`#/ai-usage` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
 - AI Tutor：草稿可主動取得 AI 提示；提交後，答錯的客觀題可取得錯誤說明，非畫圖題可取得另一種解答說明。AI 僅供學習參考，以題庫答案與解析為主要依據。
 - 每位已登入使用者有 5 小時滾動 20 credits；提示與錯誤說明各 1 credit，解答說明 2 credits。額度不足時隱藏相應操作，由 server 原子保留／完成／退還額度。
+- 已完成 AI 建議依帳號、attempt、題目及功能從 DB 恢復，同一功能預設顯示最新一次；頁面載入只讀取，不產生新 AI 請求。既有建議即使額度為零仍可讀；主動「重新產生」才建立新 requestId 並依功能扣點。
+- `#/ai-usage` 顯示本人的額度、最近 5 小時各功能完成次數及每頁 20 筆的 AI 使用紀錄。額度用盡時依 server 時間顯示最早恢復一筆 credit 的相對時間。
 
 ## Tech stack
 
@@ -88,7 +90,7 @@ src/
   features/quiz/            # catalog、domain ↔ DB mapping、repositories、sync store、quiz UI
   features/ai/              # quota / Tutor service、狀態與操作 UI
   types/database.types.ts   # 從 linked project schema 產生，非手寫 row interfaces
-  pages/                    # Home / Library / Quiz / Result / History / Mistakes / Auth
+  pages/                    # Home / Library / Quiz / Result / History / Mistakes / AI Usage / Auth
   styles/global.css         # base / layout / components / responsive layers
   App.tsx                   # HashRouter 與頁面組裝
   *.test.tsx, lib/*.test.ts # Vitest / Testing Library
@@ -98,6 +100,7 @@ docs/v0.1-delivery.md        # 歷史交付紀錄
 docs/v0.2-delivery.md        # v0.2 歷史交付紀錄
 docs/v0.3-delivery.md        # v0.3 實際驗證與限制
 docs/v0.4-delivery.md        # v0.4 實際驗證與限制
+docs/v0.5-delivery.md        # v0.5 恢復、使用紀錄與驗證
 scripts/generate-ai-quiz-context.mjs
 scripts/ai-quiz-context.ts  # 使用既有 parser 的 manifest 投影與大小限制
 supabase/
@@ -106,6 +109,8 @@ supabase/
   functions/password-hint/  # 既有公開密碼提示
   functions/ai-tutor/       # 已登入 Tutor request
   functions/ai-quota/       # 已登入 quota status
+  functions/ai-responses/   # 已登入完成回覆恢復
+  functions/ai-usage/       # 已登入個人用量與紀錄
   functions/_shared/        # username 與生成的 server quiz context
   tests/security.sql        # rollback transaction 的角色／RLS 整合檢查
 ```
@@ -128,15 +133,21 @@ React component 不解析 raw DSL、不計算正確性。Parser 與 grading 不�
 
 ## Supabase 與 Auth 架構
 
-### AI Tutor 與額度（v0.4）
+### AI Tutor、恢復與額度（v0.4–v0.5）
 
 Browser 只送 `requestId`、`feature`、`attemptId`、`questionId`。Edge Function 用 `@supabase/server` 的 `auth: 'user'` 驗證身份，以 RLS-scoped client 讀取本人作答，再用 `quiz_id + quiz_revision + question_id` 精確查找生成的 canonical manifest。題庫仍只在 Git Markdown，沒有搬進 Supabase；題目與標準答案不能由 request 決定。生成器設有每題 32 KiB 上限及個別欄位限制，測試與 build 都會拒絕 stale manifest。
 
 OpenAI 回應使用嚴格 JSON schema，文字透過既有安全 Markdown/KaTeX 元件顯示。草稿提示不傳標準答案或完整解答；提交後錯誤說明只對已判錯的客觀題開放，解答說明支援客觀題與計算題。畫圖內容不送至 OpenAI，也不顯示 AI 操作。學生答案視為不可信資料；Tutor 不是正式評分者。
 
-`ai_requests` 啟用 RLS 且不授權 browser role。Edge 以 server privileged RPC 查額度、保留、完成與退還；`reserve_ai_request` 在 per-user transaction advisory lock 內計算最近 5 小時已完成與有效保留 credits，防止同時呼叫超額。保留 15 分鐘後可自動失效；同一 `requestId` 完成後重試回傳已保存結果，不再次呼叫 OpenAI。安全拒答已消耗 provider usage，記為完成；失敗、格式錯誤或未完成輸出會退還。Rolling 額度顯示 `nextCreditAt`，不宣稱有固定整批 reset 時間。
+`ai_requests` 啟用 RLS 且不授權 browser role。Edge 以 server privileged RPC 查額度、保留、完成與退還；`reserve_ai_request` 在 per-user transaction advisory lock 內計算最近 5 小時已完成與有效保留 credits，防止同時呼叫超額。保留 15 分鐘後可自動失效；同一 `requestId` 完成後重試回傳已保存結果，不再次呼叫 OpenAI。安全拒答已消耗 provider usage，記為完成；失敗、格式錯誤或未完成輸出會退還。Rolling 額度回傳 DB `serverNow` 與 `nextCreditAt`；只在用盡時顯示最早恢復一筆 credit 的相對時間，不宣稱有固定整批 reset 時間。
 
-套用 v0.4 時先比對 linked migration list，執行 `npx supabase db push --linked --dry-run --skip-vault`，確認只有 v0.4 migration 後才使用 `npx supabase db push --linked --skip-vault --yes`。成功後重新執行 `npx supabase gen types typescript --linked --schema public` 更新 generated DB types，部署 `ai-tutor` 與 `ai-quota`，兩者都需 `verify_jwt=true`。`password-hint` 的既有設定維持不變。
+v0.5 的 `ai-responses` 以 `withSupabase({ auth: 'user' })` 驗證 session，先透過 RLS client 確認 attempt 屬於本人，再以僅授權 service role 的 RPC 讀取 `ai_requests`。完成回覆依 `(user_id, attempt_id, question_id, feature)` 隔離，按 `completed_at DESC, created_at DESC, id DESC` 選最新；有效 reservation 只投影為處理中，不回傳虛構內容。Browser 只收到題目、功能、經驗證的回覆與完成時間，不收到 token、provider ID 或 ledger metadata。Quiz 草稿和已提交 Result 載入時只呼叫讀取 API；從 History 重開也不再扣點。已存在回覆可手動重新產生；只有這個明確操作才產生新 UUID。網路逾時後首次重試保留原 requestId，讓 server 回放既有結果或回報仍在處理。
+
+`ai-usage` 同樣只用 JWT 身份查本人資料。Server RPC 提供最近 5 小時、24 小時及全期的 request/status/feature 計數與 token 合計；`NULL` token 欄位視為「provider 未回報」，加總時按 0 處理，另有 `usageReportedCount` 指出有 usage 欄位的筆數。學生畫面只顯示額度與各功能次數，不顯示 token 或美元成本。紀錄以 `(created_at DESC, id DESC)` 游標分頁，每頁 20 筆；題庫標題由 bundled revision 解析，舊 revision 不在 bundle 時退回 quiz id 和 question id。RPC 僅授權 service role，browser 無法直接 SELECT ledger；Edge 解析 attempt metadata 時使用 RLS client。
+
+保留政策：`completed` AI 回覆保留，以便日後恢復；`refunded`、`expired` 暫時保留供稽核，未來若要清理，只考慮超過 30 天的這兩種狀態。v0.5 沒有排程刪除。Ledger 不新增 raw prompt、完整學生答案或 canonical full prompt；AI 回覆只對本人可讀。短期畫面 state 之外沒有把 AI ledger 鏡像到 localStorage。
+
+套用新 migration 前先比對 linked migration list，執行 `npx supabase db push --linked --dry-run --skip-vault`，確認只有預期 migration 後才使用 `npx supabase db push --linked --skip-vault --yes`。Schema 變更後重新執行 `npx supabase gen types typescript --linked --schema public` 更新 generated DB types。`ai-tutor`、`ai-quota`、`ai-responses`、`ai-usage` 均使用 platform `verify_jwt=false` 與 handler `withSupabase({ auth: 'user' })`；部署時需 `--no-verify-jwt`。`password-hint` 的既有設定維持不變。
 
 `AuthProvider` 管理 session、loading、失敗狀態與帳號；頁面只呼叫 `AuthService`。Supabase SDK 持久化並自動更新 session；恢復時再呼叫 `getUser()` 驗證，讀取自己的 profile。失效 token 清除本機 session 並回到登入；短暫斷網且尚未到期的 session 可繼續使用帳號隔離的 cache。要求有 15 秒 timeout，失敗不會直接刪除作答。
 
@@ -185,7 +196,7 @@ npx supabase db advisors --linked --type security --fail-on error
 
 PowerShell 請用 `npx.cmd`；generated types 可透過 `| Out-File -Encoding utf8 src/types/database.types.ts` 保存。CLI credential／database password 只供 CLI 安全輸入，不能放進 Vite。`.temp` 連結資訊不進 Git。需要完整本機 Supabase 時，可使用已安裝 Docker 的環境執行 `npx supabase start`；本次使用 linked development project，沒有宣稱驗證 Docker stack。
 
-Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02_owner_binding.sql` 補帳號綁定；`20260925054652_v03_practice_history.sql` 移除全域 user+quiz 唯一約束，加入草稿部分唯一索引、歷史索引、新 RPC 與 RLS；`20260925060343_v03_answer_lock_visibility.sql` 讓提交後答案的鎖定 trigger 仍能看見 parent row。舊 attempts、answers、UUID 與 Auth users 原地保留。新增變更先 `npx supabase migration new <name>`；不要對 linked project 執行 reset、truncate、migration repair 或刪除 Auth users。`security.sql` 建立測試 fixture 後完整 rollback。
+Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02_owner_binding.sql` 補帳號綁定；`20260925054652_v03_practice_history.sql` 加入多次練習與歷史；`20260925060343_v03_answer_lock_visibility.sql` 補提交後鎖定可見性；`20260925074745_v04_ai_tutor_quota.sql` 加入 AI ledger 和 quota RPC；`20260925102541_v05_ai_experience.sql` 加入恢復／用量索引、RPC 和 server 時間；`20260925104314_v05_ai_usage_metadata_boundary.sql` 讓 attempt metadata 只由 Edge 的 user-scoped RLS client 解析。舊 attempts、answers、UUID 與 Auth users 原地保留。新增變更先 `npx supabase migration new <name>`；不要對 linked project 執行 reset、truncate、migration repair 或刪除 Auth users。`security.sql` 建立測試 fixture 後完整 rollback。
 
 ## Quiz Markdown DSL specification (v1)
 
@@ -391,7 +402,7 @@ npm run build -- --base=/learnforge/
 
 ## Future roadmap
 
-下一個 milestone 建議 **v0.5 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
+下一個 milestone 建議 **v0.6 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
 
 後續可分階段評估 regex／numeric tolerance、計算題參考評分、畫圖 multimodal 分析與更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、quiz editor、cloud image upload、leaderboard、social、PWA 或 SSR。
 
