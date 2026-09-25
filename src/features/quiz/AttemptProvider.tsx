@@ -10,6 +10,6 @@ export function AttemptProvider({ quiz, children }: { quiz: Quiz; children: Reac
   return <AttemptContext.Provider value={{ quiz, attempt, storageNotice: notice,
     answerQuestion: (questionId, answer) => dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() }),
     submit: () => dispatch({ type: 'submit', now: new Date().toISOString() }),
-    restart: () => dispatch({ type: 'restart', now: new Date().toISOString() }),
+    restart: async () => { dispatch({ type: 'restart', now: new Date().toISOString() }); return true },
   }}>{children}</AttemptContext.Provider>
 }

@@ -29,3 +29,9 @@ coverage/
 output/
 .playwright-cli/
 .playwright-mcp/
+
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example

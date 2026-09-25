@@ -24,8 +24,8 @@ export function QuizPage() {
     <div className="breadcrumb"><Link to="/">練習首頁</Link><span aria-hidden="true">/</span><span>正在練習</span></div>
     <header className="page-heading"><span className="subject-label">基礎練習</span><h1>{quiz.title}</h1><Markdown>{quiz.description}</Markdown></header>
     {confirmRestart && <div className="notice warning" role="alert"><strong>重新開始會清除目前的所有答案與繪圖。</strong>
-      <div className="inline-actions"><button type="button" className="button primary" onClick={() => {
-        restart(); setConfirmRestart(false); setConfirmIncomplete(false)
+      <div className="inline-actions"><button type="button" className="button primary" onClick={async () => {
+        if (await restart()) { setConfirmRestart(false); setConfirmIncomplete(false) }
       }}>確認重新開始</button><button type="button" onClick={() => setConfirmRestart(false)}>保留進度</button></div></div>}
     <div className="progress-strip"><label htmlFor="quiz-progress">作答進度 <strong>{answeredCount} / {quiz.questions.length}</strong></label>
       <progress id="quiz-progress" max={quiz.questions.length} value={answeredCount} /><span>{storageNotice ? '請留意上方儲存通知' : '在此裝置自動儲存'}</span></div>

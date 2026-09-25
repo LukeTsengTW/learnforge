@@ -3,11 +3,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import App from './App'
+import { AppRoutes } from './App'
+import { AuthContext } from './features/auth/auth-context'
+import { AttemptProvider } from './features/quiz/AttemptProvider'
+import { demoQuiz } from './features/quiz/quiz-loader'
 import { Markdown } from './components/Markdown'
 import { QuizErrorPage } from './components/ErrorPage'
 import { HashRouter } from 'react-router-dom'
 import { loadQuizSource } from './features/quiz/quiz-loader'
+
+// Preserve the v0.1 regression suite with its original local repository and an authenticated route context.
+function App() {
+  if (!demoQuiz.ok) throw new Error('Demo invalid')
+  return <AuthContext.Provider value={{ account: { id: 'test', username: 'student' }, loading: false, error: null, service: null, refresh: async () => {} }}>
+    <HashRouter><AttemptProvider quiz={demoQuiz.quiz}><AppRoutes /></AttemptProvider></HashRouter>
+  </AuthContext.Provider>
+}
 
 beforeEach(() => {
   localStorage.clear()
@@ -44,7 +55,7 @@ describe('practice flow', () => {
     await user.click(screen.getByRole('button', { name: '確認重新開始' }))
     expect(window.location.hash).toBe('#/quiz/demo')
     await waitFor(() => expect(localStorage.getItem('learnforge:attempt:v1:demo')).toBeNull())
-    expect(screen.getAllByRole('radio').every((element) => !(element as HTMLInputElement).checked)).toBe(true)
+    expect((await screen.findAllByRole('radio')).every((element) => !(element as HTMLInputElement).checked)).toBe(true)
   })
   it('restores drafts on remount, scores a completed quiz, and locks quiz routes after submission', async () => {
     const user = userEvent.setup()

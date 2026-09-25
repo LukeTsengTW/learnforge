@@ -30,7 +30,7 @@
   h2 { font-size: 22px; letter-spacing: -.02em; }
   h3 { font-size: 17px; }
   input[type='radio'], input[type='checkbox'] { width: 20px; height: 20px; accent-color: var(--teal); flex: 0 0 auto; margin: 0; cursor: pointer; }
-  input[type='text'], textarea { width: 100%; border: 1px solid #acbdca; border-radius: 7px; padding: 12px 14px; background: white; color: var(--ink); }
+  input[type='text'], input[type='password'], textarea { width: 100%; border: 1px solid #acbdca; border-radius: 7px; padding: 12px 14px; background: white; color: var(--ink); }
   textarea { resize: vertical; min-height: 150px; line-height: 1.8; }
   fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
   input::placeholder, textarea::placeholder { color: #718191; }
@@ -66,6 +66,19 @@
 }
 
 @layer components {
+  .auth-card { max-width: 500px; margin: 20px auto; padding: 32px; background: white; border: 1px solid var(--line); border-radius: 12px; }
+  .auth-card h1 { margin: 8px 0 16px; }
+  .auth-card form { margin-top: 24px; }
+  .auth-card label { display: block; margin: 18px 0 7px; font-weight: 600; font-size: 14px; }
+  .auth-card form > .button { width: 100%; margin-top: 24px; }
+  .auth-card .notice { margin: 20px 0 0; overflow-wrap: anywhere; }
+  .auth-links { margin-top: 24px; display: flex; flex-wrap: wrap; gap: 12px 24px; font-size: 14px; }
+  .auth-links a { display: inline-flex; align-items: center; min-height: 44px; }
+  .account-name { max-width: 180px; overflow-wrap: anywhere; font-weight: 600; }
+  .sync-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 24px; font-size: 12px; color: var(--muted); }
+  .sync-bar button { font-size: 12px; flex-shrink: 0; }
+  .legacy-import { margin-bottom: 24px; font-size: 13px; }
+  .legacy-import summary { cursor: pointer; min-height: 44px; }
   .button { display: inline-flex; align-items: center; justify-content: center; gap: 24px; padding: 11px 22px; border: 1px solid var(--line); border-radius: 7px; font-size: 15px; font-weight: 650; text-decoration: none; }
   .button.primary { background: var(--teal); color: white; border-color: var(--teal); }
   .button.primary:hover { background: var(--teal-dark); border-color: var(--teal-dark); }
@@ -243,10 +256,11 @@
     .sidebar-tip { display: none; }
   }
   @media (max-width: 600px) {
-    .header-inner { padding: 0 20px; height: 72px; gap: 10px; }
+    .header-inner { padding: 14px 20px; height: auto; min-height: 72px; gap: 10px; flex-wrap: wrap; }
     .brand { font-size: 21px; gap: 8px; }
     .brand svg { width: 30px; height: 30px; }
-    .header-inner nav { gap: 12px; font-size: 12px; }
+    .header-inner nav { gap: 12px; font-size: 12px; flex-wrap: wrap; }
+    .auth-card { padding: 22px 18px; margin: 0 auto; }
     .version-label { display: none; }
     .main-container { padding: 24px 20px 40px; }
     .site-footer { width: calc(100% - 40px); font-size: 11px; gap: 12px; }

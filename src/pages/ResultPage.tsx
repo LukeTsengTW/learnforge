@@ -21,7 +21,7 @@ export function ResultPage() {
     </section>
     <div className="results-heading"><h2>作答回顧</h2><button className="text-button" type="button" onClick={() => setConfirmRestart(true)}>重新開始測驗</button></div>
     {confirmRestart && <div className="notice warning" role="alert"><strong>重新開始會清除本次答案與測驗結果。</strong>
-      <div className="inline-actions"><button type="button" className="button primary" onClick={() => { restart(); navigate(`/quiz/${quiz.id}`) }}>確認重新開始</button>
+      <div className="inline-actions"><button type="button" className="button primary" onClick={async () => { if (await restart()) navigate(`/quiz/${quiz.id}`) }}>確認重新開始</button>
         <button type="button" className="button secondary" onClick={() => setConfirmRestart(false)}>保留結果</button></div></div>}
     <div className="result-stack">{quiz.questions.map((question, index) => <ResultQuestion key={question.id} question={question}
       answer={attempt.answers[question.id]} grade={result.questions[index]} index={index} />)}</div>

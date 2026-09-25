@@ -30,7 +30,7 @@ export function HomePage() {
       <div className="section-kicker"><span className="small-rule" /> 自主學習，從練習開始</div>
       <h1>把理解，<br />練成自己的。</h1>
       <p className="intro-copy">留一點時間給思考。從選擇、推導到畫圖，<br className="desktop-break" />一步步確認你學會了什麼。</p>
-      <div className="intro-note"><span aria-hidden="true">✓</span> 不需登入 <span className="note-divider" /> 進度保存在這台裝置</div>
+      <div className="intro-note"><span aria-hidden="true">✓</span> 帳號同步 <span className="note-divider" /> 練習進度隨你同行</div>
     </div><LogicIllustration /></section>
     <section className="practice-section" aria-labelledby="practice-heading">
       <div className="section-heading"><h2 id="practice-heading">開始你的練習</h2><span>一份測驗，六種思考方式</span></div>

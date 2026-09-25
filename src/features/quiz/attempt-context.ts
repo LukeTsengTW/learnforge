@@ -8,7 +8,11 @@ export interface AttemptContextValue {
   storageNotice: string | null
   answerQuestion: (questionId: string, answer: QuestionAnswer) => void
   submit: () => void
-  restart: () => void
+  restart: () => Promise<boolean>
+  loading?: boolean
+  syncing?: boolean
+  retry?: () => Promise<void>
+  importLegacy?: () => Promise<void>
 }
 export const AttemptContext = createContext<AttemptContextValue | null>(null)
 export function useAttempt(): AttemptContextValue {
