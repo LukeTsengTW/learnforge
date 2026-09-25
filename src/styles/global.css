@@ -203,6 +203,21 @@
   .ai-tutor-response h3 { font-size: 16px; margin-bottom: 10px; }
   .ai-tutor-response ul { margin: 12px 0 0; padding-left: 22px; }
   .ai-tutor-response li + li { margin-top: 6px; }
+  .ai-grading { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 20px; min-width: 0; overflow-wrap: anywhere; }
+  .ai-grading h3 { font-size: 17px; margin-bottom: 8px; }
+  .ai-grading-disclaimer { color: var(--muted); font-size: 13px; line-height: 1.6; }
+  .ai-grading > .button { margin-top: 12px; }
+  .ai-grading-result { margin-top: 18px; padding: 18px; border-radius: 8px; background: #f5faf8; min-width: 0; }
+  .ai-grading-score { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin: 0 0 14px; }
+  .ai-grading-score strong { font-size: 23px; }
+  .ai-grading-criteria { list-style: none; margin: 0; padding: 0; }
+  .ai-grading-criteria li { padding: 12px 0; border-top: 1px solid var(--line); min-width: 0; }
+  .ai-grading-criterion-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; }
+  .ai-grading-criterion-heading > span { white-space: nowrap; font-weight: 700; }
+  .ai-grading-feedback { margin-top: 16px; }
+  .ai-grading-feedback h4 { font-size: 14px; margin-bottom: 6px; }
+  .ai-grading-feedback ul { margin: 0; padding-left: 22px; }
+  .ai-grading-confidence { margin: 16px 0 0; font-size: 13px; }
   .ai-next-step { margin-top: 12px; }
   .ai-next-step .markdown { display: inline; }
   .ai-usage-summary { border: 1px solid #b9d9d5; border-radius: 10px; background: #f3faf9; padding: 20px 24px; margin-bottom: 30px; }

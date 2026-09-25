@@ -9,10 +9,10 @@ export interface AiUsageBackend {
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const FEATURES = new Set(['hint', 'explain_mistake', 'explain_solution'])
+const FEATURES = new Set(['hint', 'explain_mistake', 'explain_solution', 'calculation_grading'])
 const STATUSES = new Set(['reserved', 'completed', 'refunded', 'expired'])
 const FIELDS = ['requestCount', 'completedCount', 'refundedCount', 'expiredCount',
-  'hintCount', 'mistakeCount', 'solutionCount', 'inputTokens', 'cachedInputTokens',
+  'hintCount', 'mistakeCount', 'solutionCount', 'calculationGradingCount', 'inputTokens', 'cachedInputTokens',
   'outputTokens', 'reasoningTokens', 'usageReportedCount'] as const
 const HEADERS = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }
 

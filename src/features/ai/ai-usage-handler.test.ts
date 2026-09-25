@@ -3,7 +3,7 @@ import { createAiUsageHandler, type UsagePageRow } from '../../../supabase/funct
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 const window = { requestCount: 2, completedCount: 1, refundedCount: 1, expiredCount: 0,
-  hintCount: 1, mistakeCount: 0, solutionCount: 0, inputTokens: 10,
+  hintCount: 1, mistakeCount: 0, solutionCount: 0, calculationGradingCount: 0, inputTokens: 10,
   cachedInputTokens: 2, outputTokens: 5, reasoningTokens: 1, usageReportedCount: 1 }
 const summary = { last5Hours: window, last24Hours: window, allTime: window }
 const row = (n: number): UsagePageRow => ({ id: id(n), created_at: '2026-09-25T12:00:00Z',
@@ -45,5 +45,15 @@ describe('AI usage read endpoint', () => {
     const failed = await handler(new Request('https://example.test/ai-usage'))
     expect(failed.status).toBe(503)
     expect(JSON.stringify(await failed.json())).not.toContain('private database error')
+  })
+  it('includes calculation grading as a two-credit audit item without a score', async () => {
+    const backend = { summary: vi.fn().mockResolvedValue({ last5Hours: { ...window, calculationGradingCount: 1 },
+      last24Hours: { ...window, calculationGradingCount: 1 }, allTime: { ...window, calculationGradingCount: 1 } }),
+    page: vi.fn().mockResolvedValue([{ ...row(1), feature: 'calculation_grading', credits: 2,
+      response: { overallScore: 6 } }]) }
+    const body = await (await createAiUsageHandler(backend)(new Request('https://example.test/ai-usage'))).json()
+    expect(body.summary.last5Hours.calculationGradingCount).toBe(1)
+    expect(body.items[0]).toMatchObject({ feature: 'calculation_grading', credits: 2 })
+    expect(JSON.stringify(body.items)).not.toContain('overallScore')
   })
 })

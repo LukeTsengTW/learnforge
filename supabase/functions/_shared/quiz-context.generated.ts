@@ -293,7 +293,25 @@ export const AI_QUIZ_CONTEXT = [
         "description": "將兩個根代回原式，確認等式成立。"
       }
     ],
-    "referenceAnswer": "$x=3$ 或 $x=\\frac{1}{2}$。"
+    "referenceAnswer": "$x=3$ 或 $x=\\frac{1}{2}$。",
+    "points": 6,
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確因式分解為 $(2x-1)(x-3)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "寫出兩個根 $x=3$ 與 $x=\\frac{1}{2}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "將兩個根代回原式，確認等式成立。"
+      }
+    ]
   },
   {
     "quizId": "demo",

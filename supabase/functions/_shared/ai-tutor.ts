@@ -1,7 +1,10 @@
 import { AI_QUIZ_CONTEXT } from './quiz-context.generated.ts'
+import { AI_MODEL, TUTOR_REASONING_EFFORT } from './ai-config.ts'
+import { AiProviderError, callOpenAI, parseProviderEnvelope, type ProviderUsage } from './ai-provider.ts'
+export { AiProviderError as TutorProviderError } from './ai-provider.ts'
 
-export const AI_TUTOR_MODEL = 'gpt-6-luna'
-export const AI_TUTOR_REASONING_EFFORT = 'low'
+export const AI_TUTOR_MODEL = AI_MODEL
+export const AI_TUTOR_REASONING_EFFORT = TUTOR_REASONING_EFFORT
 export const AI_TUTOR_WINDOW_SECONDS = 18_000
 export const AI_TUTOR_LIMIT = 20
 export const AI_TUTOR_FEATURES = ['hint', 'explain_mistake', 'explain_solution'] as const
@@ -25,6 +28,8 @@ export interface TutorQuestionContext {
   correctAnswer?: string | boolean
   match?: 'exact' | 'case-insensitive'
   referenceAnswer?: string
+  points?: number
+  gradingRubric?: readonly { id: string; points: number; description: string }[]
 }
 
 const identity = (quizId: string, revision: string, questionId: string) => JSON.stringify([quizId, revision, questionId])
@@ -188,9 +193,7 @@ export function createOpenAIRequest(feature: TutorFeature, question: TutorQuesti
   }
 }
 
-export interface TutorUsage {
-  inputTokens: number; cachedInputTokens: number; outputTokens: number; reasoningTokens: number
-}
+export type TutorUsage = ProviderUsage
 export interface TutorProviderResult {
   kind: 'success' | 'refusal'
   response: TutorResponse | null
@@ -201,62 +204,20 @@ export interface TutorProvider {
   generate: (feature: TutorFeature, question: TutorQuestionContext,
     answer: Record<string, unknown> | null) => Promise<TutorProviderResult>
 }
-export class TutorProviderError extends Error {
-  readonly code: 'rate_limited' | 'provider_unavailable' | 'timeout' | 'malformed' | 'incomplete'
-  constructor(code: 'rate_limited' | 'provider_unavailable' | 'timeout' | 'malformed' | 'incomplete') {
-    super(code); this.code = code
-  }
-}
-
-const nonnegative = (value: unknown) => Number.isSafeInteger(value) && (value as number) >= 0 ? value as number : 0
 export function parseOpenAIResponse(value: unknown): TutorProviderResult {
-  if (!value || typeof value !== 'object') throw new TutorProviderError('malformed')
-  const body = value as Record<string, unknown>
-  if (body.status === 'incomplete') throw new TutorProviderError('incomplete')
-  if (body.status !== 'completed' || !Array.isArray(body.output)) throw new TutorProviderError('malformed')
-  const usage = body.usage && typeof body.usage === 'object' ? body.usage as Record<string, unknown> : {}
-  const inputDetails = usage.input_tokens_details && typeof usage.input_tokens_details === 'object'
-    ? usage.input_tokens_details as Record<string, unknown> : {}
-  const outputDetails = usage.output_tokens_details && typeof usage.output_tokens_details === 'object'
-    ? usage.output_tokens_details as Record<string, unknown> : {}
-  const metadata = { responseId: typeof body.id === 'string' ? body.id : null,
-    usage: { inputTokens: nonnegative(usage.input_tokens), cachedInputTokens: nonnegative(inputDetails.cached_tokens),
-      outputTokens: nonnegative(usage.output_tokens), reasoningTokens: nonnegative(outputDetails.reasoning_tokens) } }
-  const content = body.output.flatMap((item: unknown) => item && typeof item === 'object' && 'content' in item
-    && Array.isArray((item as { content: unknown }).content) ? (item as { content: unknown[] }).content : [])
-  if (content.some((item: unknown) => item && typeof item === 'object' && 'type' in item && item.type === 'refusal')) {
-    return { kind: 'refusal', response: null, ...metadata }
-  }
-  const texts = content.filter((item: unknown) => item && typeof item === 'object' && 'type' in item
-    && item.type === 'output_text' && 'text' in item && typeof item.text === 'string') as { text: string }[]
-  const raw = texts.map((item) => item.text).join('')
-  if (!raw || raw.length > 16384) throw new TutorProviderError('malformed')
+  const envelope = parseProviderEnvelope(value)
+  if (envelope.kind === 'refusal') return { kind: 'refusal', response: null,
+    responseId: envelope.responseId, usage: envelope.usage }
   let parsed: unknown
-  try { parsed = JSON.parse(raw) } catch { throw new TutorProviderError('malformed') }
+  try { parsed = JSON.parse(envelope.text!) } catch { throw new AiProviderError('malformed') }
   const response = parseTutorResponse(parsed)
-  if (!response) throw new TutorProviderError('malformed')
-  return { kind: 'success', response, ...metadata }
+  if (!response) throw new AiProviderError('malformed')
+  return { kind: 'success', response, responseId: envelope.responseId, usage: envelope.usage }
 }
 
 export function createOpenAITutorProvider(apiKey: string, fetcher: typeof fetch = fetch): TutorProvider {
   return { async generate(feature, question, answer) {
     const body = createOpenAIRequest(feature, question, answer)
-    let result: Response
-    try {
-      result = await fetcher('https://api.openai.com/v1/responses', {
-        method: 'POST', headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body), signal: AbortSignal.timeout(45_000),
-      })
-    } catch (error) {
-      throw new TutorProviderError(error instanceof DOMException && error.name === 'TimeoutError' ? 'timeout' : 'provider_unavailable')
-    }
-    if (!result.ok) throw new TutorProviderError(result.status === 429 ? 'rate_limited' : 'provider_unavailable')
-    let raw: unknown
-    try {
-      const text = await result.text()
-      if (text.length > 131_072) throw new Error('oversized')
-      raw = JSON.parse(text)
-    } catch { throw new TutorProviderError('malformed') }
-    return parseOpenAIResponse(raw)
+    return parseOpenAIResponse(await callOpenAI(body, apiKey, fetcher))
   } }
 }

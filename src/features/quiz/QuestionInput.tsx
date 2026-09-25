@@ -50,7 +50,7 @@ export function QuestionInput({ question, answer, onChange }: {
         <p className="field-note" id={`${id}-match`}>{question.match === 'exact' ? '精確比對，包含大小寫與空格。' : '不區分英文字母大小寫；請勿加上多餘空格。'}</p>
       </div>
     case QUESTION_TYPE.calculation:
-      return <div className="text-answer"><p className="manual-notice">{MANUAL_NOTICE}</p>
+      return <div className="text-answer"><p className="manual-notice">計算題不納入自動分數；提交後可依題目評分規準檢查作答。</p>
         <label htmlFor={id}>你的推導過程</label>
         <textarea id={id} rows={8} maxLength={100000} value={answer?.type === 'calculation' ? answer.text : ''}
           onChange={(event) => onChange({ type: 'calculation', text: event.target.value })}

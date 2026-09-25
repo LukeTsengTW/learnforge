@@ -12,13 +12,14 @@ const output = { title: '提示', message: '先整理條件。', keyPoints: [], 
 const empty: TutorRestore = { responses: [], pending: [] }
 const quota = (remaining: number): AiQuota => ({ limit: 20, used: 20 - remaining, remaining,
   windowSeconds: 18000, serverNow: '2026-09-25T12:00:00Z', nextCreditAt: null,
-  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2 } })
+  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } })
 function setup(overrides: Partial<TutorService> = {}) {
   const service: TutorService = {
     getQuota: vi.fn().mockResolvedValue(quota(2)),
     getResponses: vi.fn().mockResolvedValue(empty),
     getUsage: vi.fn(),
     request: vi.fn().mockResolvedValue(output),
+    requestGrading: vi.fn(),
     ...overrides,
   }
   const wrapper = ({ children }: { children: ReactNode }) => <TutorContext.Provider value={service}>{children}</TutorContext.Provider>
@@ -90,5 +91,49 @@ describe('AI Tutor persistence and request state', () => {
     await act(async () => { await result.current.restore() })
     expect(result.current.state('hint', 'q1').kind).toBe('completed')
     expect(service.request).not.toHaveBeenCalled()
+  })
+})
+
+describe('calculation grading request state', () => {
+  const grading = { kind: 'calculation_grading' as const, outcome: 'refusal' as const,
+    message: 'AI 無法提供此題的參考評分。' }
+  it('restores a completed grading on reload with zero credits and no provider call', async () => {
+    const getResponses = vi.fn().mockResolvedValue({ responses: [{ questionId: 'q6', feature: 'calculation_grading',
+      response: grading, completedAt: '2026-09-25T12:00:00Z' }], pending: [] })
+    const { service, wrapper } = setup({ getQuota: vi.fn().mockResolvedValue(quota(0)), getResponses })
+    const first = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(first.result.current.restoring).toBe(false))
+    expect(first.result.current.gradingState('q6').response).toEqual(grading)
+    first.unmount()
+    const reopened = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(reopened.result.current.restoring).toBe(false))
+    expect(reopened.result.current.gradingState('q6').response).toEqual(grading)
+    expect(service.requestGrading).not.toHaveBeenCalled()
+  })
+  it('retries an ambiguous result with the original request ID and regenerates with a new one', async () => {
+    const getQuota = vi.fn().mockResolvedValueOnce(quota(2)).mockResolvedValue(quota(0))
+    const requestGrading = vi.fn().mockRejectedValueOnce(new TutorServiceError('network')).mockResolvedValue(grading)
+    const { wrapper } = setup({ getQuota, requestGrading })
+    const { result } = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(result.current.restoring).toBe(false))
+    await waitFor(() => expect(result.current.quota?.remaining).toBe(2))
+    await act(async () => { await result.current.runGrading('q6') })
+    expect(result.current.gradingState('q6').kind).toBe('retryable')
+    await act(async () => { await result.current.runGrading('q6') })
+    expect(requestGrading.mock.calls[1][0].requestId).toBe(requestGrading.mock.calls[0][0].requestId)
+    expect(result.current.gradingState('q6').response).toEqual(grading)
+    await act(async () => { await result.current.runGrading('q6', true) })
+    expect(requestGrading).toHaveBeenCalledTimes(2) // zero quota blocks a new request
+  })
+  it('uses a new request ID on explicit regeneration when two credits remain', async () => {
+    const requestGrading = vi.fn().mockResolvedValue(grading)
+    const { wrapper } = setup({ requestGrading })
+    const { result } = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(result.current.restoring).toBe(false))
+    await waitFor(() => expect(result.current.quota).not.toBeNull())
+    await act(async () => { await result.current.runGrading('q6') })
+    await act(async () => { await result.current.runGrading('q6', true) })
+    expect(requestGrading).toHaveBeenCalledTimes(2)
+    expect(requestGrading.mock.calls[1][0].requestId).not.toBe(requestGrading.mock.calls[0][0].requestId)
   })
 })

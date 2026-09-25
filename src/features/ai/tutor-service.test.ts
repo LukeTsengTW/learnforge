@@ -31,4 +31,13 @@ describe('Tutor client error handling', () => {
     await expect(service.request(input)).rejects.toBeInstanceOf(TutorServiceError)
     await expect(service.request(input)).rejects.toMatchObject({ code: 'network', definitive: false })
   })
+  it('routes grading to its dedicated endpoint with the four-field request', async () => {
+    const grading = { kind: 'calculation_grading', outcome: 'refusal', message: 'AI 無法提供此題的參考評分。' }
+    const invoke = vi.fn().mockResolvedValue({ data: { response: grading }, error: null })
+    const service = new SupabaseTutorService({ functions: { invoke } } as unknown as AppSupabase)
+    const request = { requestId: crypto.randomUUID(), feature: 'calculation_grading' as const,
+      attemptId: crypto.randomUUID(), questionId: 'q6' }
+    expect(await service.requestGrading(request)).toEqual(grading)
+    expect(invoke).toHaveBeenCalledWith('ai-grade', expect.objectContaining({ body: request }))
+  })
 })

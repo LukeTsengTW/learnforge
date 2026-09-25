@@ -338,5 +338,76 @@ begin
 end $$;
 reset role;
 
+-- v0.6: only the server can create a medium-effort, exactly two-credit grading row.
+set local role service_role;
+do $$ declare
+  a uuid := current_setting('test.user_a')::uuid; b uuid := current_setting('test.user_b')::uuid;
+  attempt_id uuid := gen_random_uuid(); v_request_id uuid := gen_random_uuid(); v_other_id uuid := gen_random_uuid();
+  result jsonb; quota jsonb; response jsonb := '{"kind":"calculation_grading","outcome":"refusal","message":"AI 無法提供此題的參考評分。"}'::jsonb;
+begin
+  -- All previous fixtures remain in the transaction for audit, but are outside this quota window.
+  update public.ai_requests set created_at = now() - interval '6 hours' where user_id = a;
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 20 or (quota->'featureCosts'->>'calculation_grading')::integer <> 2
+    or (quota->'featureCosts'->>'hint')::integer <> 1
+    or (quota->'featureCosts'->>'explain_solution')::integer <> 2 then
+    raise exception 'FAIL v0.6 quota feature costs'; end if;
+
+  begin
+    insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+      values(a,gen_random_uuid(),attempt_id,'q6','calculation_grading',1,'gpt-6-luna','medium','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL wrong grading cost accepted';
+  exception when check_violation then null; end;
+  begin
+    insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+      values(a,gen_random_uuid(),attempt_id,'q6','calculation_grading',2,'gpt-6-luna','low','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL wrong grading effort accepted';
+  exception when check_violation then null; end;
+  begin
+    perform public.reserve_ai_request(a,gen_random_uuid(),attempt_id,'q6','calculation_grading','gpt-6-luna','low');
+    raise exception 'FAIL wrong RPC effort accepted';
+  exception when invalid_parameter_value then null; end;
+
+  for i in 1..18 loop
+    result := public.reserve_ai_request(a,gen_random_uuid(),attempt_id,'q1','hint','gpt-6-luna','low');
+    if result->>'state' <> 'created' then raise exception 'FAIL v0.6 hint cost'; end if;
+  end loop;
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 2 then raise exception 'FAIL two-credit boundary'; end if;
+  result := public.reserve_ai_request(a,v_request_id,attempt_id,'q6','calculation_grading','gpt-6-luna','medium');
+  if result->>'state' <> 'created' or (result->>'credits')::integer <> 2
+    or (result->>'remaining')::integer <> 0 then raise exception 'FAIL grading reservation'; end if;
+  if not public.complete_ai_request(a,v_request_id,response,'resp_fixture',10,2,20,3) then
+    raise exception 'FAIL grading completion'; end if;
+  result := public.reserve_ai_request(a,v_request_id,attempt_id,'q6','calculation_grading','gpt-6-luna','medium');
+  if result->>'state' <> 'completed' or result->'response' is distinct from response
+    or (select count(*) from public.ai_requests r where r.user_id=a and r.request_id=v_request_id) <> 1 then
+    raise exception 'FAIL grading replay'; end if;
+  if (public.find_ai_request(b,v_request_id,attempt_id,'q6','calculation_grading','gpt-6-luna','medium')->>'state') <> 'missing'
+    or exists(select 1 from public.get_ai_responses_for_attempt(b,attempt_id) where feature='calculation_grading') then
+    raise exception 'FAIL grading user isolation'; end if;
+  if (public.get_ai_usage_summary(a)->'last5Hours'->>'calculationGradingCount')::integer <> 1 then
+    raise exception 'FAIL grading usage count'; end if;
+  if (select count(*) from public.get_ai_responses_for_attempt(a,attempt_id)
+    where feature='calculation_grading' and not pending) <> 1 then raise exception 'FAIL grading restore'; end if;
+
+  -- Moving one prior hint outside the rolling window leaves one credit: deny.
+  update public.ai_requests set created_at = now() - interval '6 hours'
+    where id = (select id from public.ai_requests where user_id=a and feature='hint'
+      and created_at > now()-interval '5 hours' order by created_at,id limit 1);
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 1 then raise exception 'FAIL one-credit boundary'; end if;
+  result := public.reserve_ai_request(a,v_other_id,attempt_id,'q6','calculation_grading','gpt-6-luna','medium');
+  if result->>'state' <> 'denied' then raise exception 'FAIL grading at one credit'; end if;
+
+  -- Refund returns two credits, and a fresh request ID can reserve again.
+  update public.ai_requests set created_at = now() - interval '6 hours' where user_id=a and feature='hint';
+  v_other_id := gen_random_uuid();
+  result := public.reserve_ai_request(a,v_other_id,attempt_id,'q6','calculation_grading','gpt-6-luna','medium');
+  if result->>'state' <> 'created' then raise exception 'FAIL grading regeneration'; end if;
+  if not public.refund_ai_request(a,v_other_id,'fixture_failure') then raise exception 'FAIL grading refund'; end if;
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 18 then raise exception 'FAIL grading refund restores two'; end if;
+end $$;
+reset role;
+
 rollback;
-select 'PASS: practice security, private atomic AI quota, v0.5 restore and usage projections' as verification;
+select 'PASS: practice security, private AI quota, v0.5 restore and v0.6 grading' as verification;

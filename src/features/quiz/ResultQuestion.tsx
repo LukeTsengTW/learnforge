@@ -7,6 +7,7 @@ import { MANUAL_NOTICE } from './QuestionInput'
 import { AiTutorControls } from '../ai/AiTutorControls'
 import type { AiTutorState } from '../ai/use-ai-tutor'
 import type { TutorFeature } from '../ai/tutor-service'
+import { AiGradingControls } from '../ai/AiGradingControls'
 
 const STATUS_LABEL = {
   [GRADE_STATUS.correct]: '✓ 正確', [GRADE_STATUS.incorrect]: '✕ 錯誤',
@@ -56,7 +57,8 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
         {!manual && <span>{grade.score} / {grade.maxScore} 分</span>}</div>
     </div>
     <div className="question-prompt"><Markdown>{question.prompt}</Markdown></div>
-    {manual && <p className="manual-notice">{MANUAL_NOTICE}</p>}
+    {manual && <p className="manual-notice">{question.type === 'calculation'
+      ? '計算題不納入自動評分。以下 AI 參考評分如有提供，亦不會改變自動分數。' : MANUAL_NOTICE}</p>}
     <div className={`answer-comparison${question.type === 'drawing' ? ' drawing-comparison' : ''}`}>
       <div className="student-answer"><h3>你的答案</h3><StudentAnswer question={question} answer={answer} /></div>
       <div className="reference-answer"><h3>{manual ? '參考答案' : '正確答案'}</h3><CorrectAnswer question={question} /></div>
@@ -66,6 +68,7 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
       {question.rubric.map((criterion, index) => <li key={index}><Markdown>{criterion.description}</Markdown>
         {criterion.score !== null && <span>{criterion.score} 分</span>}</li>)}
     </ul></div>}
+    {aiTutor && question.type === 'calculation' && <AiGradingControls tutor={aiTutor} question={question} answer={answer} />}
     {aiTutor && aiFeatures.length > 0 && <AiTutorControls tutor={aiTutor} questionId={question.id} features={aiFeatures} />}
   </section>
 }

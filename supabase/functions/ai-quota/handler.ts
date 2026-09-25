@@ -16,10 +16,11 @@ export function createQuotaHandler(backend: AiQuotaBackend) {
         || (status.nextCreditAt !== null && typeof status.nextCreditAt !== 'string')
         || !costs || typeof costs !== 'object' || Array.isArray(costs)) throw new Error('Invalid quota')
       const featureCosts = costs as Record<string, unknown>
-      if (featureCosts.hint !== 1 || featureCosts.explain_mistake !== 1 || featureCosts.explain_solution !== 2) throw new Error('Invalid quota')
+      if (featureCosts.hint !== 1 || featureCosts.explain_mistake !== 1 || featureCosts.explain_solution !== 2
+        || featureCosts.calculation_grading !== 2) throw new Error('Invalid quota')
       return Response.json({ limit: status.limit, used: status.used, remaining: status.remaining,
         windowSeconds: status.windowSeconds, serverNow: status.serverNow, nextCreditAt: status.nextCreditAt,
-        featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2 } }, { headers })
+        featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } }, { headers })
     } catch {
       return Response.json({ code: 'service_unavailable', error: '目前無法取得 AI 額度，請稍後再試。' }, { status: 503, headers })
     }
