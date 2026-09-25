@@ -40,12 +40,12 @@ function CorrectAnswer({ question }: { question: Question }) {
   }
 }
 
-export function ResultQuestion({ question, answer, grade, index }: {
-  question: Question; answer: QuestionAnswer | undefined; grade: QuestionGrade; index: number
+export function ResultQuestion({ question, answer, grade, index, idPrefix = '' }: {
+  question: Question; answer: QuestionAnswer | undefined; grade: QuestionGrade; index: number; idPrefix?: string
 }) {
   const manual = grade.status === GRADE_STATUS.manual
-  return <section className="question-card result-question" aria-labelledby={`result-heading-${question.id}`}>
-    <div className="question-meta"><h2 id={`result-heading-${question.id}`}><span className="question-number">{String(index + 1).padStart(2, '0')}</span>{QUESTION_LABEL[question.type]}</h2>
+  return <section className="question-card result-question" aria-labelledby={`result-heading-${idPrefix}${question.id}`}>
+    <div className="question-meta"><h2 id={`result-heading-${idPrefix}${question.id}`}><span className="question-number">{String(index + 1).padStart(2, '0')}</span>{QUESTION_LABEL[question.type]}</h2>
       <div className="question-meta-right"><span className={`status-badge status-${grade.status}`}>{STATUS_LABEL[grade.status]}</span>
         {!manual && <span>{grade.score} / {grade.maxScore} 分</span>}</div>
     </div>

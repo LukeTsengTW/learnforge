@@ -22,6 +22,15 @@ const RESERVED_IDS = ['__proto__', 'constructor', 'prototype']
 const validId = (id: string | undefined): id is string =>
   Boolean(id && ID_PATTERN.test(id) && !RESERVED_IDS.includes(id))
 
+function parseTags(raw: string | undefined): string[] {
+  if (!raw) return []
+  const tags = raw.split(',').map((tag) => tag.trim().toLowerCase())
+  if (tags.some((tag) => !tag || !/^[\p{L}\p{N}][\p{L}\p{N}_-]*$/u.test(tag))) {
+    throw new Error('tags 必須是以逗號分隔的非空標籤。')
+  }
+  return [...new Set(tags)]
+}
+
 function fail(message: string, block: Block, line = block.line): never {
   throw new QuizParseError(message, line, block.attributes.id || null)
 }
@@ -113,7 +122,9 @@ function toQuestion(block: Block): Question {
     fail('points 必須是大於 0 的有限數字。', block)
   }
   const points = Number(rawPoints)
-  const common = { id, points, prompt: sectionText(block, 'prompt', true),
+  let tags: string[]
+  try { tags = parseTags(block.attributes.tags) } catch { return fail('tags 格式無效。', block) }
+  const common = { id, tags, points, prompt: sectionText(block, 'prompt', true),
     hint: sectionText(block, 'hint') || null, solution: sectionText(block, 'solution', true),
     rubric: parseRubric(block, points) }
   const allowed = new Set(['prompt', 'solution', 'hint', 'rubric'])
@@ -157,7 +168,7 @@ function sourceRevision(source: string): string {
 }
 
 /** Pure line-aware parser. Directives inside fenced code are ordinary Markdown. */
-export function parseQuiz(raw: string): Quiz {
+export function parseQuiz(raw: string, requireCatalogMetadata = false): Quiz {
   const source = raw.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n')
   const lines = source.split('\n')
   const header: SourceLine[] = []
@@ -177,7 +188,7 @@ export function parseQuiz(raw: string): Quiz {
     if (!insideFence && !marker && text.startsWith(':::')) {
       if (/^:::question(?:\s|$)/.test(text)) {
         if (block) fail('上一題缺少 :::end。', block, line)
-        block = { line, attributes: parseAttributes(text.slice(':::question'.length), line, ['id', 'type', 'points', 'match']), sections: new Map([['prompt', []]]) }
+        block = { line, attributes: parseAttributes(text.slice(':::question'.length), line, ['id', 'type', 'points', 'match', 'tags']), sections: new Map([['prompt', []]]) }
         section = 'prompt'
       } else if (text === ':::end') {
         if (!block) throw new QuizParseError(':::end 前沒有 question。', line)
@@ -205,12 +216,25 @@ export function parseQuiz(raw: string): Quiz {
   const nonempty = header.filter((item) => item.text.trim())
   const meta = nonempty[0]
   if (!meta || !meta.text.startsWith('@quiz ')) throw new QuizParseError('第一個非空白行必須是 @quiz id="quiz-id"。', meta?.line ?? 1)
-  const { id } = parseAttributes(meta.text.slice(6), meta.line, ['id'])
+  const { id, revision, subject, tags: rawTags, estimatedMinutes: rawMinutes, current } = parseAttributes(meta.text.slice(6), meta.line,
+    ['id', 'revision', 'subject', 'tags', 'estimatedMinutes', 'current'])
   if (!validId(id)) throw new QuizParseError('缺少或無效的 quiz id。', meta.line)
+  if (requireCatalogMetadata && (!revision || !subject || !rawTags || !rawMinutes || !current)) {
+    throw new QuizParseError('缺少必要題庫 metadata：revision、subject、tags、estimatedMinutes 或 current。', meta.line)
+  }
+  if (revision !== undefined && !validId(revision)) throw new QuizParseError('revision 無效。', meta.line)
+  if (subject !== undefined && !subject.trim()) throw new QuizParseError('subject 不可空白。', meta.line)
+  if (rawMinutes !== undefined && (!/^[1-9]\d*$/.test(rawMinutes) || !Number.isSafeInteger(Number(rawMinutes)))) {
+    throw new QuizParseError('estimatedMinutes 必須是正整數。', meta.line)
+  }
+  if (current !== undefined && current !== 'true' && current !== 'false') throw new QuizParseError('current 必須是 true 或 false。', meta.line)
+  let tags: string[]
+  try { tags = parseTags(rawTags) } catch { throw new QuizParseError('tags 格式無效。', meta.line) }
   const title = nonempty[1]
   if (!title || !/^#\s+\S/.test(title.text)) throw new QuizParseError('quiz metadata 之後必須有 # 測驗標題。', title?.line ?? meta.line + 1)
   if (!questions.length) throw new QuizParseError('測驗至少需要一題。', lines.length)
   return { id, title: title.text.replace(/^#\s+/, '').trim(),
     description: header.filter((item) => item.line > title.line).map((item) => item.text).join('\n').trim(),
-    revision: sourceRevision(source), questions }
+    subject: subject?.trim() ?? '一般', tags, estimatedMinutes: rawMinutes ? Number(rawMinutes) : 1,
+    current: current === undefined || current === 'true', revision: revision ?? sourceRevision(source), questions }
 }

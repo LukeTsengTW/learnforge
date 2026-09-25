@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
-import { useAttempt } from '../features/quiz/attempt-context'
-import { hasAnswer } from '../lib/grading'
-import { isObjectiveQuestion } from '../models/quiz'
+import { quizCatalog } from '../features/quiz/quiz-loader'
+import { useDrafts } from '../features/quiz/use-drafts'
 
 function LogicIllustration() {
   return <div className="logic-illustration" aria-hidden="true">
@@ -21,29 +20,30 @@ function LogicIllustration() {
 }
 
 export function HomePage() {
-  const { quiz, attempt } = useAttempt()
-  const answered = Object.values(attempt.answers).filter(hasAnswer).length
-  const objective = quiz.questions.filter(isObjectiveQuestion)
-  const submitted = attempt.status === 'submitted'
+  const drafts = useDrafts()
+  const firstDraft = drafts.find((draft) => quizCatalog.getQuizRevision(draft.quizId, draft.revision))
+  const featured = quizCatalog.current[0]
   return <div className="home-page">
     <section className="home-intro"><div>
       <div className="section-kicker"><span className="small-rule" /> 自主學習，從練習開始</div>
       <h1>把理解，<br />練成自己的。</h1>
       <p className="intro-copy">留一點時間給思考。從選擇、推導到畫圖，<br className="desktop-break" />一步步確認你學會了什麼。</p>
-      <div className="intro-note"><span aria-hidden="true">✓</span> 帳號同步 <span className="note-divider" /> 練習進度隨你同行</div>
+      <div className="intro-note"><span aria-hidden="true">✓</span> 帳號同步 <span className="note-divider" /> 每一次提交都留在練習紀錄</div>
     </div><LogicIllustration /></section>
     <section className="practice-section" aria-labelledby="practice-heading">
-      <div className="section-heading"><h2 id="practice-heading">開始你的練習</h2><span>一份測驗，六種思考方式</span></div>
+      <div className="section-heading"><h2 id="practice-heading">選擇你的練習</h2><span>{quizCatalog.current.length} 份題庫，依自己的步調探索</span></div>
       <article className="demo-card">
-        <div className="demo-art" aria-hidden="true"><span>01</span><span className="demo-equation">x² − 5x + 6</span><span className="demo-subject">邏輯 × 數學</span></div>
-        <div className="demo-content"><span className="subject-label">基礎練習</span><h3>{quiz.title}</h3>
-          <p>辨認邏輯閘、練習 Boolean 運算，再用方程式與手繪整理你的思路。</p>
-          <div className="quiz-facts"><span>{quiz.questions.length} 道題目</span><span>{objective.length} 題自動評分</span><span>{quiz.questions.length - objective.length} 題自行對照</span></div>
-          <div className="card-bottom"><span className="progress-note">{submitted ? '已完成測驗，可以查看解答' : answered ? `已完成 ${answered} / ${quiz.questions.length} 題，繼續上次的練習` : '依自己的步調，不限作答時間'}</span>
-            <Link className="button primary" to={submitted ? `/result/${quiz.id}` : `/quiz/${quiz.id}`}>{submitted ? '查看測驗結果' : answered ? '繼續練習' : '開始練習'}<span aria-hidden="true">↗</span></Link>
+        <div className="demo-art" aria-hidden="true"><span>01</span><span className="demo-equation">x² − 5x + 6</span><span className="demo-subject">探索 × 練習</span></div>
+        <div className="demo-content"><span className="subject-label">題庫精選</span><h3>{featured?.quiz.title ?? 'LearnForge 題庫'}</h3>
+          <p>{featured?.quiz.description ?? '從題庫選擇一份練習。'}</p>
+          <div className="quiz-facts"><span>{featured?.questionCount ?? 0} 道題目</span><span>{featured?.maxPoints ?? 0} 分自動評分</span><span>可反覆練習</span></div>
+          <div className="card-bottom"><span className="progress-note">草稿可繼續，提交後可在歷史紀錄回顧。</span>
+            <Link className="button primary" to="/library">瀏覽題庫<span aria-hidden="true">↗</span></Link>
           </div>
         </div>
       </article>
+      <div className="home-actions">{firstDraft && <Link className="button secondary" to={`/quiz/${firstDraft.quizId}`}>繼續練習：{quizCatalog.getQuizRevision(firstDraft.quizId, firstDraft.revision)?.title}</Link>}
+        <Link className="button secondary" to="/history">練習紀錄</Link></div>
     </section>
     <section className="home-guidance" aria-label="練習方式">
       <div><span className="guidance-icon" aria-hidden="true">?</span><div><h3>先想一想，再看提示</h3><p>卡住時打開提示，留給自己一次嘗試的機會。</p></div></div>

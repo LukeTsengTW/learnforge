@@ -1,19 +1,21 @@
 # LearnForge
 
-**Current status: v0.2 — Supabase Foundation**。
+**Current status: v0.3 — Quiz Library & Practice History**。
 
-LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 新增 Username + Password 帳號、Supabase 雲端作答與帳號隔離的本機 cache；原本 parser、grading、drawing engine 與 DSL 保留。沒有 AI 功能。
+LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧。原本 parser、grading、drawing engine 與 Auth 架構保留。沒有 AI 功能。
 
 ## 功能
 
-- 「數位邏輯與基礎數學」範例共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖。
+- 公開題庫目前有三份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題。題庫卡片顯示科目、標籤、題數、自動評分總分與預估時間。
+- 原範例共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖。
 - 5 題客觀題自動評分，最高 **10 分**；計算題 6 分、畫圖題 4 分僅供自行對照，排除於自動分數與最高分。
 - Markdown、inline／block LaTeX、提示切換、完整解答與 rubric。
 - Canvas 畫筆、橡皮擦、黑／紅／藍、筆寬、復原／重做、確認清除、PNG 匯出。
-- 草稿與結果儲存至 Supabase，並即時保存在此裝置；提交後在 UI 與資料庫鎖定，連線後可重新開始。
+- 每個帳號及題庫最多一份未完成草稿；可提交多次，每次有獨立 UUID。提交後在 UI 與資料庫鎖定；再次練習建立新草稿，已提交紀錄不刪除。
+- `#/history` 以每頁 20 筆載入提交紀錄；`#/mistakes` 從歷次答案及當時的題目版本重新評分，列出答錯的客觀題。
 - 註冊／登入／登出、session 恢復、自己的 profile、限流的密碼提示查詢。
 - 未完成客觀題時先警告，再由使用者決定是否提交。
-- HashRouter：公開 `#/`、`#/login`、`#/register`、`#/forgot-password`；`#/quiz/*`、`#/result/*` 需要登入。
+- HashRouter：公開 `#/`、`#/library` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
 
 ## Tech stack
@@ -74,19 +76,20 @@ src/
     attempt-storage.ts      # versioned localStorage boundary / validation
     drawing.ts              # coordinates、history、replay、PNG utilities
     supabase.ts             # typed client、公開環境設定、要求 timeout
-  content/demo.quiz.md       # 完整範例題庫
+  content/quizzes/           # 每份 Quiz Markdown 的版本目錄；舊 demo id/revision 保留
   components/               # Markdown、Layout、Brand、error UI
   features/auth/            # Auth service / Provider、pure validation、route guard
-  features/quiz/            # domain ↔ DB mapping、repositories、sync store、quiz UI
+  features/quiz/            # catalog、domain ↔ DB mapping、repositories、sync store、quiz UI
   types/database.types.ts   # 從 linked project schema 產生，非手寫 row interfaces
-  pages/                    # Home / Quiz / Result / Auth
+  pages/                    # Home / Library / Quiz / Result / History / Mistakes / Auth
   styles/global.css         # base / layout / components / responsive layers
   App.tsx                   # HashRouter 與頁面組裝
   *.test.tsx, lib/*.test.ts # Vitest / Testing Library
 .github/workflows/deploy.yml
 docs/implementation-plan.md
 docs/v0.1-delivery.md        # 歷史交付紀錄
-docs/v0.2-delivery.md        # 本次實際驗證與限制
+docs/v0.2-delivery.md        # v0.2 歷史交付紀錄
+docs/v0.3-delivery.md        # v0.3 實際驗證與限制
 supabase/
   config.toml
   migrations/               # 所有 schema / grants / RLS / RPC / triggers
@@ -98,7 +101,7 @@ supabase/
 資料流：
 
 ```text
-demo.quiz.md -> parseQuiz() -> Quiz discriminated union
+quizzes/**/*.quiz.md -> parseQuiz() -> version-aware catalog / Quiz discriminated union
                                     |
                              React question renderer
                                     |
@@ -121,7 +124,7 @@ React component 不解析 raw DSL、不計算正確性。Parser 與 grading 不�
 
 **專案需啟用 Email provider／signup，關閉 Confirm email**，否則 synthetic email 無法收確認信，也無法立即建立 session。linked demo 已確認 `mailer_autoconfirm=true`。本機 config 的 minimum password length 是 8；另請在遠端 Auth password policy 設至少 8（前端已強制 8）。沒有 email reset、帳號改名或密碼重設功能。
 
-公開首頁；保護 `#/quiz/*` 與 `#/result/*`，未登入會導向 `#/login` 並保存原目的地。只允許 app 內 quiz/result 路徑作 redirect，避免外站跳轉或登入迴圈。header 顯示 normalized username／登出；logout 清除本機 session，保留該帳號的作答 cache，其他帳號不會自動套用。
+公開首頁與 `#/library`；保護 Quiz、Result、History、Mistakes，未登入會導向 `#/login` 並保存原目的地。只允許 app 內受保護路徑作 redirect，避免外站跳轉或登入迴圈。header 顯示 normalized username／登出；logout 清除本機 session，保留該帳號的作答 cache，其他帳號不會自動套用。
 
 ### Schema / RLS / grants
 
@@ -129,11 +132,11 @@ React component 不解析 raw DSL、不計算正確性。Parser 與 grading 不�
 |---|---|---|
 | `profiles` | PK `id` → `auth.users` cascade；唯一且格式受限的 username；timestamps | authenticated 只 SELECT 自己；無 client 寫入 |
 | `password_hints` | PK `user_id` → `auth.users` cascade；trim 後 1–200 字元；timestamps | anon／authenticated 全部撤權；無一般讀取 policy |
-| `attempts` | UUID、user、quiz／revision、draft/submitted、時間、分數 cache；唯一 `(user_id,quiz_id)`；updated_at index | authenticated 自己的 SELECT/INSERT/UPDATE/DELETE；USING + WITH CHECK；提交後 update trigger 拒絕變更 |
+| `attempts` | UUID、user、quiz／revision、draft/submitted、時間、分數 cache；只有 draft 有 `(user_id,quiz_id)` 部分唯一索引；提交紀錄有排序索引 | authenticated 可讀自己的紀錄、建立／修改／刪除自己的 draft；已提交紀錄不得修改或刪除 |
 | `answers` | UUID、JSONB answer／可選 grade；唯一 `(attempt_id,question_id)`；複合 FK `(attempt_id,user_id)`；user index | 自己 + parent attempt 也是自己；提交後不得直接改／刪答案；restart 刪 parent 才 cascade |
 | `private.hint_rate_limits` | durable fixed-window counters | 非 API schema；RLS；僅 service_role server 存取 |
 
-所有表啟用 RLS；user-owned policy 明確檢查 `(select auth.uid()) IS NOT NULL`。anon 沒有 application table 權限。`save_quiz_attempt` 是 authenticated-only **security invoker** RPC，RLS 一樣生效，以 transaction 更新 header + 全部 answers；caller ownerId、expected UUID 與 server updated_at 必須符合。提交鎖定 trigger 與 answer parent row lock 防止並行變更穿過提交界線。分數只是 client cache，載入後一律以 canonical quiz 重新 deterministic grading，不能當正式可信成績。
+所有表啟用 RLS；user-owned policy 明確檢查 `(select auth.uid()) IS NOT NULL`。anon 沒有 application table 權限。v0.3 的 `get_or_create_quiz_draft` 與 `save_quiz_attempt_v3` 僅授權 authenticated，皆為 **security invoker**；前者以 transaction advisory lock 和部分唯一索引保證同題庫只有一份草稿，後者依 attempt UUID、owner 與 server `updated_at` 做 CAS，原子更新 header 與 answers。舊 `save_quiz_attempt` 的 authenticated EXECUTE 已撤銷。提交鎖定 trigger 與 answer parent row lock 防止並行變更穿過提交界線。分數只是 client cache，載入後以對應題目版本重新 deterministic grading，不能當正式可信成績。
 
 ### 密碼提示 Edge Function
 
@@ -160,7 +163,7 @@ npx supabase db advisors --linked --type security --fail-on error
 
 PowerShell 請用 `npx.cmd`；generated types 可透過 `| Out-File -Encoding utf8 src/types/database.types.ts` 保存。CLI credential／database password 只供 CLI 安全輸入，不能放進 Vite。`.temp` 連結資訊不進 Git。需要完整本機 Supabase 時，可使用已安裝 Docker 的環境執行 `npx supabase start`；本次使用 linked development project，沒有宣稱驗證 Docker stack。
 
-Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02_owner_binding.sql` 補上背景寫入的帳號綁定。既有 history 不覆寫；新增變更先 `npx supabase migration new <name>`。不要對 linked project 執行 reset、truncate、migration repair 或刪除 Auth users。`security.sql` 建立測試 fixture 後完整 rollback；若 fixture 名稱已被占用會失敗，不會刪除既有帳號。
+Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02_owner_binding.sql` 補帳號綁定；`20260925054652_v03_practice_history.sql` 移除全域 user+quiz 唯一約束，加入草稿部分唯一索引、歷史索引、新 RPC 與 RLS；`20260925060343_v03_answer_lock_visibility.sql` 讓提交後答案的鎖定 trigger 仍能看見 parent row。舊 attempts、answers、UUID 與 Auth users 原地保留。新增變更先 `npx supabase migration new <name>`；不要對 linked project 執行 reset、truncate、migration repair 或刪除 Auth users。`security.sql` 建立測試 fixture 後完整 rollback。
 
 ## Quiz Markdown DSL specification (v1)
 
@@ -172,6 +175,17 @@ Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02
 
 這裡是測驗描述，可用 **Markdown** 與 $x^2$。
 ```
+
+v0.1/v0.2 的 `@quiz id="..."` 格式仍可由 parser 讀取；bundled catalog 在 v0.3 額外要求明確 metadata：
+
+```markdown
+@quiz id="demo" revision="v1-7d7c900e" subject="數位邏輯與基礎數學" tags="logic-gates,algebra" estimatedMinutes="20" current="true"
+# 數位邏輯與基礎數學
+
+從邏輯閘到方程式的練習。
+```
+
+`id` 是穩定題庫識別，`revision` 是內容版本；修改題目或正解時須建立新 revision 並保留舊檔。`subject`、描述與標題需非空，`estimatedMinutes` 是正整數。逗號分隔的 quiz/question `tags` 會 trim、正規化並去重；題目可寫 `:::question id="q1" type="single" points="2" tags="logic-gates,nand"`。每個 quiz id 只能有一個 `current="true"` revision；歷史結果以 id + revision 精確解析，舊版不重複出現在題庫清單。缺少歷史檔時只顯示紀錄與快取分數，不猜測題目或正解。
 
 ### 題目邊界與屬性
 
@@ -289,7 +303,7 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 
 ## 完整 example quiz
 
-直接閱讀 [src/content/demo.quiz.md](src/content/demo.quiz.md)。題庫以 `?raw` 匯入，再由 `quiz-loader.ts` 捕捉 `parseQuiz()` 的結果；修改題庫不需要修改 renderer。v0.2 仍只有 demo，尚未提供題庫清單或題庫匯入功能。
+直接閱讀 [原 demo 的 v1 題庫](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md) 與[離散數學：關係](src/content/quizzes/relations/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
 
 ## Grading 規則
 
@@ -311,17 +325,11 @@ Pointer Events + pointer capture 支援滑鼠、手指與觸控筆；`touch-acti
 
 ## Attempt repository 與 local/cloud synchronization
 
-Domain `QuizAttempt` 仍是 v0.1：schemaVersion 1、quiz id/revision、startedAt/updatedAt、typed answers、in-progress/submitted 與 result，沒有變成 database row。`AttemptRepository` 提供 async load/save/delete；`LocalAttemptRepository`、`SupabaseAttemptRepository` 封裝 storage／SDK。UI 透過 Context + `useSyncExternalStore`；parser、grader、drawing engine 不知道 Supabase 存在。
+Domain `QuizAttempt` 仍維持 schemaVersion 1、quiz id/revision、typed answers、時間、in-progress/submitted 與結果，未塞入資料庫欄位。v0.3 以獨立的 `PracticeRecord` 綁定 attempt UUID、remote version、exact quiz revision；`SupabasePracticeRepository` 集中封裝草稿、提交、刪草稿、精確結果與分頁歷史。UI 透過 Context + `useSyncExternalStore`；parser、grader、drawing engine 不知道 Supabase 存在。v0.2 的 `AttemptRepository`、`LocalAttemptRepository` 與 `SupabaseAttemptRepository` 保留供舊資料相容。
 
-帳號 cache key：`learnforge:attempt:v2:<user-id>:<quiz-id>`，envelope schemaVersion 2 包含 domain attempt 與 remote UUID／updated_at token。舊 `learnforge:attempt:v1:<quiz-id>` 與 v0.1 repository 保留；登入後提供明確「匯入我的舊版進度」，只有目前帳號尚無進度時可匯入，原 v1 key 保留。避免將共用裝置上未綁定的作答靜默歸給別人。
+目前 cache key 為 `learnforge:attempt:v3:<user-id>:<attempt-id>`；草稿索引為 `learnforge:draft-index:v3:<user-id>:<quiz-id>`。v2 的 `learnforge:attempt:v2:<user-id>:<quiz-id>` 只在 remote UUID 相符時複製進 v3，遷移可重複執行，原 key 不刪；損壞內容保留 recovery 備份。若同一 UUID 的本機版本已提交、遠端仍是草稿，會先顯示待同步狀態，成功提交至雲端才開啟結果。不同帳號或 attempt 不能互覆，已提交的 cache 不可改寫。v0.1 未綁帳號的 `learnforge:attempt:v1:<quiz-id>` 仍需使用者明確確認匯入，原資料保留。
 
-每次答案事件立即暫存；雲端約 800ms debounce、一次只跑一個 save，提交立即排程。Canvas 持久化完成的 stroke model，不針對 pointer move 發 request、不上傳 PNG。Supabase 是遠端權威來源：載入時驗證 schema／revision／答案／drawing，再重算結果；損壞 remote 不會被新草稿直接覆寫。
-
-同步規則（pure function + tests）：同一代 attempt，draft 比較 domain updatedAt，較新者勝、同時採 remote；submitted 勝 draft；兩者都是 submitted 時保留 remote immutable submission。遠端 UUID 不同或已刪除代表另一裝置重開，採用 remote 新一代／空狀態。新裝置的空草稿不會覆蓋已有 remote。較舊／衝突的有效本機作答在替換前另存 `...:recovery:<uuid>`；若較新的本機內容要取代其他裝置另行修改的雲端草稿，也會先備份該雲端版本。備份失敗會中止替換。這些備份目前可由 DevTools Application → Local Storage 匯出 JSON，沒有 recovery UI，亦不會自動刪除。
-
-寫入使用 server updated_at 做 optimistic concurrency check；衝突保留本機答案並顯示重試同步。斷網／DB failure 顯示「目前無法同步至雲端，作答內容已暫存於此裝置。」若 localStorage 也失敗，改為明確提醒不要關閉。online event 或「重試同步」可恢復；不會無限快速重試。refresh／重新登入可從 cloud 或 cache 恢復。重新開始需成功刪除正確 remote version，才清除 cache；離線重開失敗時保留原結果。
-
-不使用 Realtime；其他分頁的更新在下一次同步／refresh 時合併。client updatedAt 受裝置時鐘影響；server version check 防止靜默覆寫，但不是協同逐題合併。每個 user/quiz 只有一份目前 attempt，沒有歷史成績列表。
+答案事件立即寫入本機，約 800ms 後批次同步至雲端；提交以 attempt UUID 和 server `updated_at` 做 CAS。只比較同一 UUID 的草稿時間，提交紀錄不被新草稿覆寫；衝突內容存 recovery 備份並顯示通知。Canvas 仍只保存筆畫模型，不上傳 PNG。斷網時目前載入的草稿可暫存在本機；雲端建立新草稿與提交需要連線。重新開始只刪除目前 draft，已提交歷史保留。其他分頁更新在下次同步或重新整理時合併；沒有 Realtime，也沒有逐題協同合併。
 
 ## GitHub Pages notes
 
@@ -346,7 +354,8 @@ npm run build -- --base=/learnforge/
 
 ## Known limitations
 
-- 單一 demo／每帳號單次 attempt；重新開始會清除結果。recovery 備份僅在產生衝突的裝置上，沒有 cloud history。
+- 題庫仍是 Git 內的三份 bundled Markdown，沒有題庫編輯器、管理後台或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
+- 錯題頁依序分頁讀取提交作答並重新評分；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上，沒有可視化 recovery UI。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
 - 沒有 password reset／email delivery。遺失密碼且提示無法協助時無法自行恢復；只適合 demo 使用。
 - offline fallback 需頁面已載入，不是離線 PWA；過期 session 需連線重新登入。共用裝置應登出；未加密的本機 cache 可被有該瀏覽器存取權的人讀取。
@@ -356,11 +365,11 @@ npm run build -- --base=/learnforge/
 - Markdown 支援 CommonMark 與 math，未加入 GFM table／task-list plugin、raw HTML 或 MathJax fallback。
 - LaTeX 使用 KaTeX 支援的子集；長公式在區塊內水平捲動。
 - 答案隨靜態題庫打包，localStorage 可由使用者修改；本產品是自主練習，不能當防作弊考試或可信成績系統。
-- 缺少多題庫管理、歷史成績、quiz editor 或後台。既有 project advisor 的 warning 詳見交付報告。
+- 沒有單題重練、跨題庫分析或 mastery scoring。v0.2 的既有 warning 與歷史限制詳見當時的交付報告。
 
 ## Future roadmap
 
-下一個 milestone 建議 **v0.3 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再規劃學習紀錄。
+下一個 milestone 建議 **v0.4 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
 
 後續可分階段評估 regex／numeric tolerance、AI hints、計算題參考評分、畫圖 multimodal 分析與 usage quota。AI 不影響正式答案。這些尚未實作；本版也不含 admin dashboard、quiz editor、cloud image upload、leaderboard、social、PWA 或 SSR。
 

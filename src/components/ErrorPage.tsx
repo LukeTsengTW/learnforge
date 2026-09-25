@@ -10,6 +10,6 @@ export function QuizErrorPage({ detail }: { detail: string }) {
   </div></main>
 }
 export function NotFoundPage() {
-  return <div className="empty-state"><h1>找不到這個練習</h1><p>目前可練習「數位邏輯與基礎數學」。</p>
-    <Link className="button" to="/">回到練習首頁</Link></div>
+  return <div className="empty-state"><h1>找不到這個練習</h1><p>請到題庫選擇目前可用的練習。</p>
+    <Link className="button" to="/library">瀏覽題庫</Link></div>
 }

@@ -119,6 +119,26 @@
   .guidance-icon { flex-shrink: 0; width: 32px; height: 32px; display: grid; place-items: center; background: #e8f1f2; border-radius: 9px; color: var(--teal-dark); }
   .home-guidance h3 { font-size: 14px; margin-bottom: 7px; }
   .home-guidance p { font-size: 13px; color: var(--muted); }
+  .home-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+  .library-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .library-card { display: flex; flex-direction: column; min-width: 0; padding: 26px; border: 1px solid var(--line); border-radius: 12px; background: white; }
+  .library-card h2 { margin: 7px 0 10px; overflow-wrap: anywhere; }
+  .library-description { color: var(--muted); font-size: 14px; flex: 1; }
+  .library-card .quiz-facts { margin: 14px 0 20px; }
+  .library-card > .button { align-self: flex-start; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; padding: 0; margin: 16px 0 0; }
+  .tag-list li { max-width: 100%; overflow-wrap: anywhere; padding: 3px 9px; border-radius: 20px; background: #edf5f5; color: var(--teal-dark); font-size: 12px; }
+  .history-list, .mistake-list { display: flex; flex-direction: column; gap: 16px; }
+  .history-card { display: grid; grid-template-columns: minmax(0, 1fr) minmax(170px, auto) auto; align-items: center; gap: 22px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+  .history-card h2, .mistake-meta h2 { margin: 4px 0; overflow-wrap: anywhere; }
+  .history-card p, .mistake-meta p { color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .history-score { display: flex; flex-direction: column; gap: 3px; color: var(--muted); font-size: 12px; }
+  .history-score strong { color: var(--teal-dark); font-size: 19px; white-space: nowrap; }
+  .mistake-entry { min-width: 0; }
+  .mistake-entry .result-question { margin-top: 12px; }
+  .mistake-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .mistake-meta .inline-actions { font-size: 13px; }
+  .load-more { display: flex; margin: 26px auto 0; }
   .breadcrumb { display: flex; align-items: center; gap: 14px; font-size: 13px; margin-bottom: 28px; color: var(--muted); }
   .breadcrumb a { text-decoration: none; }
   .page-heading { margin-bottom: 28px; max-width: 790px; }
@@ -241,6 +261,8 @@
 
 @layer responsive {
   @media (max-width: 900px) {
+    .history-card { grid-template-columns: minmax(0, 1fr) auto; }
+    .history-card > .button { grid-column: 1 / -1; justify-self: start; }
     .home-intro { gap: 30px; }
     .demo-card { grid-template-columns: 160px minmax(0,1fr); }
     .demo-art { padding: 20px; }
@@ -256,6 +278,14 @@
     .sidebar-tip { display: none; }
   }
   @media (max-width: 600px) {
+    .library-grid { grid-template-columns: 1fr; }
+    .library-card { padding: 20px; }
+    .library-card > .button { width: 100%; }
+    .home-actions .button { width: 100%; }
+    .history-card { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
+    .history-card > .button { grid-column: auto; width: 100%; }
+    .mistake-meta { flex-direction: column; align-items: flex-start; }
+    .mistake-meta .inline-actions { flex-direction: column; align-items: flex-start; }
     .header-inner { padding: 14px 20px; height: auto; min-height: 72px; gap: 10px; flex-wrap: wrap; }
     .brand { font-size: 21px; gap: 8px; }
     .brand svg { width: 30px; height: 30px; }

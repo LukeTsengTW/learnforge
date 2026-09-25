@@ -156,6 +156,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_or_create_quiz_draft: {
+        Args: { p_owner_id: string; p_quiz_id: string; p_quiz_revision: string }
+        Returns: {
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          id: string
+          incorrect_count: number | null
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       request_password_hint: {
         Args: { p_ip_hash: string; p_username: string }
         Returns: Json
@@ -166,6 +192,36 @@ export type Database = {
           p_expected_updated_at?: string
           p_payload: Json
           p_quiz_id: string
+        }
+        Returns: {
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          id: string
+          incorrect_count: number | null
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      save_quiz_attempt_v3: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_payload: Json
         }
         Returns: {
           client_updated_at: string

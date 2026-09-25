@@ -5,7 +5,7 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Application } from '../../App'
 import type { Account, AuthService } from './auth-service'
-import type { AttemptRepository } from '../quiz/repositories'
+import { createMemoryPracticeRepository } from '../quiz/practice-memory.test-helper'
 function mockService() {
   let account: Account | null = null
   const listeners = new Set<() => void>()
@@ -17,7 +17,7 @@ function mockService() {
   }
   return service
 }
-const remote: AttemptRepository = { load: async () => null, save: async value => value, delete: async () => {} }
+const remote = createMemoryPracticeRepository('student-id')
 beforeEach(() => {
   localStorage.clear(); window.location.hash = '#/'
   vi.spyOn(window, 'scrollTo').mockImplementation(() => {})

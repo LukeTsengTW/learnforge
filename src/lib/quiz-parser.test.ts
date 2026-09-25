@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import demoSource from '../content/demo.quiz.md?raw'
+import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz, QuizParseError } from './quiz-parser'
 
 const validSingle = `@quiz id="test"

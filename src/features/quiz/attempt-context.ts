@@ -5,12 +5,14 @@ import type { Quiz } from '../../models/quiz'
 export interface AttemptContextValue {
   quiz: Quiz
   attempt: QuizAttempt
+  attemptId?: string
   storageNotice: string | null
   answerQuestion: (questionId: string, answer: QuestionAnswer) => void
-  submit: () => void
+  submit: () => Promise<string | null> | string | null | void
   restart: () => Promise<boolean>
   loading?: boolean
   syncing?: boolean
+  pendingSubmission?: boolean
   retry?: () => Promise<void>
   importLegacy?: () => Promise<void>
 }

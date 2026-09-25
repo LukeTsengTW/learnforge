@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import demoSource from '../content/demo.quiz.md?raw'
+import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz } from './quiz-parser'
 import { gradeFillBlank, gradeMultipleChoice, gradeQuiz, gradeSingleChoice, gradeTrueFalse, hasAnswer } from './grading'
 import type { FillBlankQuestion } from '../models/quiz'

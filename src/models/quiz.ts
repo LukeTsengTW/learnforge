@@ -11,6 +11,7 @@ export interface DrawingConfig { width: number; height: number }
 
 interface QuestionBase {
   id: string
+  tags: string[]
   points: number
   prompt: string
   hint: string | null
@@ -54,7 +55,11 @@ export interface Quiz {
   id: string
   title: string
   description: string
-  /** Fingerprint of the source: old attempts cannot silently use changed questions. */
+  subject: string
+  tags: string[]
+  estimatedMinutes: number
+  current: boolean
+  /** Stable content revision. Published revisions must remain bundled. */
   revision: string
   questions: Question[]
 }
