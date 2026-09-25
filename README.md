@@ -24,7 +24,15 @@ Markdown renderer 使用 `skipHtml`，不啟用 raw HTML；KaTeX `trust: false`�
 
 ## 安裝與執行
 
-需要 **Node.js >= 22.12**；建議 Node 24，CI 使用 Node 24。
+Required Node.js：**24.21.0**；npm：**11.19.0**。
+
+Repository 提供 `.nvmrc` 與 `.node-version` 作為相同的精確版本來源；`package.json` 的 engines 與 CI 也固定此版本。使用支援 `.nvmrc` 的 nvm 時，可在專案根目錄執行：
+
+```sh
+nvm use
+```
+
+若使用 nvm-windows，請明確指定 `nvm use 24.21.0`，不假定它會自動讀取 `.nvmrc`。請先確認 `node --version` 為 `v24.21.0`、`npm --version` 為 `11.19.0`，再執行：
 
 ```sh
 npm ci
@@ -36,7 +44,7 @@ npm run dev
 
 `.env.example` 僅列 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`，值為空白。從 Supabase project 的 Connect／API Keys 取得 project URL 與 `sb_publishable_…` key，填入 `.env.local`。缺少或錯誤設定會顯示 configuration error。只有 publishable client key 能放入 Vite；它會出現在公開 bundle 中。不要填入 server secret、service-role key 或 database password。`.env`、`.env.*` 均被 Git 忽略，只有 `.env.example` 例外。
 
-本次 Windows 環境的 `npm.ps1` 指向遺失的 npm CLI；`npm.cmd` 可正常執行。若遇到相同 `Cannot find module ... npm-cli.js`，可將指令中的 `npm` 換成 `npm.cmd`，不必修改系統設定。
+若 Windows 的 `npm.ps1` 出現 `Cannot find module ... npm-cli.js`，可改用同一套 Node.js 24.21.0 環境中的 `npm.cmd`，不必修改系統設定。
 
 ## 驗證指令
 
