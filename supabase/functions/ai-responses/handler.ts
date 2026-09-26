@@ -1,6 +1,7 @@
 import { parseTutorResponse } from '../_shared/ai-tutor.ts'
 import { tutorContext } from '../_shared/ai-tutor.ts'
-import { GRADING_FEATURE, parseStoredGradingResponse } from '../_shared/calculation-grading.ts'
+import { GRADING_FEATURE, isScoredCalculationContext, parseStoredGradingResponse } from '../_shared/calculation-grading.ts'
+import { DRAWING_FEATURE, isScoredDrawingContext, parseStoredDrawingResponse } from '../_shared/drawing-analysis.ts'
 
 export interface StoredAiRow {
   question_id: string
@@ -15,7 +16,7 @@ export interface AiResponsesBackend {
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
-const FEATURES = new Set(['hint', 'explain_mistake', 'explain_solution', GRADING_FEATURE])
+const FEATURES = new Set(['hint', 'explain_mistake', 'explain_solution', GRADING_FEATURE, DRAWING_FEATURE])
 const HEADERS = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' }
 const unavailable = () => Response.json({ code: 'not_found', error: '找不到此作答紀錄，或目前無法取得。' },
   { status: 404, headers: HEADERS })
@@ -37,11 +38,21 @@ export function createAiResponsesHandler(backend: AiResponsesBackend) {
         if (row.feature === GRADING_FEATURE) {
           if (typeof ownership !== 'object' || ownership.status !== 'submitted') continue
           const question = tutorContext.get(ownership.quizId, ownership.revision, row.question_id)
-          if (!question) continue
+          if (!question || !isScoredCalculationContext(question)) continue
           if (row.pending) { pending.push({ questionId: row.question_id, feature: row.feature }); continue }
           const grading = parseStoredGradingResponse(row.response, question)
           if (grading && row.completed_at) responses.push({ questionId: row.question_id,
             feature: row.feature, response: grading, completedAt: row.completed_at })
+          continue
+        }
+        if (row.feature === DRAWING_FEATURE) {
+          if (typeof ownership !== 'object' || ownership.status !== 'submitted') continue
+          const question = tutorContext.get(ownership.quizId, ownership.revision, row.question_id)
+          if (!question || !isScoredDrawingContext(question)) continue
+          if (row.pending) { pending.push({ questionId: row.question_id, feature: row.feature }); continue }
+          const drawing = parseStoredDrawingResponse(row.response, question)
+          if (drawing && row.completed_at) responses.push({ questionId: row.question_id,
+            feature: row.feature, response: drawing, completedAt: row.completed_at })
           continue
         }
         if (row.pending) { pending.push({ questionId: row.question_id, feature: row.feature }); continue }

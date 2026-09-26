@@ -3,7 +3,7 @@ import { createQuotaHandler } from '../../../supabase/functions/ai-quota/handler
 
 const quota = { limit: 20, used: 3, remaining: 17, windowSeconds: 18000,
   serverNow: '2026-09-25T12:00:00Z', nextCreditAt: '2026-09-25T13:00:00Z',
-  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } }
+  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2, drawing_analysis: 4 } }
 
 describe('AI quota endpoint', () => {
   it('projects only safe quota fields from the privileged result', async () => {

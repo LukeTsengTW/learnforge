@@ -5,7 +5,7 @@ import type { AiQuota, UsageCursor, UsageItem, UsagePage } from '../features/ai/
 import { quizCatalog } from '../features/quiz/quiz-loader'
 
 const FEATURE = { hint: 'AI 提示', explain_mistake: 'AI 錯誤解釋', explain_solution: 'AI 解答解釋',
-  calculation_grading: '計算題參考評分' }
+  calculation_grading: '計算題參考評分', drawing_analysis: '圖像題 AI 參考分析' }
 const STATUS = { reserved: '處理中', completed: '完成', refunded: '已退款', expired: '已過期' }
 
 function itemTitle(item: UsageItem) {
@@ -56,7 +56,7 @@ export function AiUsagePage() {
     {quota && page && <section className="ai-usage-summary" aria-labelledby="ai-usage-summary-heading">
       <h2 id="ai-usage-summary-heading">目前額度</h2>
       <p><strong>{quota.remaining} / {quota.limit}</strong> credits 剩餘 · 已用 {quota.used} · 5 小時滾動</p>
-      <p>最近 5 小時：AI 提示 {page.summary.last5Hours.hintCount} 次 · 錯誤解釋 {page.summary.last5Hours.mistakeCount} 次 · 解答解釋 {page.summary.last5Hours.solutionCount} 次 · 計算題參考評分 {page.summary.last5Hours.calculationGradingCount} 次</p>
+      <p>最近 5 小時：AI 提示 {page.summary.last5Hours.hintCount} 次 · 錯誤解釋 {page.summary.last5Hours.mistakeCount} 次 · 解答解釋 {page.summary.last5Hours.solutionCount} 次 · 計算題參考評分 {page.summary.last5Hours.calculationGradingCount} 次 · 圖像題 AI 參考分析 {page.summary.last5Hours.drawingAnalysisCount} 次</p>
     </section>}
     {page && <section aria-labelledby="ai-usage-list-heading"><h2 id="ai-usage-list-heading">最近紀錄</h2>
       {items.length === 0 && <p>目前還沒有 AI 使用紀錄。</p>}

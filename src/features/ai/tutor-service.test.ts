@@ -40,4 +40,14 @@ describe('Tutor client error handling', () => {
     expect(await service.requestGrading(request)).toEqual(grading)
     expect(invoke).toHaveBeenCalledWith('ai-grade', expect.objectContaining({ body: request }))
   })
+  it('routes drawing analysis to its dedicated endpoint with only four identity fields', async () => {
+    const analysis = { kind: 'drawing_analysis', outcome: 'refusal', message: 'AI 無法可靠分析此圖。' }
+    const invoke = vi.fn().mockResolvedValue({ data: { response: analysis }, error: null })
+    const service = new SupabaseTutorService({ functions: { invoke } } as unknown as AppSupabase)
+    const request = { requestId: crypto.randomUUID(), feature: 'drawing_analysis' as const,
+      attemptId: crypto.randomUUID(), questionId: 'q7' }
+    expect(await service.requestDrawing(request)).toEqual(analysis)
+    expect(invoke).toHaveBeenCalledWith('ai-drawing', expect.objectContaining({ body: request }))
+    expect(Object.keys(invoke.mock.calls[0][1].body)).toEqual(['requestId', 'feature', 'attemptId', 'questionId'])
+  })
 })

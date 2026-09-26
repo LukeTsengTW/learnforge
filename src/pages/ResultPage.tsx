@@ -45,7 +45,7 @@ export function ResultPage() {
     <section className="result-summary" aria-labelledby="result-summary-heading" role="status">
       <div className="score-display"><h2 id="result-summary-heading">自動評分得分</h2><p><strong>{result.score}</strong><span>/ {result.maxScore}</span></p><span>共 {result.correctCount + result.incorrectCount + result.unansweredCount} 題自動評分</span></div>
       <dl className="result-counts"><div><dt>正確</dt><dd>{result.correctCount}</dd></div><div><dt>錯誤</dt><dd>{result.incorrectCount}</dd></div><div><dt>未作答</dt><dd>{result.unansweredCount}</dd></div></dl>
-      <p className="score-note">計算題與畫圖題未納入自動評分。<br />以下 {result.manualCount} 題可搭配參考解答與評分規準檢查；計算題的 AI 參考評分另外顯示。</p>
+      <p className="score-note">計算題與畫圖題未納入自動評分。<br />以下 {result.manualCount} 題可搭配參考解答與評分規準檢查；AI 參考評分與圖像分析另外顯示。</p>
     </section>
     <div className="results-heading"><h2>作答回顧</h2><Link className="button secondary" to={`/quiz/${quiz.id}`}>再次練習</Link></div>
     <div className="result-stack">{quiz.questions.map((question, index) => <ResultQuestion key={question.id} question={question}

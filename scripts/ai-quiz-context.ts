@@ -28,7 +28,9 @@ export function toTutorContext(quiz: Quiz, question: Question) {
     case 'true-false': context.correctAnswer = question.correctAnswer; break
     case 'fill': context.correctAnswer = question.correctAnswer; context.match = question.match; break
     case 'calculation':
+    case 'drawing':
       context.referenceAnswer = question.referenceAnswer
+      if (question.type === 'drawing') context.drawing = question.drawing
       if (question.rubric.length > 0 && question.rubric.every((criterion) => criterion.score !== null)) {
         const gradingRubric = question.rubric.map((criterion, index) => ({
           id: `r${index + 1}`, points: criterion.score!, description: criterion.description,
@@ -36,13 +38,12 @@ export function toTutorContext(quiz: Quiz, question: Question) {
         if (gradingRubric.some((criterion) => !Number.isFinite(criterion.points) || criterion.points <= 0
           || !criterion.description.trim())
           || Math.abs(gradingRubric.reduce((sum, criterion) => sum + criterion.points, 0) - question.points) > 1e-8) {
-          throw new Error(`${identity} has an invalid scored calculation rubric`)
+          throw new Error(`${identity} has an invalid scored ${question.type} rubric`)
         }
         context.points = question.points
         context.gradingRubric = gradingRubric
       }
       break
-    case 'drawing': context.referenceAnswer = question.referenceAnswer; break
   }
   if (question.type === 'single' || question.type === 'multiple') {
     if (question.options.length > 12) throw new Error(`${identity} has too many options`)

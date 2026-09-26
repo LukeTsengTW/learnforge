@@ -339,7 +339,34 @@ export const AI_QUIZ_CONTEXT = [
         "description": "正確註記 $Y=AB$。"
       }
     ],
-    "referenceAnswer": "AND Gate 的左側為一直線，右側為半圓，整體呈 **D 形**。左側接兩條輸入線，分別標示 **A** 與 **B**；右側接一條輸出線，標示 **Y**，並寫上 $Y=AB$。"
+    "referenceAnswer": "AND Gate 的左側為一直線，右側為半圓，整體呈 **D 形**。左側接兩條輸入線，分別標示 **A** 與 **B**；右側接一條輸出線，標示 **Y**，並寫上 $Y=AB$。",
+    "drawing": {
+      "width": 800,
+      "height": 600
+    },
+    "points": 4,
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確畫出 AND Gate 的 D 形外框。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確標示兩個輸入 A、B。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確標示輸出 Y。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確註記 $Y=AB$。"
+      }
+    ]
   },
   {
     "quizId": "relations",

@@ -30,6 +30,7 @@ export interface TutorQuestionContext {
   referenceAnswer?: string
   points?: number
   gradingRubric?: readonly { id: string; points: number; description: string }[]
+  drawing?: { width: number; height: number }
 }
 
 const identity = (quizId: string, revision: string, questionId: string) => JSON.stringify([quizId, revision, questionId])

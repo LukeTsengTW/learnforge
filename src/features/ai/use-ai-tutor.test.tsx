@@ -12,7 +12,7 @@ const output = { title: '提示', message: '先整理條件。', keyPoints: [], 
 const empty: TutorRestore = { responses: [], pending: [] }
 const quota = (remaining: number): AiQuota => ({ limit: 20, used: 20 - remaining, remaining,
   windowSeconds: 18000, serverNow: '2026-09-25T12:00:00Z', nextCreditAt: null,
-  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } })
+  featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2, drawing_analysis: 4 } })
 function setup(overrides: Partial<TutorService> = {}) {
   const service: TutorService = {
     getQuota: vi.fn().mockResolvedValue(quota(2)),
@@ -20,6 +20,7 @@ function setup(overrides: Partial<TutorService> = {}) {
     getUsage: vi.fn(),
     request: vi.fn().mockResolvedValue(output),
     requestGrading: vi.fn(),
+    requestDrawing: vi.fn(),
     ...overrides,
   }
   const wrapper = ({ children }: { children: ReactNode }) => <TutorContext.Provider value={service}>{children}</TutorContext.Provider>
@@ -135,5 +136,56 @@ describe('calculation grading request state', () => {
     await act(async () => { await result.current.runGrading('q6', true) })
     expect(requestGrading).toHaveBeenCalledTimes(2)
     expect(requestGrading.mock.calls[1][0].requestId).not.toBe(requestGrading.mock.calls[0][0].requestId)
+  })
+})
+
+describe('drawing analysis request state', () => {
+  const analysis = { kind: 'drawing_analysis' as const, outcome: 'refusal' as const,
+    message: 'AI 無法可靠分析此圖。' }
+  it('restores a completed analysis on History reopen at zero credits without a provider call', async () => {
+    const getResponses = vi.fn().mockResolvedValue({ responses: [{ questionId: 'q7', feature: 'drawing_analysis',
+      response: analysis, completedAt: '2026-09-25T12:00:00Z' }], pending: [] })
+    const { service, wrapper } = setup({ getQuota: vi.fn().mockResolvedValue(quota(0)), getResponses })
+    const first = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(first.result.current.restoring).toBe(false))
+    expect(first.result.current.drawingState('q7').response).toEqual(analysis)
+    first.unmount()
+    const reopened = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(reopened.result.current.restoring).toBe(false))
+    expect(reopened.result.current.drawingState('q7').response).toEqual(analysis)
+    expect(service.requestDrawing).not.toHaveBeenCalled()
+  })
+  it('requires four credits and reuses an uncertain request ID after a network failure', async () => {
+    const requestDrawing = vi.fn().mockRejectedValueOnce(new TutorServiceError('network')).mockResolvedValue(analysis)
+    const getQuota = vi.fn().mockResolvedValueOnce(quota(4)).mockResolvedValue(quota(0))
+    const { wrapper } = setup({ getQuota, requestDrawing })
+    const { result } = renderHook(() => useAiTutor('attempt-A'), { wrapper })
+    await waitFor(() => expect(result.current.restoring).toBe(false))
+    await waitFor(() => expect(result.current.quota?.remaining).toBe(4))
+    await act(async () => { await result.current.runDrawing('q7') })
+    expect(result.current.drawingState('q7').kind).toBe('retryable')
+    await act(async () => { await result.current.runDrawing('q7') })
+    expect(requestDrawing.mock.calls[1][0].requestId).toBe(requestDrawing.mock.calls[0][0].requestId)
+    expect(result.current.drawingState('q7').response).toEqual(analysis)
+    await act(async () => { await result.current.runDrawing('q7', true) })
+    expect(requestDrawing).toHaveBeenCalledTimes(2)
+  })
+  it('blocks a first analysis at three credits and regenerates with a new ID at four', async () => {
+    const denied = setup({ getQuota: vi.fn().mockResolvedValue(quota(3)), requestDrawing: vi.fn().mockResolvedValue(analysis) })
+    const first = renderHook(() => useAiTutor('attempt-A'), { wrapper: denied.wrapper })
+    await waitFor(() => expect(first.result.current.restoring).toBe(false))
+    await waitFor(() => expect(first.result.current.quota?.remaining).toBe(3))
+    await act(async () => { await first.result.current.runDrawing('q7') })
+    expect(denied.service.requestDrawing).not.toHaveBeenCalled()
+    first.unmount()
+    const requestDrawing = vi.fn().mockResolvedValue(analysis)
+    const allowed = setup({ getQuota: vi.fn().mockResolvedValue(quota(4)), requestDrawing })
+    const second = renderHook(() => useAiTutor('attempt-A'), { wrapper: allowed.wrapper })
+    await waitFor(() => expect(second.result.current.restoring).toBe(false))
+    await waitFor(() => expect(second.result.current.quota?.remaining).toBe(4))
+    await act(async () => { await second.result.current.runDrawing('q7') })
+    await act(async () => { await second.result.current.runDrawing('q7', true) })
+    expect(requestDrawing).toHaveBeenCalledTimes(2)
+    expect(requestDrawing.mock.calls[1][0].requestId).not.toBe(requestDrawing.mock.calls[0][0].requestId)
   })
 })

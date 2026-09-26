@@ -13,6 +13,9 @@ verify_jwt = false
 [functions.ai-grade]
 verify_jwt = false
 
+[functions.ai-drawing]
+verify_jwt = false
+
 [functions.ai-quota]
 verify_jwt = false
 

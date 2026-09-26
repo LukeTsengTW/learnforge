@@ -8,6 +8,7 @@ import { AiTutorControls } from '../ai/AiTutorControls'
 import type { AiTutorState } from '../ai/use-ai-tutor'
 import type { TutorFeature } from '../ai/tutor-service'
 import { AiGradingControls } from '../ai/AiGradingControls'
+import { AiDrawingControls } from '../ai/AiDrawingControls'
 
 const STATUS_LABEL = {
   [GRADE_STATUS.correct]: '✓ 正確', [GRADE_STATUS.incorrect]: '✕ 錯誤',
@@ -69,6 +70,7 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
         {criterion.score !== null && <span>{criterion.score} 分</span>}</li>)}
     </ul></div>}
     {aiTutor && question.type === 'calculation' && <AiGradingControls tutor={aiTutor} question={question} answer={answer} />}
+    {aiTutor && question.type === 'drawing' && <AiDrawingControls tutor={aiTutor} question={question} answer={answer} />}
     {aiTutor && aiFeatures.length > 0 && <AiTutorControls tutor={aiTutor} questionId={question.id} features={aiFeatures} />}
   </section>
 }

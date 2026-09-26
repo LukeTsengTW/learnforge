@@ -22,10 +22,11 @@ const graded = { kind: 'calculation_grading' as const, outcome: 'graded' as cons
 function tutor(remaining: number, state: AiGradingState = { kind: 'idle', response: null }): AiTutorState {
   return { enabled: true, quota: { limit: 20, used: 20 - remaining, remaining, windowSeconds: 18000,
     serverNow: '2026-09-25T12:00:00Z', nextCreditAt: null,
-    featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } },
+    featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2, drawing_analysis: 4 } },
   quotaError: false, quotaLoading: false, refreshQuota: vi.fn(), restoring: false,
   restoreError: false, restore: vi.fn(), state: () => ({ kind: 'idle', response: null }),
-  result: () => null, run: vi.fn(), gradingState: () => state, runGrading: vi.fn() }
+  result: () => null, run: vi.fn(), gradingState: () => state, runGrading: vi.fn(),
+  drawingState: () => ({ kind: 'idle', response: null }), runDrawing: vi.fn() }
 }
 
 describe('advisory calculation grading controls', () => {

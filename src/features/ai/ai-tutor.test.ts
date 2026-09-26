@@ -45,7 +45,7 @@ describe('generated canonical Tutor context', () => {
   it('contains only public canonical fields, never user or credential fields', () => {
     const allowed = new Set(['quizId', 'revision', 'questionId', 'type', 'prompt', 'hint', 'solution', 'rubric',
       'options', 'correctOptionId', 'correctOptionIds', 'correctAnswer', 'match', 'referenceAnswer',
-      'points', 'gradingRubric'])
+      'points', 'gradingRubric', 'drawing'])
     for (const context of contexts) expect(Object.keys(context).every((key) => allowed.has(key))).toBe(true)
     expect(JSON.stringify(contexts)).not.toMatch(/user_id|email|apiKey|password|service_role/i)
   })

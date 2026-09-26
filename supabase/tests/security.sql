@@ -409,5 +409,76 @@ begin
 end $$;
 reset role;
 
+-- v0.7: four-credit drawing requests use the same private ledger and rollback fixture.
+set local role service_role;
+do $$ declare
+  a uuid := current_setting('test.user_a')::uuid; b uuid := current_setting('test.user_b')::uuid;
+  attempt_id uuid := gen_random_uuid(); first_id uuid := gen_random_uuid(); retry_id uuid := gen_random_uuid();
+  result jsonb; quota jsonb; summary jsonb;
+  response jsonb := '{"kind":"drawing_analysis","outcome":"refusal","message":"AI 無法可靠分析此圖。"}'::jsonb;
+begin
+  update public.ai_requests set created_at = now() - interval '6 hours' where user_id = a;
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 20 or (quota->'featureCosts'->>'drawing_analysis')::integer <> 4
+    or (quota->'featureCosts'->>'hint')::integer <> 1
+    or (quota->'featureCosts'->>'calculation_grading')::integer <> 2 then
+    raise exception 'FAIL v0.7 quota feature costs'; end if;
+
+  begin
+    insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+      values(a,gen_random_uuid(),attempt_id,'q7','drawing_analysis',2,'gpt-6-luna','medium','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL wrong drawing cost accepted';
+  exception when check_violation then null; end;
+  begin
+    insert into public.ai_requests(user_id,request_id,attempt_id,question_id,feature,credits,model,reasoning_effort,status,reserved_until)
+      values(a,gen_random_uuid(),attempt_id,'q7','drawing_analysis',4,'gpt-6-luna','low','reserved',now()+interval '15 minutes');
+    raise exception 'FAIL wrong drawing effort accepted';
+  exception when check_violation then null; end;
+  begin
+    perform public.reserve_ai_request(a,gen_random_uuid(),attempt_id,'q7','drawing_analysis','gpt-6-luna','low');
+    raise exception 'FAIL wrong drawing RPC effort accepted';
+  exception when invalid_parameter_value then null; end;
+
+  for i in 1..16 loop
+    result := public.reserve_ai_request(a,gen_random_uuid(),attempt_id,'q1','hint','gpt-6-luna','low');
+    if result->>'state' <> 'created' then raise exception 'FAIL existing hint cost regression'; end if;
+  end loop;
+  quota := public.get_ai_quota_status(a);
+  if (quota->>'remaining')::integer <> 4 then raise exception 'FAIL four-credit boundary'; end if;
+  result := public.reserve_ai_request(a,first_id,attempt_id,'q7','drawing_analysis','gpt-6-luna','medium');
+  if result->>'state' <> 'created' or (result->>'credits')::integer <> 4
+    or (result->>'remaining')::integer <> 0 then raise exception 'FAIL drawing reservation'; end if;
+  if not public.complete_ai_request(a,first_id,response,'resp_fixture',100,5,20,3) then
+    raise exception 'FAIL drawing completion'; end if;
+  result := public.reserve_ai_request(a,first_id,attempt_id,'q7','drawing_analysis','gpt-6-luna','medium');
+  if result->>'state' <> 'completed' or result->'response' is distinct from response then
+    raise exception 'FAIL drawing idempotent replay'; end if;
+  if (public.find_ai_request(b,first_id,attempt_id,'q7','drawing_analysis','gpt-6-luna','medium')->>'state') <> 'missing'
+    or exists(select 1 from public.get_ai_responses_for_attempt(b,attempt_id) where feature='drawing_analysis') then
+    raise exception 'FAIL drawing user isolation'; end if;
+  summary := public.get_ai_usage_summary(a);
+  if (summary->'last5Hours'->>'drawingAnalysisCount')::integer <> 1
+    or (summary->'last5Hours'->>'inputTokens')::integer <> 100 then
+    raise exception 'FAIL drawing usage summary'; end if;
+  if (select count(*) from public.get_ai_responses_for_attempt(a,attempt_id)
+    where feature='drawing_analysis' and not pending) <> 1 then raise exception 'FAIL drawing restore'; end if;
+
+  update public.ai_requests set created_at = now() - interval '6 hours'
+    where id in (select id from public.ai_requests where user_id=a and feature='hint'
+      and created_at > now()-interval '5 hours' order by id limit 3);
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 3 then raise exception 'FAIL three-credit boundary'; end if;
+  result := public.reserve_ai_request(a,retry_id,attempt_id,'q7','drawing_analysis','gpt-6-luna','medium');
+  if result->>'state' <> 'denied' then raise exception 'FAIL drawing at three credits'; end if;
+  update public.ai_requests set created_at = now() - interval '6 hours'
+    where id = (select id from public.ai_requests where user_id=a and feature='hint'
+      and created_at > now()-interval '5 hours' order by id limit 1);
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 4 then raise exception 'FAIL renewed four credits'; end if;
+  result := public.reserve_ai_request(a,retry_id,attempt_id,'q7','drawing_analysis','gpt-6-luna','medium');
+  if result->>'state' <> 'created' then raise exception 'FAIL drawing regeneration'; end if;
+  if not public.refund_ai_request(a,retry_id,'fixture_failure') then raise exception 'FAIL drawing refund'; end if;
+  if (public.get_ai_quota_status(a)->>'remaining')::integer <> 4 then raise exception 'FAIL drawing refund restores four'; end if;
+end $$;
+reset role;
+
 rollback;
-select 'PASS: practice security, private AI quota, v0.5 restore and v0.6 grading' as verification;
+select 'PASS: practice security, private AI quota, restore, v0.6 grading and v0.7 drawing' as verification;

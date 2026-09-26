@@ -4,7 +4,7 @@ import type { QuestionAnswer } from '../../models/attempt'
 import type { DrawingStroke } from '../../models/drawing'
 import { DrawingCanvas } from './DrawingCanvas'
 
-export const MANUAL_NOTICE = '此題型將於後續版本提供 AI 參考評分，目前請自行對照參考解答。'
+export const MANUAL_NOTICE = '畫圖題不納入自動分數；提交後可自行對照評分規準，符合條件時可使用 AI 圖像參考分析。'
 const EMPTY_STROKES: DrawingStroke[] = []
 
 export function QuestionInput({ question, answer, onChange }: {

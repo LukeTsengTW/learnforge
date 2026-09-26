@@ -12,10 +12,11 @@ function tutor(remaining: number, state: AiRequestState = { kind: 'idle', respon
   return {
     enabled: true, quota: { limit: 20, used: 20 - remaining, remaining, windowSeconds: 18000,
       serverNow: '2026-09-25T12:00:00Z', nextCreditAt: remaining ? null : '2026-09-25T12:30:00Z',
-      featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2 } },
+      featureCosts: { hint: 1, explain_mistake: 1, explain_solution: 2, calculation_grading: 2, drawing_analysis: 4 } },
     quotaError: false, quotaLoading: false, refreshQuota: vi.fn(), restoring: false,
     restoreError: false, restore: vi.fn(), state: () => state, result: () => state.response, run: vi.fn(),
     gradingState: () => ({ kind: 'idle', response: null }), runGrading: vi.fn(),
+    drawingState: () => ({ kind: 'idle', response: null }), runDrawing: vi.fn(),
   }
 }
 

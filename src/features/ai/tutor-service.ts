@@ -1,7 +1,7 @@
 import type { AppSupabase } from '../../lib/supabase'
 
 export type TutorFeature = 'hint' | 'explain_mistake' | 'explain_solution'
-export type AiFeature = TutorFeature | 'calculation_grading'
+export type AiFeature = TutorFeature | 'calculation_grading' | 'drawing_analysis'
 export interface TutorResponse { title: string; message: string; keyPoints: string[]; nextStep: string | null }
 export interface GradingCriterion { criterionId: string; awardedScore: number; maxScore: number;
   status: 'full' | 'partial' | 'none'; feedback: string }
@@ -10,20 +10,27 @@ export type CalculationGradingResponse =
     criteria: GradingCriterion[]; summary: string; strengths: string[]; improvements: string[];
     confidence: 'high' | 'medium' | 'low'; requiresManualReview: boolean }
   | { kind: 'calculation_grading'; outcome: 'refusal'; message: string }
+export type DrawingAnalysisResponse =
+  | { kind: 'drawing_analysis'; outcome: 'analyzed'; overallScore: number; maxScore: number;
+    criteria: GradingCriterion[]; observations: string[]; missingOrUnclear: string[]; summary: string;
+    confidence: 'high' | 'medium' | 'low'; requiresManualReview: boolean }
+  | { kind: 'drawing_analysis'; outcome: 'refusal'; message: string }
 export type AIResponse =
   | { feature: TutorFeature; response: TutorResponse }
   | { feature: 'calculation_grading'; response: CalculationGradingResponse }
+  | { feature: 'drawing_analysis'; response: DrawingAnalysisResponse }
 export interface AiQuota {
   limit: number; used: number; remaining: number; windowSeconds: number; serverNow: string; nextCreditAt: string | null
   featureCosts: Record<AiFeature, number>
 }
 export interface TutorRequest { requestId: string; feature: TutorFeature; attemptId: string; questionId: string }
 export interface GradingRequest { requestId: string; feature: 'calculation_grading'; attemptId: string; questionId: string }
+export interface DrawingRequest { requestId: string; feature: 'drawing_analysis'; attemptId: string; questionId: string }
 export type RestoredAiResponse = (AIResponse & { questionId: string; completedAt: string })
 export interface TutorRestore { responses: RestoredAiResponse[]; pending: { questionId: string; feature: AiFeature }[] }
 export interface UsageWindow {
   requestCount: number; completedCount: number; refundedCount: number; expiredCount: number
-  hintCount: number; mistakeCount: number; solutionCount: number; calculationGradingCount: number
+  hintCount: number; mistakeCount: number; solutionCount: number; calculationGradingCount: number; drawingAnalysisCount: number
   inputTokens: number; cachedInputTokens: number; outputTokens: number; reasoningTokens: number
   usageReportedCount: number
 }
@@ -38,6 +45,7 @@ export interface TutorService {
   getUsage: (cursor?: UsageCursor | null) => Promise<UsagePage>
   request: (input: TutorRequest) => Promise<TutorResponse>
   requestGrading: (input: GradingRequest) => Promise<CalculationGradingResponse>
+  requestDrawing: (input: DrawingRequest) => Promise<DrawingAnalysisResponse>
 }
 export class TutorServiceError extends Error {
   readonly code: string
@@ -52,7 +60,8 @@ function parseQuota(value: unknown): AiQuota {
     || typeof value.serverNow !== 'string' || !Number.isFinite(Date.parse(value.serverNow))
     || (value.nextCreditAt !== null && typeof value.nextCreditAt !== 'string')
     || value.featureCosts.hint !== 1 || value.featureCosts.explain_mistake !== 1
-    || value.featureCosts.explain_solution !== 2 || value.featureCosts.calculation_grading !== 2) {
+    || value.featureCosts.explain_solution !== 2 || value.featureCosts.calculation_grading !== 2
+    || value.featureCosts.drawing_analysis !== 4) {
     throw new TutorServiceError('unavailable')
   }
   return value as unknown as AiQuota
@@ -64,7 +73,7 @@ function parseResponse(value: unknown): TutorResponse {
   return value as unknown as TutorResponse
 }
 const FEATURES = new Set(['hint', 'explain_mistake', 'explain_solution'])
-const ALL_FEATURES = new Set([...FEATURES, 'calculation_grading'])
+const ALL_FEATURES = new Set([...FEATURES, 'calculation_grading', 'drawing_analysis'])
 function parseGradingResponse(value: unknown): CalculationGradingResponse {
   if (!object(value) || value.kind !== 'calculation_grading') throw new TutorServiceError('unavailable')
   if (value.outcome === 'refusal') {
@@ -84,6 +93,24 @@ function parseGradingResponse(value: unknown): CalculationGradingResponse {
     || typeof value.requiresManualReview !== 'boolean') throw new TutorServiceError('unavailable')
   return value as unknown as CalculationGradingResponse
 }
+function parseDrawingResponse(value: unknown): DrawingAnalysisResponse {
+  if (!object(value) || value.kind !== 'drawing_analysis') throw new TutorServiceError('unavailable')
+  if (value.outcome === 'refusal') {
+    if (Object.keys(value).length !== 3 || value.message !== 'AI 無法可靠分析此圖。') throw new TutorServiceError('unavailable')
+    return value as DrawingAnalysisResponse
+  }
+  if (value.outcome !== 'analyzed' || Object.keys(value).length !== 10
+    || !Number.isFinite(value.overallScore) || !Number.isFinite(value.maxScore)
+    || !Array.isArray(value.criteria) || !value.criteria.every((item: unknown) => object(item)
+      && Object.keys(item).length === 5 && typeof item.criterionId === 'string'
+      && Number.isFinite(item.awardedScore) && Number.isFinite(item.maxScore)
+      && ['full', 'partial', 'none'].includes(String(item.status)) && typeof item.feedback === 'string')
+    || !Array.isArray(value.observations) || !value.observations.every((item: unknown) => typeof item === 'string')
+    || !Array.isArray(value.missingOrUnclear) || !value.missingOrUnclear.every((item: unknown) => typeof item === 'string')
+    || typeof value.summary !== 'string' || !['high', 'medium', 'low'].includes(String(value.confidence))
+    || typeof value.requiresManualReview !== 'boolean') throw new TutorServiceError('unavailable')
+  return value as DrawingAnalysisResponse
+}
 function parseRestore(value: unknown): TutorRestore {
   if (!object(value) || !Array.isArray(value.responses) || !Array.isArray(value.pending)) throw new TutorServiceError('unavailable')
   const responses = value.responses.map((item: unknown) => {
@@ -91,6 +118,8 @@ function parseRestore(value: unknown): TutorRestore {
       || typeof item.completedAt !== 'string') throw new TutorServiceError('unavailable')
     if (item.feature === 'calculation_grading') return { questionId: item.questionId, feature: 'calculation_grading' as const,
       response: parseGradingResponse(item.response), completedAt: item.completedAt }
+    if (item.feature === 'drawing_analysis') return { questionId: item.questionId, feature: 'drawing_analysis' as const,
+      response: parseDrawingResponse(item.response), completedAt: item.completedAt }
     return { questionId: item.questionId, feature: item.feature as TutorFeature,
       response: parseResponse(item.response), completedAt: item.completedAt }
   })
@@ -106,7 +135,7 @@ function parseUsage(value: unknown): UsagePage {
   for (const window of ['last5Hours', 'last24Hours', 'allTime']) {
     const summary = value.summary[window]
     if (!object(summary) || typeof summary.requestCount !== 'number' || typeof summary.inputTokens !== 'number'
-      || typeof summary.calculationGradingCount !== 'number') {
+      || typeof summary.calculationGradingCount !== 'number' || typeof summary.drawingAnalysisCount !== 'number') {
       throw new TutorServiceError('unavailable')
     }
   }
@@ -121,7 +150,7 @@ async function invokeError(error: unknown): Promise<TutorServiceError> {
         const terminal = ['request_closed', 'quota_exhausted', 'invalid_request', 'feature_unavailable',
           'question_unavailable', 'attempt_unavailable', 'context_unavailable', 'unsupported',
           'request_too_large', 'method_not_allowed', 'rubric_unavailable', 'answer_too_long',
-          'answer_unavailable'].includes(body.code)
+          'answer_unavailable', 'drawing_too_large', 'drawing_unavailable'].includes(body.code)
         return new TutorServiceError(body.code, terminal)
       }
     } catch { /* Use generic error. */ }
@@ -172,5 +201,14 @@ export class SupabaseTutorService implements TutorService {
     if (object(data) && data.code === 'in_progress') throw new TutorServiceError('in_progress')
     if (!object(data)) throw new TutorServiceError('unavailable')
     return parseGradingResponse(data.response)
+  }
+  async requestDrawing(input: DrawingRequest): Promise<DrawingAnalysisResponse> {
+    const { data, error } = await this.client.functions.invoke('ai-drawing', {
+      body: input, signal: AbortSignal.timeout(60_000),
+    })
+    if (error) throw await invokeError(error)
+    if (object(data) && data.code === 'in_progress') throw new TutorServiceError('in_progress')
+    if (!object(data)) throw new TutorServiceError('unavailable')
+    return parseDrawingResponse(data.response)
   }
 }
