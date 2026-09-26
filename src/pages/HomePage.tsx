@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { useDrafts } from '../features/quiz/use-drafts'
+import { useAuth } from '../features/auth/auth-context'
 
 function LogicIllustration() {
   return <div className="logic-illustration" aria-hidden="true">
@@ -20,6 +21,7 @@ function LogicIllustration() {
 }
 
 export function HomePage() {
+  const { account } = useAuth()
   const drafts = useDrafts()
   const firstDraft = drafts.find((draft) => quizCatalog.getQuizRevision(draft.quizId, draft.revision))
   const featured = quizCatalog.current[0]
@@ -43,7 +45,9 @@ export function HomePage() {
         </div>
       </article>
       <div className="home-actions">{firstDraft && <Link className="button secondary" to={`/quiz/${firstDraft.quizId}`}>繼續練習：{quizCatalog.getQuizRevision(firstDraft.quizId, firstDraft.revision)?.title}</Link>}
-        <Link className="button secondary" to="/history">練習紀錄</Link></div>
+        <Link className="button secondary" to="/history">練習紀錄</Link>
+        {account && <><Link className="button secondary" to="/analytics">學習分析</Link>
+          <Link className="button secondary" to="/review">錯題複習</Link></>}</div>
     </section>
     <section className="home-guidance" aria-label="練習方式">
       <div><span className="guidance-icon" aria-hidden="true">?</span><div><h3>先想一想，再看提示</h3><p>卡住時打開提示，留給自己一次嘗試的機會。</p></div></div>

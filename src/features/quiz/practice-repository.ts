@@ -1,6 +1,7 @@
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
 import type { QuizAttempt } from '../../models/attempt'
+import type { AnalyticsAttempt } from '../../models/analytics'
 import type { Quiz } from '../../models/quiz'
 import type { Database } from '../../types/database.types'
 import { quizCatalog, type QuizCatalog } from './quiz-loader'
@@ -18,6 +19,8 @@ export interface PracticeRecord {
 }
 export interface DraftReference { id: string; quizId: string; revision: string; updatedAt: string }
 export interface SubmittedPage { records: PracticeRecord[]; nextOffset: number | null }
+export interface SubmittedAnalyticsPage { records: AnalyticsAttempt[]; nextOffset: number | null }
+export const ANALYTICS_PAGE_SIZE = 50
 
 export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizCatalog = quizCatalog): PracticeRecord {
   if (row.user_id !== userId || row.answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)) {
@@ -26,6 +29,25 @@ export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizC
   const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
   const stored = quiz ? fromDatabase(row, row.answers, quiz, userId) : null
   return { id: row.id, row, quiz, attempt: stored?.attempt ?? null, version: { id: row.id, updatedAt: row.updated_at } }
+}
+
+export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId: string,
+  catalog: QuizCatalog = quizCatalog): AnalyticsAttempt {
+  // Treat an ownership mismatch as a security failure, never as a skippable malformed row.
+  if (row.user_id !== userId || answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)) {
+    throw new PersistenceError('invalid')
+  }
+  const base = { id: row.id, quizId: row.quiz_id, quizRevision: row.quiz_revision,
+    submittedAt: row.submitted_at, status: row.status as AnalyticsAttempt['status'] }
+  const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
+  if (!quiz) return { ...base, quiz: null, answers: null, unavailableReason: 'missing-revision' }
+  try {
+    const stored = fromDatabase(row, answers, quiz, userId)
+    if (stored.attempt.status !== 'submitted' || row.status !== 'submitted') throw new PersistenceError('invalid')
+    return { ...base, quiz, answers: stored.attempt.answers }
+  } catch {
+    return { ...base, quiz, answers: null, unavailableReason: 'malformed' }
+  }
 }
 
 export class SupabasePracticeRepository {
@@ -93,6 +115,31 @@ export class SupabasePracticeRepository {
     const rows = data ?? []
     return { records: rows.slice(0, pageSize).map((row) => mapPracticeRecord(row, this.userId, this.catalog)),
       nextOffset: rows.length > pageSize ? offset + pageSize : null }
+  }
+
+  /** One attempts read and one answer read per 50-row page; a 51st attempt signals truncation. */
+  async listSubmittedAnalyticsPage(offset = 0): Promise<SubmittedAnalyticsPage> {
+    const { data, error } = await this.client.from('attempts').select('*')
+      .eq('user_id', this.userId).eq('status', 'submitted')
+      .order('submitted_at', { ascending: false }).order('id', { ascending: false })
+      .range(offset, offset + ANALYTICS_PAGE_SIZE)
+    if (error) throw new PersistenceError('unavailable')
+    const rows = (data ?? []).slice(0, ANALYTICS_PAGE_SIZE)
+    if (!rows.length) return { records: [], nextOffset: null }
+    const ids = rows.map((row) => row.id)
+    const idSet = new Set(ids)
+    const answerResult = await this.client.from('answers').select('*')
+      .eq('user_id', this.userId).in('attempt_id', ids)
+    if (answerResult.error) throw new PersistenceError('unavailable')
+    const answersByAttempt = new Map<string, AnswerRow[]>()
+    for (const answer of answerResult.data ?? []) {
+      if (!idSet.has(answer.attempt_id)) throw new PersistenceError('invalid')
+      const group = answersByAttempt.get(answer.attempt_id) ?? []
+      group.push(answer)
+      answersByAttempt.set(answer.attempt_id, group)
+    }
+    return { records: rows.map((row) => mapAnalyticsRecord(row, answersByAttempt.get(row.id) ?? [], this.userId, this.catalog)),
+      nextOffset: (data?.length ?? 0) > ANALYTICS_PAGE_SIZE ? offset + ANALYTICS_PAGE_SIZE : null }
   }
 
   async loadLatestSubmittedForQuiz(quizId: string): Promise<PracticeRecord | null> {

@@ -1,9 +1,11 @@
 import { createAttempt } from '../../lib/attempt'
 import type { QuizAttempt } from '../../models/attempt'
+import type { AnalyticsAttempt } from '../../models/analytics'
 import type { Quiz } from '../../models/quiz'
 import type { Database } from '../../types/database.types'
 import type { PracticeRepository } from './practice-context'
-import type { DraftReference, PracticeRecord, SubmittedPage } from './practice-repository'
+import { ANALYTICS_PAGE_SIZE, type DraftReference, type PracticeRecord, type SubmittedPage,
+  type SubmittedAnalyticsPage } from './practice-repository'
 import { PersistenceError, type StoredAttempt } from './repositories'
 
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
@@ -59,6 +61,17 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
         .sort((a, b) => (b.row.submitted_at ?? '').localeCompare(a.row.submitted_at ?? '') || b.id.localeCompare(a.id))
       const slice = sorted.slice(offset, offset + pageSize + 1)
       return { records: slice.slice(0, pageSize).map(clone), nextOffset: slice.length > pageSize ? offset + pageSize : null }
+    },
+    async listSubmittedAnalyticsPage(offset = 0): Promise<SubmittedAnalyticsPage> {
+      const sorted = [...records.values()].filter((record) => record.row.status === 'submitted')
+        .sort((a, b) => (b.row.submitted_at ?? '').localeCompare(a.row.submitted_at ?? '') || b.id.localeCompare(a.id))
+      const slice = sorted.slice(offset, offset + ANALYTICS_PAGE_SIZE + 1)
+      const mapped: AnalyticsAttempt[] = slice.slice(0, ANALYTICS_PAGE_SIZE).map((record) => ({
+        id: record.id, quizId: record.row.quiz_id, quizRevision: record.row.quiz_revision,
+        submittedAt: record.row.submitted_at, status: 'submitted', quiz: record.quiz,
+        answers: record.attempt?.status === 'submitted' ? record.attempt.answers : null,
+      }))
+      return { records: structuredClone(mapped), nextOffset: slice.length > ANALYTICS_PAGE_SIZE ? offset + ANALYTICS_PAGE_SIZE : null }
     },
     async loadLatestSubmittedForQuiz(quizId: string) {
       const sorted = [...records.values()].filter((record) => record.row.quiz_id === quizId && record.row.status === 'submitted')

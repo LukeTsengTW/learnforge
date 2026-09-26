@@ -25,6 +25,13 @@ beforeEach(() => {
 })
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 describe('auth UI and session boundaries', () => {
+  it.each(['/analytics', '/review'])('requires authentication for %s', async (path) => {
+    const auth = mockService()
+    window.location.hash = `#${path}`
+    render(<Application auth={auth} createRepository={() => remote} />)
+    await screen.findByRole('heading', { name: '歡迎回來' })
+    expect(window.location.hash).toBe('#/login')
+  })
   it('redirects to login, validates input, returns to the intended result, restores session and logs out', async () => {
     const auth = mockService(), user = userEvent.setup()
     window.location.hash = '#/result/demo'

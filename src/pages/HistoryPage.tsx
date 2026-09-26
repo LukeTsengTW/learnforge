@@ -25,7 +25,8 @@ export function HistoryPage() {
   }
   return <div className="history-page"><div className="breadcrumb"><Link to="/library">題庫</Link><span aria-hidden="true">/</span><span>練習紀錄</span></div>
     <header className="page-heading"><span className="subject-label">Practice History</span><h1>每一次練習，都值得留下。</h1>
-      <p>提交後的作答永久保留。成績會依當時的題目版本重新檢查。</p></header>
+      <p>提交後的作答永久保留。成績會依當時的題目版本重新檢查。</p>
+      <div className="inline-actions page-links"><Link to="/analytics">查看學習分析</Link><Link to="/review">開始錯題複習</Link></div></header>
     {error && <div className="notice warning" role="alert">暫時無法載入練習紀錄。請稍後重試。</div>}
     {!loading && !records.length && !error && <div className="empty-state"><h2>還沒有已提交的作答</h2><p>完成第一份練習後，就能在這裡回顧。</p><Link className="button primary" to="/library">瀏覽題庫</Link></div>}
     <div className="history-list">{records.map((record) => {

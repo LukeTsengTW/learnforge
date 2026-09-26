@@ -8,6 +8,8 @@ import { HistoryPage } from './pages/HistoryPage'
 import { MistakesPage } from './pages/MistakesPage'
 import { ResultPage } from './pages/ResultPage'
 import { AiUsagePage } from './pages/AiUsagePage'
+import { AnalyticsPage } from './pages/AnalyticsPage'
+import { ReviewPage } from './pages/ReviewPage'
 import { PracticeQuizRoute } from './features/quiz/PracticeQuizRoute'
 import { AuthPage } from './pages/AuthPage'
 import { AuthProvider } from './features/auth/AuthProvider'
@@ -35,6 +37,8 @@ export function AppRoutes() {
       <Route path="result/:attemptId" element={<ResultPage />} />
       <Route path="history" element={<HistoryPage />} />
       <Route path="mistakes" element={<MistakesPage />} />
+      <Route path="analytics" element={<AnalyticsPage />} />
+      <Route path="review" element={<ReviewPage />} />
       <Route path="ai-usage" element={<AiUsagePage />} />
     </Route>
     <Route path="*" element={<NotFoundPage />} />

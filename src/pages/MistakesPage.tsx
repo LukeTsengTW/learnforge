@@ -27,7 +27,8 @@ export function MistakesPage() {
   const mistakes = deriveMistakes(records)
   return <div className="mistakes-page"><div className="breadcrumb"><Link to="/history">練習紀錄</Link><span aria-hidden="true">/</span><span>錯題</span></div>
     <header className="page-heading"><span className="subject-label">Mistakes</span><h1>把錯誤，變成下一次的理解。</h1>
-      <p>只列出已提交作答中答錯的客觀題；未作答、計算題與畫圖題不算錯題。</p></header>
+      <p>只列出已提交作答中答錯的客觀題；未作答、計算題與畫圖題不算錯題。</p>
+      <div className="inline-actions page-links"><Link to="/review">開始錯題複習</Link><Link to="/analytics">查看學習分析</Link></div></header>
     {error && <div className="notice warning" role="alert">暫時無法載入錯題。請稍後重試。</div>}
     {records.some((record) => !record.quiz) && <div className="notice warning" role="status">部分歷史題目版本無法載入，相關錯題無法安全推導；紀錄仍可在練習紀錄中查看。</div>}
     {!loading && !mistakes.length && !error && <div className="empty-state"><h2>目前沒有可顯示的錯題</h2><p>完成練習後，答錯的客觀題會出現在這裡。</p><Link className="button primary" to="/library">瀏覽題庫</Link></div>}
