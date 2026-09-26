@@ -4,6 +4,7 @@ import type { DrawingQuestion } from '../../models/quiz'
 import type { QuestionAnswer } from '../../models/attempt'
 import { isMeaningfullyNonBlank, parseStoredDrawing, rasterDrawingPixels } from '../../../supabase/functions/_shared/drawing-raster'
 import type { AiTutorState } from './use-ai-tutor'
+import { hasScoredRubric } from '../../lib/scored-rubric'
 
 const STATUS = { full: '完整符合', partial: '部分符合', none: '未符合' }
 const CONFIDENCE = { high: '高', medium: '中', low: '低' }
@@ -20,10 +21,7 @@ export function AiDrawingControls({ tutor, question, answer }: {
     } catch { return false }
   }, [answer, question.drawing])
   if (!tutor.enabled || answer?.type !== 'drawing') return null
-  const rubricAvailable = question.rubric.length > 0
-    && question.rubric.every((criterion) => criterion.score !== null && Number.isFinite(criterion.score)
-      && criterion.score > 0 && !!criterion.description.trim())
-    && Math.abs(question.rubric.reduce((sum, criterion) => sum + (criterion.score ?? 0), 0) - question.points) <= 1e-8
+  const rubricAvailable = hasScoredRubric(question)
   const state = tutor.drawingState(question.id)
   const response = state.response
   const quota = tutor.quota

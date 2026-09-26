@@ -1,12 +1,13 @@
 # LearnForge
 
-**Current status: v0.7 — Multimodal Drawing & Circuit Analysis（驗證狀態見 [v0.7 交付報告](docs/v0.7-delivery.md)）**。
+**Current status: v0.8 — Quiz Authoring Workspace（驗證狀態見 [v0.8 交付報告](docs/v0.8-delivery.md)）**。
 
-LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor；v0.5 讓已完成的 AI 建議可在重新整理及歷史紀錄中恢復，並提供個人使用紀錄；v0.6 為計算題提供獨立的 AI 參考評分；v0.7 為已提交的畫圖題加入以 scored rubric 為依據的 AI 圖像參考分析。原本 parser、deterministic grading、drawing engine 與 Auth 架構保留。
+LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor；v0.5 讓已完成的 AI 建議可在重新整理及歷史紀錄中恢復，並提供個人使用紀錄；v0.6 為計算題提供獨立的 AI 參考評分；v0.7 為已提交的畫圖題加入以 scored rubric 為依據的 AI 圖像參考分析；v0.8 增加可公開使用的本機題庫編寫工具。原本 parser、deterministic grading、drawing engine 與 Auth 架構保留。
 
 ## 功能
 
 - 公開題庫目前有三份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題。題庫卡片顯示科目、標籤、題數、自動評分總分與預估時間。
+- `#/author` 可編寫 raw Quiz Markdown、匯入本機檔案、複製 bundled revision、即時解析、正式題目／答案預覽、檢視 metadata 與題目導覽、建立新 revision、本機草稿、複製及下載 .quiz.md。編寫頁不建立正式作答，也不呼叫 AI 或寫入 Supabase。
 - 原範例共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖。
 - 5 題客觀題自動評分，最高 **10 分**；計算題 6 分、畫圖題 4 分僅供自行對照，排除於自動分數與最高分。
 - Markdown、inline／block LaTeX、提示切換、完整解答與 rubric。
@@ -15,7 +16,7 @@ LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫
 - `#/history` 以每頁 20 筆載入提交紀錄；`#/mistakes` 從歷次答案及當時的題目版本重新評分，列出答錯的客觀題。
 - 註冊／登入／登出、session 恢復、自己的 profile、限流的密碼提示查詢。
 - 未完成客觀題時先警告，再由使用者決定是否提交。
-- HashRouter：公開 `#/`、`#/library` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes`、`#/ai-usage` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
+- HashRouter：公開 `#/`、`#/library`、`#/author` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes`、`#/ai-usage` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
 - AI Tutor：草稿可主動取得 AI 提示；提交後，答錯的客觀題可取得錯誤說明，非畫圖題可取得另一種解答說明。AI 僅供學習參考，以題庫答案與解析為主要依據。
 - 已提交的非空白計算題若有 scored rubric，Result 可主動取得獨立的 AI 參考評分。已提交的可見畫圖若有 scored rubric，Result 可取得 AI 圖像參考分析：逐項建議分數、觀察到的元素、缺少或不清楚的部分、整體回饋、把握程度及人工覆核建議。兩者僅供學習參考，不寫入正式成績，也不改變客觀題的 deterministic score。
@@ -64,11 +65,13 @@ npm run build
 npm run preview
 npm run generate:ai-context # 題庫 Markdown 更新後重新產生 server manifest
 npm run check:ai-context    # CI/test/build 自動檢查 manifest drift
+npm run check:quizzes       # 驗證所有 bundled revisions、catalog identity 與 current 唯一性
 ```
 
 - `lint`：原有 Oxlint + ESLint，包含 TypeScript 與 React Hooks 檢查。
 - `test`：Vitest 單次執行；`npm run test:watch` 啟動互動監看。
 - `build`：`tsc -b` strict 型別檢查，再產生 production `dist/`。
+- `check:quizzes`：直接重用正式 parser 與 catalog，檢查所有 bundled source；test/build 也會執行。
 - `preview`：預覽已產生的 production build。
 
 測試包括 parser 的正常／錯誤案例、六種題型的評分、座標轉換、筆畫歷史、儲存資料驗證、提交鎖定、重新開始、完整 UI 流程與 Markdown 安全設定；不以 snapshot 代替行為驗證。Canvas 真實繪圖、PNG 像素與 RWD 另外透過瀏覽器驗證，jsdom 測試不假裝驗證 raster rendering。
@@ -90,6 +93,7 @@ src/
   features/auth/            # Auth service / Provider、pure validation、route guard
   features/quiz/            # catalog、domain ↔ DB mapping、repositories、sync store、quiz UI
   features/ai/              # quota / Tutor service、狀態與操作 UI
+  features/author/          # raw Markdown authoring、preview、draft、revision 模擬
   types/database.types.ts   # 從 linked project schema 產生，非手寫 row interfaces
   pages/                    # Home / Library / Quiz / Result / History / Mistakes / AI Usage / Auth
   styles/global.css         # base / layout / components / responsive layers
@@ -104,6 +108,7 @@ docs/v0.4-delivery.md        # v0.4 實際驗證與限制
 docs/v0.5-delivery.md        # v0.5 恢復、使用紀錄與驗證
 docs/v0.6-delivery.md        # v0.6 計算題 AI 參考評分與驗證
 docs/v0.7-delivery.md        # v0.7 圖像題 AI 參考分析與驗證
+docs/v0.8-delivery.md        # v0.8 題庫編寫工作區與驗證
 scripts/generate-ai-quiz-context.mjs
 scripts/ai-quiz-context.ts  # 使用既有 parser 的 manifest 投影與大小限制
 supabase/
@@ -208,6 +213,30 @@ npx supabase db advisors --linked --type security --fail-on error
 PowerShell 請用 `npx.cmd`；generated types 可透過 `| Out-File -Encoding utf8 src/types/database.types.ts` 保存。CLI credential／database password 只供 CLI 安全輸入，不能放進 Vite。`.temp` 連結資訊不進 Git。需要完整本機 Supabase 時，可使用已安裝 Docker 的環境執行 `npx supabase start`；本次使用 linked development project，沒有宣稱驗證 Docker stack。
 
 Migration：`20260925031723_v02_foundation.sql` 建 schema；`20260925033026_v02_owner_binding.sql` 補帳號綁定；`20260925054652_v03_practice_history.sql` 加入多次練習與歷史；`20260925060343_v03_answer_lock_visibility.sql` 補提交後鎖定可見性；`20260925074745_v04_ai_tutor_quota.sql` 加入 AI ledger 和 quota RPC；`20260925102541_v05_ai_experience.sql` 加入恢復／用量索引、RPC 和 server 時間；`20260925104314_v05_ai_usage_metadata_boundary.sql` 讓 attempt metadata 只由 Edge 的 user-scoped RLS client 解析。舊 attempts、answers、UUID 與 Auth users 原地保留。新增變更先 `npx supabase migration new <name>`；不要對 linked project 執行 reset、truncate、migration repair 或刪除 Auth users。`security.sql` 建立測試 fixture 後完整 rollback。
+
+## 題庫編寫工作區（v0.8）
+
+`#/author` 是公開的本機編寫工具，並非管理後台。它直接編輯 `.quiz.md` 文字，使用正式 `parseQuiz()` 做 300 ms debounced validation；parser 採 fail-fast，每次顯示第一個阻塞錯誤。合法題目使用正式的 Question、Markdown／KaTeX、Canvas 與答案渲染元件預覽；預覽作答只在 React 記憶體中，可切換 Student／Answer Preview 或單獨重設。編寫頁不建立 attempt、不寫 practice cache／Supabase、不呼叫 AI、不扣 credits。直接進入 `#/author` 不需要初始化 Supabase client。
+
+可建立已可解析的範例題庫，插入六種題型 DSL 範本（計算與畫圖範本含 scored rubric），從本機匯入單一 UTF-8 `.quiz.md`／`.md`／`.txt`，或複製 bundled revision 的 raw source。source、匯入檔案和單份本機草稿各限 1 MiB。草稿使用獨立的 `learnforge:author:` localStorage key，只有按「儲存本機草稿」才保存，亦可載入或清除；不自動同步。下載保留原始 source 文字，只清理下載檔名；複製使用 Clipboard API 並在失敗時嘗試選取編輯器文字。Import／New／Load bundled／Load draft 會在未匯出修改前要求確認。
+
+Validation 將阻塞 parser error 與非阻塞內容提醒分開。Metadata inspector 顯示 canonical Quiz 的 id、revision、current、題型分布、宣告分數、自動評分最高分與手動分數。計算／畫圖的「AI capability」使用正式 scored rubric 判斷邏輯，僅提示能否於正式作答後使用相關功能，不送出 AI request，也不判斷學術內容是否正確。選擇 bundled source 只複製至編輯器；建立新 revision 要手動輸入不同的 revision，不自行產生 hash。工具純函式會模擬舊 current 改 false、新 current 改 true，檢查 id、revision 與 catalog 唯一性；原 source 檔永遠不會由瀏覽器改寫。
+
+建議出版流程：
+
+1. 開啟 `#/author`。
+2. 選擇建立新題庫、匯入本機檔案，或載入 bundled revision。
+3. 直接修改 Quiz Markdown DSL，必要時插入題型範本。
+4. 修正 validation 的阻塞錯誤，逐項檢查非阻塞提醒。
+5. 切換學生／答案預覽，確認題目、公式、解答、rubric 與 Canvas。
+6. 下載 `.quiz.md`，保留該檔案的原始文字。
+7. 將新 revision 放入建議的 `src/content/quizzes/<quiz-id>/` 路徑。
+8. 將舊 revision 的 `current` 改為 `false`。
+9. 確認新 revision 的 `current="true"`；保留舊 revision 檔供歷史作答使用。
+10. 執行 `npm run check:quizzes`、`npm run lint`、`npm run test`、`npm run build`、`npm run check:ai-context`；題目有變更時依原流程更新 AI context manifest。
+11. 審閱差異後透過 Git commit／push 與既有部署流程發布。
+
+瀏覽器本身不執行第 7–11 步，不會修改 Git、bundled 題庫或 Supabase 題庫，也沒有 CMS／server-side 發布能力。
 
 ## Quiz Markdown DSL specification (v1)
 
@@ -398,7 +427,7 @@ npm run build -- --base=/learnforge/
 
 ## Known limitations
 
-- 題庫仍是 Git 內的三份 bundled Markdown，沒有題庫編輯器、管理後台或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
+- 題庫仍是 Git 內的三份 bundled Markdown。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
 - 錯題頁依序分頁讀取提交作答並重新評分；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上，沒有可視化 recovery UI。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
 - 沒有 password reset／email delivery。遺失密碼且提示無法協助時無法自行恢復；只適合 demo 使用。
@@ -408,14 +437,15 @@ npm run build -- --base=/learnforge/
 - 計算／畫圖不納入正式自動分數。v0.6 計算題與 v0.7 圖像題 AI 建議均可能誤判，必要時須人工覆核。圖像分析只檢查是否有足夠可見筆畫，不執行電路模擬、正式拓撲驗證或安全認證；目前沒有圖像品質 benchmark。圖像超過 1200×1200、256 筆畫、6000 點、25 百萬幾何像素工作量或 2 MB PNG 時不送模型。畫圖工具仍無純鍵盤繪圖能力。
 - Markdown 支援 CommonMark 與 math，未加入 GFM table／task-list plugin、raw HTML 或 MathJax fallback。
 - LaTeX 使用 KaTeX 支援的子集；長公式在區塊內水平捲動。
+- 編寫器是純文字 textarea，沒有 syntax highlighting 或 WYSIWYG。Validation 對結構錯誤 fail-fast，品質提醒不驗證學術正確性。本機草稿只有一份且受瀏覽器儲存限制；清除瀏覽器資料會失去該草稿。
 - 答案隨靜態題庫打包，localStorage 可由使用者修改；本產品是自主練習，不能當防作弊考試或可信成績系統。
 - 沒有單題重練、跨題庫分析或 mastery scoring。v0.2 的既有 warning 與歷史限制詳見當時的交付報告。
 
 ## Future roadmap
 
-下一個 milestone 建議 **v0.8 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
+下一個 milestone 建議 **v0.9 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策，再評估學習分析。
 
-後續可分階段評估 regex／numeric tolerance、計算題評分品質與申訴流程、畫圖 multimodal 分析及更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、quiz editor、cloud image upload、leaderboard、social、PWA 或 SSR。
+後續可分階段評估 regex／numeric tolerance、計算題評分品質與申訴流程、畫圖 multimodal 分析及更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、server-side quiz CMS、cloud image upload、leaderboard、social、PWA 或 SSR。
 
 ## 上游參考
 

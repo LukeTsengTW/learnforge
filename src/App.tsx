@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { NotFoundPage } from './components/ErrorPage'
@@ -20,10 +20,13 @@ import { PracticeContext, type PracticeRepository } from './features/quiz/practi
 import { TutorContext } from './features/ai/tutor-context'
 import { SupabaseTutorService, type TutorService } from './features/ai/tutor-service'
 
+const AuthorPage = lazy(() => import('./features/author/AuthorPage').then((module) => ({ default: module.AuthorPage })))
+
 export function AppRoutes() {
   return <Routes><Route element={<Layout />}>
     <Route index element={<HomePage />} />
     <Route path="library" element={<LibraryPage />} />
+    <Route path="author" element={<Suspense fallback={<p role="status">正在載入題庫編寫工具…</p>}><AuthorPage /></Suspense>} />
     <Route path="login" element={<AuthPage key="login" mode="login" />} />
     <Route path="register" element={<AuthPage key="register" mode="register" />} />
     <Route path="forgot-password" element={<AuthPage key="hint" mode="hint" />} />
@@ -48,13 +51,21 @@ export function Application({ auth, createRepository, tutor = null }: { auth: Au
   return <HashRouter><AuthProvider service={auth}><TutorContext.Provider value={tutor}><PracticeBoundary createRepository={createRepository}><AppRoutes /></PracticeBoundary></TutorContext.Provider></AuthProvider></HashRouter>
 }
 export default function App() {
-  const config = getSupabase()
-  const auth = useMemo(() => config.client ? createAuthService(config.client) : null, [config.client])
+  const [authorOnly, setAuthorOnly] = useState(() => window.location.hash.split('?')[0] === '#/author')
+  useEffect(() => {
+    const updateRoute = () => setAuthorOnly(window.location.hash.split('?')[0] === '#/author')
+    window.addEventListener('hashchange', updateRoute)
+    return () => window.removeEventListener('hashchange', updateRoute)
+  }, [])
+  // Direct author visits need no Supabase client, session, repository, or tutor service.
+  const config = authorOnly ? null : getSupabase()
+  const client = config?.client ?? null
+  const auth = useMemo(() => client ? createAuthService(client) : null, [client])
   const createRepository = useMemo<PracticeRepositoryFactory>(() => (userId) => {
-    if (!config.client) throw new Error('Missing configuration')
-    return new SupabasePracticeRepository(config.client, userId)
-  }, [config.client])
-  const tutor = useMemo(() => config.client ? new SupabaseTutorService(config.client) : null, [config.client])
-  if (config.error) return <main className="error-page"><h1>LearnForge</h1><p role="alert">{config.error}</p></main>
+    if (!client) throw new Error('Missing configuration')
+    return new SupabasePracticeRepository(client, userId)
+  }, [client])
+  const tutor = useMemo(() => client ? new SupabaseTutorService(client) : null, [client])
+  if (config?.error) return <main className="error-page"><h1>LearnForge</h1><p role="alert">{config.error}</p></main>
   return <Application auth={auth} createRepository={createRepository} tutor={tutor} />
 }

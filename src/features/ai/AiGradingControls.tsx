@@ -2,17 +2,11 @@ import { Markdown } from '../../components/Markdown'
 import type { CalculationQuestion } from '../../models/quiz'
 import type { QuestionAnswer } from '../../models/attempt'
 import type { AiTutorState } from './use-ai-tutor'
+import { hasScoredRubric } from '../../lib/scored-rubric'
 
 const STATUS = { full: '已達成', partial: '部分達成', none: '未達成' }
 const CONFIDENCE = { high: '高', medium: '中', low: '低' }
 const MAX_BYTES = 8192
-
-function hasScoredRubric(question: CalculationQuestion): boolean {
-  return question.rubric.length > 0
-    && question.rubric.every((criterion) => criterion.score !== null && Number.isFinite(criterion.score)
-      && criterion.score > 0 && !!criterion.description.trim())
-    && Math.abs(question.rubric.reduce((sum, criterion) => sum + (criterion.score ?? 0), 0) - question.points) <= 1e-8
-}
 
 export function AiGradingControls({ tutor, question, answer }: {
   tutor: AiTutorState; question: CalculationQuestion; answer: QuestionAnswer | undefined

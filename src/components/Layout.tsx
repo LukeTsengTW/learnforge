@@ -20,6 +20,7 @@ export function Layout() {
       <nav aria-label="主要導覽">
         <Link to="/" aria-current={pathname === '/' ? 'page' : undefined}>練習首頁</Link>
         <Link to="/library" aria-current={pathname === '/library' ? 'page' : undefined}>題庫</Link>
+        <Link to="/author" aria-current={pathname === '/author' ? 'page' : undefined}>題庫編寫</Link>
         {account && <><Link to="/history" aria-current={pathname === '/history' ? 'page' : undefined}>練習紀錄</Link>
           <Link to="/mistakes" aria-current={pathname === '/mistakes' ? 'page' : undefined}>錯題</Link>
           <Link to="/ai-usage" aria-current={pathname === '/ai-usage' ? 'page' : undefined}>AI 使用紀錄</Link></>}
@@ -27,10 +28,10 @@ export function Layout() {
           setLoggingOut(true); setLogoutError(null)
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
-        <span className="version-label">v0.7</span>
+        <span className="version-label">v0.8</span>
       </nav>
     </div></header>
-    <main id="main-content" ref={main} tabIndex={-1} className="main-container">
+    <main id="main-content" ref={main} tabIndex={-1} className={pathname === '/author' ? 'main-container author-main' : 'main-container'}>
       {(error || logoutError) && <div className="notice warning" role="alert">{logoutError ?? error}</div>}
       <Outlet />
     </main>

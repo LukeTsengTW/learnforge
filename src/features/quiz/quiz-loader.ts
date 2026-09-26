@@ -39,7 +39,7 @@ export function createQuizCatalog(sources: Record<string, string>): QuizCatalog 
     getQuizRevision: (id, revision) => revisions.get(id)?.get(revision) ?? null }
 }
 
-const bundledSources = import.meta.glob<string>('../../content/quizzes/**/*.quiz.md', { query: '?raw', import: 'default', eager: true })
-export const quizCatalog = createQuizCatalog(bundledSources)
+export const bundledQuizSources = import.meta.glob<string>('../../content/quizzes/**/*.quiz.md', { query: '?raw', import: 'default', eager: true })
+export const quizCatalog = createQuizCatalog(bundledQuizSources)
 const currentDemo = quizCatalog.getCurrentQuiz('demo')
 export const demoQuiz: QuizLoadResult = currentDemo ? { ok: true, quiz: currentDemo } : { ok: false, error: '找不到 demo 題庫。' }
