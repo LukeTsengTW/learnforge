@@ -12,8 +12,9 @@ function fakeClient() {
     signUp: vi.fn().mockResolvedValue({ data: { session }, error: null }),
   }
   const profile = { select: vi.fn().mockReturnThis(), eq: vi.fn().mockReturnThis(), single: vi.fn().mockResolvedValue({ data: { id: 'account-a', username: 'student' }, error: null }) }
-  const client = { auth, from: vi.fn(() => profile) } as unknown as AppSupabase
-  return { auth, profile, client, session, service: createAuthService(client) }
+  const functions = { invoke: vi.fn().mockResolvedValue({ data: { active: false }, error: null }) }
+  const client = { auth, functions, from: vi.fn(() => profile) } as unknown as AppSupabase
+  return { auth, profile, functions, client, session, service: createAuthService(client) }
 }
 describe('Auth API boundaries', () => {
   it('passes passwords only as Auth credentials; profile metadata contains only normalized username and hint', async () => {
@@ -34,13 +35,20 @@ describe('Auth API boundaries', () => {
     await expect(service.restore()).rejects.toMatchObject({ code: 'refresh_token_not_found' })
     expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' })
   })
-  it('rejects revoked/expired sessions but keeps a nonexpired offline session usable locally', async () => {
+  it('rejects revoked/expired sessions and never authenticates an unverified offline token', async () => {
     const { service, auth, session } = fakeClient()
     auth.getUser.mockResolvedValue({ data: { user: null }, error: { status: 401 } })
     expect(await service.restore()).toBeNull()
     auth.getUser.mockResolvedValue({ data: { user: null }, error: { status: 0 } })
-    expect(await service.restore()).toEqual({ id: 'account-a', username: 'student' })
+    await expect(service.restore()).rejects.toMatchObject({ status: 0 })
     auth.getSession.mockResolvedValue({ data: { session: { ...session, expires_at: 1 } }, error: null })
     expect(await service.restore()).toBeNull()
+  })
+  it('rejects a signed JWT after its session row was revoked', async () => {
+    const { service, functions, auth, profile } = fakeClient()
+    functions.invoke.mockResolvedValue({ data: null, error: { context: new Response(null, { status: 401 }) } })
+    expect(await service.restore()).toBeNull()
+    expect(auth.signOut).toHaveBeenCalledWith({ scope: 'local' })
+    expect(profile.single).not.toHaveBeenCalled()
   })
 })

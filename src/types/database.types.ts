@@ -228,6 +228,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_account_recovery: {
+        Args: { p_code_hash: string; p_ip_hash: string; p_username: string }
+        Returns: Json
+      }
       complete_ai_request: {
         Args: {
           p_cached_input_tokens: number
@@ -308,9 +312,17 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      manage_account_recovery: {
+        Args: { p_code_hash?: string; p_session_id: string; p_user_id: string }
+        Returns: Json
+      }
       refund_ai_request: {
         Args: { p_error_code: string; p_request_id: string; p_user_id: string }
         Returns: boolean
+      }
+      release_account_recovery: {
+        Args: { p_claim_id: string; p_user_id: string }
+        Returns: string
       }
       request_password_hint: {
         Args: { p_ip_hash: string; p_username: string }

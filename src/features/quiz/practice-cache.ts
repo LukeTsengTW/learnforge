@@ -5,7 +5,7 @@ import { resolveAttemptConflict, sameAttempt } from './sync'
 import { cacheKey, PersistenceError, type RemoteVersion, type StoragePort } from './repositories'
 import type { PracticeRecord } from './practice-repository'
 
-export interface CachedPractice { id: string; attempt: QuizAttempt; version: RemoteVersion }
+export interface CachedPractice { id: string; attempt: QuizAttempt; version: RemoteVersion; recoveryExpectedVersion?: string }
 export const practiceCacheKey = (userId: string, attemptId: string) => `learnforge:attempt:v3:${userId}:${attemptId}`
 export const draftIndexKey = (userId: string, quizId: string) => `learnforge:draft-index:v3:${userId}:${quizId}`
 
@@ -28,7 +28,7 @@ export class LocalPracticeCache {
         || !Number.isFinite(Date.parse(value.version.updatedAt))) throw new Error('Invalid cache envelope')
       const attempt = decodeAttempt(JSON.stringify(value.attempt), quiz)
       if (!attempt) throw new Error('Invalid attempt')
-      return { id, attempt, version: value.version }
+      return { id, attempt, version: value.version, ...(typeof value.recoveryExpectedVersion === 'string' ? { recoveryExpectedVersion: value.recoveryExpectedVersion } : {}) }
     } catch {
       this.backup(this.key(id), raw)
       throw new PersistenceError('invalid')
@@ -47,9 +47,9 @@ export class LocalPracticeCache {
     if (value.attempt.status === 'in-progress') this.storage().setItem(index, value.id)
     else if (this.storage().getItem(index) === value.id) this.storage().removeItem(index)
   }
-  archive(value: CachedPractice): void {
+  archive(value: CachedPractice, reason = '同步版本衝突'): void {
     this.storage().setItem(`${this.key(value.id)}:recovery:${crypto.randomUUID()}`,
-      JSON.stringify({ schemaVersion: 3, ownerId: this.userId, ...value }))
+      JSON.stringify({ schemaVersion: 3, ownerId: this.userId, ...value, recovery: { savedAt: new Date().toISOString(), reason } }))
   }
   removeDraft(value: CachedPractice): void {
     if (value.attempt.status !== 'in-progress') throw new PersistenceError('invalid')
@@ -85,6 +85,10 @@ export class LocalPracticeCache {
     const remote = { id: record.id, attempt: record.attempt, version: record.version }
     const local = this.read(record.id, record.quiz) ?? this.migrateV2(record)
     if (!local) { this.write(remote); return remote }
+    if (local.recoveryExpectedVersion && local.recoveryExpectedVersion !== record.version.updatedAt) {
+      this.archive(local, '還原後雲端已有較新版本，已停止自動套用')
+      this.storage().removeItem(this.key(record.id)); this.write(remote); return remote
+    }
     if (record.attempt.status === 'submitted') {
       if (!sameAttempt(local.attempt, remote.attempt)) {
         this.archive(local)

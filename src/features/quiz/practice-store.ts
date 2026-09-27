@@ -29,7 +29,10 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   const emit = () => { snapshot = { ...snapshot, attempt: value.attempt,
     pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
     listeners.forEach((listener) => listener()) }
-  const persist = () => { try { cache.write(value) } catch { snapshot = { ...snapshot, notice: '無法儲存本機進度；請保持連線並重試雲端同步。' } } }
+  const persist = () => { try { cache.write(value) } catch {
+    try { cache.archive(value, '另一分頁已提交或本機儲存衝突') } catch { /* Keep the current in-memory answers. */ }
+    snapshot = { ...snapshot, notice: '無法儲存本機進度；請保持連線並重試雲端同步。' }
+  } }
   const problem = (error: unknown) => error instanceof PersistenceError && error.kind === 'invalid'
     ? '作答資料格式不符，已停止同步並保留本機內容。'
     : error instanceof PersistenceError && error.kind === 'conflict'
@@ -48,9 +51,11 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         if (!incoming || !incoming.attempt || !incoming.quiz) throw new PersistenceError('conflict')
         remoteRecord = incoming
         if (incoming.row.status !== 'draft') {
+          if (!sameAttempt(value.attempt, incoming.attempt)) cache.archive(value, '其他裝置或分頁已提交')
           value = cache.reconcile(incoming); dirty = false; emit(); return
         }
         if (value.version.updatedAt !== incoming.version.updatedAt) {
+          if (dirty) cache.archive(value, '同步時發現另一個草稿版本')
           value = cache.reconcile(incoming)
           dirty = !sameAttempt(value.attempt, incoming.attempt)
           emit()
@@ -60,7 +65,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           const saved = await repo.saveDraft({ ...remoteRecord, version: value.version }, saving)
           if (!active) return
           if (!saved.version) throw new PersistenceError('invalid')
-          value = { ...value, version: saved.version }
+          value = { id: value.id, attempt: value.attempt, version: saved.version }
           remoteRecord = { ...remoteRecord, row: { ...remoteRecord.row,
             status: saving.status === 'submitted' ? 'submitted' : 'draft' }, version: saved.version, attempt: saving }
           dirty = !sameAttempt(value.attempt, saving)
@@ -109,6 +114,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         const saved = await repo.saveDraft({ ...incoming, version: value.version }, submitted)
         if (!saved.version) throw new PersistenceError('invalid')
         value = { ...value, attempt: submitted, version: saved.version }; dirty = false
+        remoteRecord = { ...incoming, row: { ...incoming.row, status: 'submitted' }, attempt: submitted, version: saved.version }
         persist(); emit(); return initial.id
       } catch (error) { snapshot = { ...snapshot, notice: problem(error) }; emit(); return null }
     },

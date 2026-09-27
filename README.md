@@ -1,6 +1,8 @@
 # LearnForge
 
-**Current status: v0.9 — Learning Analytics & Wrong-answer Review（驗證狀態見 [v0.9 交付報告](docs/v0.9-delivery.md)）**。
+**Current status: v1.0 — READY FOR PUBLIC DEPLOYMENT**。Final Release Gate 已通過；尚未 commit、push 或發布 Pages，正式 URL 在部署前仍回 404。完整結果見 [v1.0 交付報告](docs/v1.0-delivery.md)。
+
+v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 
 LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫使用可版本管理的 Quiz Markdown，提交後可查看客觀題成績、自己的答案、正確／參考答案、完整解答與評分規準。v0.2 建立 Username + Password、Supabase 與帳號隔離的本機 cache；v0.3 加入多題庫、每份題目的多次提交、練習紀錄與錯題回顧；v0.4 加入受題目與作答狀態限制的 AI Tutor；v0.5 讓已完成的 AI 建議可在重新整理及歷史紀錄中恢復，並提供個人使用紀錄；v0.6 為計算題提供獨立的 AI 參考評分；v0.7 為已提交的畫圖題加入以 scored rubric 為依據的 AI 圖像參考分析；v0.8 增加可公開使用的本機題庫編寫工具；v0.9 從正式提交推導學習分析與單題錯題複習。原本 parser、deterministic grading、drawing engine 與 Auth 架構保留。
 
@@ -17,6 +19,7 @@ LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫
 - `#/analytics` 從最近最多 500 次正式提交推導整體、科目、主題標籤、客觀題題型與 UTC 週趨勢；顯示已作答正確率、完成率、樣本數與無法解析的歷史筆數。
 - `#/review` 按題庫與題目去重，只有最新可解析客觀題結果為答錯才列入佇列。單題複習使用當時的精確版本與正式題目／評分元件；檢查答案後才顯示解答，可重試，但不建立正式作答、不改寫歷史、不呼叫 AI。
 - 註冊／登入／登出、session 恢復、自己的 profile、限流的密碼提示查詢。
+- `#/account` 管理密碼與一次性復原碼；`#/recover-account` 使用 username + 復原碼重設密碼；`#/recovery` 檢視、匯出、保守還原或刪除本裝置的練習衝突備份。
 - 未完成客觀題時先警告，再由使用者決定是否提交。
 - HashRouter：公開 `#/`、`#/library`、`#/author` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes`、`#/analytics`、`#/review`、`#/ai-usage` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
@@ -52,7 +55,7 @@ npm run dev
 
 開啟終端機列出的本機 URL。初次沒有 lockfile 時才使用 `npm install`。
 
-`.env.example` 僅列 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`，值為空白。從 Supabase project 的 Connect／API Keys 取得 project URL 與 `sb_publishable_…` key，填入 `.env.local`。缺少或錯誤設定會顯示 configuration error。只有 publishable client key 能放入 Vite；它會出現在公開 bundle 中。不要填入 server secret、service-role key 或 database password。`.env`、`.env.*` 均被 Git 忽略，只有 `.env.example` 例外。
+`.env.example` 列出 `VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY` 與 `VITE_TURNSTILE_SITE_KEY`。從 Supabase project 的 Connect／API Keys 取得 project URL 與 `sb_publishable_…` key，填入 `.env.local`。只有這三項公開 client 設定可進前端 bundle；不要填 server secret、service-role key、database password 或 Turnstile secret。`.env`、`.env.*` 均被 Git 忽略，只有 `.env.example` 例外。沒有 site key 時不顯示假的 CAPTCHA；公開發布前必須補齊真實設定。
 
 AI Tutor 與 AI 參考分析僅在 Supabase Edge Function 的 server environment 讀取 `OPENAI_API_KEY`。請透過 Supabase Dashboard 的 Edge Function Secrets 安全設定；不要寫入 `.env.local`、Vite 變數、GitHub Actions 公開變數、資料庫或原始碼。缺少 secret 時安全回傳服務暫不可用，且不保留額度。模型固定 `gpt-6-luna`，使用 Responses API、Structured Outputs、`store=false`；Tutor 的 `reasoning.effort=low`，計算與畫圖分析的 `reasoning.effort=medium`。畫圖 PNG 固定 `detail=high`，不啟用工具或一般聊天。
 
@@ -177,15 +180,29 @@ v0.7 的 `ai-drawing` 只接受 `{requestId,feature,attemptId,questionId}`，先
 
 套用新 migration 前先比對 linked migration list，執行 `npx supabase db push --linked --dry-run --skip-vault`，確認清單只有預期檔案後才使用 `npx supabase db push --linked --skip-vault --yes`。本次 v0.7 有圖像分析與原始 credits 範圍修正兩筆 migration。Public schema／RPC signature 變更後重新執行 `npx supabase gen types typescript --linked --schema public` 更新 generated DB types。`ai-tutor`、`ai-grade`、`ai-drawing`、`ai-quota`、`ai-responses`、`ai-usage` 均使用 platform `verify_jwt=false` 與 handler `withSupabase({ auth: 'user' })`；部署時需 `--no-verify-jwt`。`password-hint` 的既有設定維持不變。
 
-`AuthProvider` 管理 session、loading、失敗狀態與帳號；頁面只呼叫 `AuthService`。Supabase SDK 持久化並自動更新 session；恢復時再呼叫 `getUser()` 驗證，讀取自己的 profile。失效 token 清除本機 session 並回到登入；短暫斷網且尚未到期的 session 可繼續使用帳號隔離的 cache。要求有 15 秒 timeout，失敗不會直接刪除作答。
+`AuthProvider` 管理 session、loading、失敗狀態與帳號；頁面只呼叫 `AuthService`。Supabase SDK 持久化並自動更新 session；恢復時依序驗證 `getUser()`、server `auth.sessions` 綁定與自己的 profile。過期或撤銷的 session 不視為已登入；網路失敗時要求恢復連線，本機答案不刪除。已載入的草稿仍可暫存離線輸入，但重新載入不能離線繞過驗證。要求有 15 秒 timeout。
 
 畫面只有 Username／Password，不顯示 Email 欄位。`normalizeUsername()` trim + lowercase；`validateUsername()` 使用 `^[a-z0-9_]{3,24}$`；`usernameToSyntheticEmail()` 得到 `<username>@users.learnforge.invalid`。例如 ` LuKe_123 ` → `luke_123` → `luke_123@users.learnforge.invalid`。這是 Auth 的內部識別，不是可收信地址。
 
 註冊先驗證名稱、至少 8 字元密碼、確認密碼、1–200 字元提示，再將密碼直接交給 Supabase Auth。密碼不放進 metadata、application tables、logs 或 localStorage。`auth.users` INSERT trigger 以 `NEW.id` 原子建立 profile 與 hint，檢查 normalized username、synthetic email 一致性，不接受使用者指定另一個 UUID。Trigger 使用固定空 `search_path`、完整限定名稱、撤銷 PUBLIC execute。
 
-**專案需啟用 Email provider／signup，關閉 Confirm email**，否則 synthetic email 無法收確認信，也無法立即建立 session。linked demo 已確認 `mailer_autoconfirm=true`。本機 config 的 minimum password length 是 8；另請在遠端 Auth password policy 設至少 8（前端已強制 8）。沒有 email reset、帳號改名或密碼重設功能。
+**專案需啟用 Email provider／signup，關閉 Confirm email**，否則 synthetic email 無法收確認信，也無法立即建立 session。linked demo 已確認 `mailer_autoconfirm=true`。v1.0 已把遠端 minimum password length 從 6 提高為 8，並啟用 Require current password when updating；前端新密碼為至少 8 字元、至多 72 UTF-8 bytes。沒有 email reset 或帳號改名；密碼重設使用 Recovery Code。
 
 公開首頁與 `#/library`；保護 Quiz、Result、History、Mistakes，未登入會導向 `#/login` 並保存原目的地。只允許 app 內受保護路徑作 redirect，避免外站跳轉或登入迴圈。header 顯示 normalized username／登出；logout 清除本機 session，保留該帳號的作答 cache，其他帳號不會自動套用。
+
+### Account Recovery 與 CAPTCHA（v1.0）
+
+Recovery Code 使用 Web Crypto 128-bit 隨機值，以八組四位十六進位字元呈現。DB 只保存 SHA-256 digest。註冊成功會產生一組，只顯示一次；必須勾選「我已保存復原碼」再繼續。Copy／Download 由使用者主動按下，不自動下載，也不放入 localStorage。既有帳號可在 Account 產生或更換；更換立即撤銷舊碼。遺失密碼且沒有可用復原碼時，沒有自行恢復的途徑。
+
+`account-recovery-code` 使用 `withSupabase({ auth: 'user' })`，再綁定 user ID 與 JWT session ID。公開 `recover-account` 只接受 username、code、新密碼及 CAPTCHA token；失敗採 generic message，成功不建立 session，要求正常登入並產生新碼。private recovery table、rate-limit table 和管理 RPC 均不授權 browser roles。
+
+Claim RPC 與 Auth Admin 請求是兩個交易。`active → claiming → used` 以 5 分鐘 TTL、鎖定與安全 release 處理失敗；Auth 交易的 deferred trigger 驗證最終密碼更新與 claim，原子完成 consume、移除暫存 marker、刪除舊 sessions。過期、撤銷或延遲重播會讓密碼交易 rollback。完整一致性模型及對 Supabase Auth SQL transaction 的依賴見交付報告。
+
+復原限流集中於資料庫：每 30 分鐘 username 5、IP hash 20、global 200；超額回 429 與 Retry-After: 1800。密碼提示只是記憶輔助，不能重設密碼。帳號頁修改密碼必須先重新驗證目前密碼，並把 `current_password` 交给 Auth server。
+
+正式 Turnstile site key 已設定於前端 GitHub variable，secret 已設定於 Supabase Auth CAPTCHA 與 Edge `TURNSTILE_SECRET_KEY`；Edge `TURNSTILE_ALLOWED_HOSTNAMES` 只允許 `luketsengtw.github.io`。Signup／login 把 token 交給原生 Auth；Recovery 在 server 呼叫 Siteverify，驗證 success、`action=recovery` 及 hostname。Recovery 缺 secret 預設 fail closed。Final Gate 已用真實 Turnstile 完成 signup／login／recovery 正向流程，缺少及無效 token 均被拒絕。先前開發 E2E 用過的 `RECOVERY_ALLOW_NO_CAPTCHA` 已移除，此次 Final Gate 未使用 bypass。
+
+目前 linked project 為 Free 方案，leaked-password protection **not available on current plan**，保留其 advisor warning，不升級方案。設定與證據見交付報告。
 
 ### Schema / RLS / grants
 
@@ -201,7 +218,7 @@ v0.7 的 `ai-drawing` 只接受 `{requestId,feature,attemptId,questionId}`，先
 
 ### 密碼提示 Edge Function
 
-`#/forgot-password` 明示「LearnForge Demo 目前僅提供密碼提示，無法重設遺失的密碼。」這不是 password reset。提示可由知道 username 的人查詢，請勿放密碼或敏感個資。
+`#/forgot-password` 明示「提示不能重設密碼」，並連到帳號復原碼頁。提示可由知道 username 的人查詢，請勿放密碼或敏感個資。
 
 只接受 `POST {"username":"..."}`，拒絕批次／多欄位／超過 1 KiB 的 request。`verify_jwt=false` 讓遺失密碼的人能使用；Edge runtime 使用內建 server credential 呼叫僅 service_role 可執行的 `request_password_hint` RPC。前端無法直接讀 hints，也無法呼叫該 privileged RPC。
 
@@ -218,6 +235,8 @@ npx supabase db push --linked --dry-run --skip-vault
 npx supabase db push --linked --skip-vault
 npx supabase gen types typescript --linked --schema public > src/types/database.types.ts
 npx supabase functions deploy password-hint --use-api
+npx supabase functions deploy account-recovery-code --use-api --no-verify-jwt
+npx supabase functions deploy recover-account --use-api --no-verify-jwt
 npx supabase db query --linked --file supabase/tests/security.sql
 npx supabase db advisors --linked --type security --fail-on error
 ```
@@ -416,6 +435,8 @@ Domain `QuizAttempt` 仍維持 schemaVersion 1、quiz id/revision、typed answer
 
 答案事件立即寫入本機，約 800ms 後批次同步至雲端；提交以 attempt UUID 和 server `updated_at` 做 CAS。只比較同一 UUID 的草稿時間，提交紀錄不被新草稿覆寫；衝突內容存 recovery 備份並顯示通知。Canvas 仍只保存筆畫模型，不上傳 PNG。斷網時目前載入的草稿可暫存在本機；雲端建立新草稿與提交需要連線。重新開始只刪除目前 draft，已提交歷史保留。其他分頁更新在下次同步或重新整理時合併；沒有 Realtime，也沒有逐題協同合併。
 
+`#/recovery` 預設只列目前帳號的備份 metadata，原始 JSON 須主動檢視或匯出。安全還原只允許有效 v3 備份、相同 user／attempt／revision、完全相同的雲端版本，而且目前本機及雲端草稿皆無答案；之後再次同步還會核對版本。Submitted、新版雲端、跨帳號或格式不明的備份只能匯出，不能偷偷覆寫。備份留在發生衝突的瀏覽器，刪除需確認。
+
 ## GitHub Pages notes
 
 HashRouter 的 route 位於 `#` 後方，重新整理 `.../learnforge/#/quiz/demo` 不需伺服器處理巢狀路徑。Vite 預設 `base: '/'` 適合 root Pages site。
@@ -430,21 +451,21 @@ npm run build -- --base=/learnforge/
 
 已提供手動觸發的 `.github/workflows/deploy.yml`：
 
-1. 把 repository 推上 GitHub，至 **Settings → Pages → Source** 選擇 **GitHub Actions**。
-2. 至 **Settings → Secrets and variables → Actions → Variables** 設定 `VITE_SUPABASE_URL` 與 `VITE_SUPABASE_PUBLISHABLE_KEY`（公開 client configuration）。不要設定 server key。
-3. 至 **Actions → Deploy LearnForge to GitHub Pages → Run workflow**。
-4. Workflow 執行 npm ci、lint、test，再使用 `configure-pages` 輸出的 `base_path` build，最後上傳並部署 `dist/`。
+1. **Settings → Pages → Source** 已選擇 **GitHub Actions**。`LukeTsengTW/learnforge` 仍未部署 Pages 內容；正式 project URL 目前回 404。
+2. **Settings → Secrets and variables → Actions → Variables** 已有三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key。Workflow 缺任一變數會停止 build。
+3. 取得發布授權並完成 commit／push 後，至 **Actions → Deploy LearnForge to GitHub Pages → Run workflow**。
+4. Workflow 固定 Node 24.21.0，執行 npm ci、lint、test、check:quizzes、check:ai-context，再使用 `configure-pages` 輸出的 `base_path` build。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。
 
 不硬編 username、repository name 或分支名稱。本次部署 Supabase schema／Function，沒有發布 GitHub Pages；是否啟用 push 自動部署由 repository 管理者另行設定。
 
 ## Known limitations
 
 - 題庫仍是 Git 內的三份 bundled Markdown。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
-- 錯題頁依序分頁讀取提交作答並重新評分；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上，沒有可視化 recovery UI。
+- 錯題頁依序分頁讀取提交作答並重新評分；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
-- 沒有 password reset／email delivery。遺失密碼且提示無法協助時無法自行恢復；只適合 demo 使用。
-- offline fallback 需頁面已載入，不是離線 PWA；過期 session 需連線重新登入。共用裝置應登出；未加密的本機 cache 可被有該瀏覽器存取權的人讀取。
-- Server rate limiter 是基本保護，可能被濫用耗盡全域額度；正式開放前需補帳號復原、註冊 CAPTCHA／配額及持續監測。
+- 沒有 email delivery；Recovery Code 是 bearer secret，遺失密碼且沒有有效碼時無法自行恢復。
+- 已載入草稿可離線暫存，但重新载入須連線驗證 session；不是離線 PWA。共用裝置應登出；未加密的本機 cache 可被有該瀏覽器存取權的人讀取。既發出的 JWT 在部分 Supabase API 仍可能有效到 expiry（目前 3600 秒），詳見 SECURITY.md。
+- Server rate limiter 是基本保護，全域額度可能被濫用耗盡；真實 CAPTCHA 已設定並實測，但沒有多帳號 Sybil 防護或全球分散式 DDoS 保證。
 - Canvas 工具可鍵盤操作，但畫圖本身仍需要 pointer 裝置；沒有純鍵盤繪圖或圖像內容的自動替代描述。
 - 計算／畫圖不納入正式自動分數。v0.6 計算題與 v0.7 圖像題 AI 建議均可能誤判，必要時須人工覆核。圖像分析只檢查是否有足夠可見筆畫，不執行電路模擬、正式拓撲驗證或安全認證；目前沒有圖像品質 benchmark。圖像超過 1200×1200、256 筆畫、6000 點、25 百萬幾何像素工作量或 2 MB PNG 時不送模型。畫圖工具仍無純鍵盤繪圖能力。
 - Markdown 支援 CommonMark 與 math，未加入 GFM table／task-list plugin、raw HTML 或 MathJax fallback。
@@ -453,9 +474,9 @@ npm run build -- --base=/learnforge/
 - 答案隨靜態題庫打包，localStorage 可由使用者修改；本產品是自主練習，不能當防作弊考試或可信成績系統。
 - v0.9 分析只掃描最近 500 次提交；更早的正式結果不影響本版佇列。單題複習僅是暫時練習，重新整理後本次進度重置。沒有 AI mastery scoring 或正式能力排名。v0.2 的既有 warning 與歷史限制詳見當時的交付報告。
 
-## Future roadmap
+## Post-1.0 ideas
 
-下一個 milestone 建議 **v1.0 帳號復原與同步可靠性**：建立可驗證的帳號復原方式、CAPTCHA／註冊防濫用、recovery UI、較完整的多裝置衝突測試與備份政策；分析擴展則先蒐集真實使用規模與查詢計畫，再決定是否需要更長時間窗。
+發布後先觀察實際使用規模、復原失敗與同步衝突，再評估備份保存政策、更細緻的同步合併或分析時間窗。任何新功能另開 scope，不是 v1.0 的承諾。
 
 後續可分階段評估 regex／numeric tolerance、計算題評分品質與申訴流程、畫圖 multimodal 分析及更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、server-side quiz CMS、cloud image upload、leaderboard、social、PWA 或 SSR。
 

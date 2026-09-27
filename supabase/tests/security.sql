@@ -480,5 +480,115 @@ begin
 end $$;
 reset role;
 
+-- v1.0 recovery: no raw secret fixtures; only non-secret synthetic digests.
+select set_config('test.session_a', gen_random_uuid()::text, true);
+insert into auth.sessions(id,user_id) values(current_setting('test.session_a')::uuid,current_setting('test.user_a')::uuid);
+set local role anon;
+do $$ begin
+  begin perform 1 from private.account_recovery_codes; raise exception 'FAIL anon recovery table'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.recovery_rate_limits; raise exception 'FAIL anon recovery limits'; exception when insufficient_privilege then null; end;
+  begin perform public.claim_account_recovery('v03_rls_fixture_a',repeat('a',64),repeat('b',64)); raise exception 'FAIL anon recovery RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role authenticated;
+do $$ begin
+  begin perform 1 from private.account_recovery_codes; raise exception 'FAIL auth recovery table'; exception when insufficient_privilege then null; end;
+  begin perform public.manage_account_recovery(current_setting('test.user_b')::uuid,current_setting('test.session_a')::uuid,repeat('c',64)); raise exception 'FAIL auth rotation RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.release_account_recovery(current_setting('test.user_a')::uuid,gen_random_uuid()); raise exception 'FAIL auth release RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role service_role;
+do $$ declare a uuid:=current_setting('test.user_a')::uuid; b uuid:=current_setting('test.user_b')::uuid;
+  sid uuid:=current_setting('test.session_a')::uuid; result jsonb;
+begin
+  result:=public.manage_account_recovery(b,sid,repeat('a',64));
+  if (result->>'validSession')::boolean then raise exception 'FAIL cross-user session binding'; end if;
+  result:=public.manage_account_recovery(a,sid,repeat('a',64));
+  if not (result->>'active')::boolean or result ? 'code' or result ? 'code_hash' then raise exception 'FAIL recovery status projection'; end if;
+  perform public.manage_account_recovery(a,sid,repeat('c',64));
+  if not (public.claim_account_recovery('v03_rls_fixture_a',repeat('a',64),repeat('b',64))->>'invalid')::boolean then raise exception 'FAIL old code after rotation'; end if;
+  result:=public.claim_account_recovery('v03_rls_fixture_a',repeat('c',64),repeat('b',64));
+  if result->>'userId' <> a::text then raise exception 'FAIL valid claim'; end if;
+  perform set_config('test.claim_a',result->>'claimId',true);
+  if not (public.claim_account_recovery('v03_rls_fixture_a',repeat('c',64),repeat('b',64))->>'invalid')::boolean then raise exception 'FAIL concurrent claim'; end if;
+end $$;
+reset role;
+-- Match GoTrue Admin's separate SQL statements in ONE transaction. Flush at the
+-- fixture checkpoint because the overall test transaction intentionally rolls back.
+set constraints auth.learnforge_consume_recovery deferred;
+update auth.users set encrypted_password='fixture-hash-v10' where id=current_setting('test.user_a')::uuid;
+update auth.users set raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',current_setting('test.claim_a')) where id=current_setting('test.user_a')::uuid;
+set constraints auth.learnforge_consume_recovery immediate;
+do $$ begin
+  if exists(select 1 from auth.sessions where user_id=current_setting('test.user_a')::uuid) then raise exception 'FAIL revoked recovery sessions'; end if;
+  if (select state from private.account_recovery_codes where user_id=current_setting('test.user_a')::uuid) <> 'used' then raise exception 'FAIL atomic consume'; end if;
+  if (select raw_app_meta_data ? 'learnforge_recovery_claim' from auth.users where id=current_setting('test.user_a')::uuid) then raise exception 'FAIL transient marker persisted'; end if;
+  begin
+    update auth.users set encrypted_password='fixture-replay',raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',current_setting('test.claim_a')) where id=current_setting('test.user_a')::uuid;
+    raise exception 'FAIL late admin replay';
+  exception when check_violation then null; end;
+end $$;
+set local role service_role;
+do $$ begin
+  if not (public.claim_account_recovery('v03_rls_fixture_a',repeat('c',64),repeat('b',64))->>'invalid')::boolean then raise exception 'FAIL used code replay'; end if;
+  if public.release_account_recovery(current_setting('test.user_a')::uuid,current_setting('test.claim_a')::uuid) <> 'used' then raise exception 'FAIL ambiguous committed update'; end if;
+end $$;
+reset role;
+-- Test cancellation and TTL with rollback-only state, independent of production counters.
+insert into auth.sessions(id,user_id) values(current_setting('test.session_a')::uuid,current_setting('test.user_a')::uuid);
+update private.account_recovery_codes set state='claiming',used_at=null,claim_id=gen_random_uuid(),claim_expires_at=clock_timestamp()-interval '1 second' where user_id=current_setting('test.user_a')::uuid;
+do $$ declare a uuid:=current_setting('test.user_a')::uuid; cid uuid; original text; begin
+  select claim_id into cid from private.account_recovery_codes where user_id=a;
+  select encrypted_password into original from auth.users where id=a;
+  begin
+    update auth.users set encrypted_password='fixture-expired',raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',cid) where id=a;
+    raise exception 'FAIL expired claim accepted';
+  exception when check_violation then null; end;
+  perform public.release_account_recovery(a,cid);
+  begin
+    update auth.users set encrypted_password='fixture-cancelled',raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',cid) where id=a;
+    raise exception 'FAIL cancelled claim accepted';
+  exception when check_violation then null; end;
+  if (select encrypted_password from auth.users where id=a) <> original then raise exception 'FAIL rejected recovery changed password'; end if;
+  if (select state from private.account_recovery_codes where user_id=a) <> 'active' then raise exception 'FAIL safe rollback lost code'; end if;
+  -- Metadata alone cannot consume a code without changing the password.
+  update private.account_recovery_codes set state='claiming',claim_id=cid,claim_expires_at=clock_timestamp()+interval '5 minutes' where user_id=a;
+  begin
+    update auth.users set raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',cid) where id=a;
+    raise exception 'FAIL metadata-only recovery accepted';
+  exception when check_violation then null; end;
+  -- A failed deferred fence rolls back BOTH separate Auth statements.
+  update private.account_recovery_codes set claim_expires_at=clock_timestamp()-interval '1 second' where user_id=a;
+  begin
+    set constraints auth.learnforge_consume_recovery deferred;
+    update auth.users set encrypted_password='fixture-split-expired' where id=a;
+    update auth.users set raw_app_meta_data=jsonb_build_object('learnforge_recovery_claim',cid) where id=a;
+    set constraints auth.learnforge_consume_recovery immediate;
+    raise exception 'FAIL expired split Auth transaction accepted';
+  exception when check_violation then null; end;
+  set constraints auth.learnforge_consume_recovery immediate;
+  if (select encrypted_password from auth.users where id=a) <> original then raise exception 'FAIL split Auth failure changed password'; end if;
+end $$;
+set local role service_role;
+do $$ declare i integer; result jsonb; begin
+  for i in 1..6 loop result:=public.claim_account_recovery('nonexistent_v10',repeat('a',64),repeat('d',64)); end loop;
+  if not (result->>'limited')::boolean then raise exception 'FAIL durable username rate limit'; end if;
+  for i in 1..21 loop result:=public.claim_account_recovery('unknown_v10_'||i,repeat('a',64),repeat('e',64)); end loop;
+  if not (result->>'limited')::boolean then raise exception 'FAIL durable IP rate limit'; end if;
+end $$;
+reset role;
+update private.recovery_rate_limits set requests=200 where bucket='global';
+set local role service_role;
+do $$ begin
+  if not (public.claim_account_recovery('global_v10_fixture',repeat('a',64),repeat('f',64))->>'limited')::boolean then raise exception 'FAIL durable global rate limit'; end if;
+end $$;
+reset role;
+do $$ begin
+  if to_regprocedure('public.rls_auto_enable()') is not null then
+    if has_function_privilege('anon','public.rls_auto_enable()','EXECUTE') or has_function_privilege('authenticated','public.rls_auto_enable()','EXECUTE') then raise exception 'FAIL event trigger browser grant'; end if;
+    create table public.lfv10_security_rls_fixture(id integer);
+    if not (select relrowsecurity from pg_class where oid='public.lfv10_security_rls_fixture'::regclass) then raise exception 'FAIL RLS automation'; end if;
+  end if;
+end $$;
 rollback;
-select 'PASS: practice security, private AI quota, restore, v0.6 grading and v0.7 drawing' as verification;
+select 'PASS: practice, AI, recovery, rate limits, atomic password fence, session binding and RLS automation' as verification;

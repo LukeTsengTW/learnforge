@@ -45,7 +45,7 @@ export function QuizPage() {
     <div className="breadcrumb"><Link to="/library">題庫</Link><span aria-hidden="true">/</span><span>正在練習</span></div>
     <header className="page-heading"><span className="subject-label">基礎練習</span><h1>{quiz.title}</h1><Markdown>{quiz.description}</Markdown></header>
     {quizCatalog.getCurrentQuiz(quiz.id)?.revision !== quiz.revision && <div className="notice warning" role="status">此未完成練習使用舊版題目（{quiz.revision}）。你可以繼續完成，或捨棄草稿並使用最新版重新開始。</div>}
-    {storageNotice && <div className="notice warning" role="status">{storageNotice}</div>}
+    {storageNotice && <div className="notice warning" role="status">{storageNotice} <Link to="/recovery">查看本機練習備份</Link></div>}
     <AiQuotaStatus tutor={tutor} />
     {retry && <div className="sync-bar"><span role="status">{syncing ? '正在同步…' : '本機即時暫存 · 雲端批次同步'}</span><button type="button" disabled={syncing} onClick={() => { void retry() }}>重試同步</button></div>}
     {importLegacy && <details className="legacy-import"><summary>此裝置有 v0.1 未綁定帳號的進度</summary><p>請確認這是你的作答，再匯入目前帳號。舊版原始資料會保留。</p><button type="button" onClick={() => { void importLegacy() }}>匯入我的舊版進度</button></details>}

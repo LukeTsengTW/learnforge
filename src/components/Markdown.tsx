@@ -7,7 +7,7 @@ export function Markdown({ children, inline = false }: { children: string; inlin
     rehypePlugins={[[rehypeKatex, { trust: false, strict: 'ignore' }]]}
     components={{
       ...(inline ? { p: ({ children }) => <span>{children}</span> } : {}),
-      a: ({ children, href }) => <a href={href} target="_blank" rel="noreferrer">{children}</a>,
+      a: ({ children, href }) => <a href={href} target="_blank" rel="noopener noreferrer">{children}</a>,
     }}>{children}</ReactMarkdown>
   return inline ? <span className="markdown markdown-inline">{content}</span> : <div className="markdown">{content}</div>
 }

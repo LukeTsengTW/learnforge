@@ -84,7 +84,7 @@ describe('auth UI and session boundaries', () => {
     await user.click(screen.getByRole('button', { name: '登入' }))
     expect(await screen.findByRole('alert')).toHaveTextContent('使用者名稱或密碼不正確')
     await user.click(screen.getByRole('link', { name: /忘記密碼/ }))
-    expect(screen.getByText('LearnForge Demo 目前僅提供密碼提示，無法重設遺失的密碼。')).toBeInTheDocument()
+    expect(screen.getByText('提示不能重設密碼。它只是協助回想密碼；重設請使用帳號復原碼。')).toBeInTheDocument()
     vi.mocked(auth.hint).mockResolvedValue('<script>not executed</script>')
     await user.type(screen.getByLabelText('使用者名稱'), 'student')
     await user.click(screen.getByRole('button', { name: '查詢提示' }))

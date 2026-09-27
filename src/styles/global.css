@@ -1,5 +1,19 @@
 @layer base, layout, components, responsive;
 
+@layer components {
+  .account-page, .recovery-page { width: min(100%, 760px); margin-inline: auto; overflow-wrap: anywhere; }
+  .account-section, .recovery-code { padding: 1.4rem; margin-block: 1.25rem; border: 1px solid #dce2da; border-radius: 1rem; background: #fff; }
+  .account-section form { display: grid; gap: .65rem; max-width: 30rem; }
+  .account-section input { min-width: 0; width: 100%; padding: .75rem; border: 1px solid #9cae9f; border-radius: .4rem; font: inherit; }
+  .recovery-secret { display: block; padding: 1rem; margin-block: 1rem; background: #f0f4ed; font-size: 1.05rem; overflow-wrap: anywhere; user-select: all; }
+  .check-label { display: flex; gap: .6rem; align-items: center; margin-block: 1rem; }
+  .check-label input { width: auto; }
+  .button-row { display: flex; flex-wrap: wrap; gap: .6rem; }
+  .backup-list { list-style: none; padding: 0; }
+  .backup-preview { max-height: 24rem; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; background: #f4f5f1; padding: 1rem; }
+  .captcha { min-width: 0; margin-block: 1rem; }
+}
+
 @layer base {
   :root {
     font-family: 'Segoe UI', 'Microsoft JhengHei', 'PingFang TC', sans-serif;

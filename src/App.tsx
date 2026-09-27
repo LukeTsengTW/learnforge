@@ -21,8 +21,13 @@ import { SupabasePracticeRepository } from './features/quiz/practice-repository'
 import { PracticeContext, type PracticeRepository } from './features/quiz/practice-context'
 import { TutorContext } from './features/ai/tutor-context'
 import { SupabaseTutorService, type TutorService } from './features/ai/tutor-service'
+import { createAccountSecurity, SecurityContext, type AccountSecurity } from './features/auth/account-security'
 
 const AuthorPage = lazy(() => import('./features/author/AuthorPage').then((module) => ({ default: module.AuthorPage })))
+const AccountPage = lazy(() => import('./pages/AccountPage').then(module => ({ default: module.AccountPage })))
+const RecoverAccountPage = lazy(() => import('./pages/RecoverAccountPage').then(module => ({ default: module.RecoverAccountPage })))
+const RecoveryPage = lazy(() => import('./pages/RecoveryPage').then(module => ({ default: module.RecoveryPage })))
+const securityPage = (page: ReactNode) => <Suspense fallback={<p role="status">正在載入…</p>}>{page}</Suspense>
 
 export function AppRoutes() {
   return <Routes><Route element={<Layout />}>
@@ -32,7 +37,10 @@ export function AppRoutes() {
     <Route path="login" element={<AuthPage key="login" mode="login" />} />
     <Route path="register" element={<AuthPage key="register" mode="register" />} />
     <Route path="forgot-password" element={<AuthPage key="hint" mode="hint" />} />
+    <Route path="recover-account" element={securityPage(<RecoverAccountPage />)} />
     <Route element={<RequireAuth />}>
+      <Route path="account" element={securityPage(<AccountPage />)} />
+      <Route path="recovery" element={securityPage(<RecoveryPage />)} />
       <Route path="quiz/:quizId" element={<PracticeQuizRoute />} />
       <Route path="result/:attemptId" element={<ResultPage />} />
       <Route path="history" element={<HistoryPage />} />
@@ -51,18 +59,19 @@ function PracticeBoundary({ createRepository, children }: { createRepository: Pr
   const repository = useMemo(() => account ? createRepository(account.id) : null, [account, createRepository])
   return <PracticeContext.Provider value={repository}>{children}</PracticeContext.Provider>
 }
-export function Application({ auth, createRepository, tutor = null }: { auth: AuthService | null; createRepository: PracticeRepositoryFactory; tutor?: TutorService | null }) {
-  return <HashRouter><AuthProvider service={auth}><TutorContext.Provider value={tutor}><PracticeBoundary createRepository={createRepository}><AppRoutes /></PracticeBoundary></TutorContext.Provider></AuthProvider></HashRouter>
+export function Application({ auth, createRepository, tutor = null, security = null }: { auth: AuthService | null; createRepository: PracticeRepositoryFactory; tutor?: TutorService | null; security?: AccountSecurity | null }) {
+  return <HashRouter><AuthProvider service={auth}><SecurityContext.Provider value={security}><TutorContext.Provider value={tutor}><PracticeBoundary createRepository={createRepository}><AppRoutes /></PracticeBoundary></TutorContext.Provider></SecurityContext.Provider></AuthProvider></HashRouter>
 }
 export default function App() {
-  const [authorOnly, setAuthorOnly] = useState(() => window.location.hash.split('?')[0] === '#/author')
+  const [needsBackend, setNeedsBackend] = useState(() => window.location.hash.split('?')[0] !== '#/author')
   useEffect(() => {
-    const updateRoute = () => setAuthorOnly(window.location.hash.split('?')[0] === '#/author')
+    const updateRoute = () => { if (window.location.hash.split('?')[0] !== '#/author') setNeedsBackend(true) }
     window.addEventListener('hashchange', updateRoute)
     return () => window.removeEventListener('hashchange', updateRoute)
   }, [])
-  // Direct author visits need no Supabase client, session, repository, or tutor service.
-  const config = authorOnly ? null : getSupabase()
+  // Direct author visits need no backend. Once initialized, retain the client across
+  // routes: removing it while AuthProvider still holds an account breaks its repository.
+  const config = needsBackend ? getSupabase() : null
   const client = config?.client ?? null
   const auth = useMemo(() => client ? createAuthService(client) : null, [client])
   const createRepository = useMemo<PracticeRepositoryFactory>(() => (userId) => {
@@ -70,6 +79,7 @@ export default function App() {
     return new SupabasePracticeRepository(client, userId)
   }, [client])
   const tutor = useMemo(() => client ? new SupabaseTutorService(client) : null, [client])
+  const security = useMemo(() => client ? createAccountSecurity(client) : null, [client])
   if (config?.error) return <main className="error-page"><h1>LearnForge</h1><p role="alert">{config.error}</p></main>
-  return <Application auth={auth} createRepository={createRepository} tutor={tutor} />
+  return <Application auth={auth} createRepository={createRepository} tutor={tutor} security={security} />
 }

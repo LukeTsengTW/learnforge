@@ -5,8 +5,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: github-pages
@@ -15,15 +13,22 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version: '24.21.0'
           cache: npm
       - run: npm ci
       - run: npm run lint
       - run: npm run test
+      - run: npm run check:quizzes
+      - run: npm run check:ai-context
       - name: Configure Pages and detect repository base path
         id: pages
         uses: actions/configure-pages@v5
@@ -31,13 +36,19 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
-        run: npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
+          VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
+        run: |
+          test -n "$VITE_SUPABASE_URL" && test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" && test -n "$VITE_TURNSTILE_SITE_KEY" || { echo "Public client configuration including Turnstile is required"; exit 1; }
+          npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
