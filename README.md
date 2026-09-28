@@ -1,6 +1,6 @@
 # LearnForge
 
-**公開版本：v1.0.0。** 本工作樹另有尚未部署的 v1.1 填空題 AI 語意正式判題實作；架構與發布前驗證見 [v1.1 交付文件](docs/v1.1-delivery.md)。v1.0 交付結果見 [v1.0 交付報告](docs/v1.0-delivery.md)。
+**公開版本：v1.1.0。** v1.1 的核心是填空題 AI 語意正式判題；架構與實際發布驗證見 [v1.1 交付文件](docs/v1.1-delivery.md)。[v1.0 交付報告](docs/v1.0-delivery.md)保留作為歷史紀錄。
 
 v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 
@@ -15,17 +15,19 @@ LearnForge 讓學生透過選擇、填空、推導與繪圖整理理解。題庫
 - Markdown、inline／block LaTeX、提示切換、完整解答與 rubric。
 - Canvas 畫筆、橡皮擦、黑／紅／藍、筆寬、復原／重做、確認清除、PNG 匯出。
 - 每個帳號及題庫最多一份未完成草稿；可提交多次，每次有獨立 UUID。提交後在 UI 與資料庫鎖定；再次練習建立新草稿，已提交紀錄不刪除。
-- `#/history` 以每頁 20 筆載入提交紀錄；`#/mistakes` 從歷次答案及當時的題目版本重新評分，列出答錯的客觀題。
+- `#/history` 以每頁 20 筆載入提交紀錄；`#/mistakes` 依歷次答案、當時的題目版本與正式評分版本重建結果，列出答錯的客觀題。
 - `#/analytics` 從最近最多 500 次正式提交推導整體、科目、主題標籤、客觀題題型與 UTC 週趨勢；顯示已作答正確率、完成率、樣本數與無法解析的歷史筆數。
 - `#/review` 按題庫與題目去重，只有最新可解析客觀題結果為答錯才列入佇列。單題複習使用當時的精確版本與正式題目／評分元件；檢查答案後才顯示解答，可重試，但不建立正式作答、不改寫歷史、不呼叫 AI。
+- v1.1 新提交採 `semantic-fill-v2`：填空題空白為未作答；`exact`／`case-insensitive` 規則命中即全分且不呼叫 AI；非空白且規則未命中時由 server-side semantic judge 判斷語意。AI 判定正確得全分、錯誤得零分，直接影響正式填空分數；provider 或驗證失敗時保持草稿與答案，可安全重試。
 - 註冊／登入／登出、session 恢復、自己的 profile、限流的密碼提示查詢。
 - `#/account` 管理密碼與一次性復原碼；`#/recover-account` 使用 username + 復原碼重設密碼；`#/recovery` 檢視、匯出、保守還原或刪除本裝置的練習衝突備份。
 - 未完成客觀題時先警告，再由使用者決定是否提交。
 - HashRouter：公開 `#/`、`#/library`、`#/author` 及 Auth 頁；`#/quiz/:quizId`、`#/result/:attemptId`、`#/history`、`#/mistakes`、`#/analytics`、`#/review`、`#/ai-usage` 需要登入。舊 `#/result/:quizId` 連結導向該題庫最近一次已提交作答。
 - 手機／平板／桌面排版、鍵盤可操作表單與畫布工具、文字狀態、可見 focus。
 - AI Tutor：草稿可主動取得 AI 提示；提交後，答錯的客觀題可取得錯誤說明，非畫圖題可取得另一種解答說明。AI 僅供學習參考，以題庫答案與解析為主要依據。
-- 已提交的非空白計算題若有 scored rubric，Result 可主動取得獨立的 AI 參考評分。已提交的可見畫圖若有 scored rubric，Result 可取得 AI 圖像參考分析：逐項建議分數、觀察到的元素、缺少或不清楚的部分、整體回饋、把握程度及人工覆核建議。兩者僅供學習參考，不寫入正式成績，也不改變客觀題的 deterministic score。
+- 已提交的非空白計算題若有 scored rubric，Result 可主動取得獨立的 AI 參考評分。已提交的可見畫圖若有 scored rubric，Result 可取得 AI 圖像參考分析：逐項建議分數、觀察到的元素、缺少或不清楚的部分、整體回饋、把握程度及人工覆核建議。兩者僅供學習參考，不寫入正式成績，也不改變正式客觀題分數。
 - 每位已登入使用者有 5 小時滾動 20 credits；提示與錯誤說明各 1 credit，解答說明及計算題 AI 參考評分各 2 credits，圖像題 AI 參考分析 4 credits。額度不足時隱藏相應新操作，由 server 原子保留／完成／退還額度。
+- v1.1 正式填空語意判題是系統判題，不消耗個人 5 小時／20 credits。
 - 已完成 AI 建議與參考分析依帳號、attempt、題目及功能從 DB 恢復，同一功能預設顯示最新一次；頁面載入只讀取，不產生新 AI 請求。既有回覆即使額度為零仍可讀；主動「重新產生／重新評分／重新分析」才建立新 requestId 並依功能扣點。
 - `#/ai-usage` 顯示本人的額度、最近 5 小時各功能完成次數及每頁 20 筆的 AI 使用紀錄。額度用盡時依 server 時間顯示最早恢復一筆 credit 的相對時間。
 
@@ -141,20 +143,22 @@ quizzes/**/*.quiz.md -> parseQuiz() -> version-aware catalog / Quiz discriminate
                                     |
                             QuestionAnswer / QuizAttempt
                                     |
-                         pure reducer -> gradeQuiz()
+                         draft sync -> submit-quiz
                                     |
-                        immutable submission -> Result
+                     rule-first grading / semantic fill judge
+                                    |
+                     persisted judgments -> submitted Result
 ```
 
 React component 不解析 raw DSL、不計算正確性。Parser 與 grading 不依賴 React。`Question` 使用六個明確分支，不以大量 optional properties 混用不同題型。`QuestionAnswer` 與 `QuestionGrade` 也是 discriminated unions；manual grade 的 score/maxScore 是 `null`。
 
 ## 學習分析與錯題複習（v0.9）
 
-Analytics 僅讀取登入者的 `status=submitted` attempts 與 answers。每批先讀 50 筆 attempts，再以一筆 `attempt_id IN (...)` 查詢同批答案；最多掃描最近 500 次提交，超過時明示截斷。沒有完整雲端資料時顯示無法取得分析，不把本機 cache 當成全部歷史。每筆以 `quiz_id + quiz_revision` 尋找 bundled 題庫，再用儲存的學生答案及正式 `gradeQuiz()` 重評；`answers.grade` 和 attempt 分數欄位只是 cache。缺少舊版本或資料格式損壞者分別計數並排除，絕不改用目前版本猜測。現有 `attempts_history_idx` 與 `answers(attempt_id,question_id)` 唯一索引支援查詢；v0.9 無資料庫 migration、重複 analytics 表或新 Edge Function。
+Analytics 僅讀取登入者的 `status=submitted` attempts 與 answers。每批先讀 50 筆 attempts，再以 `attempt_id IN (...)` 批次查詢答案及正式填空判題；最多掃描最近 500 次提交，超過時明示截斷。沒有完整雲端資料時顯示無法取得分析，不把本機 cache 當成全部歷史。每筆以 `quiz_id + quiz_revision` 尋找 bundled 題庫：舊 `deterministic-v1` 提交依原有 `gradeQuiz()` 規則重建；新 `semantic-fill-v2` 提交以 `gradeQuizWithFillJudgments()` 與持久化判題重建，不重新呼叫模型。缺少舊版本、判題證據或資料格式損壞者分別計數並排除，絕不改用目前題庫版本或推測 AI 結果。現有 `attempts_history_idx` 與 `answers(attempt_id,question_id)` 唯一索引支援查詢；v0.9 原本沒有資料庫 migration、重複 analytics 表或新 Edge Function。
 
 正確率只計單選、多選、是非、填空的「答對 ÷（答對＋答錯）」；未作答另計，完成率為「已作答 ÷ 全部客觀題」。計算題、畫圖題及其 AI 參考分數完全排除於客觀題正確率與得分，可另看手動題提交題次。科目依題庫 `subject`；主題優先使用題目 `tags`，只有題目無 tag 時才用題庫 tags。同一題有多個 tag 時，每個 tag 各累積一次。標籤提示是透明產品規則：已作答少於 3 題次顯示「資料不足」，達 3 題次後正確率 ≥80% 為「表現穩定」、60–79% 為「持續練習」、低於 60% 為「需要複習」；它不是正式能力測量。趨勢以最近可分析提交為結尾，按 UTC 週一分組顯示 8 週，空週正確率為空值。
 
-`#/mistakes` 保留每次歷史答錯事件；`#/review` 以 `quizId + questionId` 為概念鍵，選最新可解析的客觀題 occurrence：最新答錯才列入，最新答對或未作答便不列入。項目保留該次 `quizRevision`，題庫已更新時顯示舊／新版資訊；單題複習仍使用舊版精確題目，完整題庫連結使用目前版本。複習答案只存在 React 記憶體，按「檢查答案」才重用正式 deterministic grader 並顯示答案／解法；「再試一次」會清除答案和解法。複習完成不寫 Supabase、PracticeAttempt、History 或 AI ledger；要永久移出佇列，必須正式重新提交並答對。聚合只在本人的瀏覽器計算，不把學生答案或完整分析資料送往 OpenAI 或額外第三方。
+`#/mistakes` 保留每次歷史答錯事件；`#/review` 以 `quizId + questionId` 為概念鍵，選最新可解析的客觀題 occurrence：最新答錯才列入，最新答對或未作答便不列入。歷史正式結果依評分版本與持久化判題重建，不重新呼叫模型。項目保留該次 `quizRevision`，題庫已更新時顯示舊／新版資訊；單題複習仍使用舊版精確題目，完整題庫連結使用目前版本。複習答案只存在 React 記憶體，按「檢查答案」才使用純 deterministic grader 顯示答案／解法；「再試一次」會清除答案和解法。複習完成不寫 Supabase、PracticeAttempt、History 或 AI ledger；要永久移出佇列，必須正式重新提交並答對。聚合只在本人的瀏覽器計算，不把學生答案或完整分析資料送往 OpenAI 或額外第三方。
 
 ## Supabase 與 Auth 架構
 
@@ -162,7 +166,7 @@ Analytics 僅讀取登入者的 `status=submitted` attempts 與 answers。每批
 
 Browser 只送 `requestId`、`feature`、`attemptId`、`questionId`。Edge Function 用 `@supabase/server` 的 `auth: 'user'` 驗證身份，以 RLS-scoped client 讀取本人作答，再用 `quiz_id + quiz_revision + question_id` 精確查找生成的 canonical manifest。題庫仍只在 Git Markdown，沒有搬進 Supabase；題目與標準答案不能由 request 決定。生成器設有每題 32 KiB 上限及個別欄位限制，測試與 build 都會拒絕 stale manifest。
 
-OpenAI 回應使用嚴格 JSON schema，文字透過既有安全 Markdown/KaTeX 元件顯示。草稿提示不傳標準答案或完整解答；提交後錯誤說明只對已判錯的客觀題開放，解答說明支援客觀題與計算題。畫圖題只在已提交且符合 v0.7 條件時送出由 server 重建的單題圖像與 context。學生答案及圖中的文字視為不可信資料；AI 不是正式評分者。
+OpenAI 回應使用嚴格 JSON schema，文字透過既有安全 Markdown/KaTeX 元件顯示。草稿提示不傳標準答案或完整解答；提交後錯誤說明只對已判錯的客觀題開放，解答說明支援客觀題與計算題。畫圖題只在已提交且符合 v0.7 條件時送出由 server 重建的單題圖像與 context。學生答案及圖中的文字視為不可信資料。Tutor、計算題參考評分與畫圖題參考分析不是正式評分者；v1.1 的填空題 semantic judge 則是正式提交流程的一部分。
 
 `ai_requests` 啟用 RLS 且不授權 browser role。Edge 以 server privileged RPC 查額度、保留、完成與退還；`reserve_ai_request` 在 per-user transaction advisory lock 內計算最近 5 小時已完成與有效保留 credits，防止同時呼叫超額。保留 15 分鐘後可自動失效；同一 `requestId` 完成後重試回傳已保存結果，不再次呼叫 OpenAI。安全拒答已消耗 provider usage，記為完成；失敗、格式錯誤或未完成輸出會退還。Rolling 額度回傳 DB `serverNow` 與 `nextCreditAt`；只在用盡時顯示最早恢復一筆 credit 的相對時間，不宣稱有固定整批 reset 時間。
 
@@ -414,10 +418,12 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 - `gradeSingleChoice()`：唯一 option id 完全相同才得全分。
 - `gradeMultipleChoice()`：去重為集合後，元素與正確答案集合必須完全相同。少選、多選都是 0 分，無部分給分。
 - `gradeTrueFalse()`：boolean 嚴格相等；`false` 是有效作答。
-- `gradeFillBlank()`：依指定策略評分，空白答案視為未作答。
-- `gradeQuiz()`：回傳每題狀態及 score/maxScore/correctCount/incorrectCount/unansweredCount/manualCount。
+- `gradeFillBlank()`：純確定性函式，依 `exact`／`case-insensitive` 策略評分，空白答案視為未作答；函式本身不呼叫 AI。
+- `gradeQuiz()`：供舊 `deterministic-v1` 提交依原規則重建，回傳每題狀態及 score/maxScore/correctCount/incorrectCount/unansweredCount/manualCount。
+- 新 `semantic-fill-v2` 提交先用確定性規則處理填空；非空白且規則未命中才由 server-side AI 語意判題。正確得該題全分，錯誤得零分；provider 或驗證失敗時不完成提交，保留草稿與答案供重試。
+- `gradeQuizWithFillJudgments()` 使用已持久化的正式填空判題重建新提交。Result、History、Analytics、Mistakes、Review 載入歷史時只讀判題紀錄，不重新呼叫 OpenAI；舊 v1.0 attempt 仍按 `deterministic-v1` 重建，不回溯改分。
 - 客觀題狀態互斥：correct／incorrect／unanswered，未作答得 0 分。
-- 計算與畫圖永遠為 manual，無論是否作答，均排除於 deterministic score、maxScore 與三個客觀題計數。
+- 計算與畫圖永遠為 manual，無論是否作答，均排除於正式自動 score、maxScore 與三個客觀題計數。
 
 ## Canvas 設計
 
@@ -449,14 +455,9 @@ npm run build -- --base=/learnforge/
 
 也可在 `vite.config.ts` 的 `defineConfig` 頂層設定 `base: '/你的-repository-name/'`。不要把 hash route 加進 base，且保留前後斜線。沒有假定 username 或 custom domain，未建立 `CNAME`。
 
-已提供手動觸發的 `.github/workflows/deploy.yml`：
+Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/)。**Settings → Pages → Source** 為 **GitHub Actions**；`.github/workflows/deploy.yml` 仍由 `workflow_dispatch` 手動觸發。v1.1 deployment 使用 release implementation commit `47c79308b72f4c611b5097a2c3bdeb05895d6dc6`，GitHub Pages Run #4（Run ID `36409846823`）的 build 與 deploy 均成功，2026-09-28 production smoke 已完成並通過。
 
-1. **Settings → Pages → Source** 已選擇 **GitHub Actions**。`LukeTsengTW/learnforge` 仍未部署 Pages 內容；正式 project URL 目前回 404。
-2. **Settings → Secrets and variables → Actions → Variables** 已有三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key。Workflow 缺任一變數會停止 build。
-3. 取得發布授權並完成 commit／push 後，至 **Actions → Deploy LearnForge to GitHub Pages → Run workflow**。
-4. Workflow 固定 Node 24.21.0，執行 npm ci、lint、test、check:quizzes、check:ai-context，再使用 `configure-pages` 輸出的 `base_path` build。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。
-
-不硬編 username、repository name 或分支名稱。本次部署 Supabase schema／Function，沒有發布 GitHub Pages；是否啟用 push 自動部署由 repository 管理者另行設定。
+**Settings → Secrets and variables → Actions → Variables** 使用三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key；缺任一變數會停止 build。Workflow 固定 Node 24.21.0，執行 npm ci、lint、test、check:quizzes、check:ai-context，再使用 `configure-pages` 輸出的 `base_path` build。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。Workflow 不硬編 username、repository name 或分支名稱；是否啟用 push 自動部署由 repository 管理者另行設定。
 
 ## Known limitations
 
@@ -468,17 +469,18 @@ npm run build -- --base=/learnforge/
 - Server rate limiter 是基本保護，全域額度可能被濫用耗盡；真實 CAPTCHA 已設定並實測，但沒有多帳號 Sybil 防護或全球分散式 DDoS 保證。
 - Canvas 工具可鍵盤操作，但畫圖本身仍需要 pointer 裝置；沒有純鍵盤繪圖或圖像內容的自動替代描述。
 - 計算／畫圖不納入正式自動分數。v0.6 計算題與 v0.7 圖像題 AI 建議均可能誤判，必要時須人工覆核。圖像分析只檢查是否有足夠可見筆畫，不執行電路模擬、正式拓撲驗證或安全認證；目前沒有圖像品質 benchmark。圖像超過 1200×1200、256 筆畫、6000 點、25 百萬幾何像素工作量或 2 MB PNG 時不送模型。畫圖工具仍無純鍵盤繪圖能力。
+- v1.1 填空題 semantic judge 會影響新提交的正式結果，但可能誤判；provider 或系統上限失效時，提交保持草稿，需要重試。Tutor、計算題參考評分與畫圖題參考分析仍不影響正式分數；舊 `deterministic-v1` 歷史不重新判定。
 - Markdown 支援 CommonMark 與 math，未加入 GFM table／task-list plugin、raw HTML 或 MathJax fallback。
 - LaTeX 使用 KaTeX 支援的子集；長公式在區塊內水平捲動。
 - 編寫器是純文字 textarea，沒有 syntax highlighting 或 WYSIWYG。Validation 對結構錯誤 fail-fast，品質提醒不驗證學術正確性。本機草稿只有一份且受瀏覽器儲存限制；清除瀏覽器資料會失去該草稿。
 - 答案隨靜態題庫打包，localStorage 可由使用者修改；本產品是自主練習，不能當防作弊考試或可信成績系統。
 - v0.9 分析只掃描最近 500 次提交；更早的正式結果不影響本版佇列。單題複習僅是暫時練習，重新整理後本次進度重置。沒有 AI mastery scoring 或正式能力排名。v0.2 的既有 warning 與歷史限制詳見當時的交付報告。
 
-## Post-1.0 ideas
+## 後續構想
 
-發布後先觀察實際使用規模、復原失敗與同步衝突，再評估備份保存政策、更細緻的同步合併或分析時間窗。任何新功能另開 scope，不是 v1.0 的承諾。
+發布後先觀察實際使用規模、復原失敗與同步衝突，再評估備份保存政策、更細緻的同步合併或分析時間窗。任何新功能另開 scope，不是 v1.1.0 的承諾。
 
-後續可分階段評估 regex／numeric tolerance、計算題評分品質與申訴流程、畫圖 multimodal 分析及更細緻的成本監測。AI 不影響正式答案。本版也不含一般 AI 聊天、admin dashboard、server-side quiz CMS、cloud image upload、leaderboard、social、PWA 或 SSR。
+後續可分階段評估 regex／numeric tolerance、計算題評分品質與申訴流程、畫圖 multimodal 分析及更細緻的成本監測。v1.1 的填空語意判題可影響正式分數；Tutor、計算題與畫圖題的 AI 建議仍僅供參考。本版也不含一般 AI 聊天、admin dashboard、server-side quiz CMS、cloud image upload、leaderboard、social、PWA 或 SSR。
 
 ## 上游參考
 
