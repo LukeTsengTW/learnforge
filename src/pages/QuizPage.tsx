@@ -10,7 +10,7 @@ import { AiQuotaStatus } from '../features/ai/AiTutorControls'
 import { useAiTutor } from '../features/ai/use-ai-tutor'
 
 export function QuizPage() {
-  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, pendingSubmission, retry, importLegacy } = useAttempt()
+  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, pendingSubmission, retry, importLegacy } = useAttempt()
   const [confirmIncomplete, setConfirmIncomplete] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
   const navigate = useNavigate()
@@ -25,7 +25,7 @@ export function QuizPage() {
   }
   const answeredCount = quiz.questions.filter((question) => hasAnswer(attempt.answers[question.id])).length
   const unanswered = gradeQuiz(quiz, attempt.answers).unansweredCount
-  async function submitQuiz() { const savedId = await submit(); if (savedId) navigate(`/result/${savedId}`) }
+  async function submitQuiz() { if (submitting) return; const savedId = await submit(); if (savedId) navigate(`/result/${savedId}`) }
   function goToQuestion(id: string) {
     const heading = document.getElementById(`heading-${id}`)
     heading?.scrollIntoView({ block: 'start' })
@@ -65,20 +65,22 @@ export function QuizPage() {
       <div className="sidebar-tip"><h3>練習小提醒</h3><p>不確定時可以先跳過。提交前，記得回來檢查尚未作答的題目。</p></div>
       <button type="button" className="text-button restart-draft" onClick={() => { setConfirmRestart(true); window.scrollTo(0, 0) }}>{quizCatalog.getCurrentQuiz(quiz.id)?.revision !== quiz.revision ? '捨棄舊草稿並使用最新版重新開始' : '重新開始測驗'}</button>
     </aside>
-    <form className="question-stack" onSubmit={(event) => { event.preventDefault(); if (unanswered) setConfirmIncomplete(true); else submitQuiz() }}>
+    <form className="question-stack" onSubmit={(event) => { event.preventDefault(); if (submitting) return; if (unanswered) setConfirmIncomplete(true); else submitQuiz() }}>
+      {submitting && <p role="status" className="notice">正在檢查填空題答案語意…</p>}
+      <fieldset disabled={submitting} className="submission-lock">
       {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
         answer={attempt.answers[question.id]} onChange={(answer) => { answerQuestion(question.id, answer); setConfirmIncomplete(false) }}
         aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} />)}
       <section className="submit-panel"><div><h2>準備好對照答案了嗎？</h2><p>提交後會保留這次作答，並顯示完整解答。</p></div>
-        <button className="button primary" type="submit">提交測驗</button>
+        <button className="button primary" type="submit" disabled={submitting}>提交測驗</button>
         {confirmIncomplete && <div className="notice warning submit-warning" role="alert"><strong>還有 {unanswered} 題自動評分題未作答。</strong><p>未作答題會以 0 分計算，仍要提交嗎？</p>
-          <div className="inline-actions"><button type="button" className="button primary" onClick={submitQuiz}>仍然提交</button>
+          <div className="inline-actions"><button type="button" className="button primary" disabled={submitting} onClick={submitQuiz}>仍然提交</button>
             <button type="button" className="button secondary" onClick={() => {
               const missing = quiz.questions.find((question) => question.type !== 'calculation' && question.type !== 'drawing' && !hasAnswer(attempt.answers[question.id]))
               if (missing) goToQuestion(missing.id)
             }}>繼續作答</button></div>
         </div>}
-      </section>
+      </section></fieldset>
     </form></div>
   </>
 }

@@ -1,4 +1,4 @@
-import { gradeQuiz } from '../../lib/grading'
+import { gradeQuiz, gradeQuizWithFillJudgments } from '../../lib/grading'
 import type { AnalyticsAttempt, LearningAnalytics, ObjectiveOccurrence, ReviewItem,
   SubjectStats, TagStats, TopicSignal, QuestionTypeStats, WeeklyTrendPoint } from '../../models/analytics'
 import { isObjectiveQuestion, QUESTION_TYPE, type Quiz } from '../../models/quiz'
@@ -40,7 +40,9 @@ function deriveOccurrences(records: AnalyticsAttempt[]) {
       || !Number.isFinite(Date.parse(record.submittedAt)) || record.quiz.id !== record.quizId
       || record.quiz.revision !== record.quizRevision) { malformedAttemptCount++; continue }
     try {
-      const result = gradeQuiz(record.quiz, record.answers)
+      const result = record.gradingVersion === 'semantic-fill-v2'
+        ? gradeQuizWithFillJudgments(record.quiz, record.answers, record.fillJudgments ?? [])
+        : gradeQuiz(record.quiz, record.answers)
       const next: ObjectiveOccurrence[] = []
       record.quiz.questions.forEach((question, questionIndex) => {
         const grade = result.questions[questionIndex]
@@ -155,7 +157,7 @@ export function buildReviewQueue(occurrences: ObjectiveOccurrence[], getCurrentQ
   })).sort((a, b) => compareTime(b.latestIncorrectAt, a.latestIncorrectAt) || compareKey(a.key, b.key))
 }
 
-/** All scores are derived from the exact bundled revision and stored student answers, never cached grade fields. */
+/** Scores use the exact bundled revision; semantic attempts also require persisted judgments. */
 export function buildLearningAnalytics(records: AnalyticsAttempt[], isTruncated: boolean,
   getCurrentQuiz: (id: string) => Quiz | null): LearningAnalytics {
   const { occurrences, validAttempts, unavailableHistoryCount, malformedAttemptCount,

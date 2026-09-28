@@ -25,7 +25,7 @@ export function HistoryPage() {
   }
   return <div className="history-page"><div className="breadcrumb"><Link to="/library">題庫</Link><span aria-hidden="true">/</span><span>練習紀錄</span></div>
     <header className="page-heading"><span className="subject-label">Practice History</span><h1>每一次練習，都值得留下。</h1>
-      <p>提交後的作答永久保留。成績會依當時的題目版本重新檢查。</p>
+      <p>提交後的作答永久保留。成績依當時的題目版本與判題政策重現。</p>
       <div className="inline-actions page-links"><Link to="/analytics">查看學習分析</Link><Link to="/review">開始錯題複習</Link></div></header>
     {error && <div className="notice warning" role="alert">暫時無法載入練習紀錄。請稍後重試。</div>}
     {!loading && !records.length && !error && <div className="empty-state"><h2>還沒有已提交的作答</h2><p>完成第一份練習後，就能在這裡回顧。</p><Link className="button primary" to="/library">瀏覽題庫</Link></div>}
@@ -34,9 +34,9 @@ export function HistoryPage() {
       return <article className="history-card" key={record.id}>
         <div><span className="subject-label">{record.quiz?.subject ?? '題目版本無法載入'}</span><h2>{record.quiz?.title ?? record.row.quiz_id}</h2>
           <p>版本 {record.row.quiz_revision} · {formatAttemptDate(record.row.submitted_at)}</p></div>
-        <div className="history-score"><strong>{result?.score ?? record.row.deterministic_score ?? '—'} / {result?.maxScore ?? record.row.deterministic_max_score ?? '—'}</strong>
+        <div className="history-score"><strong>{result?.score ?? (record.row.grading_version === 'deterministic-v1' ? record.row.deterministic_score : null) ?? '—'} / {result?.maxScore ?? (record.row.grading_version === 'deterministic-v1' ? record.row.deterministic_max_score : null) ?? '—'}</strong>
           {result && <span>正確 {result.correctCount} · 錯誤 {result.incorrectCount} · 未作答 {result.unansweredCount}</span>}
-          {!result && <span>題目版本無法載入；分數僅為儲存時的快取</span>}</div>
+          {!result && <span>無法安全重現正式分數，請稍後重試</span>}</div>
         <Link className="button secondary" to={`/result/${record.id}`}>查看結果</Link>
       </article>
     })}</div>

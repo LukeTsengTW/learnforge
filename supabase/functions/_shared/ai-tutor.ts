@@ -17,6 +17,7 @@ export interface TutorQuestionContext {
   quizId: string
   revision: string
   questionId: string
+  questionIndex?: number
   type: 'single' | 'multiple' | 'true-false' | 'fill' | 'calculation' | 'drawing'
   prompt: string
   hint: string | null
@@ -46,6 +47,8 @@ export function createTutorContextLookup(contexts: readonly TutorQuestionContext
   return {
     hasRevision: (quizId: string, revision: string) => revisions.has(JSON.stringify([quizId, revision])),
     get: (quizId: string, revision: string, questionId: string) => lookup.get(identity(quizId, revision, questionId)) ?? null,
+    listRevision: (quizId: string, revision: string) => contexts.filter((item) => item.quizId === quizId && item.revision === revision)
+      .sort((a, b) => (a.questionIndex ?? 0) - (b.questionIndex ?? 0)),
     count: lookup.size,
   }
 }

@@ -31,7 +31,7 @@ export function ResultPage() {
     <h1>找不到此作答紀錄，或你沒有權限查看。</h1><Link className="button secondary" to="/history">返回練習紀錄</Link></div>
   if (!record.quiz || record.attempt?.status !== 'submitted') return <div className="empty-state">
     <h1>題目版本無法載入</h1><p>{record.row.quiz_id} · 版本 {record.row.quiz_revision} · {formatAttemptDate(record.row.submitted_at)}</p>
-    <p>儲存時的分數快取：{record.row.deterministic_score ?? '—'} / {record.row.deterministic_max_score ?? '—'}。目前無法安全重算或顯示解答。</p>
+    <p>目前無法安全重現正式分數或顯示解答。</p>
     <Link className="button secondary" to="/history">返回練習紀錄</Link></div>
   const { quiz, attempt } = record
   const { result } = attempt

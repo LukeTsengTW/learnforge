@@ -13,8 +13,10 @@ export function toTutorContext(quiz: Quiz, question: Question) {
   if (question.rubric.length > 20) throw new Error(`${identity} has too many rubric items`)
   bounded(JSON.stringify(question.rubric), 8192, `${identity} rubric`)
   const context: Record<string, unknown> = {
-    quizId: quiz.id, revision: quiz.revision, questionId: question.id, type: question.type,
+    quizId: quiz.id, revision: quiz.revision, questionId: question.id,
+    questionIndex: quiz.questions.findIndex((item) => item.id === question.id), type: question.type,
     prompt: question.prompt, hint: question.hint, solution: question.solution, rubric: question.rubric,
+    points: question.points,
   }
   switch (question.type) {
     case 'single':

@@ -31,6 +31,9 @@ verify_jwt = false
 [functions.ai-usage]
 verify_jwt = false
 
+[functions.submit-quiz]
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.

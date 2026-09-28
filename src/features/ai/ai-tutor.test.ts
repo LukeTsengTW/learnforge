@@ -43,7 +43,7 @@ describe('generated canonical Tutor context', () => {
     expect(() => toTutorContext(quiz, { ...source, prompt: '漢'.repeat(3000) })).toThrow(/exceeds/)
   })
   it('contains only public canonical fields, never user or credential fields', () => {
-    const allowed = new Set(['quizId', 'revision', 'questionId', 'type', 'prompt', 'hint', 'solution', 'rubric',
+    const allowed = new Set(['quizId', 'revision', 'questionId', 'questionIndex', 'type', 'prompt', 'hint', 'solution', 'rubric',
       'options', 'correctOptionId', 'correctOptionIds', 'correctAnswer', 'match', 'referenceAnswer',
       'points', 'gradingRubric', 'drawing'])
     for (const context of contexts) expect(Object.keys(context).every((key) => allowed.has(key))).toBe(true)

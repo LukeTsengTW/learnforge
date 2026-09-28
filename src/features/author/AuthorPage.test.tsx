@@ -3,11 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import demoSource from '../../content/quizzes/demo/v1.quiz.md?raw'
+import rawDemoSource from '../../content/quizzes/demo/v1.quiz.md?raw'
 import { bundledQuizSources } from '../quiz/quiz-loader'
 import { AuthorPage } from './AuthorPage'
 import { AUTHOR_DRAFT_KEY, NEW_QUIZ_TEMPLATE } from './authoring-core'
 
+const demoSource = rawDemoSource.replaceAll('\r\n', '\n')
 const demoFile = Object.keys(bundledQuizSources).find((file) => file.endsWith('/demo/v1.quiz.md'))!
 
 beforeEach(() => {
@@ -147,7 +148,7 @@ describe('authoring workspace', () => {
     await screen.findByText('Valid')
     expect(screen.getByText('src/content/quizzes/demo/v2.quiz.md')).toBeInTheDocument()
     expect(screen.getByText(/Catalog 模擬：通過/)).toBeInTheDocument()
-    expect(bundledQuizSources[demoFile]).toBe(demoSource)
+    expect(bundledQuizSources[demoFile].replaceAll('\r\n', '\n')).toBe(demoSource)
     const clicked = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
     const createUrl = vi.fn(() => 'blob:author-test')
     const revokeUrl = vi.fn()

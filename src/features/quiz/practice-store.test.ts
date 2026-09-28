@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createMemoryPracticeRepository } from './practice-memory.test-helper'
+import { SubmissionError } from './practice-repository'
 import { LocalPracticeCache, practiceCacheKey } from './practice-cache'
 import { createPracticeStore } from './practice-store'
 import { quizCatalog } from './quiz-loader'
@@ -71,7 +72,49 @@ describe('attempt identity and live draft synchronization', () => {
     store.stop()
   })
 
-  it('finishes syncing a locally submitted attempt before exposing its result', async () => {
+  it('shows submission as pending and suppresses duplicate submits and answer edits', async () => {
+    const repo = createMemoryPracticeRepository('student')
+    const initial = await repo.getOrCreateDraft(quiz)
+    let release!: () => void
+    let entered!: () => void
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    const started = new Promise<void>((resolve) => { entered = resolve })
+    const submitDraft = vi.fn(async (...args: Parameters<typeof repo.submitDraft>) => {
+      entered(); await gate
+      return repo.submitDraft(...args)
+    })
+    const store = createPracticeStore(initial, { ...repo, submitDraft },
+      new LocalPracticeCache('student', storage), 60_000)
+    const first = store.submit()
+    await started
+    expect(store.getSnapshot().submitting).toBe(true)
+    expect(await store.submit()).toBeNull()
+    store.answer('q5', { type: 'fill', text: 'changed while judging' })
+    expect(store.getSnapshot().attempt.answers.q5).toBeUndefined()
+    release()
+    expect(await first).toBe(initial.id)
+    expect(submitDraft).toHaveBeenCalledTimes(1)
+    store.stop()
+  })
+
+  it('recognizes its committed request after the submission response is lost', async () => {
+    const repo = createMemoryPracticeRepository('student')
+    const initial = await repo.getOrCreateDraft(quiz)
+    const submitDraft = vi.fn(async (...args: Parameters<typeof repo.submitDraft>) => {
+      const result = await repo.submitDraft(...args)
+      if (submitDraft.mock.calls.length === 1) throw new SubmissionError('unavailable')
+      return result
+    })
+    const store = createPracticeStore(initial, { ...repo, submitDraft },
+      new LocalPracticeCache('student', storage), 60_000)
+    expect(await store.submit()).toBeNull()
+    expect((await repo.loadAttempt(initial.id))?.row.status).toBe('submitted')
+    expect(await store.submit()).toBe(initial.id)
+    expect(submitDraft).toHaveBeenCalledTimes(1)
+    store.stop()
+  })
+
+  it('restores an old locally submitted cache to a draft and requires formal submission', async () => {
     const repo = createMemoryPracticeRepository('student')
     const initial = await repo.getOrCreateDraft(quiz)
     const local = storage(), cache = new LocalPracticeCache('student', () => local)
@@ -79,10 +122,11 @@ describe('attempt identity and live draft synchronization', () => {
       now: new Date(Date.parse(initial.attempt!.startedAt) + 1).toISOString() })
     cache.write({ id: initial.id, attempt: submitted, version: initial.version })
     const store = createPracticeStore(initial, repo, cache, 60_000)
-    expect(store.getSnapshot().pendingSubmission).toBe(true)
+    expect(store.getSnapshot().attempt.status).toBe('in-progress')
     await store.retry()
     expect(store.getSnapshot().pendingSubmission).toBe(false)
-    expect((await repo.loadAttempt(initial.id))?.row.status).toBe('submitted')
+    expect((await repo.loadAttempt(initial.id))?.row.status).toBe('draft')
+    expect(await store.submit()).toBe(initial.id)
     expect(cache.read(initial.id, quiz)?.attempt.status).toBe('submitted')
     store.stop()
   })
@@ -92,9 +136,7 @@ describe('attempt identity and live draft synchronization', () => {
     const initial = await repo.getOrCreateDraft(quiz)
     const local = storage(), cache = new LocalPracticeCache('student', () => local)
     const store = createPracticeStore(initial, repo, cache, 60_000)
-    const submitted = reduceAttempt(quiz, initial.attempt!, { type: 'submit',
-      now: new Date(Date.parse(initial.attempt!.startedAt) + 1).toISOString() })
-    await repo.saveDraft(initial, submitted)
+    await repo.submitDraft(initial.id, initial.version.updatedAt, crypto.randomUUID())
     await store.retry()
     expect(store.getSnapshot().attempt.status).toBe('submitted')
     expect(store.getSnapshot().pendingSubmission).toBe(false)

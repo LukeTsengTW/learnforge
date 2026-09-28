@@ -10,6 +10,7 @@ type Row = Database['public']['Tables']['attempts']['Row']
 type Answer = Database['public']['Tables']['answers']['Row']
 const row: Row = { id: '00000000-0000-4000-8000-000000000001', user_id: 'a', quiz_id: quiz.id,
   quiz_revision: quiz.revision, status: 'submitted', started_at: now, client_updated_at: now, submitted_at: now,
+  grading_version: 'deterministic-v1', submission_request_id: null,
   deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, incorrect_count: 0,
   unanswered_count: 0, created_at: now, updated_at: now }
 function answer(question_id: string, value: Answer['answer'], attempt_id = row.id): Answer {

@@ -25,7 +25,8 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
   }, [store])
   if (!record.quiz) return null
   return <AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
-    storageNotice: state.notice, syncing: state.syncing, pendingSubmission: state.pendingSubmission, retry: store.retry,
+    storageNotice: state.notice, syncing: state.syncing, submitting: state.submitting,
+    pendingSubmission: state.pendingSubmission, retry: store.retry,
     importLegacy: state.legacy ? store.importLegacy : undefined,
     answerQuestion: store.answer, submit: store.submit,
     restart: async () => {

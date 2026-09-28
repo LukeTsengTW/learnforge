@@ -97,9 +97,16 @@ export class LocalPracticeCache {
       this.write(remote); return remote
     }
     if (local.attempt.status === 'submitted') {
-      if (!sameAttempt(local.attempt, remote.attempt)) this.archive(remote)
-      const winning = { ...local, version: record.version }
-      this.write(winning); return winning
+      // A pre-v1.1 offline submission is not an official submission. Preserve
+      // its answers as a draft and require the formal server path on retry.
+      this.archive(local, '舊版待同步提交已還原為草稿，需重新正式提交')
+      this.storage().removeItem(this.key(record.id))
+      const restored: CachedPractice = { id: record.id, version: record.version,
+        attempt: { schemaVersion: 1, quizId: local.attempt.quizId,
+          quizRevision: local.attempt.quizRevision, startedAt: local.attempt.startedAt,
+          updatedAt: local.attempt.updatedAt, answers: local.attempt.answers,
+          status: 'in-progress' } }
+      this.write(restored); return restored
     }
     if (resolveAttemptConflict(local.attempt, remote.attempt) === 'local') {
       if (!sameAttempt(local.attempt, remote.attempt)) this.archive(remote)

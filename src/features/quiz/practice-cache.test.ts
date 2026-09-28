@@ -48,8 +48,7 @@ describe('v2 to v3 local cache', () => {
     a.write({ id: first.id, attempt: first.attempt!, version: first.version })
     expect(b.read(first.id, quiz)).toBeNull()
     expect(storage.getItem(draftIndexKey('a', quiz.id))).toBe(first.id)
-    const submitted = reduceAttempt(quiz, first.attempt!, { type: 'submit', now: first.attempt!.startedAt })
-    await repo.saveDraft(first, submitted)
+    await repo.submitDraft(first.id, first.version.updatedAt, crypto.randomUUID())
     const second = await repo.getOrCreateDraft(quiz)
     a.write({ id: second.id, attempt: second.attempt!, version: second.version })
     expect(first.id).not.toBe(second.id)
@@ -64,13 +63,14 @@ describe('v2 to v3 local cache', () => {
     expect(() => cache.write({ id: record.id, attempt: { ...submitted, answers: { q1: { type: 'single', optionId: 'b' } } }, version: record.version })).toThrow(PersistenceError)
     expect(() => cache.removeDraft({ id: record.id, attempt: submitted, version: record.version })).toThrow(PersistenceError)
   })
-  it('retains a locally submitted attempt when the same remote UUID is still a draft', async () => {
+  it('restores a pre-v1.1 locally submitted attempt as a draft without losing answers', async () => {
     const record = await createMemoryPracticeRepository('a').getOrCreateDraft(quiz)
     const local = memory(), cache = new LocalPracticeCache('a', () => local)
     const submitted = reduceAttempt(quiz, record.attempt!, { type: 'submit',
       now: new Date(Date.parse(record.attempt!.startedAt) + 1).toISOString() })
     cache.write({ id: record.id, attempt: submitted, version: record.version })
-    expect(cache.reconcile(record).attempt.status).toBe('submitted')
-    expect(cache.read(record.id, quiz)?.attempt.status).toBe('submitted')
+    expect(cache.reconcile(record).attempt.status).toBe('in-progress')
+    expect(cache.read(record.id, quiz)?.attempt.status).toBe('in-progress')
+    expect([...local.data.keys()].some((key) => key.includes(':recovery:'))).toBe(true)
   })
 })

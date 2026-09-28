@@ -16,7 +16,8 @@ export const GRADE_STATUS = {
 export type ObjectiveStatus = typeof GRADE_STATUS.correct | typeof GRADE_STATUS.incorrect
   | typeof GRADE_STATUS.unanswered
 export type QuestionGrade =
-  | { questionId: string; type: Exclude<QuestionType, 'calculation' | 'drawing'>; status: ObjectiveStatus; score: number; maxScore: number }
+  | { questionId: string; type: Exclude<QuestionType, 'calculation' | 'drawing'>; status: ObjectiveStatus; score: number; maxScore: number;
+      source?: 'rule' | 'ai'; reason?: string }
   | { questionId: string; type: 'calculation' | 'drawing'; status: typeof GRADE_STATUS.manual; score: null; maxScore: null }
 
 export interface GradeResult {
@@ -27,6 +28,14 @@ export interface GradeResult {
   unansweredCount: number
   manualCount: number
   questions: QuestionGrade[]
+}
+
+export type GradingVersion = 'deterministic-v1' | 'semantic-fill-v2'
+export interface TrustedFillJudgment {
+  questionId: string
+  source: 'rule' | 'ai'
+  status: ObjectiveStatus
+  reason: string | null
 }
 
 interface AttemptBase {

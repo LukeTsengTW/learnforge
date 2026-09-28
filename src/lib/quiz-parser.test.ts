@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
+import rawDemoSource from '../content/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz, QuizParseError } from './quiz-parser'
+
+const demoSource = rawDemoSource.replaceAll('\r\n', '\n')
 
 const validSingle = `@quiz id="test"
 # A quiz

@@ -12,6 +12,7 @@ export interface AttemptContextValue {
   restart: () => Promise<boolean>
   loading?: boolean
   syncing?: boolean
+  submitting?: boolean
   pendingSubmission?: boolean
   retry?: () => Promise<void>
   importLegacy?: () => Promise<void>

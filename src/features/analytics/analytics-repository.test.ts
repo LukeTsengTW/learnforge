@@ -13,6 +13,7 @@ const now = '2026-09-21T12:00:00Z'
 function attempt(id: string, user = 'student'): AttemptRow {
   return { id, user_id: user, quiz_id: source.id, quiz_revision: source.revision, status: 'submitted',
     started_at: now, client_updated_at: now, submitted_at: now,
+    grading_version: 'deterministic-v1', submission_request_id: null,
     deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, incorrect_count: 999,
     unanswered_count: 999, created_at: now, updated_at: now }
 }
@@ -48,6 +49,26 @@ describe('analytics repository batching and ownership', () => {
       ['answers', 'in', 'attempt_id', rows.slice(0, 50).map((row) => row.id)],
     ])
     expect(page.records[0].answers?.q1).toEqual({ type: 'single', optionId: 'a' })
+  })
+  it('batch-loads semantic fill judgments once for a 50-attempt analytics page', async () => {
+    const rows = Array.from({ length: 51 }, (_, index) => ({ ...attempt(`semantic-${index}`), grading_version: 'semantic-fill-v2' }))
+    const from = vi.fn((table: string) => ({
+      select() { return this }, eq() { return this }, order() { return this },
+      range() { return Promise.resolve({ data: rows, error: null }) },
+      in(_column: string, ids: string[]) {
+        return Promise.resolve({ error: null, data: table === 'answers'
+          ? ids.map((id) => ({ ...answerRow(id), question_id: 'q5', answer: { type: 'fill', text: 'XOR' } }))
+          : ids.map((id) => ({ id: `judgment-${id}`, user_id: 'student', attempt_id: id,
+            quiz_id: source.id, quiz_revision: source.revision, question_id: 'q5', answer_hash: 'a'.repeat(64),
+            judge_version: 'semantic-fill-v2', source: 'rule', status: 'correct', model: null,
+            reasoning_effort: null, confidence: null, reason: null, created_at: now, finalized_at: now })) })
+      },
+    }))
+    const repo = new SupabasePracticeRepository({ from } as unknown as AppSupabase, 'student')
+    const page = await repo.listSubmittedAnalyticsPage()
+    expect(page.records).toHaveLength(50)
+    expect(page.records.every((record) => record.fillJudgments?.[0]?.status === 'correct')).toBe(true)
+    expect(from.mock.calls.map(([table]) => table)).toEqual(['attempts', 'answers', 'fill_judgments'])
   })
   it('rejects foreign attempts and foreign answers before treating a row as excluded', () => {
     expect(() => mapAnalyticsRecord(attempt('foreign', 'other'), [], 'student')).toThrow(PersistenceError)

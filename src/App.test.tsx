@@ -13,15 +13,12 @@ import { Markdown } from './components/Markdown'
 import { QuizErrorPage } from './components/ErrorPage'
 import { HashRouter } from 'react-router-dom'
 import { loadQuizSource, quizCatalog } from './features/quiz/quiz-loader'
-import { reduceAttempt } from './lib/attempt'
 
 type MemoryRepo = ReturnType<typeof createMemoryPracticeRepository>
 const demo = quizCatalog.getCurrentQuiz('demo')!
 async function createSubmitted(repo: MemoryRepo) {
   const draft = await repo.getOrCreateDraft(demo)
-  const submitted = reduceAttempt(demo, draft.attempt!, { type: 'submit',
-    now: new Date(Date.parse(draft.attempt!.startedAt) + 1).toISOString() })
-  await repo.saveDraft(draft, submitted)
+  await repo.submitDraft(draft.id, draft.version.updatedAt, crypto.randomUUID())
   return (await repo.loadAttempt(draft.id))!
 }
 function TestApp({ repo }: { repo: MemoryRepo }) {

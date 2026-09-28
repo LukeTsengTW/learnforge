@@ -1,4 +1,5 @@
 import { createAttempt } from '../../lib/attempt'
+import { reduceAttempt } from '../../lib/attempt'
 import type { QuizAttempt } from '../../models/attempt'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { Quiz } from '../../models/quiz'
@@ -29,6 +30,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
       const attempt = createAttempt(quiz, now)
       const row: AttemptRow = { id, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
         status: 'draft', started_at: now, client_updated_at: now, submitted_at: null,
+        grading_version: 'deterministic-v1', submission_request_id: null,
         deterministic_score: null, deterministic_max_score: null, correct_count: null, incorrect_count: null, unanswered_count: null,
         created_at: now, updated_at: now }
       const record = { id, row, quiz, attempt, version: { id, updatedAt: now } }
@@ -38,18 +40,28 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
     async saveDraft(record: PracticeRecord, attempt: QuizAttempt): Promise<StoredAttempt> {
       const stored = records.get(record.id)
       if (!stored || stored.row.status !== 'draft' || stored.version.updatedAt !== record.version.updatedAt
-        || stored.row.quiz_revision !== attempt.quizRevision) throw new PersistenceError('conflict')
+        || stored.row.quiz_revision !== attempt.quizRevision || attempt.status !== 'in-progress') throw new PersistenceError('conflict')
       const now = timestamp()
       stored.attempt = structuredClone(attempt)
-      stored.row = { ...stored.row, status: attempt.status === 'submitted' ? 'submitted' : 'draft',
-        client_updated_at: attempt.updatedAt, submitted_at: attempt.status === 'submitted' ? attempt.submittedAt : null,
-        deterministic_score: attempt.status === 'submitted' ? attempt.result.score : null,
-        deterministic_max_score: attempt.status === 'submitted' ? attempt.result.maxScore : null,
-        correct_count: attempt.status === 'submitted' ? attempt.result.correctCount : null,
-        incorrect_count: attempt.status === 'submitted' ? attempt.result.incorrectCount : null,
-        unanswered_count: attempt.status === 'submitted' ? attempt.result.unansweredCount : null, updated_at: now }
+      stored.row = { ...stored.row, client_updated_at: attempt.updatedAt, updated_at: now }
       stored.version = { id: record.id, updatedAt: now }
       return { attempt, version: stored.version }
+    },
+    async submitDraft(attemptId: string, expectedUpdatedAt: string, requestId: string) {
+      const stored = records.get(attemptId)
+      if (!stored || !stored.quiz || !stored.attempt || stored.row.status !== 'draft'
+        || stored.version.updatedAt !== expectedUpdatedAt) throw new PersistenceError('conflict')
+      const now = timestamp()
+      const submitted = reduceAttempt(stored.quiz, stored.attempt, { type: 'submit', now })
+      if (submitted.status !== 'submitted') throw new PersistenceError('invalid')
+      stored.attempt = submitted
+      stored.row = { ...stored.row, status: 'submitted', grading_version: 'semantic-fill-v2',
+        submission_request_id: requestId, submitted_at: now, updated_at: now,
+        deterministic_score: submitted.result.score, deterministic_max_score: submitted.result.maxScore,
+        correct_count: submitted.result.correctCount, incorrect_count: submitted.result.incorrectCount,
+        unanswered_count: submitted.result.unansweredCount }
+      stored.version = { id: attemptId, updatedAt: now }
+      return { state: 'submitted' as const, result: submitted.result }
     },
     async deleteDraft(record: PracticeRecord) {
       const stored = records.get(record.id)

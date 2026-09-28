@@ -1,6 +1,6 @@
 # LearnForge
 
-**Current status: v1.0 — READY FOR PUBLIC DEPLOYMENT**。Final Release Gate 已通過；尚未 commit、push 或發布 Pages，正式 URL 在部署前仍回 404。完整結果見 [v1.0 交付報告](docs/v1.0-delivery.md)。
+**公開版本：v1.0.0。** 本工作樹另有尚未部署的 v1.1 填空題 AI 語意正式判題實作；架構與發布前驗證見 [v1.1 交付文件](docs/v1.1-delivery.md)。v1.0 交付結果見 [v1.0 交付報告](docs/v1.0-delivery.md)。
 
 v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 

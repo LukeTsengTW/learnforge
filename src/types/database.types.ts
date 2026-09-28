@@ -134,12 +134,14 @@ export type Database = {
           created_at: string
           deterministic_max_score: number | null
           deterministic_score: number | null
+          grading_version: string
           id: string
           incorrect_count: number | null
           quiz_id: string
           quiz_revision: string
           started_at: string
           status: string
+          submission_request_id: string | null
           submitted_at: string | null
           unanswered_count: number | null
           updated_at: string
@@ -151,12 +153,14 @@ export type Database = {
           created_at?: string
           deterministic_max_score?: number | null
           deterministic_score?: number | null
+          grading_version?: string
           id?: string
           incorrect_count?: number | null
           quiz_id: string
           quiz_revision: string
           started_at: string
           status: string
+          submission_request_id?: string | null
           submitted_at?: string | null
           unanswered_count?: number | null
           updated_at?: string
@@ -168,18 +172,85 @@ export type Database = {
           created_at?: string
           deterministic_max_score?: number | null
           deterministic_score?: number | null
+          grading_version?: string
           id?: string
           incorrect_count?: number | null
           quiz_id?: string
           quiz_revision?: string
           started_at?: string
           status?: string
+          submission_request_id?: string | null
           submitted_at?: string | null
           unanswered_count?: number | null
           updated_at?: string
           user_id?: string
         }
         Relationships: []
+      }
+      fill_judgments: {
+        Row: {
+          answer_hash: string
+          attempt_id: string
+          confidence: string | null
+          created_at: string
+          finalized_at: string
+          id: string
+          judge_version: string
+          model: string | null
+          question_id: string
+          quiz_id: string
+          quiz_revision: string
+          reason: string | null
+          reasoning_effort: string | null
+          source: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          answer_hash: string
+          attempt_id: string
+          confidence?: string | null
+          created_at?: string
+          finalized_at?: string
+          id?: string
+          judge_version: string
+          model?: string | null
+          question_id: string
+          quiz_id: string
+          quiz_revision: string
+          reason?: string | null
+          reasoning_effort?: string | null
+          source: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          answer_hash?: string
+          attempt_id?: string
+          confidence?: string | null
+          created_at?: string
+          finalized_at?: string
+          id?: string
+          judge_version?: string
+          model?: string | null
+          question_id?: string
+          quiz_id?: string
+          quiz_revision?: string
+          reason?: string | null
+          reasoning_effort?: string | null
+          source?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fill_judgments_attempt_id_user_id_fkey"
+            columns: ["attempt_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "attempts"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       password_hints: {
         Row: {
@@ -232,6 +303,17 @@ export type Database = {
         Args: { p_code_hash: string; p_ip_hash: string; p_username: string }
         Returns: Json
       }
+      claim_fill_judgment: {
+        Args: {
+          p_answer_hash: string
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_question_id: string
+          p_request_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       complete_ai_request: {
         Args: {
           p_cached_input_tokens: number
@@ -244,6 +326,59 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      complete_fill_judgment: {
+        Args: {
+          p_cached_input_tokens: number
+          p_claim_token: string
+          p_confidence: string
+          p_input_tokens: number
+          p_output_tokens: number
+          p_provider_response_id: string
+          p_reason: string
+          p_reasoning_tokens: number
+          p_verdict: string
+        }
+        Returns: boolean
+      }
+      fail_fill_judgment: {
+        Args: { p_claim_token: string; p_error_code: string }
+        Returns: boolean
+      }
+      finalize_semantic_fill_submission: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_judgments: Json
+          p_request_id: string
+          p_result: Json
+          p_user_id: string
+        }
+        Returns: {
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          grading_version: string
+          id: string
+          incorrect_count: number | null
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submission_request_id: string | null
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       find_ai_request: {
         Args: {
@@ -294,12 +429,14 @@ export type Database = {
           created_at: string
           deterministic_max_score: number | null
           deterministic_score: number | null
+          grading_version: string
           id: string
           incorrect_count: number | null
           quiz_id: string
           quiz_revision: string
           started_at: string
           status: string
+          submission_request_id: string | null
           submitted_at: string | null
           unanswered_count: number | null
           updated_at: string
@@ -353,12 +490,14 @@ export type Database = {
           created_at: string
           deterministic_max_score: number | null
           deterministic_score: number | null
+          grading_version: string
           id: string
           incorrect_count: number | null
           quiz_id: string
           quiz_revision: string
           started_at: string
           status: string
+          submission_request_id: string | null
           submitted_at: string | null
           unanswered_count: number | null
           updated_at: string
@@ -383,12 +522,14 @@ export type Database = {
           created_at: string
           deterministic_max_score: number | null
           deterministic_score: number | null
+          grading_version: string
           id: string
           incorrect_count: number | null
           quiz_id: string
           quiz_revision: string
           started_at: string
           status: string
+          submission_request_id: string | null
           submitted_at: string | null
           unanswered_count: number | null
           updated_at: string

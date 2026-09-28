@@ -3,7 +3,7 @@ import { reduceAttempt } from '../../lib/attempt'
 import type { QuestionAnswer } from '../../models/attempt'
 import type { PracticeRepository } from './practice-context'
 import { LocalPracticeCache, type CachedPractice } from './practice-cache'
-import type { PracticeRecord } from './practice-repository'
+import { SubmissionError, type PracticeRecord } from './practice-repository'
 import { PersistenceError } from './repositories'
 import { sameAttempt } from './sync'
 
@@ -20,11 +20,13 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   catch { notice = '無法讀取本機進度；雲端草稿仍可使用。請檢查瀏覽器儲存空間。' }
   let remoteRecord = initial
   let dirty = !sameAttempt(value.attempt, initial.attempt)
-  let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, legacy: false,
+  let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, submitting: false, legacy: false,
     pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
   const listeners = new Set<() => void>()
   let timer: ReturnType<typeof setTimeout> | undefined
   let running: Promise<void> | null = null
+  let submitting = false
+  let submissionRequestId: string | null = null
   let active = true
   const emit = () => { snapshot = { ...snapshot, attempt: value.attempt,
     pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
@@ -66,8 +68,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           if (!active) return
           if (!saved.version) throw new PersistenceError('invalid')
           value = { id: value.id, attempt: value.attempt, version: saved.version }
-          remoteRecord = { ...remoteRecord, row: { ...remoteRecord.row,
-            status: saving.status === 'submitted' ? 'submitted' : 'draft' }, version: saved.version, attempt: saving }
+          remoteRecord = { ...remoteRecord, version: saved.version, attempt: saving }
           dirty = !sameAttempt(value.attempt, saving)
           persist(); emit()
         }
@@ -87,38 +88,69 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
     stop: () => { active = false; clearTimeout(timer) },
     retry: flush,
     answer(questionId: string, answer: QuestionAnswer) {
-      if (!active || value.attempt.status !== 'in-progress') return
+      if (!active || submitting || value.attempt.status !== 'in-progress') return
       const next = reduceAttempt(quiz, value.attempt, { type: 'answer', questionId, answer,
         now: nextClientTime(value.attempt.startedAt, value.attempt.updatedAt) })
       if (next === value.attempt) return
       value = { ...value, attempt: next }; dirty = true; persist(); emit()
+      submissionRequestId = null
       clearTimeout(timer); timer = setTimeout(() => { void flush() }, delay)
     },
     async submit(): Promise<string | null> {
+      if (submitting) return null
+      submitting = true; snapshot = { ...snapshot, submitting: true, notice: null }; emit()
       clearTimeout(timer)
-      if (running) await running
-      if (value.attempt.status !== 'in-progress') return null
       try {
+        if (running) await running
+        if (value.attempt.status !== 'in-progress') return null
+        await flush()
+        if (remoteRecord.row.status === 'submitted') {
+          if (remoteRecord.row.submission_request_id === submissionRequestId) {
+            if (remoteRecord.attempt?.status !== 'submitted') throw new SubmissionError('unavailable')
+            return initial.id
+          }
+          throw new SubmissionError('conflict')
+        }
+        if (dirty) throw new SubmissionError('unavailable')
         const incoming = await repo.loadAttempt(initial.id)
-        if (!incoming || incoming.row.status !== 'draft' || !incoming.attempt) throw new PersistenceError('conflict')
-        if (value.version.updatedAt !== incoming.version.updatedAt) {
-          const previous = value.attempt
+        if (incoming?.row.status === 'submitted' && incoming.row.submission_request_id === submissionRequestId) {
+          if (incoming.attempt?.status !== 'submitted') throw new SubmissionError('unavailable')
+          value = { id: initial.id, attempt: incoming.attempt, version: incoming.version }
+          remoteRecord = incoming; dirty = false; persist(); emit()
+          return initial.id
+        }
+        if (!incoming || incoming.row.status !== 'draft' || !incoming.attempt) throw new SubmissionError('conflict')
+        if (value.version.updatedAt !== incoming.version.updatedAt || !sameAttempt(value.attempt, incoming.attempt)) {
           value = cache.reconcile(incoming)
           dirty = !sameAttempt(value.attempt, incoming.attempt)
-          if (!sameAttempt(previous, value.attempt)) {
-            snapshot = { ...snapshot, notice: '雲端草稿已更新，請確認目前答案後再提交。' }; emit(); return null
-          }
+          submissionRequestId = null
+          snapshot = { ...snapshot, notice: '雲端草稿已更新，請確認目前答案後再提交。' }; emit(); return null
         }
-        const submitted = reduceAttempt(quiz, value.attempt, { type: 'submit',
-          now: nextClientTime(value.attempt.startedAt, value.attempt.updatedAt) })
-        const saved = await repo.saveDraft({ ...incoming, version: value.version }, submitted)
-        if (!saved.version) throw new PersistenceError('invalid')
-        value = { ...value, attempt: submitted, version: saved.version }; dirty = false
-        remoteRecord = { ...incoming, row: { ...incoming.row, status: 'submitted' }, attempt: submitted, version: saved.version }
-        persist(); emit(); return initial.id
-      } catch (error) { snapshot = { ...snapshot, notice: problem(error) }; emit(); return null }
+        const requestId = submissionRequestId ?? crypto.randomUUID()
+        submissionRequestId = requestId
+        for (let poll = 0; poll < 40; poll++) {
+          const result = await repo.submitDraft(initial.id, value.version.updatedAt, requestId)
+          if (result.state === 'submitted') {
+            const final = await repo.loadAttempt(initial.id).catch(() => null)
+            if (final?.attempt?.status === 'submitted') {
+              value = { id: initial.id, attempt: final.attempt, version: final.version }
+              remoteRecord = final; dirty = false; persist(); emit()
+            }
+            return initial.id
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1500))
+        }
+        throw new SubmissionError('unavailable')
+      } catch (error) {
+        if (error instanceof SubmissionError && error.kind === 'conflict') submissionRequestId = null
+        snapshot = { ...snapshot, notice: error instanceof SubmissionError && error.kind === 'conflict'
+          ? '雲端草稿已變更，作答尚未提交。請確認答案後重試。'
+          : 'AI 填空判題暫時無法完成，作答尚未提交，請稍後再試。' }
+        emit(); return null
+      } finally { submitting = false; snapshot = { ...snapshot, submitting: false }; emit() }
     },
     async deleteDraft(): Promise<boolean> {
+      if (submitting) return false
       clearTimeout(timer)
       if (running) await running
       try {
@@ -136,14 +168,9 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         const legacy = raw && decodeAttempt(raw, quiz)
         if (!legacy || value.attempt.status !== 'in-progress' || Object.keys(value.attempt.answers).length) throw new Error('Cannot import')
         const now = nextClientTime(value.attempt.startedAt, value.attempt.updatedAt)
-        const imported = legacy.status === 'submitted'
-          ? { ...legacy, startedAt: value.attempt.startedAt, updatedAt: now, submittedAt: now }
-          : { ...legacy, startedAt: value.attempt.startedAt, updatedAt: now }
-        if (imported.status === 'submitted') {
-          const saved = await repo.saveDraft(remoteRecord, imported)
-          if (!saved.version) throw new PersistenceError('invalid')
-          value = { ...value, attempt: imported, version: saved.version }; dirty = false; persist(); emit()
-        } else { value = { ...value, attempt: imported }; dirty = true; persist(); emit(); await flush() }
+        const imported = { ...legacy, status: 'in-progress' as const,
+          startedAt: value.attempt.startedAt, updatedAt: now, submittedAt: undefined, result: undefined }
+        value = { ...value, attempt: imported }; dirty = true; persist(); emit(); await flush()
       } catch { snapshot = { ...snapshot, notice: '無法匯入舊版進度；原始資料仍保留。' }; emit() }
     },
   }

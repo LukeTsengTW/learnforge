@@ -44,10 +44,10 @@ export function QuestionInput({ question, answer, onChange }: {
       </fieldset>
     case QUESTION_TYPE.fill:
       return <div className="text-answer"><label htmlFor={id}>你的答案</label>
-        <input id={id} type="text" autoComplete="off" maxLength={100000}
+        <input id={id} type="text" autoComplete="off" maxLength={1365}
           value={answer?.type === 'fill' ? answer.text : ''} onChange={(event) => onChange({ type: 'fill', text: event.target.value })}
           aria-describedby={`${id}-match`} placeholder="在這裡輸入答案" />
-        <p className="field-note" id={`${id}-match`}>{question.match === 'exact' ? '精確比對，包含大小寫與空格。' : '不區分英文字母大小寫；請勿加上多餘空格。'}</p>
+        <p className="field-note" id={`${id}-match`}>先依{question.match === 'exact' ? '精確' : '不區分大小寫'}規則比對；未符合時會由 AI 判斷語意，影響正式分數。</p>
       </div>
     case QUESTION_TYPE.calculation:
       return <div className="text-answer"><p className="manual-notice">計算題不納入自動分數；提交後可依題目評分規準檢查作答。</p>

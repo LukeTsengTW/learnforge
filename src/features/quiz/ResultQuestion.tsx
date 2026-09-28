@@ -58,6 +58,8 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
         {!manual && <span>{grade.score} / {grade.maxScore} 分</span>}</div>
     </div>
     <div className="question-prompt"><Markdown>{question.prompt}</Markdown></div>
+    {grade.type === 'fill' && grade.source && <p className="field-note">{grade.source === 'ai' ? 'AI 語意判定' : '規則判定'}
+      {grade.source === 'ai' && grade.reason ? `：${grade.reason}` : ''}</p>}
     {manual && <p className="manual-notice">{question.type === 'calculation'
       ? '計算題不納入自動評分。以下 AI 參考評分如有提供，亦不會改變自動分數。' : MANUAL_NOTICE}</p>}
     <div className={`answer-comparison${question.type === 'drawing' ? ' drawing-comparison' : ''}`}>

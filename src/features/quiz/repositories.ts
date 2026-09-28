@@ -1,8 +1,9 @@
-import type { QuizAttempt } from '../../models/attempt'
+import type { QuizAttempt, TrustedFillJudgment } from '../../models/attempt'
 import type { Quiz } from '../../models/quiz'
 import type { Database, Json } from '../../types/database.types'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
+import { gradeQuizWithFillJudgments } from '../../lib/grading'
 
 export interface RemoteVersion { id: string; updatedAt: string }
 export interface StoredAttempt { attempt: QuizAttempt; version: RemoteVersion | null }
@@ -51,7 +52,24 @@ export class LocalAttemptRepository implements AttemptRepository {
 
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
 type AnswerRow = Database['public']['Tables']['answers']['Row']
-export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, userId: string): StoredAttempt {
+export type JudgmentRow = Database['public']['Tables']['fill_judgments']['Row']
+export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], userId: string): TrustedFillJudgment[] {
+  if (judgments.some((judgment) => judgment.user_id !== userId || judgment.attempt_id !== row.id
+    || judgment.quiz_id !== row.quiz_id || judgment.quiz_revision !== row.quiz_revision
+    || judgment.judge_version !== 'semantic-fill-v2' || !/^[a-f0-9]{64}$/.test(judgment.answer_hash)
+    || !['rule', 'ai'].includes(judgment.source) || !['correct', 'incorrect', 'unanswered'].includes(judgment.status)
+    || (judgment.source === 'ai' && (judgment.model !== 'gpt-6-luna' || judgment.reasoning_effort !== 'medium'
+      || !['high', 'medium', 'low'].includes(judgment.confidence ?? '') || !judgment.reason?.trim()
+      || judgment.reason.length > 240))
+    || (judgment.source === 'rule' && (judgment.model !== null || judgment.reasoning_effort !== null
+      || judgment.confidence !== null || judgment.reason !== null)))) throw new PersistenceError('invalid')
+  return judgments.map((judgment) => ({
+    questionId: judgment.question_id, source: judgment.source as 'rule' | 'ai',
+    status: judgment.status as TrustedFillJudgment['status'], reason: judgment.reason,
+  }))
+}
+export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, userId: string,
+  judgments: JudgmentRow[] = []): StoredAttempt {
   if (row.user_id !== userId || !['draft', 'submitted'].includes(row.status) || answers.some(a => a.user_id !== userId || a.attempt_id !== row.id)
     || new Set(answers.map(a => a.question_id)).size !== answers.length || !Number.isFinite(Date.parse(row.updated_at))) throw new PersistenceError('invalid')
   const attempt = decodeAttempt(JSON.stringify({ schemaVersion: 1, quizId: row.quiz_id, quizRevision: row.quiz_revision,
@@ -59,7 +77,15 @@ export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, 
     status: row.status === 'draft' ? 'in-progress' : 'submitted', answers: Object.fromEntries(answers.map(a => [a.question_id, a.answer])) }), quiz)
   if (!attempt || Date.parse(attempt.updatedAt) < Date.parse(attempt.startedAt)
     || (attempt.status === 'submitted' && Date.parse(attempt.submittedAt) < Date.parse(attempt.startedAt))) throw new PersistenceError('invalid')
-  // decodeAttempt regrades canonical answers; persisted score/grade JSON is never trusted.
+  // Legacy submissions keep deterministic grading. New submissions use only the
+  // immutable server judgment rows; persisted aggregate score fields remain caches.
+  if (attempt.status === 'submitted' && row.grading_version === 'semantic-fill-v2') {
+    const trusted = trustedFillJudgments(row, judgments, userId)
+    try { return { attempt: { ...attempt, result: gradeQuizWithFillJudgments(quiz, attempt.answers, trusted) },
+      version: { id: row.id, updatedAt: row.updated_at } } }
+    catch { throw new PersistenceError('invalid') }
+  }
+  if (row.grading_version !== 'deterministic-v1') throw new PersistenceError('invalid')
   return { attempt, version: { id: row.id, updatedAt: row.updated_at } }
 }
 export function toDatabase(attempt: QuizAttempt, ownerId: string): Json {

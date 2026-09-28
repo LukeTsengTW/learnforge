@@ -9,6 +9,8 @@ set local role anon;
 do $$ begin
   begin perform 1 from public.password_hints; raise exception 'FAIL anon hints'; exception when insufficient_privilege then null; end;
   begin perform 1 from public.attempts; raise exception 'FAIL anon attempts'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.fill_judge_cache; raise exception 'FAIL anon fill judge cache'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.fill_judge_calls; raise exception 'FAIL anon fill judge calls'; exception when insufficient_privilege then null; end;
   begin perform public.get_or_create_quiz_draft(null, 'demo', 'fixture'); raise exception 'FAIL anon draft RPC'; exception when insufficient_privilege then null; end;
   begin perform public.request_password_hint('v03_rls_fixture_a', repeat('a',64)); raise exception 'FAIL anon hint RPC'; exception when insufficient_privilege then null; end;
 end $$;
@@ -19,6 +21,8 @@ set local role authenticated;
 do $$ declare first_id uuid; second_id uuid; row_a public.attempts; begin
   if (select count(*) from public.profiles) <> 1 then raise exception 'FAIL own profile'; end if;
   begin perform 1 from public.password_hints; raise exception 'FAIL auth hints'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.fill_judge_cache; raise exception 'FAIL auth fill judge cache'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.fill_judge_calls; raise exception 'FAIL auth fill judge calls'; exception when insufficient_privilege then null; end;
   begin perform public.request_password_hint('v03_rls_fixture_a', repeat('a',64)); raise exception 'FAIL auth hint RPC'; exception when insufficient_privilege then null; end;
   begin
     insert into public.attempts(user_id, quiz_id, quiz_revision, status, started_at, client_updated_at)
@@ -36,8 +40,8 @@ do $$ declare first_id uuid; second_id uuid; row_a public.attempts; begin
   select * into row_a from public.attempts where id = first_id;
   perform public.save_quiz_attempt_v3(first_id, jsonb_build_object('ownerId',auth.uid(),'quizId','demo',
     'quizRevision','fixture','status','in-progress','startedAt',row_a.started_at,'updatedAt',clock_timestamp(),
-    'answers','{"q1":{"type":"single","optionId":"b"}}'::jsonb), row_a.updated_at);
-  if (select count(*) from public.answers where attempt_id = first_id) <> 1 then raise exception 'FAIL own answer'; end if;
+    'answers','{"q1":{"type":"single","optionId":"b"},"qfill":{"type":"fill","text":"A"}}'::jsonb), row_a.updated_at);
+  if (select count(*) from public.answers where attempt_id = first_id) <> 2 then raise exception 'FAIL own answer'; end if;
   perform set_config('test.first_attempt', first_id::text, true);
 end $$;
 reset role;
@@ -63,7 +67,7 @@ reset role;
 
 select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
 set local role authenticated;
-do $$ declare a public.attempts; b public.attempts; draft_row public.attempts; begin
+do $$ declare a public.attempts; begin
   select * into a from public.attempts where id = current_setting('test.first_attempt')::uuid;
   begin
     perform public.save_quiz_attempt_v3(a.id, jsonb_build_object('ownerId',auth.uid(),'quizId','demo',
@@ -71,30 +75,202 @@ do $$ declare a public.attempts; b public.attempts; draft_row public.attempts; b
       'answers','{}'::jsonb), a.updated_at - interval '1 second');
     raise exception 'FAIL stale CAS';
   exception when serialization_failure then null; end;
-  perform public.save_quiz_attempt_v3(a.id, jsonb_build_object('ownerId',auth.uid(),'quizId','demo',
-    'quizRevision','fixture','status','submitted','startedAt',a.started_at,'updatedAt',clock_timestamp(),
-    'submittedAt',clock_timestamp(),'answers','{"q1":{"type":"single","optionId":"b"}}'::jsonb,
-    'result','{"score":2,"maxScore":10,"correctCount":1,"incorrectCount":0,"unansweredCount":4}'::jsonb), a.updated_at);
   begin
-    update public.attempts set status='draft' where id=a.id;
-    if found then raise exception 'FAIL unlock'; end if;
-  exception when check_violation then null; end;
+    perform public.save_quiz_attempt_v3(a.id, jsonb_build_object('ownerId',auth.uid(),'quizId','demo',
+      'quizRevision','fixture','status','submitted','startedAt',a.started_at,'updatedAt',clock_timestamp(),
+      'answers','{}'::jsonb,'result','{"score":999}'::jsonb), a.updated_at);
+    raise exception 'FAIL old submit RPC bypass';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.attempts set status='submitted',submitted_at=clock_timestamp(),
+      deterministic_score=999,deterministic_max_score=999,correct_count=1,incorrect_count=0,unanswered_count=0
+      where id=a.id;
+    raise exception 'FAIL direct attempt submit bypass';
+  exception when insufficient_privilege then null; end;
+  begin
+    insert into public.fill_judgments(user_id,attempt_id,quiz_id,quiz_revision,question_id,
+      answer_hash,judge_version,source,status)
+      values(auth.uid(),a.id,'demo','fixture','qfill',repeat('a',64),'semantic-fill-v2','rule','correct');
+    raise exception 'FAIL browser judgment insert';
+  exception when insufficient_privilege then null; end;
+  begin update public.fill_judgments set status='correct'; raise exception 'FAIL browser judgment update'; exception when insufficient_privilege then null; end;
+  begin delete from public.fill_judgments; raise exception 'FAIL browser judgment delete'; exception when insufficient_privilege then null; end;
+  begin perform public.finalize_semantic_fill_submission(auth.uid(),a.id,a.updated_at,gen_random_uuid(),'{}'::jsonb,'[]'::jsonb);
+    raise exception 'FAIL browser finalize RPC'; exception when insufficient_privilege then null; end;
+  begin perform public.claim_fill_judgment(auth.uid(),a.id,a.updated_at,'qfill',repeat('a',64),gen_random_uuid());
+    raise exception 'FAIL browser judge claim RPC'; exception when insufficient_privilege then null; end;
+  if exists(select 1 from public.fill_judgments) then raise exception 'FAIL draft judgment visibility'; end if;
+end $$;
+reset role;
+
+-- Trusted finalization is atomic; security fixtures never call OpenAI.
+set local role service_role;
+do $$ declare a public.attempts; saved public.attempts; request_id uuid:=gen_random_uuid(); hash_a text; begin
+  select * into a from public.attempts where id=current_setting('test.first_attempt')::uuid;
+  hash_a:=encode(sha256(convert_to('A','UTF8')),'hex');
+  begin perform public.finalize_semantic_fill_submission(current_setting('test.user_b')::uuid,a.id,
+    a.updated_at,request_id,'{}'::jsonb,'[]'::jsonb); raise exception 'FAIL cross-user finalize';
+  exception when serialization_failure then null; end;
+  select * into saved from public.finalize_semantic_fill_submission(current_setting('test.user_a')::uuid,a.id,
+    a.updated_at,request_id,'{"score":2,"maxScore":10,"correctCount":1,"incorrectCount":0,"unansweredCount":0}'::jsonb,
+    jsonb_build_array(jsonb_build_object('questionId','qfill','answerHash',hash_a,'source','rule',
+      'status','correct','confidence',null,'reason',null)));
+  if saved.status <> 'submitted' or saved.grading_version <> 'semantic-fill-v2'
+    or (select count(*) from public.fill_judgments where attempt_id=a.id) <> 1 then
+    raise exception 'FAIL trusted finalization'; end if;
+  select * into saved from public.finalize_semantic_fill_submission(current_setting('test.user_a')::uuid,a.id,
+    a.updated_at,request_id,'{}'::jsonb,'[]'::jsonb);
+  if saved.id <> a.id then raise exception 'FAIL idempotent finalization'; end if;
+end $$;
+reset role;
+
+-- A missing second stored fill judgment rejects the whole finalization statement.
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; draft_row public.attempts;
+begin
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(owner_id,'v11-incomplete-fixture','1','draft',clock_timestamp(),clock_timestamp()) returning * into draft_row;
+  insert into public.answers(attempt_id,user_id,question_id,answer) values
+    (draft_row.id,owner_id,'fill-one',jsonb_build_object('type','fill','text','CPU')),
+    (draft_row.id,owner_id,'fill-two',jsonb_build_object('type','fill','text','RAM'));
+  perform set_config('test.incomplete_attempt',draft_row.id::text,true);
+end $$;
+set local role service_role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; draft_row public.attempts;
+  cpu_hash text:=encode(sha256(convert_to('CPU','UTF8')),'hex');
+begin
+  select * into draft_row from public.attempts where id=current_setting('test.incomplete_attempt')::uuid;
+  begin
+    perform public.finalize_semantic_fill_submission(owner_id,draft_row.id,draft_row.updated_at,
+      gen_random_uuid(),jsonb_build_object('score',2,'maxScore',4,'correctCount',1,
+        'incorrectCount',0,'unansweredCount',0),
+      jsonb_build_array(jsonb_build_object('questionId','fill-one','answerHash',cpu_hash,
+        'source','rule','status','correct','confidence',null,'reason',null)));
+    raise exception 'FAIL incomplete fill judgment set accepted';
+  exception when check_violation then
+    if sqlerrm <> 'Incomplete fill judgment set' then raise; end if;
+  end;
+  select * into draft_row from public.attempts where id=draft_row.id;
+  if draft_row.status <> 'draft' or draft_row.grading_version <> 'deterministic-v1'
+    or draft_row.submission_request_id is not null
+    or (select count(*) from public.answers where attempt_id=draft_row.id and answer->>'type'='fill') <> 2
+    or exists(select 1 from public.fill_judgments where attempt_id=draft_row.id) then
+    raise exception 'FAIL incomplete fill finalization was not atomic';
+  end if;
+end $$;
+reset role;
+
+-- v1.1 fake-provider transaction checks: no OpenAI call and no user-credit debit.
+do $$ declare a uuid:=current_setting('test.user_a')::uuid; draft_row public.attempts;
+begin
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(a,'v11-ai-fixture','1','draft',clock_timestamp(),clock_timestamp()) returning * into draft_row;
+  insert into public.answers(attempt_id,user_id,question_id,answer)
+    values(draft_row.id,a,'fill-one','{"type":"fill","text":"CPU"}'::jsonb);
+  perform set_config('test.ai_attempt',draft_row.id::text,true);
+  perform set_config('test.ai_request_id',gen_random_uuid()::text,true);
+end $$;
+set local role service_role;
+do $$ declare a uuid:=current_setting('test.user_a')::uuid; draft_row public.attempts;
+  old_version timestamptz; cpu_hash text; first_claim jsonb;
+  before_credits integer; request_id uuid:=current_setting('test.ai_request_id')::uuid;
+begin
+  before_credits:=(public.get_ai_quota_status(a)->>'remaining')::integer;
+  perform set_config('test.ai_before_credits',before_credits::text,true);
+  select * into draft_row from public.attempts where id=current_setting('test.ai_attempt')::uuid;
+  old_version:=draft_row.updated_at;
+  perform set_config('test.ai_old_version',old_version::text,true);
+  cpu_hash:=encode(sha256(convert_to('CPU','UTF8')),'hex');
+  if public.claim_fill_judgment(a,draft_row.id,old_version,'arbitrary-id',cpu_hash,request_id)->>'state' <> 'conflict'
+    then raise exception 'FAIL arbitrary question claim'; end if;
+  first_claim:=public.claim_fill_judgment(a,draft_row.id,old_version,'fill-one',cpu_hash,request_id);
+  if first_claim->>'state' <> 'claimed' then raise exception 'FAIL first AI claim'; end if;
+  if public.claim_fill_judgment(a,draft_row.id,old_version,'fill-one',cpu_hash,request_id)->>'state' <> 'in_progress'
+    then raise exception 'FAIL concurrent AI reservation'; end if;
+  if not public.complete_fill_judgment((first_claim->>'claimToken')::uuid,'correct','high','同一概念。',
+    'fake-provider-id',10,0,12,2) then raise exception 'FAIL fake AI completion'; end if;
+  if public.claim_fill_judgment(a,draft_row.id,old_version,'fill-one',cpu_hash,request_id)->>'state' <> 'cached'
+    then raise exception 'FAIL exact answer AI reuse'; end if;
+end $$;
+reset role;
+do $$ declare draft_id uuid:=current_setting('test.ai_attempt')::uuid;
+  old_version timestamptz:=current_setting('test.ai_old_version')::timestamptz;
+begin
+  update public.answers set answer='{"type":"fill","text":"GPU"}'::jsonb
+    where attempt_id=draft_id and question_id='fill-one';
+  if (select updated_at from public.attempts where id=draft_id) <= old_version
+    then raise exception 'FAIL direct answer write did not advance CAS'; end if;
+end $$;
+set local role service_role;
+do $$ declare a uuid:=current_setting('test.user_a')::uuid; draft_row public.attempts;
+  old_version timestamptz:=current_setting('test.ai_old_version')::timestamptz;
+  cpu_hash text:=encode(sha256(convert_to('CPU','UTF8')),'hex');
+  gpu_hash text:=encode(sha256(convert_to('GPU','UTF8')),'hex');
+  second_claim jsonb; after_credits integer;
+  request_id uuid:=current_setting('test.ai_request_id')::uuid;
+begin
+  select * into draft_row from public.attempts where id=current_setting('test.ai_attempt')::uuid;
+  if public.claim_fill_judgment(a,draft_row.id,old_version,'fill-one',cpu_hash,request_id)->>'state' <> 'conflict'
+    then raise exception 'FAIL stale AI claim'; end if;
+  begin
+    perform public.finalize_semantic_fill_submission(a,draft_row.id,old_version,request_id,
+      '{"score":2,"maxScore":2,"correctCount":1,"incorrectCount":0,"unansweredCount":0}'::jsonb,
+      jsonb_build_array(jsonb_build_object('questionId','fill-one','answerHash',cpu_hash,
+        'source','ai','status','correct','confidence','high','reason','同一概念。')));
+    raise exception 'FAIL stale AI finalize';
+  exception when serialization_failure then null; end;
+  select * into draft_row from public.attempts where id=draft_row.id;
+  if draft_row.status <> 'draft' or exists(select 1 from public.fill_judgments where attempt_id=draft_row.id)
+    then raise exception 'FAIL stale verdict changed official state'; end if;
+  second_claim:=public.claim_fill_judgment(a,draft_row.id,draft_row.updated_at,'fill-one',gpu_hash,request_id);
+  if second_claim->>'state' <> 'claimed' then raise exception 'FAIL changed answer reused old verdict'; end if;
+  if not public.complete_fill_judgment((second_claim->>'claimToken')::uuid,'incorrect','high','概念不同。',
+    'fake-provider-id-2',11,0,9,2) then raise exception 'FAIL changed answer completion'; end if;
+  perform public.finalize_semantic_fill_submission(a,draft_row.id,draft_row.updated_at,request_id,
+    '{"score":0,"maxScore":2,"correctCount":0,"incorrectCount":1,"unansweredCount":0}'::jsonb,
+    jsonb_build_array(jsonb_build_object('questionId','fill-one','answerHash',gpu_hash,
+      'source','ai','status','incorrect','confidence','high','reason','概念不同。')));
+  if (select answer_hash from public.fill_judgments where attempt_id=draft_row.id) <> gpu_hash
+    then raise exception 'FAIL official judgment answer binding'; end if;
+  after_credits:=(public.get_ai_quota_status(a)->>'remaining')::integer;
+  if after_credits <> current_setting('test.ai_before_credits')::integer
+    then raise exception 'FAIL formal grading consumed user credits'; end if;
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ declare a public.attempts; b public.attempts; draft_row public.attempts; begin
+  select * into a from public.attempts where id=current_setting('test.first_attempt')::uuid;
+  if (select count(*) from public.fill_judgments where attempt_id=a.id) <> 1 then raise exception 'FAIL own final judgment read'; end if;
+  begin update public.fill_judgments set status='incorrect' where attempt_id=a.id; raise exception 'FAIL final judgment update'; exception when insufficient_privilege then null; end;
+  begin delete from public.fill_judgments where attempt_id=a.id; raise exception 'FAIL final judgment delete'; exception when insufficient_privilege then null; end;
   begin update public.answers set answer='{}' where attempt_id=a.id; raise exception 'FAIL submitted answer update'; exception when check_violation then null; end;
   begin delete from public.answers where attempt_id=a.id; raise exception 'FAIL submitted answer delete'; exception when check_violation then null; end;
   delete from public.attempts where id=a.id;
   if found then raise exception 'FAIL submitted delete'; end if;
   select * into b from public.get_or_create_quiz_draft(auth.uid(), 'demo', 'fixture');
   if b.id = a.id then raise exception 'FAIL practice again identity'; end if;
-  perform public.save_quiz_attempt_v3(b.id, jsonb_build_object('ownerId',auth.uid(),'quizId','demo',
-    'quizRevision','fixture','status','submitted','startedAt',b.started_at,'updatedAt',clock_timestamp(),
-    'submittedAt',clock_timestamp(),'answers','{}'::jsonb,
-    'result','{"score":0,"maxScore":10,"correctCount":0,"incorrectCount":0,"unansweredCount":5}'::jsonb), b.updated_at);
-  if (select count(*) from public.attempts where quiz_id='demo' and status='submitted') <> 2 then raise exception 'FAIL two submissions'; end if;
+  perform set_config('test.second_attempt',b.id::text,true);
+end $$;
+reset role;
+
+set local role service_role;
+do $$ declare b public.attempts; begin
+  select * into b from public.attempts where id=current_setting('test.second_attempt')::uuid;
+  perform public.finalize_semantic_fill_submission(current_setting('test.user_a')::uuid,b.id,b.updated_at,
+    gen_random_uuid(),'{"score":0,"maxScore":10,"correctCount":0,"incorrectCount":0,"unansweredCount":5}'::jsonb,'[]'::jsonb);
+  if (select count(*) from public.attempts where quiz_id='demo' and status='submitted' and user_id=current_setting('test.user_a')::uuid) <> 2 then raise exception 'FAIL two submissions'; end if;
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ declare draft_row public.attempts; begin
   select * into draft_row from public.get_or_create_quiz_draft(auth.uid(), 'demo', 'fixture');
-  if draft_row.id in (a.id,b.id) then raise exception 'FAIL third draft identity'; end if;
+  if draft_row.id in (current_setting('test.first_attempt')::uuid,current_setting('test.second_attempt')::uuid) then raise exception 'FAIL third draft identity'; end if;
   delete from public.attempts where id=draft_row.id;
   if not found then raise exception 'FAIL own draft delete'; end if;
-  if (select count(*) from public.attempts where quiz_id='demo' and status='submitted') <> 2 then raise exception 'FAIL history preservation'; end if;
+  if (select count(*) from public.attempts where quiz_id='demo' and status='submitted' and user_id=current_setting('test.user_a')::uuid) <> 2 then raise exception 'FAIL history preservation'; end if;
 end $$;
 reset role;
 

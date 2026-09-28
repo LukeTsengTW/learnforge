@@ -1,4 +1,4 @@
-import type { AnswerMap, ObjectiveStatus, QuestionAnswer } from './attempt'
+import type { AnswerMap, GradingVersion, ObjectiveStatus, QuestionAnswer, TrustedFillJudgment } from './attempt'
 import type { ObjectiveQuestion, Quiz } from './quiz'
 
 /** A bounded, submitted history row after ownership checks. Invalid rows stay countable. */
@@ -10,6 +10,8 @@ export interface AnalyticsAttempt {
   status: 'submitted' | 'draft'
   quiz: Quiz | null
   answers: AnswerMap | null
+  gradingVersion?: GradingVersion
+  fillJudgments?: TrustedFillJudgment[]
   unavailableReason?: 'missing-revision' | 'malformed'
 }
 

@@ -1,4 +1,5 @@
-import { GRADE_STATUS, type AnswerMap, type GradeResult, type QuestionAnswer, type QuestionGrade } from '../models/attempt'
+import { GRADE_STATUS, type AnswerMap, type GradeResult, type QuestionAnswer, type QuestionGrade,
+  type TrustedFillJudgment } from '../models/attempt'
 import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, type ObjectiveQuestion,
   type Quiz, type Question, type SingleChoiceQuestion, type TrueFalseQuestion } from '../models/quiz'
 
@@ -53,8 +54,7 @@ function gradeQuestion(question: Question, answer: QuestionAnswer | undefined): 
 }
 
 /** Manual questions do not contribute to the score or objective counts. */
-export function gradeQuiz(quiz: Quiz, answers: AnswerMap): GradeResult {
-  const questions = quiz.questions.map((question) => gradeQuestion(question, answers[question.id]))
+function aggregate(questions: QuestionGrade[]): GradeResult {
   return { questions,
     score: Number(questions.reduce((total, grade) => total + (grade.score ?? 0), 0).toFixed(8)),
     maxScore: Number(questions.reduce((total, grade) => total + (grade.maxScore ?? 0), 0).toFixed(8)),
@@ -62,4 +62,32 @@ export function gradeQuiz(quiz: Quiz, answers: AnswerMap): GradeResult {
     incorrectCount: questions.filter((grade) => grade.status === GRADE_STATUS.incorrect).length,
     unansweredCount: questions.filter((grade) => grade.status === GRADE_STATUS.unanswered).length,
     manualCount: questions.filter((grade) => grade.status === GRADE_STATUS.manual).length }
+}
+
+export function gradeQuiz(quiz: Quiz, answers: AnswerMap): GradeResult {
+  return aggregate(quiz.questions.map((question) => gradeQuestion(question, answers[question.id])))
+}
+
+/** Only pass records loaded from the server-trusted, answer-bound judgment table. */
+export function gradeQuizWithFillJudgments(quiz: Quiz, answers: AnswerMap,
+  judgments: readonly TrustedFillJudgment[]): GradeResult {
+  const byId = new Map(judgments.map((judgment) => [judgment.questionId, judgment]))
+  if (byId.size !== judgments.length || judgments.length !== quiz.questions.filter((question) => question.type === 'fill').length) {
+    throw new Error('Incomplete official fill judgments')
+  }
+  return aggregate(quiz.questions.map((question) => {
+    if (question.type !== 'fill') return gradeQuestion(question, answers[question.id])
+    const answer = answers[question.id]
+    const text = answer?.type === 'fill' ? answer.text : undefined
+    const rule = gradeFillBlank(question, text)
+    const judgment = byId.get(question.id)
+    if (!judgment || (rule.status === 'incorrect' && (judgment.source !== 'ai'
+      || !['correct', 'incorrect'].includes(judgment.status) || typeof judgment.reason !== 'string'
+      || !judgment.reason.trim() || judgment.reason.length > 240))
+      || (rule.status !== 'incorrect' && (judgment.source !== 'rule' || judgment.status !== rule.status
+        || judgment.reason !== null))) throw new Error('Invalid official fill judgment')
+    return { questionId: question.id, type: question.type, status: judgment.status,
+      score: judgment.status === 'correct' ? question.points : 0, maxScore: question.points,
+      source: judgment.source, ...(judgment.source === 'ai' ? { reason: judgment.reason! } : {}) }
+  }))
 }

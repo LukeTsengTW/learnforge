@@ -78,7 +78,7 @@ describe('release synchronization and local recovery', () => {
     expect(() => readBackup('other', key, localStorage)).toThrow()
     await expect(restorePracticeBackup('student', key, localStorage, repo)).rejects.toThrow()
     cache.archive({ id: record.id, attempt: record.attempt!, version: record.version })
-    await repo.saveDraft(record, submitted)
+    await repo.submitDraft(record.id, record.version.updatedAt, crypto.randomUUID())
     for (const backup of listPracticeBackups('student', localStorage)) await expect(restorePracticeBackup('student', backup.key, localStorage, repo)).rejects.toThrow()
     expect((await repo.loadAttempt(record.id))?.row.status).toBe('submitted')
   })
