@@ -64,14 +64,21 @@
   .brand svg { color: var(--teal); flex-shrink: 0; }
   .brand-accent { color: var(--teal); }
   .header-inner nav { display: flex; align-items: center; gap: 26px; font-size: 14px; }
-  .header-inner nav a { min-height: 44px; display: inline-flex; align-items: center; color: var(--muted); text-decoration: none; }
+  .header-inner nav > a, .nav-learning-trigger { min-height: 44px; display: inline-flex; align-items: center;
+    padding-inline: 6px; margin-inline: -6px; border-radius: 6px; color: var(--muted); text-decoration: none;
+    transition: color .15s ease, background-color .15s ease; }
+  .header-inner nav > a:hover, .nav-learning-trigger:hover,
+  .header-inner nav > a:focus-visible, .nav-learning-trigger:focus-visible { color: var(--teal-dark); background-color: #edf5f5; }
   .header-inner nav a[aria-current='page'] { color: var(--teal-dark); font-weight: 650; }
+  .nav-learning-trigger.active { color: var(--teal-dark); font-weight: 650; }
   .nav-learning { position: relative; }
-  .nav-learning summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; color: var(--muted); }
+  .nav-learning summary { cursor: pointer; }
   .nav-learning-menu { position: absolute; z-index: 5; top: 100%; left: 0; min-width: 150px; padding: 8px;
     display: flex; flex-direction: column; background: white; border: 1px solid var(--line); border-radius: 8px;
     box-shadow: 0 8px 24px #18334c1c; }
-  .nav-learning-menu a { padding: 3px 10px; white-space: nowrap; }
+  .nav-learning-menu a { min-height: 44px; display: flex; align-items: center; padding: 3px 10px; border-radius: 6px;
+    color: var(--muted); text-decoration: none; white-space: nowrap; transition: color .15s ease, background-color .15s ease; }
+  .nav-learning-menu a:hover, .nav-learning-menu a:focus-visible { color: var(--teal-dark); background-color: #edf5f5; }
   .version-label { font-size: 12px; color: var(--muted); background: #f1f5f8; padding: 2px 9px; border-radius: 5px; }
   .main-container { width: 100%; max-width: 1144px; margin: 0 auto; padding: 36px 32px 64px; flex: 1; outline: none; }
   .site-footer { max-width: 1080px; width: calc(100% - 64px); margin: 0 auto; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 20px; padding: 26px 0; font-size: 13px; color: var(--muted); }

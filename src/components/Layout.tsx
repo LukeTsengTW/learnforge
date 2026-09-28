@@ -6,6 +6,7 @@ import { authError } from '../features/auth/auth-service'
 
 export function Layout() {
   const { pathname } = useLocation()
+  const learningActive = pathname === '/analytics' || pathname === '/review' || pathname === '/ai-usage'
   const main = useRef<HTMLElement>(null)
   const { account, loading, error, service, refresh } = useAuth()
   const [logoutError, setLogoutError] = useState<string | null>(null)
@@ -23,16 +24,21 @@ export function Layout() {
         <Link to="/author" aria-current={pathname === '/author' ? 'page' : undefined}>題庫編寫</Link>
         {account && <><Link to="/history" aria-current={pathname === '/history' ? 'page' : undefined}>練習紀錄</Link>
           <Link to="/mistakes" aria-current={pathname === '/mistakes' ? 'page' : undefined}>錯題</Link>
-          <details className="nav-learning"><summary>更多學習</summary><div className="nav-learning-menu">
-          <Link to="/analytics" aria-current={pathname === '/analytics' ? 'page' : undefined}>學習分析</Link>
-          <Link to="/review" aria-current={pathname === '/review' ? 'page' : undefined}>錯題複習</Link>
-          <Link to="/ai-usage" aria-current={pathname === '/ai-usage' ? 'page' : undefined}>AI 使用紀錄</Link>
-        </div></details></>}
+          <details className="nav-learning"
+            onPointerEnter={(event) => { if (event.pointerType === 'mouse') event.currentTarget.open = true }}
+            onPointerLeave={(event) => { if (event.pointerType === 'mouse') event.currentTarget.open = false }}>
+            <summary className={learningActive ? 'nav-learning-trigger active' : 'nav-learning-trigger'}>更多學習</summary>
+            <div className="nav-learning-menu">
+              <Link to="/analytics" aria-current={pathname === '/analytics' ? 'page' : undefined}>學習分析</Link>
+              <Link to="/review" aria-current={pathname === '/review' ? 'page' : undefined}>錯題複習</Link>
+              <Link to="/ai-usage" aria-current={pathname === '/ai-usage' ? 'page' : undefined}>AI 使用紀錄</Link>
+            </div>
+          </details></>}
         {account ? <><Link to="/account" className="account-name" title={account.username}>{account.username}</Link><button type="button" disabled={loggingOut} onClick={async () => {
           setLoggingOut(true); setLogoutError(null)
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
-        <span className="version-label">v1.1</span>
+        <span className="version-label">v1.1.1</span>
       </nav>
     </div></header>
     <main id="main-content" ref={main} tabIndex={-1} className={pathname === '/author' ? 'main-container author-main' : 'main-container'}>

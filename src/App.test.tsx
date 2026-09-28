@@ -2,7 +2,7 @@
 import { StrictMode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AppRoutes } from './App'
 import { AuthContext } from './features/auth/auth-context'
@@ -130,6 +130,36 @@ describe('practice flow', () => {
     render(<TestApp repo={repo} />)
     expect(await screen.findByRole('heading', { name: '還沒有測驗結果' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: '前往練習' })).toHaveAttribute('href', '#/quiz/demo')
+  })
+})
+
+describe('authenticated learning navigation', () => {
+  it('opens on hover, closes on leaving the disclosure, and keeps summary activation', async () => {
+    window.location.hash = '#/analytics'
+    const user = userEvent.setup()
+    const repo = createMemoryPracticeRepository('test')
+    const { container } = render(<TestApp repo={repo} />)
+    const details = container.querySelector('details.nav-learning')
+    if (!(details instanceof HTMLDetailsElement)) throw new Error('Missing learning disclosure')
+    const trigger = details.querySelector('summary')
+    if (!trigger) throw new Error('Missing learning disclosure summary')
+
+    expect(details.open).toBe(false)
+    expect(trigger).toHaveClass('active')
+    await user.hover(trigger)
+    expect(details.open).toBe(true)
+    for (const label of ['學習分析', '錯題複習', 'AI 使用紀錄']) {
+      expect(within(details).getByRole('link', { name: label })).toBeInTheDocument()
+    }
+    await user.hover(within(details).getByRole('link', { name: '學習分析' }))
+    expect(details.open).toBe(true)
+
+    await user.unhover(details)
+    expect(details.open).toBe(false)
+    fireEvent.click(trigger)
+    expect(details.open).toBe(true)
+    fireEvent.click(trigger)
+    expect(details.open).toBe(false)
   })
 })
 
