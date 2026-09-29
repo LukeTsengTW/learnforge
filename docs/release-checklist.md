@@ -1,18 +1,18 @@
 # Release checklist
 
-## v1.2.0 frontend cutover
+## v1.2.0 final release closure
 
 Current public production frontend: [https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/). Current production backend is Supabase `learnforge-demo`, ref `mrrssxqolvcjxgqzoeqt`, Tokyo. The old “linked development project” label for this ref is historical; the public frontend uses this production backend.
 
-Production already has migration `20260928143200_ai_grading_v3_submission` and `submit-quiz` version 2 (ACTIVE, `verify_jwt=false`). The v1.2 frontend must be deployed before authenticated v3 smoke because v1.1.1 expects the `semantic-fill-v2` response contract. The prior public frontend recovery point is v1.1.1 commit `5608fdad6b9ec01d5aabe9fd28ec9f2cbd834894`, Pages run `36427515831`; the previous known `submit-quiz` revision is version 1.
+Production has migration `20260928143200_ai_grading_v3_submission` and `submit-quiz` version 2 (ACTIVE, `verify_jwt=false`). The v1.2 frontend is deployed; the prior v1.1.1 frontend was not a compatible v3 smoke client because it expected `semantic-fill-v2`. The v1.2 release commit `4fb1edbf40b6a823a3d44cfae4f043a4e6ec975b` deployed successfully in Pages Run #6 (`36580074719`). Recovery points: v1.1.1 commit `5608fdad6b9ec01d5aabe9fd28ec9f2cbd834894`, Pages run `36427515831`; previous `submit-quiz` revision 1.
 
 Cutover sequence:
 
-1. Verify compatibility, bump public version metadata, update delivery documentation, and pass the local release gates.
-2. Commit and push the exact v1.2 release tree.
-3. Dispatch `Deploy LearnForge to GitHub Pages` on `master`; verify its head SHA, build and deploy jobs, and deployed v1.2.0 artifact using the production Supabase ref.
-4. Run the authenticated production smoke as the user: calculation, drawing, erased-drawing system unanswered, quota isolation and idempotency replay. This release checklist does not claim those checks passed until their live evidence is recorded.
-5. Stop after frontend deployment for user smoke. Create the v1.2.0 tag and GitHub Release only after the authenticated smoke passes.
+1. Compatibility, version metadata, documentation and local release gates: PASS.
+2. Release commit `4fb1edbf40b6a823a3d44cfae4f043a4e6ec975b` pushed to `master`: PASS.
+3. Pages Run #6 (`36580074719`) deployed that exact release commit; build, deploy and public v1.2.0 artifact checks: PASS.
+4. User-run authenticated production smoke and read-only database verification: PASS. Calculation, drawing, Result reload, erased-drawing system evidence and personal quota isolation are recorded in [v1.2 delivery notes](v1.2-delivery.md). Idempotency is covered by automated tests; no separate manual production replay was performed.
+5. Remaining: create and push the docs-only closure commit, deploy Pages from that exact SHA, and repeat the public smoke. Only then create the annotated `v1.2.0` tag pointing to the deployed closure commit. Do not create a GitHub Release in this closure.
 
 See [v1.2 delivery notes](v1.2-delivery.md) for the product contract and release lineage.
 
