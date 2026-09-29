@@ -1,7 +1,8 @@
 import { Markdown } from '../../components/Markdown'
-import { GRADE_STATUS, type QuestionAnswer, type QuestionGrade } from '../../models/attempt'
+import { GRADE_STATUS, type GradingVersion, type QuestionAnswer, type QuestionGrade } from '../../models/attempt'
 import { QUESTION_LABEL, QUESTION_TYPE, type Question } from '../../models/quiz'
 import { hasAnswer } from '../../lib/grading'
+import { GRADING_VERSION } from '../../models/grading-version'
 import { DrawingPreview } from './DrawingPreview'
 import { MANUAL_NOTICE } from './QuestionInput'
 import { AiTutorControls } from '../ai/AiTutorControls'
@@ -11,7 +12,7 @@ import { AiGradingControls } from '../ai/AiGradingControls'
 import { AiDrawingControls } from '../ai/AiDrawingControls'
 
 const STATUS_LABEL = {
-  [GRADE_STATUS.correct]: '✓ 正確', [GRADE_STATUS.incorrect]: '✕ 錯誤',
+  [GRADE_STATUS.correct]: '✓ 正確', [GRADE_STATUS.partial]: '△ 部分得分', [GRADE_STATUS.incorrect]: '✕ 錯誤',
   [GRADE_STATUS.unanswered]: '− 未作答', [GRADE_STATUS.manual]: '自行對照',
 }
 
@@ -45,11 +46,16 @@ function CorrectAnswer({ question }: { question: Question }) {
   }
 }
 
-export function ResultQuestion({ question, answer, grade, index, idPrefix = '', aiTutor }: {
+export function ResultQuestion({ question, answer, grade, index, idPrefix = '', aiTutor, gradingVersion }: {
   question: Question; answer: QuestionAnswer | undefined; grade: QuestionGrade; index: number; idPrefix?: string
-  aiTutor?: AiTutorState
+  aiTutor?: AiTutorState; gradingVersion?: GradingVersion
 }) {
+  const isV3 = gradingVersion === GRADING_VERSION.aiGradingV3
   const manual = grade.status === GRADE_STATUS.manual
+  const v3RubricGrade = isV3 && (grade.type === 'calculation' || grade.type === 'drawing')
+    && (grade.status === GRADE_STATUS.correct || grade.status === GRADE_STATUS.partial || grade.status === GRADE_STATUS.incorrect)
+    && grade.source === 'ai'
+    ? grade : null
   const aiFeatures: TutorFeature[] = question.type === 'drawing' ? []
     : grade.status === GRADE_STATUS.incorrect ? ['explain_mistake', 'explain_solution'] : ['explain_solution']
   return <section className="question-card result-question" aria-labelledby={`result-heading-${idPrefix}${question.id}`}>
@@ -60,19 +66,38 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
     <div className="question-prompt"><Markdown>{question.prompt}</Markdown></div>
     {grade.type === 'fill' && grade.source && <p className="field-note">{grade.source === 'ai' ? 'AI 語意判定' : '規則判定'}
       {grade.source === 'ai' && grade.reason ? `：${grade.reason}` : ''}</p>}
-    {manual && <p className="manual-notice">{question.type === 'calculation'
+    {manual && !isV3 && <p className="manual-notice">{question.type === 'calculation'
       ? '計算題不納入自動評分。以下 AI 參考評分如有提供，亦不會改變自動分數。' : MANUAL_NOTICE}</p>}
     <div className={`answer-comparison${question.type === 'drawing' ? ' drawing-comparison' : ''}`}>
       <div className="student-answer"><h3>你的答案</h3><StudentAnswer question={question} answer={answer} /></div>
-      <div className="reference-answer"><h3>{manual ? '參考答案' : '正確答案'}</h3><CorrectAnswer question={question} /></div>
+      <div className="reference-answer"><h3>{manual || v3RubricGrade ? '參考答案' : '正確答案'}</h3><CorrectAnswer question={question} /></div>
     </div>
     <div className="solution-block"><h3>解題說明</h3><Markdown>{question.solution}</Markdown></div>
     {question.rubric.length > 0 && <div className="rubric-block"><h3>評分規準{manual && '（供自行對照）'}</h3><ul>
       {question.rubric.map((criterion, index) => <li key={index}><Markdown>{criterion.description}</Markdown>
         {criterion.score !== null && <span>{criterion.score} 分</span>}</li>)}
     </ul></div>}
-    {aiTutor && question.type === 'calculation' && <AiGradingControls tutor={aiTutor} question={question} answer={answer} />}
-    {aiTutor && question.type === 'drawing' && <AiDrawingControls tutor={aiTutor} question={question} answer={answer} />}
+    {v3RubricGrade && <section className="ai-grading-result" aria-label="AI 自動評分">
+      <h3>AI 自動評分</h3>
+      <p>{v3RubricGrade.score} / {v3RubricGrade.maxScore} 分 · 信心度：{v3RubricGrade.confidence}</p>
+      <p>{v3RubricGrade.summary}</p>
+      <ul>{v3RubricGrade.criteria.map((criterion, criterionIndex) => <li key={criterion.criterionId}>
+        <strong>{question.rubric[criterionIndex]?.description ?? criterion.criterionId}</strong>
+        <span>{criterion.awardedScore} / {criterion.maxScore} 分</span>
+        {criterion.feedback && <p>{criterion.feedback}</p>}
+      </li>)}</ul>
+      {v3RubricGrade.type === 'calculation' && <>
+        {!!v3RubricGrade.strengths?.length && <p>做得好的地方：{v3RubricGrade.strengths.join('、')}</p>}
+        {!!v3RubricGrade.improvements?.length && <p>可以加強：{v3RubricGrade.improvements.join('、')}</p>}
+      </>}
+      {v3RubricGrade.type === 'drawing' && <>
+        {!!v3RubricGrade.observations?.length && <p>圖中觀察：{v3RubricGrade.observations.join('、')}</p>}
+        {!!v3RubricGrade.missingOrUnclear?.length && <p>缺少或不清楚：{v3RubricGrade.missingOrUnclear.join('、')}</p>}
+      </>}
+      <p className="score-note">AI 自動評分僅供學習參考，可能存在誤判。</p>
+    </section>}
+    {!isV3 && aiTutor && question.type === 'calculation' && <AiGradingControls tutor={aiTutor} question={question} answer={answer} />}
+    {!isV3 && aiTutor && question.type === 'drawing' && <AiDrawingControls tutor={aiTutor} question={question} answer={answer} />}
     {aiTutor && aiFeatures.length > 0 && <AiTutorControls tutor={aiTutor} questionId={question.id} features={aiFeatures} />}
   </section>
 }

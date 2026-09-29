@@ -1,7 +1,7 @@
 import { GRADE_STATUS, type AnswerMap, type GradeResult, type QuestionAnswer, type QuestionGrade,
-  type TrustedFillJudgment } from '../models/attempt'
+  type TrustedFillJudgment, type TrustedRubricJudgment } from '../models/attempt.ts'
 import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, type ObjectiveQuestion,
-  type Quiz, type Question, type SingleChoiceQuestion, type TrueFalseQuestion } from '../models/quiz'
+  type Quiz, type Question, type SingleChoiceQuestion, type TrueFalseQuestion } from '../models/quiz.ts'
 
 export function hasAnswer(answer: QuestionAnswer | undefined): boolean {
   if (!answer) return false
@@ -59,6 +59,7 @@ function aggregate(questions: QuestionGrade[]): GradeResult {
     score: Number(questions.reduce((total, grade) => total + (grade.score ?? 0), 0).toFixed(8)),
     maxScore: Number(questions.reduce((total, grade) => total + (grade.maxScore ?? 0), 0).toFixed(8)),
     correctCount: questions.filter((grade) => grade.status === GRADE_STATUS.correct).length,
+    partialCount: questions.filter((grade) => grade.status === GRADE_STATUS.partial).length,
     incorrectCount: questions.filter((grade) => grade.status === GRADE_STATUS.incorrect).length,
     unansweredCount: questions.filter((grade) => grade.status === GRADE_STATUS.unanswered).length,
     manualCount: questions.filter((grade) => grade.status === GRADE_STATUS.manual).length }
@@ -90,4 +91,114 @@ export function gradeQuizWithFillJudgments(quiz: Quiz, answers: AnswerMap,
       score: judgment.status === 'correct' ? question.points : 0, maxScore: question.points,
       source: judgment.source, ...(judgment.source === 'ai' ? { reason: judgment.reason! } : {}) }
   }))
+}
+
+/** Stable IDs are derived from order so published quiz revisions need no format change. */
+export function canonicalRubricCriterionId(index: number): string {
+  return `r${index + 1}`
+}
+
+function roundedScore(value: number): number {
+  return Number(value.toFixed(8))
+}
+
+function optionalTextList(value: unknown): value is string[] {
+  return value === undefined || (Array.isArray(value)
+    && value.every((item) => typeof item === 'string' && item.length <= 1000))
+}
+
+function validateRubricJudgment(question: Extract<Question, { type: 'calculation' | 'drawing' }>,
+  judgment: Extract<TrustedRubricJudgment, { source: 'ai' }>): void {
+  if (judgment.questionId !== question.id || judgment.questionType !== question.type
+    || judgment.maxScore !== question.points || !Number.isFinite(question.points) || question.points <= 0
+    || !Number.isFinite(judgment.score) || judgment.score < 0 || judgment.score > question.points
+    || judgment.source !== 'ai'
+    || judgment.status !== (judgment.score === question.points ? GRADE_STATUS.correct
+      : judgment.score === 0 ? GRADE_STATUS.incorrect : GRADE_STATUS.partial)
+    || judgment.model !== 'gpt-6-luna' || judgment.reasoningEffort !== 'medium'
+    || !/^[a-f0-9]{64}$/.test(judgment.answerHash)
+    || !['high', 'medium', 'low'].includes(judgment.confidence)
+    || typeof judgment.summary !== 'string' || !judgment.summary.trim() || judgment.summary.length > 2000
+    || !optionalTextList(judgment.strengths) || !optionalTextList(judgment.improvements)
+    || !optionalTextList(judgment.observations) || !optionalTextList(judgment.missingOrUnclear)
+    || !Array.isArray(judgment.criteria)) throw new Error('Invalid trusted rubric judgment')
+
+  const rubric = question.rubric
+  if (!Array.isArray(rubric) || rubric.length === 0
+    || rubric.some((criterion) => typeof criterion.score !== 'number' || !Number.isFinite(criterion.score) || criterion.score <= 0)
+    || roundedScore(rubric.reduce((sum, criterion) => sum + (criterion.score ?? 0), 0)) !== roundedScore(question.points)
+    || judgment.criteria.length !== rubric.length) throw new Error('Invalid canonical rubric')
+
+  const criterionIds = new Set<string>()
+  let criteriaTotal = 0
+  for (let index = 0; index < rubric.length; index++) {
+    const expected = rubric[index]
+    const received = judgment.criteria[index]
+    const expectedId = canonicalRubricCriterionId(index)
+    if (!received || typeof received !== 'object' || received.criterionId !== expectedId
+      || criterionIds.has(received.criterionId)
+      || received.maxScore !== expected.score
+      || !Number.isFinite(received.awardedScore) || received.awardedScore < 0 || received.awardedScore > (expected.score ?? 0)
+      || !['full', 'partial', 'none'].includes(received.status)
+      || (received.status === 'full' && received.awardedScore !== received.maxScore)
+      || (received.status === 'partial' && !(received.awardedScore > 0 && received.awardedScore < received.maxScore))
+      || (received.status === 'none' && received.awardedScore !== 0)
+      || (received.feedback !== undefined && (typeof received.feedback !== 'string' || received.feedback.length > 1000))) {
+      throw new Error('Invalid rubric criterion judgment')
+    }
+    criterionIds.add(received.criterionId)
+    criteriaTotal += received.awardedScore
+  }
+  if (roundedScore(criteriaTotal) !== roundedScore(judgment.score)) throw new Error('Rubric criteria score mismatch')
+}
+
+/**
+ * Pure official v3 composition. All AI judgments must already be trusted, validated,
+ * and bound to the persisted answer by the server-side submission pipeline. In particular,
+ * drawing blank state comes from the server rasterizer and is carried as system evidence.
+ */
+export function gradeQuizV3(quiz: Quiz, answers: AnswerMap,
+  fillJudgments: readonly TrustedFillJudgment[],
+  rubricJudgments: readonly TrustedRubricJudgment[]): GradeResult {
+  const fillGrades = gradeQuizWithFillJudgments(quiz, answers, fillJudgments)
+  const rubricQuestions = quiz.questions.filter((question): question is Extract<Question, { type: 'calculation' | 'drawing' }> =>
+    question.type === QUESTION_TYPE.calculation || question.type === QUESTION_TYPE.drawing)
+  const judgmentById = new Map(rubricJudgments.map((judgment) => [judgment.questionId, judgment]))
+  if (judgmentById.size !== rubricJudgments.length || judgmentById.size !== rubricQuestions.length) {
+    throw new Error('Incomplete official rubric judgments')
+  }
+
+  const grades = fillGrades.questions.map((grade) => {
+    const question = quiz.questions.find((item) => item.id === grade.questionId)
+    if (!question || (question.type !== QUESTION_TYPE.calculation && question.type !== QUESTION_TYPE.drawing)) return grade
+    const judgment = judgmentById.get(question.id)
+    if (!judgment) throw new Error('Missing official rubric judgment')
+    if (judgment.source === 'system') {
+      const answer = answers[question.id]
+      if (judgment.questionId !== question.id || judgment.questionType !== question.type
+        || judgment.status !== GRADE_STATUS.unanswered || judgment.score !== 0
+        || judgment.maxScore !== question.points || !Number.isFinite(question.points) || question.points <= 0
+        || !/^[a-f0-9]{64}$/.test(judgment.answerHash) || !Array.isArray(judgment.criteria)
+        || judgment.criteria.length !== 0
+        || (question.type === QUESTION_TYPE.calculation
+          && answer?.type === QUESTION_TYPE.calculation && answer.text.trim().length > 0)) {
+        throw new Error('Invalid system unanswered rubric evidence')
+      }
+      return { questionId: question.id, type: question.type, status: GRADE_STATUS.unanswered,
+        score: 0, maxScore: question.points, source: 'system', answerHash: judgment.answerHash } satisfies QuestionGrade
+    }
+    validateRubricJudgment(question, judgment)
+    const status = judgment.score === question.points ? GRADE_STATUS.correct
+      : judgment.score === 0 ? GRADE_STATUS.incorrect : GRADE_STATUS.partial
+    return { questionId: question.id, type: question.type, status, score: judgment.score,
+      maxScore: question.points, source: 'ai', answerHash: judgment.answerHash,
+      criteria: judgment.criteria.map((criterion) => ({ ...criterion })), confidence: judgment.confidence,
+      summary: judgment.summary,
+      ...(judgment.strengths ? { strengths: [...judgment.strengths] } : {}),
+      ...(judgment.improvements ? { improvements: [...judgment.improvements] } : {}),
+      ...(judgment.observations ? { observations: [...judgment.observations] } : {}),
+      ...(judgment.missingOrUnclear ? { missingOrUnclear: [...judgment.missingOrUnclear] } : {}),
+    } satisfies QuestionGrade
+  })
+  return aggregate(grades)
 }

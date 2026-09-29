@@ -173,8 +173,8 @@ describe('authoring workspace', () => {
     const inspector = screen.getByRole('heading', { name: 'Metadata inspector' }).closest('section')!
     expect(within(inspector).getAllByText('20')).toHaveLength(2)
     expect(within(inspector).getAllByText('10')).toHaveLength(2)
-    expect(screen.getByText(/AI 參考評分可用/)).toBeInTheDocument()
-    expect(screen.getByText(/AI 圖像參考分析可用/)).toBeInTheDocument()
+    expect(screen.getByText(/計算題 AI 自動評分可用/)).toBeInTheDocument()
+    expect(screen.getByText(/畫圖題 AI 自動評分可用/)).toBeInTheDocument()
     const nav = within(inspector).getByRole('navigation', { name: '題目導覽' })
     await user.click(within(nav).getByRole('button', { name: 'Q7 · drawing · q7' }))
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled()

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { usePracticeRepository } from '../features/quiz/practice-context'
 import type { PracticeRecord } from '../features/quiz/practice-repository'
 import { formatAttemptDate } from '../features/quiz/practice-history'
+import { GRADING_VERSION } from '../models/grading-version'
 
 export function HistoryPage() {
   const repo = usePracticeRepository()
@@ -34,8 +35,10 @@ export function HistoryPage() {
       return <article className="history-card" key={record.id}>
         <div><span className="subject-label">{record.quiz?.subject ?? '題目版本無法載入'}</span><h2>{record.quiz?.title ?? record.row.quiz_id}</h2>
           <p>版本 {record.row.quiz_revision} · {formatAttemptDate(record.row.submitted_at)}</p></div>
-        <div className="history-score"><strong>{result?.score ?? (record.row.grading_version === 'deterministic-v1' ? record.row.deterministic_score : null) ?? '—'} / {result?.maxScore ?? (record.row.grading_version === 'deterministic-v1' ? record.row.deterministic_max_score : null) ?? '—'}</strong>
-          {result && <span>正確 {result.correctCount} · 錯誤 {result.incorrectCount} · 未作答 {result.unansweredCount}</span>}
+        <div className="history-score"><strong>{result?.score ?? (record.row.grading_version === GRADING_VERSION.deterministicV1 ? record.row.deterministic_score : null) ?? '—'} / {result?.maxScore ?? (record.row.grading_version === GRADING_VERSION.deterministicV1 ? record.row.deterministic_max_score : null) ?? '—'}</strong>
+          {result && <span>{record.row.grading_version === GRADING_VERSION.aiGradingV3
+            ? `正確 ${result.correctCount} · 部分得分 ${result.partialCount} · 錯誤 ${result.incorrectCount} · 未作答 ${result.unansweredCount}`
+            : `正確 ${result.correctCount} · 錯誤 ${result.incorrectCount} · 未作答 ${result.unansweredCount}`}</span>}
           {!result && <span>無法安全重現正式分數，請稍後重試</span>}</div>
         <Link className="button secondary" to={`/result/${record.id}`}>查看結果</Link>
       </article>

@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -137,6 +157,7 @@ export type Database = {
           grading_version: string
           id: string
           incorrect_count: number | null
+          partial_count: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -156,6 +177,7 @@ export type Database = {
           grading_version?: string
           id?: string
           incorrect_count?: number | null
+          partial_count?: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -175,6 +197,7 @@ export type Database = {
           grading_version?: string
           id?: string
           incorrect_count?: number | null
+          partial_count?: number
           quiz_id?: string
           quiz_revision?: string
           started_at?: string
@@ -294,6 +317,89 @@ export type Database = {
         }
         Relationships: []
       }
+      rubric_judgments: {
+        Row: {
+          answer_hash: string
+          attempt_id: string
+          confidence: string | null
+          created_at: string
+          criteria: Json
+          details: Json
+          finalized_at: string
+          id: string
+          judge_version: string
+          max_score: number
+          model: string | null
+          provider_response_id: string | null
+          question_id: string
+          question_type: string
+          quiz_id: string
+          quiz_revision: string
+          reasoning_effort: string | null
+          score: number
+          source: string
+          status: string
+          summary: string | null
+          user_id: string
+        }
+        Insert: {
+          answer_hash: string
+          attempt_id: string
+          confidence?: string | null
+          created_at?: string
+          criteria: Json
+          details?: Json
+          finalized_at?: string
+          id?: string
+          judge_version: string
+          max_score: number
+          model?: string | null
+          provider_response_id?: string | null
+          question_id: string
+          question_type: string
+          quiz_id: string
+          quiz_revision: string
+          reasoning_effort?: string | null
+          score: number
+          source: string
+          status: string
+          summary?: string | null
+          user_id: string
+        }
+        Update: {
+          answer_hash?: string
+          attempt_id?: string
+          confidence?: string | null
+          created_at?: string
+          criteria?: Json
+          details?: Json
+          finalized_at?: string
+          id?: string
+          judge_version?: string
+          max_score?: number
+          model?: string | null
+          provider_response_id?: string | null
+          question_id?: string
+          question_type?: string
+          quiz_id?: string
+          quiz_revision?: string
+          reasoning_effort?: string | null
+          score?: number
+          source?: string
+          status?: string
+          summary?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rubric_judgments_attempt_id_user_id_fkey"
+            columns: ["attempt_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "attempts"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -310,6 +416,21 @@ export type Database = {
           p_expected_updated_at: string
           p_question_id: string
           p_request_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      claim_rubric_judgment: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_max_score: number
+          p_question_id: string
+          p_question_type: string
+          p_quiz_id: string
+          p_quiz_revision: string
+          p_request_id: string
+          p_system_unanswered: boolean
           p_user_id: string
         }
         Returns: Json
@@ -341,9 +462,65 @@ export type Database = {
         }
         Returns: boolean
       }
+      complete_rubric_judgment: {
+        Args: {
+          p_cached_input_tokens: number
+          p_claim_token: string
+          p_input_tokens: number
+          p_output_tokens: number
+          p_provider_response_id: string
+          p_reasoning_tokens: number
+          p_response: Json
+        }
+        Returns: boolean
+      }
       fail_fill_judgment: {
         Args: { p_claim_token: string; p_error_code: string }
         Returns: boolean
+      }
+      fail_rubric_judgment: {
+        Args: { p_claim_token: string; p_error_code: string }
+        Returns: undefined
+      }
+      finalize_ai_grading_submission: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_fill_judgments: Json
+          p_questions: Json
+          p_quiz_id: string
+          p_quiz_revision: string
+          p_request_id: string
+          p_result: Json
+          p_rubric_judgments: Json
+          p_user_id: string
+        }
+        Returns: {
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          grading_version: string
+          id: string
+          incorrect_count: number | null
+          partial_count: number
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submission_request_id: string | null
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       finalize_semantic_fill_submission: {
         Args: {
@@ -363,6 +540,7 @@ export type Database = {
           grading_version: string
           id: string
           incorrect_count: number | null
+          partial_count: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -432,6 +610,7 @@ export type Database = {
           grading_version: string
           id: string
           incorrect_count: number | null
+          partial_count: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -493,6 +672,7 @@ export type Database = {
           grading_version: string
           id: string
           incorrect_count: number | null
+          partial_count: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -525,6 +705,7 @@ export type Database = {
           grading_version: string
           id: string
           incorrect_count: number | null
+          partial_count: number
           quiz_id: string
           quiz_revision: string
           started_at: string
@@ -670,6 +851,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

@@ -1,6 +1,6 @@
 # Security
 
-LearnForge is for self-directed practice, not a trusted examination or anti-cheating platform. Answers ship in the static bundle; client grades and localStorage can be edited. AI output is advisory only and never replaces the official answer or deterministic score.
+LearnForge is for self-directed practice, not a teacher grading, trusted examination, or anti-cheating platform. Answers ship in the static bundle; client grades and localStorage can be edited. Deterministic question types use their canonical answer rules. In `ai-grading-v3`, validated AI rubric judgments for fill, calculation, and drawing questions contribute to the persisted practice score. AI automatic grading is a learning reference and may be mistaken.
 
 ## Reporting a vulnerability
 
@@ -30,7 +30,8 @@ Practice sync uses UUID/owner/version compare-and-swap and database submission l
 | Auth signup/sign-in | Remote 30 requests / 5 min / IP |
 | Password hint | Username 3, IP hash 10, global 100 / 15 min |
 | Recovery | Username 5, IP hash 20, global 200 / 30 min; 429 + Retry-After |
-| AI | 20 credits / rolling 5h / account; unchanged |
+| AI Tutor usage | 20 personal credits / rolling 5h / account |
+| `ai-grading-v3` submission grading | System calls use the private rubric-judge ledger and do not debit personal AI credits; bounded per-attempt and per-user claims apply |
 
 Forwarded IP values alone are not a trusted identity. Global bounds remain effective when IPs vary, but attackers can exhaust shared quotas. Per-account AI limits do not prevent multi-account abuse. There is no DDoS or Sybil-resistance guarantee.
 

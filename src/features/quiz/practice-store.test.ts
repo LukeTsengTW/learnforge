@@ -97,6 +97,18 @@ describe('attempt identity and live draft synchronization', () => {
     store.stop()
   })
 
+  it('shows the generic retryable AI grading message and leaves the attempt as a draft', async () => {
+    const repo = createMemoryPracticeRepository('student')
+    const initial = await repo.getOrCreateDraft(quiz)
+    const submitDraft = vi.fn(async () => { throw new SubmissionError('unavailable') })
+    const store = createPracticeStore(initial, { ...repo, submitDraft },
+      new LocalPracticeCache('student', storage), 60_000)
+    expect(await store.submit()).toBeNull()
+    expect(store.getSnapshot().notice).toBe('AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。')
+    expect((await repo.loadAttempt(initial.id))?.row.status).toBe('draft')
+    store.stop()
+  })
+
   it('recognizes its committed request after the submission response is lost', async () => {
     const repo = createMemoryPracticeRepository('student')
     const initial = await repo.getOrCreateDraft(quiz)

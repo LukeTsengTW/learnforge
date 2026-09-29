@@ -1,9 +1,10 @@
-import type { QuizAttempt, TrustedFillJudgment } from '../../models/attempt'
+import type { GradingVersion, QuizAttempt, TrustedFillJudgment, TrustedRubricJudgment } from '../../models/attempt'
 import type { Quiz } from '../../models/quiz'
 import type { Database, Json } from '../../types/database.types'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
-import { gradeQuizWithFillJudgments } from '../../lib/grading'
+import { gradeQuizV3, gradeQuizWithFillJudgments } from '../../lib/grading'
+import { GRADING_VERSION } from '../../models/grading-version'
 
 export interface RemoteVersion { id: string; updatedAt: string }
 export interface StoredAttempt { attempt: QuizAttempt; version: RemoteVersion | null }
@@ -53,10 +54,32 @@ export class LocalAttemptRepository implements AttemptRepository {
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
 type AnswerRow = Database['public']['Tables']['answers']['Row']
 export type JudgmentRow = Database['public']['Tables']['fill_judgments']['Row']
-export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], userId: string): TrustedFillJudgment[] {
+export interface RubricJudgmentRow {
+  user_id: string
+  attempt_id: string
+  quiz_id: string
+  quiz_revision: string
+  question_id: string
+  question_type: string
+  answer_hash: string
+  judge_version: string
+  source: string
+  status: string
+  score: number
+  max_score: number
+  criteria: unknown
+  confidence: string | null
+  summary: string | null
+  details: unknown
+  model: string | null
+  reasoning_effort: string | null
+  finalized_at: string
+}
+export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], userId: string,
+  judgeVersion: GradingVersion = GRADING_VERSION.semanticFillV2): TrustedFillJudgment[] {
   if (judgments.some((judgment) => judgment.user_id !== userId || judgment.attempt_id !== row.id
     || judgment.quiz_id !== row.quiz_id || judgment.quiz_revision !== row.quiz_revision
-    || judgment.judge_version !== 'semantic-fill-v2' || !/^[a-f0-9]{64}$/.test(judgment.answer_hash)
+    || judgment.judge_version !== judgeVersion || !/^[a-f0-9]{64}$/.test(judgment.answer_hash)
     || !['rule', 'ai'].includes(judgment.source) || !['correct', 'incorrect', 'unanswered'].includes(judgment.status)
     || (judgment.source === 'ai' && (judgment.model !== 'gpt-6-luna' || judgment.reasoning_effort !== 'medium'
       || !['high', 'medium', 'low'].includes(judgment.confidence ?? '') || !judgment.reason?.trim()
@@ -68,8 +91,42 @@ export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], 
     status: judgment.status as TrustedFillJudgment['status'], reason: judgment.reason,
   }))
 }
+export function trustedRubricJudgments(row: AttemptRow, judgments: RubricJudgmentRow[], userId: string): TrustedRubricJudgment[] {
+  if (judgments.some((judgment) => judgment.user_id !== userId || judgment.attempt_id !== row.id
+    || judgment.quiz_id !== row.quiz_id || judgment.quiz_revision !== row.quiz_revision
+    || judgment.judge_version !== GRADING_VERSION.aiGradingV3
+    || (judgment.question_type !== 'calculation' && judgment.question_type !== 'drawing')
+    || !/^[a-f0-9]{64}$/.test(judgment.answer_hash) || !Number.isFinite(judgment.score)
+    || !Number.isFinite(Date.parse(judgment.finalized_at))
+    || !Number.isFinite(judgment.max_score) || !judgment.details || typeof judgment.details !== 'object'
+    || Array.isArray(judgment.details)
+    || (judgment.source === 'system' && (judgment.status !== 'unanswered' || judgment.score !== 0
+      || !Array.isArray(judgment.criteria) || judgment.criteria.length !== 0 || judgment.confidence !== null
+      || judgment.summary !== null || judgment.model !== null || judgment.reasoning_effort !== null
+      || Object.keys(judgment.details).length !== 0))
+    || (judgment.source === 'ai' && (!['correct', 'partial', 'incorrect'].includes(judgment.status)
+      || judgment.model !== 'gpt-6-luna' || judgment.reasoning_effort !== 'medium'
+      || !['high', 'medium', 'low'].includes(judgment.confidence ?? '')
+      || typeof judgment.summary !== 'string' || !judgment.summary.trim()))
+    || (judgment.source !== 'system' && judgment.source !== 'ai'))) throw new PersistenceError('invalid')
+  if (new Set(judgments.map((judgment) => judgment.question_id)).size !== judgments.length) {
+    throw new PersistenceError('invalid')
+  }
+  return judgments.map((judgment) => judgment.source === 'system'
+    ? { questionId: judgment.question_id, questionType: judgment.question_type as 'calculation' | 'drawing',
+      answerHash: judgment.answer_hash, source: 'system', status: 'unanswered', score: 0,
+      maxScore: judgment.max_score, criteria: [] }
+    : { questionId: judgment.question_id, questionType: judgment.question_type as 'calculation' | 'drawing',
+      answerHash: judgment.answer_hash, source: 'ai', status: judgment.status as 'correct' | 'partial' | 'incorrect',
+      score: judgment.score, maxScore: judgment.max_score,
+      criteria: judgment.criteria as Extract<TrustedRubricJudgment, { source: 'ai' }>['criteria'],
+      confidence: judgment.confidence as 'high' | 'medium' | 'low', summary: judgment.summary!,
+      model: 'gpt-6-luna', reasoningEffort: 'medium',
+      ...(judgment.details as Partial<Pick<Extract<TrustedRubricJudgment, { source: 'ai' }>,
+        'strengths' | 'improvements' | 'observations' | 'missingOrUnclear'>>) })
+}
 export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, userId: string,
-  judgments: JudgmentRow[] = []): StoredAttempt {
+  judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): StoredAttempt {
   if (row.user_id !== userId || !['draft', 'submitted'].includes(row.status) || answers.some(a => a.user_id !== userId || a.attempt_id !== row.id)
     || new Set(answers.map(a => a.question_id)).size !== answers.length || !Number.isFinite(Date.parse(row.updated_at))) throw new PersistenceError('invalid')
   const attempt = decodeAttempt(JSON.stringify({ schemaVersion: 1, quizId: row.quiz_id, quizRevision: row.quiz_revision,
@@ -79,13 +136,27 @@ export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, 
     || (attempt.status === 'submitted' && Date.parse(attempt.submittedAt) < Date.parse(attempt.startedAt))) throw new PersistenceError('invalid')
   // Legacy submissions keep deterministic grading. New submissions use only the
   // immutable server judgment rows; persisted aggregate score fields remain caches.
-  if (attempt.status === 'submitted' && row.grading_version === 'semantic-fill-v2') {
+  if (attempt.status === 'submitted' && row.grading_version === GRADING_VERSION.semanticFillV2) {
     const trusted = trustedFillJudgments(row, judgments, userId)
     try { return { attempt: { ...attempt, result: gradeQuizWithFillJudgments(quiz, attempt.answers, trusted) },
       version: { id: row.id, updatedAt: row.updated_at } } }
     catch { throw new PersistenceError('invalid') }
   }
-  if (row.grading_version !== 'deterministic-v1') throw new PersistenceError('invalid')
+  if (attempt.status === 'submitted' && row.grading_version === GRADING_VERSION.aiGradingV3) {
+    try {
+      const fill = trustedFillJudgments(row, judgments, userId, GRADING_VERSION.aiGradingV3)
+      const rubric = trustedRubricJudgments(row, rubricJudgments, userId)
+      const result = gradeQuizV3(quiz, attempt.answers, fill, rubric)
+      const partialCount = (row as AttemptRow & { partial_count?: number }).partial_count
+      if (partialCount !== result.partialCount || row.deterministic_score !== result.score
+        || row.deterministic_max_score !== result.maxScore || row.correct_count !== result.correctCount
+        || row.incorrect_count !== result.incorrectCount || row.unanswered_count !== result.unansweredCount) {
+        throw new PersistenceError('invalid')
+      }
+      return { attempt: { ...attempt, result }, version: { id: row.id, updatedAt: row.updated_at } }
+    } catch { throw new PersistenceError('invalid') }
+  }
+  if (row.grading_version !== GRADING_VERSION.deterministicV1) throw new PersistenceError('invalid')
   return { attempt, version: { id: row.id, updatedAt: row.updated_at } }
 }
 export function toDatabase(attempt: QuizAttempt, ownerId: string): Json {

@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { QuestionAnswer } from '../../models/attempt'
+import type { TrustedRubricJudgment } from '../../models/attempt'
 import { QUESTION_TYPE, type Question, type Quiz, type SingleChoiceQuestion } from '../../models/quiz'
+import { GRADING_VERSION } from '../../models/grading-version'
+import { quizCatalog } from '../quiz/quiz-loader'
 import { aggregateByTag, buildLearningAnalytics, buildReviewQueue, buildWeeklyTrend,
   occurrenceTags, topicSignal } from './learning-analytics'
 
@@ -15,6 +18,7 @@ const quiz = (id = 'quiz-a', revision = 'v1', subject = 'Math', questions: Quest
 const answer = (optionId: string): QuestionAnswer => ({ type: 'single', optionId })
 const submitted = (source: Quiz, id: string, submittedAt: string, answers: Record<string, QuestionAnswer> = {}): AnalyticsAttempt => ({
   id, quizId: source.id, quizRevision: source.revision, submittedAt, status: 'submitted', quiz: source, answers,
+  gradingVersion: GRADING_VERSION.deterministicV1,
 })
 const current = (source: Quiz) => (id: string) => id === source.id ? source : null
 const monday = '2026-09-21T00:00:00.000Z'
@@ -61,6 +65,39 @@ describe('learning analytics from exact historical revisions', () => {
     const result = buildLearningAnalytics([submitted(oldQuiz, 'a1', monday, { q1: answer('a') })], false, current(newQuiz))
     expect(result.correct).toBe(1)
     expect(result.reviewQueue).toHaveLength(0)
+  })
+  it('includes persisted v3 calculation and drawing rubric scores in overall score rate only', () => {
+    const source = quizCatalog.getCurrentQuiz('demo')!
+    const rubric = (questionId: string, type: 'calculation' | 'drawing', awards: number[], maxScore: number): TrustedRubricJudgment => {
+      const question = source.questions.find((item) => item.id === questionId)!
+      const score = awards.reduce((a, b) => a + b, 0)
+      return { questionId, questionType: type, answerHash: 'a'.repeat(64), source: 'ai',
+        status: score === maxScore ? 'correct' : score === 0 ? 'incorrect' : 'partial', score,
+        maxScore, confidence: 'medium', summary: '已依正式評分規準完成判定。', model: 'gpt-6-luna', reasoningEffort: 'medium',
+        criteria: question.rubric.map((criterion, index) => {
+          const max = criterion.score!
+          const awardedScore = awards[index]
+          return { criterionId: `r${index + 1}`, maxScore: max, awardedScore,
+            status: awardedScore === max ? 'full' : awardedScore === 0 ? 'none' : 'partial' }
+        }) }
+    }
+    const record: AnalyticsAttempt = { ...submitted(source, 'v3', monday, {
+      q1: { type: 'single', optionId: 'b' }, q2: { type: 'single', optionId: 'b' },
+      q3: { type: 'multiple', optionIds: ['b', 'c', 'd'] }, q4: { type: 'true-false', value: true },
+      q5: { type: 'fill', text: 'XOR' }, q6: { type: 'calculation', text: 'partial derivation' },
+      q7: { type: 'drawing', strokes: [{ tool: 'pen', color: '#202b38', width: 2, points: [{ x: 1, y: 1 }, { x: 2, y: 2 }] }] },
+    }), gradingVersion: GRADING_VERSION.aiGradingV3,
+    fillJudgments: [{ questionId: 'q5', source: 'rule', status: 'correct', reason: null }],
+    rubricJudgments: [rubric('q6', 'calculation', [2, 1, 0], 6), rubric('q7', 'drawing', [1, 1, 0, 0], 4)] }
+    const result = buildLearningAnalytics([record], false, current(source))
+    expect(result).toMatchObject({ totalScoreEarned: 15, totalScoreAvailable: 20, overallScoreRate: 0.75,
+      objectivePointsEarned: 10, objectivePointsAvailable: 10, objectiveQuestions: 5,
+      gradingVersionCounts: { aiGradingV3: 1 }, malformedAttemptCount: 0 })
+  })
+  it('marks unknown grading versions malformed instead of guessing a historical policy', () => {
+    const record = { ...submitted(quiz(), 'future', monday), gradingVersion: 'future-v9' as never }
+    const result = buildLearningAnalytics([record], false, current(record.quiz!))
+    expect(result).toMatchObject({ malformedAttemptCount: 1, totalScoreEarned: 0, totalScoreAvailable: 0 })
   })
   it('aggregates separate quizzes and subjects without collapsing occurrences', () => {
     const a = quiz('a', 'v1', 'Math', [single('q1')])

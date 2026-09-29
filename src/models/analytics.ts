@@ -1,4 +1,5 @@
-import type { AnswerMap, GradingVersion, ObjectiveStatus, QuestionAnswer, TrustedFillJudgment } from './attempt'
+import type { AnswerMap, GradeResult, GradingVersion, ObjectiveStatus, QuestionAnswer,
+  TrustedFillJudgment, TrustedRubricJudgment } from './attempt'
 import type { ObjectiveQuestion, Quiz } from './quiz'
 
 /** A bounded, submitted history row after ownership checks. Invalid rows stay countable. */
@@ -12,6 +13,8 @@ export interface AnalyticsAttempt {
   answers: AnswerMap | null
   gradingVersion?: GradingVersion
   fillJudgments?: TrustedFillJudgment[]
+  rubricJudgments?: TrustedRubricJudgment[]
+  gradeResult?: GradeResult
   unavailableReason?: 'missing-revision' | 'malformed'
 }
 
@@ -98,6 +101,10 @@ export interface LearningAnalytics {
   unavailableHistoryCount: number
   malformedAttemptCount: number
   manualQuestionSubmissions: number
+  gradingVersionCounts: { deterministicV1: number; semanticFillV2: number; aiGradingV3: number }
+  totalScoreEarned: number
+  totalScoreAvailable: number
+  overallScoreRate: number | null
   objectiveQuestions: number
   answeredObjectiveQuestions: number
   correct: number

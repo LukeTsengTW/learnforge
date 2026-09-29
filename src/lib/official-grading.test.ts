@@ -22,7 +22,7 @@ const row: AttemptRow = {
   id, user_id: 'student', quiz_id: quiz.id, quiz_revision: quiz.revision,
   status: 'submitted', started_at: now, client_updated_at: now, submitted_at: now,
   grading_version: 'semantic-fill-v2', submission_request_id: crypto.randomUUID(),
-  deterministic_score: 2, deterministic_max_score: 10, correct_count: 1,
+  deterministic_score: 2, deterministic_max_score: 10, correct_count: 1, partial_count: 0,
   incorrect_count: 0, unanswered_count: 4, created_at: now, updated_at: now,
 }
 async function judgment(status: 'correct' | 'incorrect'): Promise<JudgmentRow> {

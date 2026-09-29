@@ -299,7 +299,7 @@ export function AuthorPage() {
               .map((type) => `${type}: ${metadata.questionTypes[type]}`).join(' · ')}</dd></div>
             <div><dt>total declared points</dt><dd>{metadata.totalDeclaredPoints}</dd></div>
             <div><dt>deterministic max</dt><dd>{metadata.deterministicMax}</dd></div>
-            <div><dt>manual points</dt><dd>{metadata.manualPoints}</dd></div>
+            <div><dt>calculation/drawing points</dt><dd>{metadata.calculationDrawingPoints}</dd></div>
           </dl>
           <nav aria-label="題目導覽"><h3>題目清單</h3><div className="author-question-nav">
             {quiz?.questions.map((question, index) => <button type="button" key={question.id}

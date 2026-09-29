@@ -7,6 +7,7 @@ import type { PracticeRecord } from '../features/quiz/practice-repository'
 import { ResultQuestion } from '../features/quiz/ResultQuestion'
 import { AiQuotaStatus } from '../features/ai/AiTutorControls'
 import { useAiTutor } from '../features/ai/use-ai-tutor'
+import { GRADING_VERSION, type GradingVersion } from '../models/grading-version'
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export function ResultPage() {
@@ -35,6 +36,7 @@ export function ResultPage() {
     <Link className="button secondary" to="/history">返回練習紀錄</Link></div>
   const { quiz, attempt } = record
   const { result } = attempt
+  const isV3 = record.row.grading_version === GRADING_VERSION.aiGradingV3
   const current = quizCatalog.getCurrentQuiz(quiz.id)
   return <>
     <div className="breadcrumb"><Link to="/history">練習紀錄</Link><span aria-hidden="true">/</span><span>測驗結果</span></div>
@@ -43,13 +45,21 @@ export function ResultPage() {
     {current && current.revision !== quiz.revision && <div className="notice warning" role="status">此紀錄使用題目版本 {quiz.revision}；目前題庫版本為 {current.revision}。再次練習會使用最新版。</div>}
     <AiQuotaStatus tutor={tutor} />
     <section className="result-summary" aria-labelledby="result-summary-heading" role="status">
-      <div className="score-display"><h2 id="result-summary-heading">自動評分得分</h2><p><strong>{result.score}</strong><span>/ {result.maxScore}</span></p><span>共 {result.correctCount + result.incorrectCount + result.unansweredCount} 題自動評分</span></div>
-      <dl className="result-counts"><div><dt>正確</dt><dd>{result.correctCount}</dd></div><div><dt>錯誤</dt><dd>{result.incorrectCount}</dd></div><div><dt>未作答</dt><dd>{result.unansweredCount}</dd></div></dl>
-      <p className="score-note">計算題與畫圖題未納入自動評分。<br />以下 {result.manualCount} 題可搭配參考解答與評分規準檢查；AI 參考評分與圖像分析另外顯示。</p>
+      {isV3 ? <>
+        <div className="score-display"><h2 id="result-summary-heading">本次練習得分</h2><p><strong>{result.score}</strong><span>/ {result.maxScore}</span></p><span>所有題型皆納入本次分數</span></div>
+        <dl className="result-counts"><div><dt>正確</dt><dd>{result.correctCount}</dd></div><div><dt>部分得分</dt><dd>{result.partialCount}</dd></div>
+          <div><dt>錯誤</dt><dd>{result.incorrectCount}</dd></div><div><dt>未作答</dt><dd>{result.unansweredCount}</dd></div></dl>
+        <p className="score-note">部分題型使用 AI 自動評分。AI 自動評分僅供學習參考，可能存在誤判。</p>
+      </> : <>
+        <div className="score-display"><h2 id="result-summary-heading">自動評分得分</h2><p><strong>{result.score}</strong><span>/ {result.maxScore}</span></p><span>共 {result.correctCount + result.incorrectCount + result.unansweredCount} 題自動評分</span></div>
+        <dl className="result-counts"><div><dt>正確</dt><dd>{result.correctCount}</dd></div><div><dt>錯誤</dt><dd>{result.incorrectCount}</dd></div><div><dt>未作答</dt><dd>{result.unansweredCount}</dd></div></dl>
+        <p className="score-note">計算題與畫圖題未納入自動評分。<br />以下 {result.manualCount} 題可搭配參考解答與評分規準檢查；AI 參考評分與圖像分析另外顯示。</p>
+      </>}
     </section>
     <div className="results-heading"><h2>作答回顧</h2><Link className="button secondary" to={`/quiz/${quiz.id}`}>再次練習</Link></div>
     <div className="result-stack">{quiz.questions.map((question, index) => <ResultQuestion key={question.id} question={question}
-      answer={attempt.answers[question.id]} grade={result.questions[index]} index={index} aiTutor={tutor} />)}</div>
+      answer={attempt.answers[question.id]} grade={result.questions[index]} index={index} aiTutor={tutor}
+      gradingVersion={record.row.grading_version as GradingVersion} />)}</div>
     <div className="result-footer"><p>每一次作答都已保留在練習紀錄。</p><Link className="button secondary" to="/history">查看練習紀錄</Link></div>
   </>
 }

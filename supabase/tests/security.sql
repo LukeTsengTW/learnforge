@@ -766,5 +766,280 @@ do $$ begin
     if not (select relrowsecurity from pg_class where oid='public.lfv10_security_rls_fixture'::regclass) then raise exception 'FAIL RLS automation'; end if;
   end if;
 end $$;
+
+-- v1.2 rubric grading: system cache is private and finalization is server-only and atomic.
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ begin
+  if not has_table_privilege('authenticated','public.attempts','UPDATE')
+    or not has_table_privilege('authenticated','public.answers','INSERT') then
+    raise exception 'FAIL browser attempt/answer privileges changed'; end if;
+  begin perform 1 from private.rubric_judge_cache; raise exception 'FAIL auth rubric cache'; exception when insufficient_privilege then null; end;
+  begin perform 1 from private.rubric_judge_calls; raise exception 'FAIL auth rubric calls'; exception when insufficient_privilege then null; end;
+  if exists(select 1 from public.rubric_judgments) then raise exception 'FAIL auth draft rubric read'; end if;
+  begin perform public.finalize_ai_grading_submission(null::uuid,null::uuid,null::timestamptz,null::uuid,null::text,null::text,
+    '{}'::jsonb,'[]'::jsonb,'[]'::jsonb,'[]'::jsonb); raise exception 'FAIL authenticated finalize';
+    exception when insufficient_privilege then null; end;
+  begin
+    insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at,grading_version,
+      submission_request_id,submitted_at,deterministic_score,deterministic_max_score,correct_count,partial_count,
+      incorrect_count,unanswered_count)
+    values(auth.uid(),'v12-forged-insert','1','draft',clock_timestamp(),clock_timestamp(),'ai-grading-v3',
+      gen_random_uuid(),clock_timestamp(),1,1,1,0,0,0);
+    raise exception 'FAIL authenticated forged attempt insert';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+set local role postgres;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; a public.attempts;
+begin
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(owner_id,'v12-rubric-fixture','fixture-v1','draft',clock_timestamp(),clock_timestamp()) returning * into a;
+  insert into public.answers(attempt_id,user_id,question_id,answer) values
+    (a.id,owner_id,'v12_single','{"type":"single","optionId":"b"}'::jsonb),
+    (a.id,owner_id,'v12_multiple','{"type":"multiple","optionIds":["a","b"]}'::jsonb),
+    (a.id,owner_id,'v12_tf','{"type":"true-false","value":false}'::jsonb),
+    (a.id,owner_id,'v12_fill','{"type":"fill","text":"CPU"}'::jsonb),
+    (a.id,owner_id,'v12_calc','{"type":"calculation","text":"x=2"}'::jsonb),
+    (a.id,owner_id,'v12_draw','{"type":"drawing","strokes":[{"tool":"pen","color":"#202b38","width":4,"points":[{"x":20,"y":150},{"x":350,"y":150}]}]}'::jsonb),
+    (a.id,owner_id,'v12_blank_calc','{"type":"calculation","text":"   "}'::jsonb),
+    (a.id,owner_id,'v12_blank_draw','{"type":"drawing","strokes":[{"tool":"pen","color":"#202b38","width":4,"points":[{"x":20,"y":150},{"x":350,"y":150}]},{"tool":"eraser","color":"#202b38","width":12,"points":[{"x":20,"y":150},{"x":350,"y":150}]}]}'::jsonb);
+  select * into a from public.attempts where id=a.id;
+  perform set_config('test.v12_attempt',a.id::text,true);
+  perform set_config('test.v12_updated_at',a.updated_at::text,true);
+  perform set_config('test.v12_request_id',gen_random_uuid()::text,true);
+end $$;
+reset role;
+set local role service_role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; a uuid:=current_setting('test.v12_attempt')::uuid;
+begin
+  if not has_table_privilege('service_role','public.attempts','SELECT')
+    or not has_table_privilege('service_role','public.attempts','UPDATE')
+    or has_table_privilege('service_role','public.attempts','INSERT')
+    or not has_table_privilege('service_role','public.answers','SELECT')
+    or has_table_privilege('service_role','public.answers','INSERT')
+    or has_table_privilege('service_role','public.answers','UPDATE')
+    or has_table_privilege('service_role','public.answers','DELETE')
+    or not has_table_privilege('service_role','public.fill_judgments','INSERT')
+    or not has_table_privilege('service_role','public.rubric_judgments','INSERT') then
+    raise exception 'FAIL service_role least privilege'; end if;
+  begin
+    insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+      values(owner_id,'service-role-forged','1','draft',clock_timestamp(),clock_timestamp());
+    raise exception 'FAIL service_role inserted attempt'; exception when insufficient_privilege then null; end;
+  begin
+    insert into public.answers(attempt_id,user_id,question_id,answer)
+      values(a,owner_id,'service-role-forged','{}'::jsonb);
+    raise exception 'FAIL service_role inserted answer'; exception when insufficient_privilege then null; end;
+  begin update public.answers set answer=answer where attempt_id=a; raise exception 'FAIL service_role updated answers';
+    exception when insufficient_privilege then null; end;
+  begin delete from public.answers where attempt_id=a; raise exception 'FAIL service_role deleted answers';
+    exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role service_role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; other_id uuid:=current_setting('test.user_b')::uuid;
+  a public.attempts; claim jsonb; retry_claim jsonb; draw_claim jsonb; response jsonb;
+  blank_calc_claim jsonb; blank_draw_claim jsonb; missing_draw_claim jsonb;
+begin
+  select * into a from public.attempts where id=current_setting('test.v12_attempt')::uuid;
+  if public.claim_rubric_judgment(other_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false)->>'state' <> 'conflict' then
+    raise exception 'FAIL rubric claim wrong owner'; end if;
+  if public.claim_rubric_judgment(owner_id,a.id,a.updated_at-interval '1 second',current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false)->>'state' <> 'conflict' then
+    raise exception 'FAIL stale rubric claim'; end if;
+  if public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','drawing',2,false)->>'state' <> 'conflict' then
+    raise exception 'FAIL question type identity'; end if;
+  claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false);
+  if claim->>'state' <> 'claimed' then raise exception 'FAIL initial rubric claim'; end if;
+  if public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false)->>'state' <> 'in_progress' then
+    raise exception 'FAIL duplicate active rubric reservation'; end if;
+  perform public.fail_rubric_judgment((claim->>'claimToken')::uuid,'synthetic_retry');
+  retry_claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false);
+  if retry_claim->>'state' <> 'claimed' or retry_claim->>'claimToken' = claim->>'claimToken' then
+    raise exception 'FAIL failed claim retry'; end if;
+  response:=jsonb_build_object('questionId','v12_calc','questionType','calculation','answerHash',retry_claim->>'answerHash',
+    'score',3,'maxScore',2,'criteria','[]'::jsonb,'confidence','medium','summary','Synthetic');
+  if public.complete_rubric_judgment((retry_claim->>'claimToken')::uuid,response,'synthetic-invalid',1,0,1,0) then
+    raise exception 'FAIL malformed score accepted'; end if;
+  response:=jsonb_build_object('questionId','v12_calc','questionType','calculation','answerHash',retry_claim->>'answerHash',
+    'score',1,'maxScore',2,'criteria',jsonb_build_array(
+      jsonb_build_object('criterionId','r1','maxScore',1,'awardedScore',1,'status','full'),
+      jsonb_build_object('criterionId','r2','maxScore',1,'awardedScore',0,'status','none')),
+    'confidence','medium','summary','Synthetic calculation feedback');
+  if not public.complete_rubric_judgment((retry_claim->>'claimToken')::uuid,response,'synthetic-calc-id',10,0,20,5) then
+    raise exception 'FAIL valid calculation completion'; end if;
+  if public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_calc','calculation',2,false)->>'state' <> 'cached' then
+    raise exception 'FAIL completed rubric judgment cache'; end if;
+  draw_claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_draw','drawing',2,false);
+  if draw_claim->>'state' <> 'claimed' or draw_claim->>'answerHash' = retry_claim->>'answerHash' then
+    raise exception 'FAIL drawing cache identity isolation'; end if;
+  response:=jsonb_build_object('questionId','v12_draw','questionType','drawing','answerHash',draw_claim->>'answerHash',
+    'score',1,'maxScore',2,'criteria',jsonb_build_array(
+      jsonb_build_object('criterionId','r1','maxScore',1,'awardedScore',0.5,'status','partial'),
+      jsonb_build_object('criterionId','r2','maxScore',1,'awardedScore',0.5,'status','partial')),
+    'confidence','low','summary','Synthetic drawing feedback','observations',jsonb_build_array('Visible outline'),
+    'missingOrUnclear',jsonb_build_array('One label unclear'));
+  if not public.complete_rubric_judgment((draw_claim->>'claimToken')::uuid,response,'synthetic-draw-id',12,0,24,6) then
+    raise exception 'FAIL valid drawing completion'; end if;
+  blank_calc_claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_blank_calc','calculation',1,true);
+  blank_draw_claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_blank_draw','drawing',1,true);
+  if blank_calc_claim->>'state' <> 'unanswered' or blank_draw_claim->>'state' <> 'unanswered'
+    or blank_calc_claim ? 'claimToken' or blank_draw_claim ? 'claimToken' then
+    raise exception 'FAIL blank/system rubric claim'; end if;
+  missing_draw_claim:=public.claim_rubric_judgment(owner_id,a.id,a.updated_at,current_setting('test.v12_request_id')::uuid,
+    a.quiz_id,a.quiz_revision,'v12_blank_draw','drawing',1,false);
+  if missing_draw_claim->>'state' <> 'claimed' or missing_draw_claim->>'answerHash' is null then
+    raise exception 'FAIL missing drawing must reserve raster work under the system bound'; end if;
+  perform public.fail_rubric_judgment((missing_draw_claim->>'claimToken')::uuid,'raster_blank');
+  if not exists(select 1 from private.rubric_judge_calls where claim_token=(missing_draw_claim->>'claimToken')::uuid
+    and status='failed' and error_code='raster_blank') then
+    raise exception 'FAIL blank drawing raster claim was not released into the system ledger'; end if;
+  perform set_config('test.v12_calc_judgment',jsonb_build_object('questionId','v12_calc','questionType','calculation',
+    'answerHash',retry_claim->>'answerHash','source','ai','status','partial','score',1,'maxScore',2,'criteria',jsonb_build_array(
+      jsonb_build_object('criterionId','r1','maxScore',1,'awardedScore',1,'status','full'),
+      jsonb_build_object('criterionId','r2','maxScore',1,'awardedScore',0,'status','none')),
+    'confidence','medium','summary','Synthetic calculation feedback','model','gpt-6-luna','reasoningEffort','medium')::text,true);
+  perform set_config('test.v12_draw_judgment',(response||jsonb_build_object('source','ai','status','partial',
+    'model','gpt-6-luna','reasoningEffort','medium'))::text,true);
+  perform set_config('test.v12_blank_calc_judgment',jsonb_build_object('questionId','v12_blank_calc',
+    'questionType','calculation','answerHash',blank_calc_claim->>'answerHash','source','system','status','unanswered',
+    'score',0,'maxScore',1,'criteria','[]'::jsonb)::text,true);
+  perform set_config('test.v12_blank_draw_judgment',jsonb_build_object('questionId','v12_blank_draw',
+    'questionType','drawing','answerHash',blank_draw_claim->>'answerHash','source','system','status','unanswered',
+    'score',0,'maxScore',1,'criteria','[]'::jsonb)::text,true);
+  perform set_config('test.v12_fill_hash',encode(sha256(convert_to('CPU','UTF8')),'hex'),true);
+  perform set_config('test.v12_quota_before',(public.get_ai_quota_status(owner_id)->>'remaining'),true);
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ declare a uuid:=current_setting('test.v12_attempt')::uuid; owner_id uuid:=current_setting('test.user_a')::uuid;
+begin
+  begin update public.attempts set grading_version='ai-grading-v3' where id=a; raise exception 'FAIL browser grading_version'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set submission_request_id=gen_random_uuid() where id=a; raise exception 'FAIL browser request id'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set submitted_at=clock_timestamp() where id=a; raise exception 'FAIL browser submitted_at'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set deterministic_score=99 where id=a; raise exception 'FAIL browser score aggregate'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set deterministic_max_score=99 where id=a; raise exception 'FAIL browser max aggregate'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set correct_count=99 where id=a; raise exception 'FAIL browser correct count'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set partial_count=99 where id=a; raise exception 'FAIL browser partial count'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set incorrect_count=99 where id=a; raise exception 'FAIL browser incorrect count'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set unanswered_count=99 where id=a; raise exception 'FAIL browser unanswered count'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+set local role service_role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; other_id uuid:=current_setting('test.user_b')::uuid;
+  a public.attempts; request_id uuid:=current_setting('test.v12_request_id')::uuid;
+  fill_judgments jsonb; rubric_judgments jsonb; questions jsonb; result jsonb; saved public.attempts;
+  bad_judgments jsonb; bad_result jsonb;
+begin
+  select * into a from public.attempts where id=current_setting('test.v12_attempt')::uuid;
+  fill_judgments:=jsonb_build_array(jsonb_build_object('questionId','v12_fill','answerHash',current_setting('test.v12_fill_hash'),
+    'source','rule','status','correct','confidence',null,'reason',null));
+  rubric_judgments:=jsonb_build_array(current_setting('test.v12_calc_judgment')::jsonb,current_setting('test.v12_draw_judgment')::jsonb);
+  rubric_judgments:=rubric_judgments||jsonb_build_array(current_setting('test.v12_blank_calc_judgment')::jsonb,
+    current_setting('test.v12_blank_draw_judgment')::jsonb);
+  questions:=jsonb_build_array(
+    jsonb_build_object('questionId','v12_single','type','single','points',1,'correctOptionId','b'),
+    jsonb_build_object('questionId','v12_multiple','type','multiple','points',1,'correctOptionIds',jsonb_build_array('a','b')),
+    jsonb_build_object('questionId','v12_tf','type','true-false','points',1,'correctAnswer',false),
+    jsonb_build_object('questionId','v12_fill','type','fill','points',1,'correctAnswer','CPU','match','exact'),
+    jsonb_build_object('questionId','v12_calc','type','calculation','points',2,'referenceAnswer','x=2','solution','Solve x=2',
+      'rubric',jsonb_build_array(jsonb_build_object('criterionId','r1','maxScore',1),jsonb_build_object('criterionId','r2','maxScore',1))),
+    jsonb_build_object('questionId','v12_draw','type','drawing','points',2,'referenceAnswer','a diagram','solution','Draw the diagram',
+      'drawing',jsonb_build_object('width',400,'height',300),
+      'rubric',jsonb_build_array(jsonb_build_object('criterionId','r1','maxScore',1),jsonb_build_object('criterionId','r2','maxScore',1))),
+    jsonb_build_object('questionId','v12_blank_calc','type','calculation','points',1,'referenceAnswer','x=1','solution','Solve x=1',
+      'rubric',jsonb_build_array(jsonb_build_object('criterionId','r1','maxScore',1))),
+    jsonb_build_object('questionId','v12_blank_draw','type','drawing','points',1,'referenceAnswer','a diagram','solution','Draw it',
+      'drawing',jsonb_build_object('width',400,'height',300),
+      'rubric',jsonb_build_array(jsonb_build_object('criterionId','r1','maxScore',1))));
+  result:=jsonb_build_object('score',6,'maxScore',10,'correctCount',4,'partialCount',2,'incorrectCount',0,'unansweredCount',2,'manualCount',0,
+    'questions',jsonb_build_array(
+      jsonb_build_object('questionId','v12_single','type','single','status','correct','score',1,'maxScore',1),
+      jsonb_build_object('questionId','v12_multiple','type','multiple','status','correct','score',1,'maxScore',1),
+      jsonb_build_object('questionId','v12_tf','type','true-false','status','correct','score',1,'maxScore',1),
+      jsonb_build_object('questionId','v12_fill','type','fill','status','correct','score',1,'maxScore',1),
+      jsonb_build_object('questionId','v12_calc','type','calculation','status','partial','score',1,'maxScore',2),
+      jsonb_build_object('questionId','v12_draw','type','drawing','status','partial','score',1,'maxScore',2),
+      jsonb_build_object('questionId','v12_blank_calc','type','calculation','status','unanswered','score',0,'maxScore',1),
+      jsonb_build_object('questionId','v12_blank_draw','type','drawing','status','unanswered','score',0,'maxScore',1)));
+  begin perform public.finalize_ai_grading_submission(other_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,rubric_judgments,questions);
+    raise exception 'FAIL wrong owner finalization'; exception when serialization_failure then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at-interval '1 second',request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,rubric_judgments,questions);
+    raise exception 'FAIL stale CAS finalization'; exception when serialization_failure then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,'wrong-revision',result,fill_judgments,rubric_judgments,questions);
+    raise exception 'FAIL wrong canonical revision'; exception when serialization_failure then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,'[]'::jsonb,rubric_judgments,questions);
+    raise exception 'FAIL missing fill judgment'; exception when check_violation then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,
+    jsonb_build_array(fill_judgments->0,fill_judgments->0),rubric_judgments,questions);
+    raise exception 'FAIL duplicate fill judgment'; exception when check_violation then null; end;
+  bad_judgments:=jsonb_build_array(jsonb_set(rubric_judgments->0,'{answerHash}',to_jsonb(repeat('f',64))),rubric_judgments->1);
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,bad_judgments,questions);
+    raise exception 'FAIL wrong answer hash finalization'; exception when check_violation then null; end;
+  bad_judgments:=jsonb_set(rubric_judgments,'{0,score}','2'::jsonb);
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,bad_judgments,questions);
+    raise exception 'FAIL rubric score tampering'; exception when check_violation then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,
+    jsonb_build_array(rubric_judgments->0,rubric_judgments->0,rubric_judgments->1),questions);
+    raise exception 'FAIL duplicate rubric judgment'; exception when check_violation then null; end;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,
+    jsonb_build_array(rubric_judgments->0),questions);
+    raise exception 'FAIL missing rubric judgment'; exception when check_violation then null; end;
+  bad_result:=jsonb_set(result,'{score}','7'::jsonb);
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,bad_result,fill_judgments,rubric_judgments,questions);
+    raise exception 'FAIL aggregate score tampering'; exception when check_violation then null; end;
+  perform set_config('test.v12_quota_before',current_setting('test.v12_quota_before'),true);
+  select * into saved from public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,rubric_judgments,questions);
+  if saved.status <> 'submitted' or saved.grading_version <> 'ai-grading-v3' or saved.partial_count <> 2
+    or saved.deterministic_score <> 6 or saved.deterministic_max_score <> 10
+    or (select count(*) from public.rubric_judgments where attempt_id=a.id) <> 4
+    or (select count(*) from public.rubric_judgments where attempt_id=a.id and source='system' and status='unanswered') <> 2
+    or (select count(*) from public.fill_judgments where attempt_id=a.id and judge_version='ai-grading-v3') <> 1 then
+    raise exception 'FAIL atomic v3 finalization'; end if;
+  select * into saved from public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,request_id,a.quiz_id,a.quiz_revision,result,fill_judgments,rubric_judgments,questions);
+  if saved.id <> a.id then raise exception 'FAIL same request idempotency'; end if;
+  begin perform public.finalize_ai_grading_submission(owner_id,a.id,a.updated_at,gen_random_uuid(),a.quiz_id,a.quiz_revision,result,fill_judgments,rubric_judgments,questions);
+    raise exception 'FAIL changed request id replay'; exception when serialization_failure then null; end;
+  if (public.get_ai_quota_status(owner_id)->>'remaining')::integer <> current_setting('test.v12_quota_before')::integer then
+    raise exception 'FAIL system grading debited personal quota'; end if;
+  if (select partial_count from public.attempts where grading_version in ('deterministic-v1','semantic-fill-v2') and partial_count <> 0 limit 1) is not null then
+    raise exception 'FAIL historical partial count backfill'; end if;
+end $$;
+reset role;
+
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_a'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ declare a uuid:=current_setting('test.v12_attempt')::uuid; begin
+  if (select count(*) from public.rubric_judgments where attempt_id=a) <> 4 then raise exception 'FAIL own submitted rubric read'; end if;
+  begin insert into public.rubric_judgments(user_id,attempt_id,quiz_id,quiz_revision,question_id,question_type,answer_hash,
+    judge_version,source,status,score,max_score,criteria,confidence,summary,model,reasoning_effort)
+    values(auth.uid(),a,'v12-rubric-fixture','fixture-v1','forged','calculation',repeat('a',64),'ai-grading-v3','ai','incorrect',0,1,'[]','low','forged','gpt-6-luna','medium');
+    raise exception 'FAIL authenticated rubric insert'; exception when insufficient_privilege then null; end;
+  begin update public.rubric_judgments set score=0 where attempt_id=a; raise exception 'FAIL authenticated rubric update'; exception when insufficient_privilege then null; end;
+  begin delete from public.rubric_judgments where attempt_id=a; raise exception 'FAIL authenticated rubric delete'; exception when insufficient_privilege then null; end;
+  begin update public.attempts set partial_count=0 where id=a; raise exception 'FAIL submitted attempt mutation'; exception when check_violation then null; end;
+end $$;
+reset role;
+select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_b'), 'role', 'authenticated')::text, true);
+set local role authenticated;
+do $$ begin
+  if exists(select 1 from public.rubric_judgments where attempt_id=current_setting('test.v12_attempt')::uuid)
+    then raise exception 'FAIL foreign rubric judgment read'; end if;
+end $$;
+reset role;
 rollback;
-select 'PASS: practice, AI, recovery, rate limits, atomic password fence, session binding and RLS automation' as verification;
+select 'PASS: practice, v1/v2/v3 grading, atomic rubric finalization, AI usage isolation, recovery, rate limits, session binding and RLS automation' as verification;

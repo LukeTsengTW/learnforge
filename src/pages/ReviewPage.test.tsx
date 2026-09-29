@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event'
 import { HashRouter } from 'react-router-dom'
 import type { AnalyticsAttempt } from '../models/analytics'
 import { QUESTION_TYPE, type Quiz } from '../models/quiz'
+import { GRADING_VERSION } from '../models/grading-version'
 import { PracticeContext, type PracticeRepository } from '../features/quiz/practice-context'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { ReviewPage } from './ReviewPage'
@@ -18,9 +19,11 @@ const source: Quiz = { id: 'review-fixture', revision: 'v1', title: 'Review fixt
     options: [{ id: 'a', content: 'Correct option' }, { id: 'b', content: 'Wrong option' }], correctOptionId: 'a',
   })) }
 const first: AnalyticsAttempt = { id: 'a1', status: 'submitted', quizId: source.id, quizRevision: source.revision,
-  submittedAt: '2026-09-20T12:00:00Z', quiz: source, answers: { q1: { type: 'single', optionId: 'b' } } }
+  submittedAt: '2026-09-20T12:00:00Z', quiz: source, gradingVersion: GRADING_VERSION.deterministicV1,
+  answers: { q1: { type: 'single', optionId: 'b' } } }
 const second: AnalyticsAttempt = { id: 'a2', status: 'submitted', quizId: source.id, quizRevision: source.revision,
-  submittedAt: now, quiz: source, answers: { q1: { type: 'single', optionId: 'a' }, q2: { type: 'single', optionId: 'b' } } }
+  submittedAt: now, quiz: source, gradingVersion: GRADING_VERSION.deterministicV1,
+  answers: { q1: { type: 'single', optionId: 'a' }, q2: { type: 'single', optionId: 'b' } } }
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
@@ -61,6 +64,7 @@ describe('focused review stays ephemeral', () => {
     const historical = { ...current, revision: 'archived-v1', current: false }
     const record: AnalyticsAttempt = { id: 'old', status: 'submitted', quizId: current.id,
       quizRevision: historical.revision, submittedAt: now, quiz: historical,
+      gradingVersion: GRADING_VERSION.deterministicV1,
       answers: { q1: { type: 'single', optionId: 'a' } } }
     const repo = { listSubmittedAnalyticsPage: vi.fn(async () => ({ records: [record], nextOffset: null })) } as unknown as PracticeRepository
     window.location.hash = '#/review'

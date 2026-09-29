@@ -14,7 +14,7 @@ function attempt(id: string, user = 'student'): AttemptRow {
   return { id, user_id: user, quiz_id: source.id, quiz_revision: source.revision, status: 'submitted',
     started_at: now, client_updated_at: now, submitted_at: now,
     grading_version: 'deterministic-v1', submission_request_id: null,
-    deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, incorrect_count: 999,
+    deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, partial_count: 0, incorrect_count: 999,
     unanswered_count: 999, created_at: now, updated_at: now }
 }
 function answerRow(attemptId: string, user = 'student'): AnswerRow {
@@ -68,7 +68,7 @@ describe('analytics repository batching and ownership', () => {
     const page = await repo.listSubmittedAnalyticsPage()
     expect(page.records).toHaveLength(50)
     expect(page.records.every((record) => record.fillJudgments?.[0]?.status === 'correct')).toBe(true)
-    expect(from.mock.calls.map(([table]) => table)).toEqual(['attempts', 'answers', 'fill_judgments'])
+    expect(from.mock.calls.map(([table]) => table)).toEqual(['attempts', 'answers', 'fill_judgments', 'rubric_judgments'])
   })
   it('rejects foreign attempts and foreign answers before treating a row as excluded', () => {
     expect(() => mapAnalyticsRecord(attempt('foreign', 'other'), [], 'student')).toThrow(PersistenceError)

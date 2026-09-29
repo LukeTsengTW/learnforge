@@ -3,8 +3,9 @@ import { quizCatalog } from './quiz-loader'
 import { tutorContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { AiProviderError } from '../../../supabase/functions/_shared/ai-provider'
 import { createFillJudgeRequest, FILL_JUDGE_UNAVAILABLE, parseFillProviderResponse,
-  parseSubmissionInput, type FillJudgment, type FillVerdict } from '../../../supabase/functions/_shared/semantic-fill'
-import { createSubmitQuizHandler, type SubmissionBackend } from '../../../supabase/functions/submit-quiz/handler'
+  parseSubmissionInput, type FillVerdict } from '../../../supabase/functions/_shared/semantic-fill'
+import { createSubmitQuizHandler, type PersistedFillJudgment, type PersistedRubricJudgment,
+  type SubmissionBackend } from '../../../supabase/functions/submit-quiz/handler'
 
 const quiz = quizCatalog.getCurrentQuiz('demo')!
 const attemptId = '00000000-0000-4000-8000-000000000011'
@@ -26,9 +27,13 @@ function fixture(text: string | null, verdict: FillVerdict = correct) {
     attempt: { id: attemptId, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
       status: 'draft', updated_at: firstVersion, grading_version: 'deterministic-v1',
       submission_request_id: null as string | null,
+      deterministic_score: null as number | null, deterministic_max_score: null as number | null,
+      correct_count: null as number | null, partial_count: null as number | null,
+      incorrect_count: null as number | null, unanswered_count: null as number | null,
       answers: text === null ? [] as { question_id: string; answer: unknown }[]
         : [{ question_id: 'q5', answer: { type: 'fill', text } }] },
-    finalJudgments: [] as FillJudgment[],
+    finalJudgments: [] as PersistedFillJudgment[],
+    finalRubric: [] as PersistedRubricJudgment[],
     cache: new Map<string, FillVerdict>(),
     pendingClaims: new Map<string, string>(),
     creditBalance: 20,
@@ -36,32 +41,65 @@ function fixture(text: string | null, verdict: FillVerdict = correct) {
     failFinalizeOnce: false,
   }
   const backend: SubmissionBackend = {
-    userId, provider,
+    userId, fillProvider: provider, calculationProvider: null, drawingProvider: null,
     async loadAttempt() { return structuredClone(state.attempt) },
-    async loadFinalJudgments() { return structuredClone(state.finalJudgments) },
-    async claim(input) {
+    async loadFinalFillJudgments() { return structuredClone(state.finalJudgments) },
+    async loadFinalRubricJudgments() { return structuredClone(state.finalRubric) },
+    async claimFill(input) {
       if (state.attempt.updated_at !== input.expectedUpdatedAt || state.attempt.status !== 'draft') return { state: 'conflict' }
       const cached = state.cache.get(input.answerHash)
-      if (cached) return { state: 'cached', ...cached }
+      if (cached) return { state: 'cached', answerHash: input.answerHash, ...cached }
       const claimToken = crypto.randomUUID()
       state.pendingClaims.set(claimToken, input.answerHash)
-      return { state: 'claimed', claimToken }
+      return { state: 'claimed', claimToken, answerHash: input.answerHash }
     },
-    async complete(token, judged, confidence, reason) {
+    async completeFill(token, judged, confidence, reason) {
       const hash = state.pendingClaims.get(token)
       if (!hash) return false
       state.cache.set(hash, { verdict: judged, confidence, reason })
       state.pendingClaims.delete(token)
       return true
     },
-    async fail() {},
+    async failFill() {},
+    async claimRubric(input) {
+      const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('null'))
+      const answerHash = [...new Uint8Array(bytes)].map((item) => item.toString(16).padStart(2, '0')).join('')
+      if (input.questionType === 'drawing' && !input.systemUnanswered) {
+        return { state: 'claimed', claimToken: crypto.randomUUID(), answerHash }
+      }
+      if (!input.systemUnanswered) return { state: 'conflict' }
+      return { state: 'unanswered', answerHash }
+    },
+    async completeRubric() { return true },
+    async failRubric() {},
     async finalize(input) {
       if (state.failFinalizeOnce) { state.failFinalizeOnce = false; throw new Error('fake transient persistence failure') }
       if (state.attempt.status !== 'draft' || state.attempt.updated_at !== input.expectedUpdatedAt) return false
       state.attempt.status = 'submitted'
-      state.attempt.grading_version = 'semantic-fill-v2'
+      state.attempt.grading_version = 'ai-grading-v3'
       state.attempt.submission_request_id = input.requestId
-      state.finalJudgments = structuredClone(input.judgments)
+      state.attempt.deterministic_score = input.result.score
+      state.attempt.deterministic_max_score = input.result.maxScore
+      state.attempt.correct_count = input.result.correctCount
+      state.attempt.partial_count = input.result.partialCount
+      state.attempt.incorrect_count = input.result.incorrectCount
+      state.attempt.unanswered_count = input.result.unansweredCount
+      state.finalJudgments = structuredClone(input.fillJudgments.map((judgment) => ({
+        ...judgment, judgeVersion: 'ai-grading-v3',
+      })))
+      state.finalRubric = structuredClone(input.rubricJudgments.map((judgment) => ({
+        question_id: judgment.questionId, question_type: judgment.questionType, answer_hash: judgment.answerHash,
+        judge_version: 'ai-grading-v3', source: judgment.source, status: judgment.status,
+        score: judgment.score, max_score: judgment.maxScore, criteria: judgment.criteria,
+        confidence: judgment.source === 'ai' ? judgment.confidence : null,
+        summary: judgment.source === 'ai' ? judgment.summary : null,
+        details: judgment.source === 'ai' ? { ...(judgment.strengths ? { strengths: judgment.strengths } : {}),
+          ...(judgment.improvements ? { improvements: judgment.improvements } : {}),
+          ...(judgment.observations ? { observations: judgment.observations } : {}),
+          ...(judgment.missingOrUnclear ? { missingOrUnclear: judgment.missingOrUnclear } : {}) } : {},
+        model: judgment.source === 'ai' ? judgment.model : null,
+        reasoning_effort: judgment.source === 'ai' ? judgment.reasoningEffort : null,
+      })))
       state.finalized = true
       return true
     },
@@ -94,7 +132,7 @@ describe('formal semantic fill submission', () => {
       const response = await submit(request())
       const body = await response.json()
       expect(response.status).toBe(200)
-      expect(body.gradingVersion).toBe('semantic-fill-v2')
+      expect(body.gradingVersion).toBe('ai-grading-v3')
       expect(body.result.questions.find((grade: { questionId: string }) => grade.questionId === 'q5'))
         .toMatchObject({ status, score, source: 'ai', reason: verdict.reason })
       expect(provider.judge).toHaveBeenCalledTimes(1)

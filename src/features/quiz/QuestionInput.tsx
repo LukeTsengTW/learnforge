@@ -5,6 +5,7 @@ import type { DrawingStroke } from '../../models/drawing'
 import { DrawingCanvas } from './DrawingCanvas'
 
 export const MANUAL_NOTICE = '畫圖題不納入自動分數；提交後可自行對照評分規準，符合條件時可使用 AI 圖像參考分析。'
+const V3_RUBRIC_NOTICE = '提交後會依評分規準由 AI 自動評分並納入本次練習得分。AI 自動評分僅供學習參考，可能存在誤判。'
 const EMPTY_STROKES: DrawingStroke[] = []
 
 export function QuestionInput({ question, answer, onChange }: {
@@ -50,14 +51,14 @@ export function QuestionInput({ question, answer, onChange }: {
         <p className="field-note" id={`${id}-match`}>先依{question.match === 'exact' ? '精確' : '不區分大小寫'}規則比對；未符合時會由 AI 判斷語意，影響正式分數。</p>
       </div>
     case QUESTION_TYPE.calculation:
-      return <div className="text-answer"><p className="manual-notice">計算題不納入自動分數；提交後可依題目評分規準檢查作答。</p>
+      return <div className="text-answer"><p className="field-note">{V3_RUBRIC_NOTICE}</p>
         <label htmlFor={id}>你的推導過程</label>
         <textarea id={id} rows={8} maxLength={100000} value={answer?.type === 'calculation' ? answer.text : ''}
           onChange={(event) => onChange({ type: 'calculation', text: event.target.value })}
           placeholder={'寫下你的想法與計算步驟…\n也可以使用 $...$ 輸入數學公式。'} />
       </div>
     case QUESTION_TYPE.drawing:
-      return <div><p className="manual-notice">{MANUAL_NOTICE}</p>
+      return <div><p className="field-note">{V3_RUBRIC_NOTICE}</p>
         <DrawingCanvas id={id} config={question.drawing} strokes={answer?.type === 'drawing' ? answer.strokes : EMPTY_STROKES}
           onChange={(strokes) => onChange({ type: 'drawing', strokes })} />
       </div>

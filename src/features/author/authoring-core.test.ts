@@ -71,10 +71,10 @@ describe('raw authoring document', () => {
     expect(nextQuestionId(source)).toBe('q8')
     expect(source).toContain(':::rubric\n- 1 |')
   })
-  it('computes declared, deterministic and manual points from canonical Quiz', () => {
+  it('computes declared, deterministic and calculation/drawing points from canonical Quiz', () => {
     const metadata = inspectQuiz(parseQuiz(demoSource))
     expect(metadata).toMatchObject({ id: 'demo', questionCount: 7, totalDeclaredPoints: 20,
-      deterministicMax: 10, manualPoints: 10 })
+      deterministicMax: 10, calculationDrawingPoints: 10 })
     expect(metadata.questionTypes).toMatchObject({ single: 2, multiple: 1, calculation: 1, drawing: 1 })
   })
   it('uses the real scored rubric gate for calculation and drawing capability', () => {
@@ -86,7 +86,18 @@ describe('raw authoring document', () => {
         ? { ...question, rubric: question.rubric.map((criterion) => ({ ...criterion, score: null })) }
         : question) }
     expect(inspectAiCapabilities(unscored).map((item) => item.available)).toEqual([false, false])
-    expect(inspectAiCapabilities(unscored)[0].message).toContain('可正常作答')
+    expect(inspectAiCapabilities(unscored)[0].message).toContain('v3 發布條件')
+    const missingSolution = { ...quiz, questions: quiz.questions.map((question) =>
+      question.type === 'calculation' ? { ...question, solution: ' ' } : question) }
+    expect(inspectAiCapabilities(missingSolution)[0].available).toBe(false)
+    const invalidDrawing = { ...quiz, questions: quiz.questions.map((question) =>
+      question.type === 'drawing' ? { ...question, drawing: { ...question.drawing, width: 99 } } : question) }
+    expect(inspectAiCapabilities(invalidDrawing)[1].available).toBe(false)
+    const tooManyCriteria = { ...quiz, questions: quiz.questions.map((question) =>
+      question.type === 'calculation' ? { ...question, rubric: Array.from({ length: 21 }, () => ({
+        ...question.rubric[0], score: question.points / 21,
+      })) } : question) }
+    expect(inspectAiCapabilities(tooManyCriteria)[0].available).toBe(false)
     expect(inspectAiCapabilities(parseQuiz(booleanSource))).toEqual([])
   })
   it('keeps content warnings separate from parse errors', () => {
@@ -173,5 +184,16 @@ describe('import, export and revision boundaries', () => {
     expect(validateProposedRevisionChange(twoCurrent, revised, 'demo').valid).toBe(false)
     const wrongFolder = existing.map((entry) => entry.id === 'demo' ? { ...entry, file: 'src/content/quizzes/wrong/v1.quiz.md' } : entry)
     expect(validateProposedRevisionChange(wrongFolder, revised, 'demo').valid).toBe(false)
+  })
+  it('keeps historical parsing permissive while blocking an unscored current v3 revision', () => {
+    const calculationStart = demoSource.indexOf(':::question id="q6"')
+    const drawingStart = demoSource.indexOf(':::question id="q7"')
+    const unscored = demoSource.slice(0, calculationStart)
+      + demoSource.slice(calculationStart, drawingStart).replace(/^- \d+ \| /gm, '- | ')
+      + demoSource.slice(drawingStart)
+    expect(parseQuiz(unscored, true).questions.find((question) => question.id === 'q6')?.type).toBe('calculation')
+    const proposal = unscored.replace('revision="v1-7d7c900e"', 'revision="v2"')
+    expect(validateProposedRevisionChange(existing, proposal, 'demo')).toMatchObject({ valid: false })
+    expect(validateProposedRevisionChange(existing, proposal, 'demo').errors.join(' ')).toContain('rubric')
   })
 })

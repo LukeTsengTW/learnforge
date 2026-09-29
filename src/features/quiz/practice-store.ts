@@ -145,7 +145,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         if (error instanceof SubmissionError && error.kind === 'conflict') submissionRequestId = null
         snapshot = { ...snapshot, notice: error instanceof SubmissionError && error.kind === 'conflict'
           ? '雲端草稿已變更，作答尚未提交。請確認答案後重試。'
-          : 'AI 填空判題暫時無法完成，作答尚未提交，請稍後再試。' }
+          : 'AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。' }
         emit(); return null
       } finally { submitting = false; snapshot = { ...snapshot, submitting: false }; emit() }
     },

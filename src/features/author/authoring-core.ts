@@ -1,6 +1,6 @@
 import { gradeQuiz } from '../../lib/grading'
 import { parseQuiz, QuizParseError } from '../../lib/quiz-parser'
-import { hasScoredRubric } from '../../lib/scored-rubric'
+import { validateV3Publication } from '../../lib/scored-rubric'
 import { QUESTION_TYPE, type QuestionType, type Quiz } from '../../models/quiz'
 
 export const MAX_AUTHOR_SOURCE_BYTES = 1024 * 1024
@@ -134,7 +134,7 @@ export interface QuizMetadata {
   id: string; title: string; description: string; subject: string; tags: string[]
   revision: string; estimatedMinutes: number; current: boolean
   questionCount: number; questionTypes: Record<QuestionType, number>
-  totalDeclaredPoints: number; deterministicMax: number; manualPoints: number
+  totalDeclaredPoints: number; deterministicMax: number; calculationDrawingPoints: number
 }
 
 export function inspectQuiz(quiz: Quiz): QuizMetadata {
@@ -145,17 +145,19 @@ export function inspectQuiz(quiz: Quiz): QuizMetadata {
   return { id: quiz.id, title: quiz.title, description: quiz.description, subject: quiz.subject,
     tags: quiz.tags, revision: quiz.revision, estimatedMinutes: quiz.estimatedMinutes, current: quiz.current,
     questionCount: quiz.questions.length, questionTypes,
-    totalDeclaredPoints, deterministicMax, manualPoints: Number((totalDeclaredPoints - deterministicMax).toFixed(8)) }
+    totalDeclaredPoints, deterministicMax,
+    calculationDrawingPoints: Number((totalDeclaredPoints - deterministicMax).toFixed(8)) }
 }
 
 export interface AiCapability { questionId: string; type: 'calculation' | 'drawing'; available: boolean; message: string }
 export function inspectAiCapabilities(quiz: Quiz): AiCapability[] {
   return quiz.questions.flatMap((question) => {
     if (question.type !== 'calculation' && question.type !== 'drawing') return []
-    const available = hasScoredRubric(question)
-    const label = question.type === 'calculation' ? 'AI 參考評分' : 'AI 圖像參考分析'
+    const publicationErrors = validateV3Publication({ ...quiz, questions: [question] })
+    const available = publicationErrors.length === 0
+    const label = question.type === 'calculation' ? '計算題 AI 自動評分' : '畫圖題 AI 自動評分'
     return [{ questionId: question.id, type: question.type, available,
-      message: available ? `${label}可用` : `可正常作答，但不支援${label}（缺少 scored rubric）。` }]
+      message: available ? `${label}可用` : `${label}尚未符合 v3 發布條件：${publicationErrors.join(' ')}` }]
   })
 }
 
@@ -190,6 +192,7 @@ export function validateProposedRevisionChange(existing: BundledRevisionMetadata
   let proposed: Quiz | undefined
   try { proposed = parseQuiz(newSource, true) }
   catch (error) { errors.push(error instanceof Error ? error.message : '新 revision 無法解析。') }
+  if (proposed) errors.push(...validateV3Publication(proposed))
   const identity = new Set<string>()
   const ids = new Set(existing.map((entry) => entry.id))
   for (const entry of existing) {

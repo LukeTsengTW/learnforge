@@ -19,6 +19,7 @@ const server = await createServer({ configFile: false, root, appType: 'custom', 
 try {
   const { parseQuiz } = await server.ssrLoadModule('/src/lib/quiz-parser.ts')
   const { createQuizCatalog } = await server.ssrLoadModule('/src/features/quiz/quiz-loader.ts')
+  const { validateV3Publication } = await server.ssrLoadModule('/src/lib/scored-rubric.ts')
   const files = await quizFiles(quizRoot)
   if (!files.length) throw new Error('No bundled Quiz Markdown files found.')
   const sources = {}
@@ -33,6 +34,8 @@ try {
   }
   const catalog = createQuizCatalog(sources)
   if (catalog.errors.length) throw new Error(catalog.errors.map((error) => `${error.file}: ${error.message}`).join('\n'))
+  const publicationErrors = catalog.current.flatMap(({ quiz }) => validateV3Publication(quiz))
+  if (publicationErrors.length) throw new Error(`Current quizzes are not valid for v3 publication:\n${publicationErrors.join('\n')}`)
   console.log(`Validated ${files.length} bundled revisions, ${catalog.current.length} current quizzes, ${questionCount} questions.`)
 } finally {
   await server.close()

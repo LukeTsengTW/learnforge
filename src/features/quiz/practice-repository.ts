@@ -3,10 +3,11 @@ import { decodeAttempt } from '../../lib/attempt-storage'
 import type { GradeResult, QuizAttempt } from '../../models/attempt'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { Quiz } from '../../models/quiz'
+import { GRADING_VERSION } from '../../models/grading-version'
 import type { Database } from '../../types/database.types'
 import { quizCatalog, type QuizCatalog } from './quiz-loader'
-import { fromDatabase, PersistenceError, toDatabase, trustedFillJudgments,
-  type JudgmentRow, type RemoteVersion, type StoredAttempt } from './repositories'
+import { fromDatabase, PersistenceError, toDatabase, trustedFillJudgments, trustedRubricJudgments,
+  type JudgmentRow, type RemoteVersion, type RubricJudgmentRow, type StoredAttempt } from './repositories'
 
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
 type AnswerRow = Database['public']['Tables']['answers']['Row']
@@ -28,14 +29,23 @@ export class SubmissionError extends Error {
 }
 export const ANALYTICS_PAGE_SIZE = 50
 
+interface RubricQuery extends PromiseLike<{ data: RubricJudgmentRow[] | null; error: unknown | null }> {
+  select(columns: string): RubricQuery
+  eq(column: string, value: string): RubricQuery
+  in(column: string, values: string[]): RubricQuery
+}
+type RubricQueryClient = { from(table: 'rubric_judgments'): RubricQuery }
+
+interface LoadedJudgments { fill: JudgmentRow[]; rubric: RubricJudgmentRow[] }
+
 export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizCatalog = quizCatalog,
-  judgments: JudgmentRow[] = []): PracticeRecord {
+  judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): PracticeRecord {
   if (row.user_id !== userId || row.answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)) {
     throw new PersistenceError('invalid')
   }
   const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
   let stored: StoredAttempt | null = null
-  try { stored = quiz ? fromDatabase(row, row.answers, quiz, userId, judgments) : null }
+  try { stored = quiz ? fromDatabase(row, row.answers, quiz, userId, judgments, rubricJudgments) : null }
   catch (error) {
     if (!(error instanceof PersistenceError) || row.status !== 'submitted') throw error
   }
@@ -43,7 +53,8 @@ export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizC
 }
 
 export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId: string,
-  catalog: QuizCatalog = quizCatalog, judgments: JudgmentRow[] = []): AnalyticsAttempt {
+  catalog: QuizCatalog = quizCatalog, judgments: JudgmentRow[] = [],
+  rubricJudgments: RubricJudgmentRow[] = []): AnalyticsAttempt {
   // Treat an ownership mismatch as a security failure, never as a skippable malformed row.
   if (row.user_id !== userId || answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)) {
     throw new PersistenceError('invalid')
@@ -53,11 +64,14 @@ export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId
   const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
   if (!quiz) return { ...base, quiz: null, answers: null, unavailableReason: 'missing-revision' }
   try {
-    const stored = fromDatabase(row, answers, quiz, userId, judgments)
+    const stored = fromDatabase(row, answers, quiz, userId, judgments, rubricJudgments)
     if (stored.attempt.status !== 'submitted' || row.status !== 'submitted') throw new PersistenceError('invalid')
     return { ...base, quiz, answers: stored.attempt.answers,
       gradingVersion: row.grading_version as AnalyticsAttempt['gradingVersion'],
-      fillJudgments: row.grading_version === 'semantic-fill-v2' ? trustedFillJudgments(row, judgments, userId) : [] }
+      fillJudgments: row.grading_version === GRADING_VERSION.semanticFillV2 || row.grading_version === GRADING_VERSION.aiGradingV3
+        ? trustedFillJudgments(row, judgments, userId, row.grading_version) : [],
+      rubricJudgments: row.grading_version === GRADING_VERSION.aiGradingV3
+        ? trustedRubricJudgments(row, rubricJudgments, userId) : [], gradeResult: stored.attempt.result }
   } catch {
     return { ...base, quiz, answers: null, unavailableReason: 'malformed' }
   }
@@ -71,10 +85,11 @@ export class SupabasePracticeRepository {
     this.client = client; this.userId = userId; this.catalog = catalog
   }
 
-  private async loadJudgments(rows: AttemptRow[]): Promise<Map<string, JudgmentRow[]>> {
-    const ids = rows.filter((row) => row.status === 'submitted' && row.grading_version === 'semantic-fill-v2')
+  private async loadJudgments(rows: AttemptRow[]): Promise<Map<string, LoadedJudgments>> {
+    const ids = rows.filter((row) => row.status === 'submitted'
+      && (row.grading_version === GRADING_VERSION.semanticFillV2 || row.grading_version === GRADING_VERSION.aiGradingV3))
       .map((row) => row.id)
-    const result = new Map<string, JudgmentRow[]>()
+    const result = new Map<string, LoadedJudgments>()
     if (!ids.length) return result
     const { data, error } = await this.client.from('fill_judgments').select('*')
       .eq('user_id', this.userId).in('attempt_id', ids)
@@ -82,8 +97,19 @@ export class SupabasePracticeRepository {
     const allowed = new Set(ids)
     for (const judgment of data ?? []) {
       if (judgment.user_id !== this.userId || !allowed.has(judgment.attempt_id)) throw new PersistenceError('invalid')
-      const group = result.get(judgment.attempt_id) ?? []
-      group.push(judgment)
+      const group = result.get(judgment.attempt_id) ?? { fill: [], rubric: [] }
+      group.fill.push(judgment)
+      result.set(judgment.attempt_id, group)
+    }
+    const rubricClient = this.client as unknown as RubricQueryClient
+    const rubricResult = await rubricClient.from('rubric_judgments').select('*')
+      .eq('user_id', this.userId).in('attempt_id', ids)
+    if (rubricResult.error) throw new PersistenceError('unavailable')
+    const allowedAttempts = new Set(ids)
+    for (const judgment of rubricResult.data ?? []) {
+      if (judgment.user_id !== this.userId || !allowedAttempts.has(judgment.attempt_id)) throw new PersistenceError('invalid')
+      const group = result.get(judgment.attempt_id) ?? { fill: [], rubric: [] }
+      group.rubric.push(judgment)
       result.set(judgment.attempt_id, group)
     }
     return result
@@ -102,7 +128,8 @@ export class SupabasePracticeRepository {
     if (error) throw new PersistenceError('unavailable')
     if (!data) return null
     const judgments = await this.loadJudgments([data])
-    return mapPracticeRecord(data, this.userId, this.catalog, judgments.get(data.id) ?? [])
+    const loaded = judgments.get(data.id)
+    return mapPracticeRecord(data, this.userId, this.catalog, loaded?.fill ?? [], loaded?.rubric ?? [])
   }
 
   async getOrCreateDraft(currentQuiz: Quiz): Promise<PracticeRecord> {
@@ -149,7 +176,7 @@ export class SupabasePracticeRepository {
     }
     if (data && typeof data === 'object' && data.code === 'in_progress') return { state: 'pending' }
     if (!data || typeof data !== 'object' || data.attemptId !== attemptId
-      || data.gradingVersion !== 'semantic-fill-v2' || !data.result
+      || data.gradingVersion !== GRADING_VERSION.aiGradingV3 || !data.result
       || typeof data.result.score !== 'number' || !Array.isArray(data.result.questions)) {
       throw new SubmissionError('unavailable')
     }
@@ -173,7 +200,10 @@ export class SupabasePracticeRepository {
     const rows = data ?? []
     const page = rows.slice(0, pageSize)
     const judgments = await this.loadJudgments(page)
-    return { records: page.map((row) => mapPracticeRecord(row, this.userId, this.catalog, judgments.get(row.id) ?? [])),
+    return { records: page.map((row) => {
+      const loaded = judgments.get(row.id)
+      return mapPracticeRecord(row, this.userId, this.catalog, loaded?.fill ?? [], loaded?.rubric ?? [])
+    }),
       nextOffset: rows.length > pageSize ? offset + pageSize : null }
   }
 
@@ -199,8 +229,11 @@ export class SupabasePracticeRepository {
       answersByAttempt.set(answer.attempt_id, group)
     }
     const judgments = await this.loadJudgments(rows)
-    return { records: rows.map((row) => mapAnalyticsRecord(row, answersByAttempt.get(row.id) ?? [],
-      this.userId, this.catalog, judgments.get(row.id) ?? [])),
+    return { records: rows.map((row) => {
+      const loaded = judgments.get(row.id)
+      return mapAnalyticsRecord(row, answersByAttempt.get(row.id) ?? [],
+        this.userId, this.catalog, loaded?.fill ?? [], loaded?.rubric ?? [])
+    }),
       nextOffset: (data?.length ?? 0) > ANALYTICS_PAGE_SIZE ? offset + ANALYTICS_PAGE_SIZE : null }
   }
 
@@ -211,6 +244,7 @@ export class SupabasePracticeRepository {
     if (error) throw new PersistenceError('unavailable')
     if (!data) return null
     const judgments = await this.loadJudgments([data])
-    return mapPracticeRecord(data, this.userId, this.catalog, judgments.get(data.id) ?? [])
+    const loaded = judgments.get(data.id)
+    return mapPracticeRecord(data, this.userId, this.catalog, loaded?.fill ?? [], loaded?.rubric ?? [])
   }
 }

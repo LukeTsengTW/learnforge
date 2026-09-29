@@ -14,7 +14,7 @@ export function QuestionCard({ question, index, answer, onChange, aiTutor, befor
   const [hintOpen, setHintOpen] = useState(false)
   return <section className="question-card" aria-labelledby={`heading-${question.id}`}>
     <div className="question-meta"><h2 id={`heading-${question.id}`} tabIndex={-1}><span className="question-number">{String(index + 1).padStart(2, '0')}</span>{QUESTION_LABEL[question.type]}</h2>
-      <div className="question-meta-right"><span>{question.points} 分{!isObjectiveQuestion(question) && '・自行對照'}</span>
+      <div className="question-meta-right"><span>{question.points} 分{!isObjectiveQuestion(question) && '・AI 自動評分'}</span>
         {hasAnswer(answer) && <span className="answered-mark">✓ 已作答</span>}</div>
     </div>
     <div id={`prompt-${question.id}`} className="question-prompt"><Markdown>{question.prompt}</Markdown></div>

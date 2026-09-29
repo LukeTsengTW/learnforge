@@ -31,7 +31,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
       const row: AttemptRow = { id, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
         status: 'draft', started_at: now, client_updated_at: now, submitted_at: null,
         grading_version: 'deterministic-v1', submission_request_id: null,
-        deterministic_score: null, deterministic_max_score: null, correct_count: null, incorrect_count: null, unanswered_count: null,
+        deterministic_score: null, deterministic_max_score: null, correct_count: null, partial_count: 0, incorrect_count: null, unanswered_count: null,
         created_at: now, updated_at: now }
       const record = { id, row, quiz, attempt, version: { id, updatedAt: now } }
       records.set(id, record)
@@ -59,6 +59,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
         submission_request_id: requestId, submitted_at: now, updated_at: now,
         deterministic_score: submitted.result.score, deterministic_max_score: submitted.result.maxScore,
         correct_count: submitted.result.correctCount, incorrect_count: submitted.result.incorrectCount,
+        partial_count: submitted.result.partialCount,
         unanswered_count: submitted.result.unansweredCount }
       stored.version = { id: attemptId, updatedAt: now }
       return { state: 'submitted' as const, result: submitted.result }

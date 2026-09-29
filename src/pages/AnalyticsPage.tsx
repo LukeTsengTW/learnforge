@@ -14,25 +14,27 @@ export function AnalyticsPage() {
     (id) => quizCatalog.getCurrentQuiz(id)), [history.records, history.isTruncated])
   return <div className="analytics-page"><div className="breadcrumb"><Link to="/history">練習紀錄</Link><span aria-hidden="true">/</span><span>學習分析</span></div>
     <header className="page-heading"><span className="subject-label">Learning Analytics</span><h1>從練習紀錄，看見學習軌跡。</h1>
-      <p>只分析已提交的練習。客觀題依當時題目版本與作答重新評分；計算、畫圖與 AI 參考分數不計入正確率。</p></header>
+      <p>只分析已提交的練習。客觀題正確率只統計單選、多選、是非與填空；整體得分率依各紀錄版本的正式評分重建。</p></header>
     {history.loading && <p role="status">正在整理學習紀錄… 已讀取 {history.scannedAttemptCount} 次練習</p>}
     {history.error && <div className="notice warning" role="alert">目前無法取得完整學習分析。請確認網路連線後重新整理。</div>}
     {!history.loading && !history.error && <>
       {analytics.isTruncated && <div className="notice warning" role="status">分析目前以最近 {ANALYTICS_SCAN_LIMIT} 次完成練習為範圍。</div>}
       {analytics.unavailableHistoryCount > 0 && <div className="notice warning" role="status">有 {analytics.unavailableHistoryCount} 筆舊版紀錄因題目版本不存在，未納入分析。</div>}
-      {analytics.malformedAttemptCount > 0 && <div className="notice warning" role="status">有 {analytics.malformedAttemptCount} 筆紀錄格式異常，未納入分析。</div>}
+      {analytics.malformedAttemptCount > 0 && <div className="notice warning" role="status">有 {analytics.malformedAttemptCount} 筆紀錄格式異常或缺少可信評分資料，未納入分析。</div>}
       {analytics.completedAttempts === 0 ? <div className="empty-state"><h2>還沒有分析資料</h2><p>完成一次練習後，這裡會整理你的學習紀錄。</p><Link className="button primary" to="/library">瀏覽題庫</Link></div> : <>
         <section className="analytics-section" aria-labelledby="analytics-overview"><h2 id="analytics-overview">整體概況</h2>
           <dl className="analytics-metrics">
             <div><dt>完成練習</dt><dd>{analytics.completedAttempts} 次</dd></div>
+            <div><dt>整體得分率</dt><dd>{analytics.totalScoreEarned} / {analytics.totalScoreAvailable} · {percent(analytics.overallScoreRate)}</dd></div>
             <div><dt>客觀題作答機會</dt><dd>{analytics.objectiveQuestions} 題次</dd></div>
             <div><dt>已作答客觀題</dt><dd>{analytics.answeredObjectiveQuestions} 題次</dd></div>
             <div><dt>答對</dt><dd>{analytics.correct}</dd></div><div><dt>答錯</dt><dd>{analytics.incorrect}</dd></div>
             <div><dt>未作答</dt><dd>{analytics.unanswered}</dd></div>
             <div><dt>已作答正確率</dt><dd>{percent(analytics.answeredAccuracy)}</dd></div>
             <div><dt>客觀題完成率</dt><dd>{percent(analytics.completionRate)}</dd></div>
-            <div><dt>自動評分題得分</dt><dd>{analytics.objectivePointsEarned} / {analytics.objectivePointsAvailable}</dd></div>
-          </dl><p className="analytics-note">正確率＝答對 ÷（答對＋答錯）；完成率＝已作答 ÷ 全部客觀題。另有 {analytics.manualQuestionSubmissions} 題次手動題提交，未列入上述分數。</p></section>
+            <div><dt>客觀題得分</dt><dd>{analytics.objectivePointsEarned} / {analytics.objectivePointsAvailable}</dd></div>
+          </dl><p className="analytics-note">整體得分率＝所有可解析正式評分的得分總和 ÷ 配分總和，v3 六種題型皆包含。客觀題正確率＝答對 ÷（答對＋答錯）；完成率＝已作答 ÷ 全部客觀題。另有 {analytics.manualQuestionSubmissions} 題次歷史手動題提交，未列入客觀題統計。</p>
+          <p className="analytics-note">資料版本：deterministic-v1 {analytics.gradingVersionCounts.deterministicV1} 筆 · semantic-fill-v2 {analytics.gradingVersionCounts.semanticFillV2} 筆 · ai-grading-v3 {analytics.gradingVersionCounts.aiGradingV3} 筆。分析只使用保存的 judgment，不會重新呼叫 AI。</p></section>
         <section className="analytics-section" aria-labelledby="analytics-subjects"><h2 id="analytics-subjects">科目</h2>
           {analytics.subjects.length ? <ul className="analytics-card-list">{analytics.subjects.map((subject) => <li key={subject.subject}>
             <h3>{subject.subject}</h3><p>{subject.attemptCount} 次練習 · 已作答 {subject.answeredCount} · 答對 {subject.correct} · 答錯 {subject.incorrect} · 未作答 {subject.unanswered}</p>
