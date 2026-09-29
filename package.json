@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "generate:ai-context": "node scripts/generate-ai-quiz-context.mjs",
     "check:ai-context": "node scripts/generate-ai-quiz-context.mjs --check",
-    "check:quizzes": "node scripts/check-quizzes.mjs"
+    "check:quizzes": "node scripts/check-quizzes.mjs",
+    "check:edge-imports": "node scripts/check-edge-imports.mjs"
   },
   "engines": {
     "node": "24.21.0"

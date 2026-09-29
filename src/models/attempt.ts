@@ -73,8 +73,8 @@ export interface GradeResult {
   questions: QuestionGrade[]
 }
 
-export type { GradingVersion } from './grading-version'
-export { GRADING_VERSION } from './grading-version'
+export type { GradingVersion } from './grading-version.ts'
+export { GRADING_VERSION } from './grading-version.ts'
 export interface TrustedFillJudgment {
   questionId: string
   source: 'rule' | 'ai'
