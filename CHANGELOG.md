@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 — AI submission grading
+
+- Grade all six question types in the submitted practice score. Calculation and drawing questions use server-validated AI rubric judgments with partial credit; blank answers are persisted as system unanswered evidence without an AI call.
+- Persist rubric judgments for result, history, mistakes and analytics reconstruction. Historical `deterministic-v1` and `semantic-fill-v2` attempts keep their original grading behavior.
+- Keep formal submission grading outside the personal Tutor credit quota. AI grading is a learning reference and may be mistaken.
+- Preserve draft-and-retry behavior when provider, rasterization or trusted-evidence validation is unavailable.
+
 ## 1.0.0 — Release candidate, 2026-09-26
 
 Public release remains blocked until real Turnstile credentials are configured and verified. No Pages deployment is included.

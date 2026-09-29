@@ -23,6 +23,8 @@ LocalStorage holds the SDK session, account-scoped answers/drawing strokes, and 
 
 Practice sync uses UUID/owner/version compare-and-swap and database submission locks. Conflict resolution is whole-attempt selection, not collaborative merging. Backups can be restored only into an unchanged, empty draft of the same owner and revision. Submitted or newer cloud data cannot be overwritten by restore.
 
+For `ai-grading-v3`, the browser submission contains only `requestId`, `attemptId` and `expectedUpdatedAt`. The server loads the owned draft, its saved answers and the exact bundled quiz revision; the client cannot supply prompts, canonical answers, rubrics, scores, model settings or answer hashes. Calculation and drawing evidence is validated against canonical criterion IDs and point limits before atomic finalization. Blank/system unanswered evidence is distinct from AI evidence; missing or invalid evidence leaves the attempt unsubmitted. Formal submission grading is separate from the personal Tutor quota and does not debit those credits; rubric provider calls use the private rubric-judge ledger. History and analytics use persisted judgments and do not replay provider calls. See [v1.2 delivery notes](docs/v1.2-delivery.md).
+
 ## Abuse controls and remaining release gate
 
 | Surface | Current bound |

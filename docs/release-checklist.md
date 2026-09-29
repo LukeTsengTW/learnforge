@@ -1,8 +1,28 @@
-# v1.0 release checklist
+# Release checklist
+
+## v1.2.0 frontend cutover
+
+Current public production frontend: [https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/). Current production backend is Supabase `learnforge-demo`, ref `mrrssxqolvcjxgqzoeqt`, Tokyo. The old “linked development project” label for this ref is historical; the public frontend uses this production backend.
+
+Production already has migration `20260928143200_ai_grading_v3_submission` and `submit-quiz` version 2 (ACTIVE, `verify_jwt=false`). The v1.2 frontend must be deployed before authenticated v3 smoke because v1.1.1 expects the `semantic-fill-v2` response contract. The prior public frontend recovery point is v1.1.1 commit `5608fdad6b9ec01d5aabe9fd28ec9f2cbd834894`, Pages run `36427515831`; the previous known `submit-quiz` revision is version 1.
+
+Cutover sequence:
+
+1. Verify compatibility, bump public version metadata, update delivery documentation, and pass the local release gates.
+2. Commit and push the exact v1.2 release tree.
+3. Dispatch `Deploy LearnForge to GitHub Pages` on `master`; verify its head SHA, build and deploy jobs, and deployed v1.2.0 artifact using the production Supabase ref.
+4. Run the authenticated production smoke as the user: calculation, drawing, erased-drawing system unanswered, quota isolation and idempotency replay. This release checklist does not claim those checks passed until their live evidence is recorded.
+5. Stop after frontend deployment for user smoke. Create the v1.2.0 tag and GitHub Release only after the authenticated smoke passes.
+
+See [v1.2 delivery notes](v1.2-delivery.md) for the product contract and release lineage.
+
+## Historical v1.0 release checklist
+
+The following records the v1.0 release gate as it stood on 2026-09-27; its status and pre-release assumptions do not describe the current v1.2 production state.
 
 Status on 2026-09-27: **READY FOR PUBLIC DEPLOYMENT** after the Final Release Gate. No Git commit, push, Pages deploy or tag has been performed; the public URL remains 404 until deployment.
 
-## Verified in this workspace and linked development project
+## Verified in the v1.0 workspace and linked project at that time
 
 - [x] Node 24.21.0 / npm 11.19.0; package version 1.0.0.
 - [x] Baseline 320 tests passed before implementation; final 353 tests / 42 files passed.
@@ -36,7 +56,7 @@ Status on 2026-09-27: **READY FOR PUBLIC DEPLOYMENT** after the Final Release Ga
 - [x] GitHub Actions public variables `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_TURNSTILE_SITE_KEY` present.
 - [x] GitHub Pages source set to GitHub Actions. The site remains 404 before deployment; use `configure-pages` output for the actual base path.
 - [x] Auth Site URL and additional redirect set to `https://luketsengtw.github.io/learnforge/`. Do not push the whole local `config.toml` over unrelated remote settings.
-- [ ] If the eventual release Supabase project differs from linked `learnforge-demo`, verify its recovery/current-password policy and Edge secrets before using it.
+- [x] Project identity reconciled during v1.2 M5A: `learnforge-demo` / `mrrssxqolvcjxgqzoeqt` is the backend used by the public Pages bundle; no separate release project was selected.
 - [ ] Obtain explicit authorization for commit, push and Pages deployment. None of those actions happened in this Final Gate.
 - [ ] After deployment, run a smoke against the actual Pages URL: login, protected route reload, submit/result, history, account and real CAPTCHA recovery. Local preview does not establish real Pages hosting behavior.
 - [ ] Decide whether to remove the enumerated test accounts; deletion requires separate explicit authorization and review of cascade effects.
