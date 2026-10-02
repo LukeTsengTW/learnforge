@@ -21,7 +21,7 @@ export function RecoveryPage() {
     {notice && <p className="notice" role="status">{notice}</p>}{restored && <Link to={`/quiz/${restored}`}>開啟還原的本機草稿</Link>}
     {!backups.length && <p>此帳號在本裝置沒有練習備份。</p>}
     <ul className="backup-list">{backups.map(backup => <li className="account-section" key={backup.key}><h2>{backup.quizId}</h2>
-      <p>作答 {backup.attemptId.slice(0, 8)} · {backup.savedAt && Number.isFinite(Date.parse(backup.savedAt)) ? new Date(backup.savedAt).toLocaleString() : '時間未知'}</p><p>{backup.reason}</p>
+      <p>作答 {backup.attemptId.slice(0, 8)} · {backup.savedAt && Number.isFinite(Date.parse(backup.savedAt)) ? new Date(backup.savedAt).toLocaleString() : '時間未知'}</p><p>{backup.reason}{backup.schemaVersion === 2 && '（新版作答格式，還原後經新版儲存流程同步）'}</p>
       <div className="button-row"><button className="button secondary" onClick={() => { try { setView({ key: backup.key, raw: raw(backup) }) } catch { setNotice('備份無法讀取。') } }}>檢視</button>
         <button className="button secondary" onClick={() => {
           try { const url = URL.createObjectURL(new Blob([raw(backup)], { type: 'application/json' })); const a = document.createElement('a'); a.href = url; a.download = 'learnforge-practice-backup.json'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000) }

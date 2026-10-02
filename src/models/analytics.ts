@@ -1,5 +1,6 @@
 import type { AnswerMap, GradeResult, GradingVersion, ObjectiveStatus, QuestionAnswer,
   TrustedFillJudgment, TrustedRubricJudgment } from './attempt'
+import type { DraftAnswerMapV4 } from './draft-v4'
 import type { ObjectiveQuestion, Quiz } from './quiz'
 
 /** A bounded, submitted history row after ownership checks. Invalid rows stay countable. */
@@ -10,7 +11,10 @@ export interface AnalyticsAttempt {
   submittedAt: string | null
   status: 'submitted' | 'draft'
   quiz: Quiz | null
+  /** Schema-1 answers, or for ai-grading-v4 only the legacy-safe objective projection. */
   answers: AnswerMap | null
+  /** Full schema-2 answers (ai-grading-v4 only); graded exclusively with gradeQuizV4. */
+  answersV4?: DraftAnswerMapV4
   gradingVersion?: GradingVersion
   fillJudgments?: TrustedFillJudgment[]
   rubricJudgments?: TrustedRubricJudgment[]
@@ -101,7 +105,7 @@ export interface LearningAnalytics {
   unavailableHistoryCount: number
   malformedAttemptCount: number
   manualQuestionSubmissions: number
-  gradingVersionCounts: { deterministicV1: number; semanticFillV2: number; aiGradingV3: number }
+  gradingVersionCounts: { deterministicV1: number; semanticFillV2: number; aiGradingV3: number; aiGradingV4: number }
   totalScoreEarned: number
   totalScoreAvailable: number
   overallScoreRate: number | null

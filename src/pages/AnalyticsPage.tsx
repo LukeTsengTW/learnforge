@@ -33,8 +33,8 @@ export function AnalyticsPage() {
             <div><dt>已作答正確率</dt><dd>{percent(analytics.answeredAccuracy)}</dd></div>
             <div><dt>客觀題完成率</dt><dd>{percent(analytics.completionRate)}</dd></div>
             <div><dt>客觀題得分</dt><dd>{analytics.objectivePointsEarned} / {analytics.objectivePointsAvailable}</dd></div>
-          </dl><p className="analytics-note">整體得分率＝所有可解析正式評分的得分總和 ÷ 配分總和，v3 六種題型皆包含。客觀題正確率＝答對 ÷（答對＋答錯）；完成率＝已作答 ÷ 全部客觀題。另有 {analytics.manualQuestionSubmissions} 題次歷史手動題提交，未列入客觀題統計。</p>
-          <p className="analytics-note">資料版本：deterministic-v1 {analytics.gradingVersionCounts.deterministicV1} 筆 · semantic-fill-v2 {analytics.gradingVersionCounts.semanticFillV2} 筆 · ai-grading-v3 {analytics.gradingVersionCounts.aiGradingV3} 筆。分析只使用保存的 judgment，不會重新呼叫 AI。</p></section>
+          </dl><p className="analytics-note">整體得分率＝所有可解析正式評分的得分總和 ÷ 配分總和，v3／v4 六種題型皆包含。客觀題正確率＝答對 ÷（答對＋答錯）；完成率＝已作答 ÷ 全部客觀題。另有 {analytics.manualQuestionSubmissions} 題次歷史手動題提交，未列入客觀題統計。</p>
+          <p className="analytics-note">資料版本：deterministic-v1 {analytics.gradingVersionCounts.deterministicV1} 筆 · semantic-fill-v2 {analytics.gradingVersionCounts.semanticFillV2} 筆 · ai-grading-v3 {analytics.gradingVersionCounts.aiGradingV3} 筆 · ai-grading-v4 {analytics.gradingVersionCounts.aiGradingV4} 筆。分析只使用保存的 judgment，不會重新呼叫 AI。</p></section>
         <section className="analytics-section" aria-labelledby="analytics-subjects"><h2 id="analytics-subjects">科目</h2>
           {analytics.subjects.length ? <ul className="analytics-card-list">{analytics.subjects.map((subject) => <li key={subject.subject}>
             <h3>{subject.subject}</h3><p>{subject.attemptCount} 次練習 · 已作答 {subject.answeredCount} · 答對 {subject.correct} · 答錯 {subject.incorrect} · 未作答 {subject.unanswered}</p>

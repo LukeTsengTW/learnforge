@@ -1,12 +1,17 @@
 import type { QuizAttempt } from '../../models/attempt'
+import type { PracticeAttempt } from '../../models/draft-v4'
 /** Inputs have already passed decodeAttempt. Ties and conflicting submissions favour the remote. */
-export function resolveAttemptConflict(local: QuizAttempt, remote: QuizAttempt): 'local' | 'remote' {
+export function resolveAttemptConflict(local: PracticeAttempt, remote: PracticeAttempt): 'local' | 'remote' {
   if (remote.status === 'submitted') return 'remote'
   if (local.status === 'submitted') return 'local'
   return Date.parse(local.updatedAt) > Date.parse(remote.updatedAt) ? 'local' : 'remote'
 }
-export function sameAttempt(a: QuizAttempt, b: QuizAttempt): boolean {
-  return a.status === b.status && Date.parse(a.startedAt) === Date.parse(b.startedAt)
+/**
+ * Full draft identity for synchronization/CAS: schema, timestamps and EVERY buffer (including an
+ * inactive calculation mode's text/strokes). This is intentionally not the formal v4 grading hash.
+ */
+export function sameAttempt(a: QuizAttempt | PracticeAttempt, b: QuizAttempt | PracticeAttempt): boolean {
+  return a.schemaVersion === b.schemaVersion && a.status === b.status && Date.parse(a.startedAt) === Date.parse(b.startedAt)
     && Date.parse(a.updatedAt) === Date.parse(b.updatedAt) && equalJson(a.answers, b.answers)
 }
 

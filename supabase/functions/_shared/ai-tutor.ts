@@ -106,8 +106,18 @@ export function normalizeStudentAnswer(question: TutorQuestionContext, raw: unkn
     case 'true-false':
       if (typeof answer.value !== 'boolean') throw new TutorInputError('invalid')
       return { type: question.type, value: answer.value }
-    case 'fill':
     case 'calculation':
+      // Schema-2 calculation: only the ACTIVE buffer may be used. Handwriting has no text input, so
+      // it is represented without text (never the inactive text) and text features are refused.
+      if (Object.hasOwn(answer, 'mode') || Object.hasOwn(answer, 'strokes')) {
+        if (Object.keys(answer).length !== 4 || !['type', 'mode', 'text', 'strokes'].every((key) => Object.hasOwn(answer, key))
+          || (answer.mode !== 'text' && answer.mode !== 'drawing') || typeof answer.text !== 'string'
+          || !Array.isArray(answer.strokes)) throw new TutorInputError('invalid')
+        if (answer.mode === 'drawing') return { type: question.type, mode: 'drawing' }
+      }
+      if (typeof answer.text !== 'string' || new TextEncoder().encode(answer.text).length > 4096) throw new TutorInputError('oversized')
+      return { type: question.type, text: answer.text }
+    case 'fill':
       if (typeof answer.text !== 'string' || new TextEncoder().encode(answer.text).length > 4096) throw new TutorInputError('oversized')
       return { type: question.type, text: answer.text }
     case 'drawing': throw new TutorInputError('invalid')
@@ -139,6 +149,8 @@ export function isIncorrectObjective(question: TutorQuestionContext, answer: Rec
 export function featureAllowed(feature: TutorFeature, status: string, question: TutorQuestionContext,
   answer: Record<string, unknown> | null): boolean {
   if (question.type === 'drawing') return false
+  // Image-aware hint/mistake help is unsupported; canonical-only explain_solution never reads the answer.
+  if (answer?.mode === 'drawing' && feature !== 'explain_solution') return false
   if (feature === 'hint') return status === 'draft'
   if (status !== 'submitted') return false
   if (feature === 'explain_solution') return true

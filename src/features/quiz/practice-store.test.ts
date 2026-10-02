@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createMemoryPracticeRepository } from './practice-memory.test-helper'
+import { createMemoryPracticeRepository, legacyAttempt } from './practice-memory.test-helper'
 import { SubmissionError } from './practice-repository'
 import { LocalPracticeCache, practiceCacheKey } from './practice-cache'
 import { createPracticeStore } from './practice-store'
@@ -130,8 +130,8 @@ describe('attempt identity and live draft synchronization', () => {
     const repo = createMemoryPracticeRepository('student')
     const initial = await repo.getOrCreateDraft(quiz)
     const local = storage(), cache = new LocalPracticeCache('student', () => local)
-    const submitted = reduceAttempt(quiz, initial.attempt!, { type: 'submit',
-      now: new Date(Date.parse(initial.attempt!.startedAt) + 1).toISOString() })
+    const submitted = reduceAttempt(quiz, legacyAttempt(initial), { type: 'submit',
+      now: new Date(Date.parse(legacyAttempt(initial).startedAt) + 1).toISOString() })
     cache.write({ id: initial.id, attempt: submitted, version: initial.version })
     const store = createPracticeStore(initial, repo, cache, 60_000)
     expect(store.getSnapshot().attempt.status).toBe('in-progress')

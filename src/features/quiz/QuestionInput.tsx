@@ -1,15 +1,47 @@
+import { useEffect, useRef } from 'react'
 import { Markdown } from '../../components/Markdown'
-import { QUESTION_TYPE, type Question } from '../../models/quiz'
-import type { QuestionAnswer } from '../../models/attempt'
+import { QUESTION_TYPE, type CalculationQuestion, type Question } from '../../models/quiz'
+import type { CalculationAnswerV4 } from '../../models/attempt'
+import type { DraftSchemaVersion, PracticeAnswer } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
+import { emptyCalculationAnswerV4 } from '../../lib/draft-v4'
+import { isV4BlankText } from '../../lib/v4-blank'
+import { GRADING_ANSWER_MAX_BYTES } from '../../../supabase/functions/_shared/calculation-grading.ts'
+import { CalculationAnswerEditor, type CalculationAnswerEditorHandle } from './CalculationAnswerEditor'
 import { DrawingCanvas } from './DrawingCanvas'
+import type { PendingInputFlush } from './attempt-context'
 
 export const MANUAL_NOTICE = '畫圖題不納入自動分數；提交後可自行對照評分規準，符合條件時可使用 AI 圖像參考分析。'
 const V3_RUBRIC_NOTICE = '提交後會依評分規準由 AI 自動評分並納入本次練習得分。AI 自動評分僅供學習參考，可能存在誤判。'
+export const FORMAL_TEXT_LIMIT_NOTICE = '目前打字作答超過正式評分的長度上限；草稿仍會保存，但提交前請精簡內容。'
 const EMPTY_STROKES: DrawingStroke[] = []
 
-export function QuestionInput({ question, answer, onChange }: {
-  question: Question; answer: QuestionAnswer | undefined; onChange: (answer: QuestionAnswer) => void
+/** Full v4 value for the editor; a legacy-shaped value is shown as text without changing storage. */
+function calculationValueV4(answer: PracticeAnswer | undefined): CalculationAnswerV4 {
+  if (answer?.type !== 'calculation') return emptyCalculationAnswerV4()
+  if (answer.mode === 'text' || answer.mode === 'drawing') return answer
+  return { ...emptyCalculationAnswerV4(), text: answer.text }
+}
+
+function CalculationV4Input({ id, question, answer, onChange, registerPendingFlush }: {
+  id: string; question: CalculationQuestion; answer: PracticeAnswer | undefined
+  onChange: (answer: PracticeAnswer) => void; registerPendingFlush?: (flush: PendingInputFlush) => () => void
+}) {
+  const editor = useRef<CalculationAnswerEditorHandle>(null)
+  useEffect(() => registerPendingFlush?.(() => { editor.current?.flushPendingInput() }), [registerPendingFlush])
+  const value = calculationValueV4(answer)
+  // Non-authoritative hint only: the server enforces the formal limit (HTTP 422) and the text is never truncated.
+  const overLimit = value.mode === 'text' && !isV4BlankText(value.text)
+    && new TextEncoder().encode(value.text).length > GRADING_ANSWER_MAX_BYTES
+  return <div><p className="field-note">{V3_RUBRIC_NOTICE}</p>
+    <CalculationAnswerEditor ref={editor} id={id} question={question} value={value} onChange={onChange} />
+    {overLimit && <p className="field-note notice warning" role="status">{FORMAL_TEXT_LIMIT_NOTICE}</p>}
+  </div>
+}
+
+export function QuestionInput({ question, answer, onChange, draftSchema = 1, registerPendingFlush }: {
+  question: Question; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => void
+  draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
   const id = `answer-${question.id}`
   switch (question.type) {
@@ -51,6 +83,8 @@ export function QuestionInput({ question, answer, onChange }: {
         <p className="field-note" id={`${id}-match`}>先依{question.match === 'exact' ? '精確' : '不區分大小寫'}規則比對；未符合時會由 AI 判斷語意，影響正式分數。</p>
       </div>
     case QUESTION_TYPE.calculation:
+      if (draftSchema === 2) return <CalculationV4Input id={id} question={question} answer={answer} onChange={onChange}
+        registerPendingFlush={registerPendingFlush} />
       return <div className="text-answer"><p className="field-note">{V3_RUBRIC_NOTICE}</p>
         <label htmlFor={id}>你的推導過程</label>
         <textarea id={id} rows={8} maxLength={100000} value={answer?.type === 'calculation' ? answer.text : ''}

@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createMemoryPracticeRepository } from './practice-memory.test-helper'
+import { createMemoryPracticeRepository, legacyAttempt } from './practice-memory.test-helper'
 import { LocalPracticeCache } from './practice-cache'
 import { createPracticeStore } from './practice-store'
 import { listPracticeBackups, readBackup, restorePracticeBackup } from './practice-recovery'
@@ -38,9 +38,9 @@ describe('release synchronization and local recovery', () => {
   it.each([['server-newer', 0, 2, 'a'], ['local-newer', 2, 0, 'b'], ['same-time', 1, 1, 'a']] as const)('deterministically resolves %s and keeps the losing answers', async (_, localOffset, remoteOffset, winner) => {
     const repo = createMemoryPracticeRepository('student'), record = await repo.getOrCreateDraft(quiz), storage = cloneStorage()
     const cache = new LocalPracticeCache('student', () => storage)
-    const base = Date.parse(record.attempt!.updatedAt) + 10
-    const local = reduceAttempt(quiz, record.attempt!, { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'b' }, now: new Date(base + localOffset).toISOString() })
-    const remote = reduceAttempt(quiz, record.attempt!, { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'a' }, now: new Date(base + remoteOffset).toISOString() })
+    const base = Date.parse(legacyAttempt(record).updatedAt) + 10
+    const local = reduceAttempt(quiz, legacyAttempt(record), { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'b' }, now: new Date(base + localOffset).toISOString() })
+    const remote = reduceAttempt(quiz, legacyAttempt(record), { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'a' }, now: new Date(base + remoteOffset).toISOString() })
     cache.write({ id: record.id, attempt: local, version: record.version })
     expect(cache.reconcile({ ...record, attempt: remote }).attempt.answers.q1).toEqual({ type: 'single', optionId: winner })
     expect(listPracticeBackups('student', storage)).toHaveLength(1)
@@ -59,25 +59,25 @@ describe('release synchronization and local recovery', () => {
   })
   it('only restores to an unchanged empty draft and fences a later cloud update', async () => {
     const repo = createMemoryPracticeRepository('student'), record = await repo.getOrCreateDraft(quiz), cache = new LocalPracticeCache('student')
-    const answered = reduceAttempt(quiz, record.attempt!, { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'b' }, now: '2026-09-26T10:00:01Z' })
+    const answered = reduceAttempt(quiz, legacyAttempt(record), { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'b' }, now: '2026-09-26T10:00:01Z' })
     cache.archive({ id: record.id, attempt: answered, version: record.version })
     const backup = listPracticeBackups('student', localStorage)[0]
     expect(await restorePracticeBackup('student', backup.key, localStorage, repo)).toBe(quiz.id)
     expect(cache.read(record.id, quiz)?.recoveryExpectedVersion).toBe(record.version.updatedAt)
-    await repo.saveDraft(record, reduceAttempt(quiz, record.attempt!, { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'a' }, now: '2026-09-26T10:00:02Z' }))
+    await repo.saveDraft(record, reduceAttempt(quiz, legacyAttempt(record), { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'a' }, now: '2026-09-26T10:00:02Z' }))
     const changed = await repo.loadAttempt(record.id)
     expect(cache.reconcile(changed!).attempt.answers.q1).toEqual({ type: 'single', optionId: 'a' })
     await expect(restorePracticeBackup('student', backup.key, localStorage, repo)).rejects.toThrow()
   })
   it('rejects cross-user access, submitted backups and submitted cloud attempts', async () => {
     const repo = createMemoryPracticeRepository('student'), record = await repo.getOrCreateDraft(quiz), cache = new LocalPracticeCache('student')
-    const submitted = reduceAttempt(quiz, record.attempt!, { type: 'submit', now: '2026-09-26T10:00:02Z' })
+    const submitted = reduceAttempt(quiz, legacyAttempt(record), { type: 'submit', now: '2026-09-26T10:00:02Z' })
     cache.archive({ id: record.id, attempt: submitted, version: record.version })
     const key = listPracticeBackups('student', localStorage)[0].key
     expect(listPracticeBackups('other', localStorage)).toEqual([])
     expect(() => readBackup('other', key, localStorage)).toThrow()
     await expect(restorePracticeBackup('student', key, localStorage, repo)).rejects.toThrow()
-    cache.archive({ id: record.id, attempt: record.attempt!, version: record.version })
+    cache.archive({ id: record.id, attempt: legacyAttempt(record), version: record.version })
     await repo.submitDraft(record.id, record.version.updatedAt, crypto.randomUUID())
     for (const backup of listPracticeBackups('student', localStorage)) await expect(restorePracticeBackup('student', backup.key, localStorage, repo)).rejects.toThrow()
     expect((await repo.loadAttempt(record.id))?.row.status).toBe('submitted')

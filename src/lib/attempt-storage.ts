@@ -29,8 +29,10 @@ function validAnswer(value: unknown, question: Question): value is QuestionAnswe
       && new Set(value.optionIds).size === value.optionIds.length
       && value.optionIds.every((id: unknown) => typeof id === 'string' && question.options.some((option) => option.id === id))
     case QUESTION_TYPE.trueFalse: return typeof value.value === 'boolean'
-    case QUESTION_TYPE.fill:
+    case QUESTION_TYPE.fill: return typeof value.text === 'string' && value.text.length <= 100000
+    // Schema 1 is legacy-only: a v4 calculation buffer (mode/strokes) is never read as a v1 answer.
     case QUESTION_TYPE.calculation: return typeof value.text === 'string' && value.text.length <= 100000
+      && !Object.hasOwn(value, 'mode') && !Object.hasOwn(value, 'strokes')
     case QUESTION_TYPE.drawing: return Array.isArray(value.strokes) && value.strokes.length <= 10000
       && value.strokes.every((stroke: unknown) => validStroke(stroke, question))
   }

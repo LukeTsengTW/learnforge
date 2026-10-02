@@ -1,4 +1,5 @@
-import type { QuestionAnswer, QuestionGrade } from '../../models/attempt'
+import type { QuestionGrade } from '../../models/attempt'
+import type { PracticeAnswer } from '../../models/draft-v4'
 import { isObjectiveQuestion, type Question } from '../../models/quiz'
 import type { PracticeRecord } from './practice-repository'
 import { GRADING_VERSION } from '../../models/grading-version'
@@ -6,7 +7,7 @@ import { GRADING_VERSION } from '../../models/grading-version'
 export interface MistakeOccurrence {
   record: PracticeRecord
   question: Question
-  answer: QuestionAnswer | undefined
+  answer: PracticeAnswer | undefined
   grade: QuestionGrade
   index: number
 }
@@ -18,9 +19,12 @@ export function deriveMistakes(records: PracticeRecord[]): MistakeOccurrence[] {
     if (record.row.status !== 'submitted' || record.attempt?.status !== 'submitted' || !record.quiz) continue
     record.quiz.questions.forEach((question, index) => {
       const grade = record.attempt!.status === 'submitted' ? record.attempt!.result.questions[index] : null
-      const v3 = record.row.grading_version === GRADING_VERSION.aiGradingV3
+      // Official rubric versions (v3/v4) also list incorrect/partial calculation and drawing results here;
+      // the objective review queue (analytics) remains objective-only.
+      const officialRubric = record.row.grading_version === GRADING_VERSION.aiGradingV3
+        || record.row.grading_version === GRADING_VERSION.aiGradingV4
       if (grade && ((isObjectiveQuestion(question) && grade.status === 'incorrect')
-        || (v3 && (grade.status === 'incorrect' || grade.status === 'partial')))) {
+        || (officialRubric && (grade.status === 'incorrect' || grade.status === 'partial')))) {
         mistakes.push({ record, question, answer: record.attempt!.answers[question.id], grade, index })
       }
     })

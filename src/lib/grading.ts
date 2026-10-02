@@ -1,4 +1,4 @@
-import { GRADE_STATUS, type AnswerMap, type GradeResult, type QuestionAnswer, type QuestionGrade,
+import { GRADE_STATUS, type AnswerMap, type CalculationAnswerV4, type GradeResult, type QuestionAnswer, type QuestionGrade,
   type TrustedFillJudgment, type TrustedRubricJudgment } from '../models/attempt.ts'
 import type { DraftAnswerMapV4 } from '../models/draft-v4.ts'
 import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, type ObjectiveQuestion,
@@ -6,14 +6,17 @@ import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, typ
 import { isV4BlankText } from './v4-blank.ts'
 import { canonicalV4Score, isCanonicalV4Score } from './v4-score.ts'
 
-export function hasAnswer(answer: QuestionAnswer | undefined): boolean {
+/** Progress/display presence. A v4 calculation counts only its ACTIVE buffer. */
+export function hasAnswer(answer: QuestionAnswer | CalculationAnswerV4 | undefined): boolean {
   if (!answer) return false
   switch (answer.type) {
     case QUESTION_TYPE.single: return Boolean(answer.optionId)
     case QUESTION_TYPE.multiple: return answer.optionIds.length > 0
     case QUESTION_TYPE.trueFalse: return true
-    case QUESTION_TYPE.fill:
-    case QUESTION_TYPE.calculation: return answer.text.trim().length > 0
+    case QUESTION_TYPE.fill: return answer.text.trim().length > 0
+    case QUESTION_TYPE.calculation:
+      if (answer.mode === 'drawing') return answer.strokes.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0)
+      return answer.mode === 'text' ? !isV4BlankText(answer.text) : answer.text.trim().length > 0
     case QUESTION_TYPE.drawing: return answer.strokes.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0)
   }
 }

@@ -14,7 +14,8 @@ import { GRADING_ANSWER_MAX_BYTES, type SubmissionCalculationProvider,
 import { canonicalizeSubmissionRubricV4, isCanonicalSubmissionRubricContextV4,
   isCanonicalSubmissionRubricV4 } from '../_shared/submission-rubric-v4.ts'
 import type { SubmissionDrawingProvider } from '../_shared/drawing-analysis.ts'
-import { DraftValidationError, normalizeDraftAnswersV4, type DraftQuestionContext } from '../_shared/draft-v4.ts'
+import { DraftValidationError, normalizeDraftAnswersV4, requiresV4DraftContext,
+  type DraftQuestionContext } from '../_shared/draft-v4.ts'
 import { parseStoredSubmissionRubricJudgment, type SubmissionRubricJudgment,
   type SubmissionRubricProviderResult, type SubmissionRubricQuestionType } from '../_shared/submission-rubric.ts'
 import { GRADING_VERSION } from '../../../src/models/grading-version.ts'
@@ -465,6 +466,9 @@ async function submitV3(backend: SubmissionBackend, input: SubmissionInput, atte
 
 async function submitV4(backend: SubmissionBackend, v4: SubmissionBackendV4, input: SubmissionInput,
   attempt: AttemptSnapshot, questions: readonly TutorQuestionContext[]): Promise<Response> {
+  // A schema-2 row on a non-v4-capable exact revision is impossible configuration: never grade it as
+  // v4 nor downgrade it to v3; stop before evidence loading, claims, raster or provider work.
+  if (!requiresV4DraftContext(questions)) return unavailable()
   const quiz = exactQuiz(questions, attempt.quiz_id, attempt.quiz_revision)
   // Server-owned configuration preflight: the exact revision must satisfy the v4 rubric precision
   // invariant (the same exact rule as the SQL finalizer) before any claim, raster or provider work.

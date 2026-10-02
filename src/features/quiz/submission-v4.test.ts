@@ -60,11 +60,17 @@ describe('submit-quiz server dispatch', () => {
       expect(test.backend.v4!.claimRubric).not.toHaveBeenCalled()
       expect(test.state.attempt.status).toBe('draft')
     }
-    // A schema-2 handwriting answer on the historical (no drawing capability) revision is invalid.
+    // A schema-2 row on the historical (non-v4-capable) revision is impossible configuration: unavailable,
+    // never downgraded to v3, never graded as v4, and no claims, raster or providers.
     const wrong = fixture({ q_hand: calcHand([pen()]) }, { revision: R0 })
     const response = await wrong.submit(submit())
-    expect(response.status).toBe(422)
+    expect(response.status).toBe(503)
     expect(wrong.state.attempt.status).toBe('draft')
+    expect(wrong.state.claims).toEqual([])
+    expect(wrong.backend.claimRubric).not.toHaveBeenCalled()
+    expect(wrong.backend.finalize).not.toHaveBeenCalled()
+    expect(wrong.backend.v4!.finalize).not.toHaveBeenCalled()
+    expect(wrong.calculationV4.generateDrawing).not.toHaveBeenCalled()
   })
 })
 

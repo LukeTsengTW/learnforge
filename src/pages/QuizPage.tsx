@@ -4,13 +4,15 @@ import { Markdown } from '../components/Markdown'
 import { QuestionCard } from '../features/quiz/QuestionCard'
 import { useAttempt } from '../features/quiz/attempt-context'
 import { gradeQuiz, hasAnswer } from '../lib/grading'
+import type { QuestionAnswer } from '../models/attempt'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { usePracticeRepository } from '../features/quiz/practice-context'
 import { AiQuotaStatus } from '../features/ai/AiTutorControls'
 import { useAiTutor } from '../features/ai/use-ai-tutor'
 
 export function QuizPage() {
-  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, pendingSubmission, retry, importLegacy } = useAttempt()
+  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, pendingSubmission, retry,
+    importLegacy, draftSchema = 1, registerPendingFlush } = useAttempt()
   const [confirmIncomplete, setConfirmIncomplete] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
   const navigate = useNavigate()
@@ -24,7 +26,9 @@ export function QuizPage() {
     return <Navigate replace to={`/result/${attemptId ?? quiz.id}`} />
   }
   const answeredCount = quiz.questions.filter((question) => hasAnswer(attempt.answers[question.id])).length
-  const unanswered = gradeQuiz(quiz, attempt.answers).unansweredCount
+  // Objective-only count: calculation answers (either schema) are never passed to deterministic grading.
+  const unanswered = gradeQuiz(quiz, Object.fromEntries(Object.entries(attempt.answers)
+    .filter((entry): entry is [string, QuestionAnswer] => entry[1].type !== 'calculation'))).unansweredCount
   async function submitQuiz() { if (submitting) return; const savedId = await submit(); if (savedId) navigate(`/result/${savedId}`) }
   function goToQuestion(id: string) {
     const heading = document.getElementById(`heading-${id}`)
@@ -70,7 +74,8 @@ export function QuizPage() {
       <fieldset disabled={submitting} className="submission-lock">
       {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
         answer={attempt.answers[question.id]} onChange={(answer) => { answerQuestion(question.id, answer); setConfirmIncomplete(false) }}
-        aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} />)}
+        aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} draftSchema={draftSchema}
+        registerPendingFlush={registerPendingFlush} />)}
       <section className="submit-panel"><div><h2>準備好對照答案了嗎？</h2><p>提交後會保留這次作答，並顯示完整解答。</p></div>
         <button className="button primary" type="submit" disabled={submitting}>提交測驗</button>
         {confirmIncomplete && <div className="notice warning submit-warning" role="alert"><strong>還有 {unanswered} 題自動評分題未作答。</strong><p>未作答題會以 0 分計算，仍要提交嗎？</p>

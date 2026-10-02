@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
 import { NotFoundPage } from '../../components/ErrorPage'
@@ -6,8 +6,8 @@ import { QuizPage } from '../../pages/QuizPage'
 import { quizCatalog } from './quiz-loader'
 import { usePracticeRepository } from './practice-context'
 import { LocalPracticeCache } from './practice-cache'
-import { AttemptContext } from './attempt-context'
-import { createPracticeStore } from './practice-store'
+import { AttemptContext, type PendingInputFlush } from './attempt-context'
+import { createPracticeStore, draftSchemaFor, effectiveRemoteAttempt } from './practice-store'
 import type { PracticeRecord } from './practice-repository'
 
 function PracticeAttemptProvider({ record, onReplace, children }: {
@@ -17,6 +17,17 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
   const repo = usePracticeRepository()
   const [store] = useState(() => createPracticeStore(record, repo, new LocalPracticeCache(account!.id)))
   const state = useSyncExternalStore(store.subscribe, store.getSnapshot)
+  // Form-level registry: mounted editors commit pending input (e.g. a stroke without pointerup)
+  // into the store synchronously before formal submission saves and submits the draft.
+  const [pendingFlushes] = useState(() => new Set<PendingInputFlush>())
+  const registerPendingFlush = useCallback((flush: PendingInputFlush) => {
+    pendingFlushes.add(flush)
+    return () => { pendingFlushes.delete(flush) }
+  }, [pendingFlushes])
+  const submit = useCallback(() => {
+    for (const flush of pendingFlushes) flush()
+    return store.submit()
+  }, [pendingFlushes, store])
   useEffect(() => {
     store.start()
     const online = () => { void store.retry() }
@@ -25,10 +36,11 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
   }, [store])
   if (!record.quiz) return null
   return <AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
+    draftSchema: state.draftSchema, registerPendingFlush,
     storageNotice: state.notice, syncing: state.syncing, submitting: state.submitting,
     pendingSubmission: state.pendingSubmission, retry: store.retry,
     importLegacy: state.legacy ? store.importLegacy : undefined,
-    answerQuestion: store.answer, submit: store.submit,
+    answerQuestion: store.answer, submit,
     restart: async () => {
       if (!await store.deleteDraft()) return false
       try {
@@ -38,6 +50,12 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
       } catch { return false }
     },
   }}>{children}</AttemptContext.Provider>
+}
+
+/** A schema-1 draft of a v4-capable revision must promote cleanly in memory; it is never repaired. */
+function draftCompatible(record: PracticeRecord): boolean {
+  if (!record.quiz) return false
+  try { effectiveRemoteAttempt(record, record.quiz, draftSchemaFor(record, record.quiz)); return true } catch { return false }
 }
 
 export function PracticeQuizRoute() {
@@ -58,7 +76,7 @@ export function PracticeQuizRoute() {
   if (!state || state.quizId !== current.id) return <p role="status">正在載入草稿…</p>
   if (state.error || !state.record) return <div className="empty-state"><h1>暫時無法載入草稿</h1>
     <p>請確認網路連線，再重新整理頁面。</p><Link to="/library" className="button secondary">返回題庫</Link></div>
-  if (!state.record.quiz || !state.record.attempt) return <div className="empty-state"><h1>題目版本無法載入</h1>
+  if (!state.record.quiz || !state.record.attempt || !draftCompatible(state.record)) return <div className="empty-state"><h1>題目版本無法載入</h1>
     <p>這份草稿使用 {state.record.row.quiz_revision} 版題目；目前無法安全解讀答案。</p>
     {!confirmDiscard ? <button className="button secondary" onClick={() => setConfirmDiscard(true)}>捨棄草稿並使用最新版</button>
       : <div className="notice warning"><p>只會刪除這份未完成草稿。確定嗎？</p><button className="button primary" onClick={async () => {

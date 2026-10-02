@@ -146,14 +146,18 @@ describe('authenticated Edge draft save', () => {
     expect(env.backend.saveDraft).not.toHaveBeenCalled()
     expect(JSON.stringify(env.state)).toBe(before)
   })
-  it('uses the old exact revision capability and never falls back to the current revision', async () => {
+  it('refuses schema-2 saves for a non-capable exact revision (server-owned capability), never using the current revision', async () => {
     const env = setup({ quiz_revision: 'old' }), before = JSON.stringify(env.state)
-    const response = await env.handler(request({ ...input, answers: { calc: { ...calc, mode: 'drawing' } } }))
-    expect(response.status).toBe(400)
-    expect(env.lookup.listRevision).toHaveBeenCalledExactlyOnceWith('fixture', 'old')
+    for (const answers of [{ calc: { ...calc, mode: 'drawing' } }, { calc: { type: 'calculation', text: 'old text' } }]) {
+      const response = await env.handler(request({ ...input, answers }))
+      expect(response.status).toBe(503)
+      expect((await response.json()).code).toBe('unavailable')
+    }
+    expect(env.lookup.listRevision).toHaveBeenCalledWith('fixture', 'old')
+    expect(env.lookup.listRevision).not.toHaveBeenCalledWith('fixture', 'new')
     expect(env.backend.saveDraft).not.toHaveBeenCalled()
+    expect(env.state.attempt.answer_schema_version).toBe(1)
     expect(JSON.stringify(env.state)).toBe(before)
-    expect((await env.handler(request({ ...input, answers: { calc: { type: 'calculation', text: 'old text' } } }))).status).toBe(200)
   })
   it('refuses missing canonical revisions without calling the RPC', async () => {
     const env = setup({ quiz_revision: 'missing' })

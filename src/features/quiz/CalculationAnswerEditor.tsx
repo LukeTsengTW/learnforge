@@ -1,19 +1,27 @@
-import { useRef } from 'react'
+import { useImperativeHandle, useRef, type Ref } from 'react'
 import type { CalculationAnswerMode, CalculationAnswerV4 } from '../../models/attempt'
 import type { CalculationQuestion } from '../../models/quiz'
 import { DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
+
+export interface CalculationAnswerEditorHandle {
+  /** Commit visible pending ink through onChange (synchronously); a no-op when nothing is pending. */
+  flushPendingInput: () => void
+}
 
 interface CalculationAnswerEditorProps {
   id: string
   question: CalculationQuestion
   value: CalculationAnswerV4
   onChange: (value: CalculationAnswerV4) => void
+  ref?: Ref<CalculationAnswerEditorHandle>
 }
 
-/** Standalone editor contract; production QuestionInput continues to write legacy answers. */
-export function CalculationAnswerEditor({ id, question, value, onChange }: CalculationAnswerEditorProps) {
+/** Schema-2 calculation editor: both buffers are retained; only the mode selects authority. */
+export function CalculationAnswerEditor({ id, question, value, onChange, ref }: CalculationAnswerEditorProps) {
   const drawing = useRef<DrawingCanvasHandle>(null)
   const drawingMode = question.drawing !== undefined && value.mode === 'drawing'
+  // DrawingCanvas commits a pending stroke through its own onChange, which updates this value.
+  useImperativeHandle(ref, () => ({ flushPendingInput: () => { drawing.current?.flushPendingStroke() } }))
 
   function changeMode(mode: CalculationAnswerMode) {
     // Use the returned strokes: a second update based on stale props could otherwise lose the flush.
@@ -28,7 +36,7 @@ export function CalculationAnswerEditor({ id, question, value, onChange }: Calcu
         {(['text', 'drawing'] as const).map((mode) => <label key={mode} htmlFor={`${id}-mode-${mode}`}>
           <input id={`${id}-mode-${mode}`} name={`${id}-mode`} type="radio" value={mode}
             checked={value.mode === mode} onChange={() => changeMode(mode)} />
-          <span>{mode === 'text' ? '打字' : '手寫'}</span>
+          <span><span aria-hidden="true">{mode === 'text' ? '⌨️ ' : '✏️ '}</span>{mode === 'text' ? '打字' : '手寫'}</span>
         </label>)}
       </div>
       <p className="field-note" id={`${id}-mode-status`} role="status">目前作答方式：{drawingMode ? '手寫' : '打字'}。</p>

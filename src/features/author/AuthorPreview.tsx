@@ -4,6 +4,7 @@ import { ResultQuestion } from '../quiz/ResultQuestion'
 import { gradeQuiz } from '../../lib/grading'
 import type { AnswerMap, QuestionAnswer } from '../../models/attempt'
 import type { Quiz } from '../../models/quiz'
+import { isLegacyQuestionAnswer } from '../../lib/draft-v4'
 
 export function AuthorPreview({ quiz, mode, answers, onAnswer }: {
   quiz: Quiz
@@ -19,7 +20,7 @@ export function AuthorPreview({ quiz, mode, answers, onAnswer }: {
       {quiz.questions.map((question, index) => <div id={`author-question-${question.id}`} key={question.id}>
         {mode === 'student'
           ? <QuestionCard question={question} index={index} answer={answers[question.id]}
-            onChange={(answer) => onAnswer(question.id, answer)} />
+            onChange={(answer) => { if (isLegacyQuestionAnswer(answer)) onAnswer(question.id, answer) }} />
           : <ResultQuestion question={question} index={index} answer={answers[question.id]}
             grade={grades[index]} idPrefix="author-" />}
       </div>)}

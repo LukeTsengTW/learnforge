@@ -6,3 +6,7 @@ export const GRADING_VERSION = {
 } as const
 
 export type GradingVersion = typeof GRADING_VERSION[keyof typeof GRADING_VERSION]
+
+/** Official server rubric grading: calculation and drawing contribute to the practice score. */
+export const isOfficialRubricVersion = (gradingVersion: string | undefined): boolean =>
+  gradingVersion === GRADING_VERSION.aiGradingV3 || gradingVersion === GRADING_VERSION.aiGradingV4

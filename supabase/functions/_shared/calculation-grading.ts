@@ -84,6 +84,12 @@ export function normalizeGradingAnswer(raw: unknown): string {
   if (!record(raw) || raw.type !== 'calculation' || typeof raw.text !== 'string') {
     throw new GradingAnswerError('invalid')
   }
+  // A schema-2 answer is advisable only through its ACTIVE text mode. Handwriting (or a malformed
+  // v4 shape) is rejected before any personal quota reservation; inactive text is never graded.
+  if ((Object.hasOwn(raw, 'mode') || Object.hasOwn(raw, 'strokes'))
+    && (!exactKeys(raw, ['type', 'mode', 'text', 'strokes']) || raw.mode !== 'text' || !Array.isArray(raw.strokes))) {
+    throw new GradingAnswerError('invalid')
+  }
   if (!raw.text.trim()) throw new GradingAnswerError('empty')
   if (new TextEncoder().encode(raw.text).length > GRADING_ANSWER_MAX_BYTES) throw new GradingAnswerError('oversized')
   return raw.text

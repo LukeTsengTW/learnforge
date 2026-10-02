@@ -1,15 +1,22 @@
 import { createContext, useContext } from 'react'
-import type { QuestionAnswer, QuizAttempt } from '../../models/attempt'
+import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
+
+/** Synchronously commits uncommitted editor input (e.g. an in-progress handwriting stroke). */
+export type PendingInputFlush = () => void
 
 export interface AttemptContextValue {
   quiz: Quiz
-  attempt: QuizAttempt
+  attempt: PracticeAttempt
   attemptId?: string
+  /** Active draft schema; schema 2 renders the multimodal calculation editor. */
+  draftSchema?: DraftSchemaVersion
   storageNotice: string | null
-  answerQuestion: (questionId: string, answer: QuestionAnswer) => void
+  answerQuestion: (questionId: string, answer: PracticeAnswer) => void
   submit: () => Promise<string | null> | string | null | void
   restart: () => Promise<boolean>
+  /** Registers a pending-input flush that runs before formal submission; returns an unregister function. */
+  registerPendingFlush?: (flush: PendingInputFlush) => () => void
   loading?: boolean
   syncing?: boolean
   submitting?: boolean

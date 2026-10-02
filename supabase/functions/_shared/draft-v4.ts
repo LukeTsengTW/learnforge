@@ -27,6 +27,15 @@ export interface DraftQuestionContext {
   drawing?: DrawingConfig
 }
 
+/**
+ * Single source of the v4 capability rule (client and Edge): schema 2 / ai-grading-v4 is allowed only
+ * when the attempt's EXACT revision has a calculation question declaring handwriting. Callers must
+ * pass exact-revision questions; the current/latest revision is never a substitute.
+ */
+export function requiresV4DraftContext(questions: readonly { type: string; drawing?: unknown }[]): boolean {
+  return questions.some((question) => question.type === 'calculation' && question.drawing !== undefined)
+}
+
 function text(value: unknown): string {
   if (typeof value !== 'string') return invalid()
   if (value.length > DRAFT_V4_LIMITS.maxTextLength) return oversized()

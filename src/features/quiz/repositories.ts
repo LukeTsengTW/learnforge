@@ -1,9 +1,12 @@
 import type { GradingVersion, QuizAttempt, TrustedFillJudgment, TrustedRubricJudgment } from '../../models/attempt'
+import type { DraftSchemaVersion, PracticeAttempt, QuizAttemptV4 } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
 import type { Database, Json } from '../../types/database.types'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
-import { gradeQuizV3, gradeQuizWithFillJudgments } from '../../lib/grading'
+import { decodeDraftAnswersV4, requiresV4Draft } from '../../lib/draft-v4'
+import { gradeQuizV3, gradeQuizV4, gradeQuizWithFillJudgments } from '../../lib/grading'
+import { isCanonicalV4Score } from '../../lib/v4-score'
 import { GRADING_VERSION } from '../../models/grading-version'
 
 export interface RemoteVersion { id: string; updatedAt: string }
@@ -91,10 +94,18 @@ export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], 
     status: judgment.status as TrustedFillJudgment['status'], reason: judgment.reason,
   }))
 }
-export function trustedRubricJudgments(row: AttemptRow, judgments: RubricJudgmentRow[], userId: string): TrustedRubricJudgment[] {
+export function trustedRubricJudgments(row: AttemptRow, judgments: RubricJudgmentRow[], userId: string,
+  judgeVersion: typeof GRADING_VERSION.aiGradingV3 | typeof GRADING_VERSION.aiGradingV4 = GRADING_VERSION.aiGradingV3): TrustedRubricJudgment[] {
+  // v4 evidence additionally follows the 8-decimal canonical score contract. The browser never
+  // recomputes PostgreSQL's answer hash; it validates only the hash format and binding fields.
+  if (judgeVersion === GRADING_VERSION.aiGradingV4 && judgments.some((judgment) => !isCanonicalV4Score(judgment.score)
+    || !isCanonicalV4Score(judgment.max_score) || !Array.isArray(judgment.criteria)
+    || judgment.criteria.some((criterion: unknown) => typeof criterion !== 'object' || criterion === null
+      || !isCanonicalV4Score((criterion as Record<string, unknown>).awardedScore)
+      || !isCanonicalV4Score((criterion as Record<string, unknown>).maxScore)))) throw new PersistenceError('invalid')
   if (judgments.some((judgment) => judgment.user_id !== userId || judgment.attempt_id !== row.id
     || judgment.quiz_id !== row.quiz_id || judgment.quiz_revision !== row.quiz_revision
-    || judgment.judge_version !== GRADING_VERSION.aiGradingV3
+    || judgment.judge_version !== judgeVersion
     || (judgment.question_type !== 'calculation' && judgment.question_type !== 'drawing')
     || !/^[a-f0-9]{64}$/.test(judgment.answer_hash) || !Number.isFinite(judgment.score)
     || !Number.isFinite(Date.parse(judgment.finalized_at))
@@ -125,8 +136,73 @@ export function trustedRubricJudgments(row: AttemptRow, judgments: RubricJudgmen
       ...(judgment.details as Partial<Pick<Extract<TrustedRubricJudgment, { source: 'ai' }>,
         'strengths' | 'improvements' | 'observations' | 'missingOrUnclear'>>) })
 }
+/**
+ * Server answer schema marker. Generated database types predate M3, so the field is a narrow,
+ * runtime-validated intersection. Rows from a pre-M3 schema (no column) can only be schema 1.
+ */
+export type AttemptRowWithSchema = AttemptRow & { answer_schema_version?: number }
+export function answerSchemaVersion(row: AttemptRowWithSchema): DraftSchemaVersion {
+  const value = row.answer_schema_version
+  if (value === undefined || value === 1) return 1
+  if (value === 2) return 2
+  throw new PersistenceError('invalid')
+}
+
+/** Stored schema-1 or schema-2 attempt for the client practice domain. */
+export interface StoredPracticeAttempt { attempt: PracticeAttempt; version: RemoteVersion }
+
+/** Dispatches strictly on the server marker; schema 2 is never decoded as schema 1 (or vice versa). */
+export function fromDatabasePractice(row: AttemptRowWithSchema, answers: AnswerRow[], quiz: Quiz, userId: string,
+  judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): StoredPracticeAttempt {
+  if (answerSchemaVersion(row) === 2) return fromDatabaseV4(row, answers, quiz, userId, judgments, rubricJudgments)
+  const stored = fromDatabase(row, answers, quiz, userId, judgments, rubricJudgments)
+  return { attempt: stored.attempt, version: stored.version ?? { id: row.id, updatedAt: row.updated_at } }
+}
+
+/**
+ * Schema-2 reader. Drafts decode only the strict v4 grammar for the exact revision. A submitted v4
+ * attempt is recomposed with gradeQuizV4 from persisted fill/rubric evidence; no provider is called
+ * and the stored aggregates must match the reconstruction.
+ */
+export function fromDatabaseV4(row: AttemptRowWithSchema, answers: AnswerRow[], quiz: Quiz, userId: string,
+  judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): StoredPracticeAttempt & { attempt: QuizAttemptV4 } {
+  // Schema 2 is legitimate only for an exact v4-capable revision, whatever the stored marker says.
+  if (answerSchemaVersion(row) !== 2 || !requiresV4Draft(quiz) || row.user_id !== userId || !['draft', 'submitted'].includes(row.status)
+    || row.quiz_id !== quiz.id || row.quiz_revision !== quiz.revision
+    || answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)
+    || new Set(answers.map((answer) => answer.question_id)).size !== answers.length
+    || !Number.isFinite(Date.parse(row.updated_at)) || !Number.isFinite(Date.parse(row.started_at))
+    || !Number.isFinite(Date.parse(row.client_updated_at))
+    || Date.parse(row.client_updated_at) < Date.parse(row.started_at)) throw new PersistenceError('invalid')
+  const decoded = decodeDraftAnswersV4(quiz, Object.fromEntries(answers.map((answer) => [answer.question_id, answer.answer])))
+  if (!decoded) throw new PersistenceError('invalid')
+  const version = { id: row.id, updatedAt: row.updated_at }
+  if (row.status === 'draft') {
+    if (row.grading_version !== GRADING_VERSION.deterministicV1 || row.submission_request_id !== null) throw new PersistenceError('invalid')
+    return { attempt: { schemaVersion: 2, quizId: quiz.id, quizRevision: quiz.revision, status: 'in-progress',
+      startedAt: row.started_at, updatedAt: row.client_updated_at, answers: decoded }, version }
+  }
+  if (row.grading_version !== GRADING_VERSION.aiGradingV4 || !row.submitted_at
+    || Date.parse(row.submitted_at) < Date.parse(row.started_at)) throw new PersistenceError('invalid')
+  try {
+    const fill = trustedFillJudgments(row, judgments, userId, GRADING_VERSION.aiGradingV4)
+    const rubric = trustedRubricJudgments(row, rubricJudgments, userId, GRADING_VERSION.aiGradingV4)
+    const result = gradeQuizV4(quiz, decoded, fill, rubric)
+    const partialCount = (row as AttemptRow & { partial_count?: number }).partial_count
+    if (partialCount !== result.partialCount || row.deterministic_score !== result.score
+      || row.deterministic_max_score !== result.maxScore || row.correct_count !== result.correctCount
+      || row.incorrect_count !== result.incorrectCount || row.unanswered_count !== result.unansweredCount) {
+      throw new PersistenceError('invalid')
+    }
+    return { attempt: { schemaVersion: 2, quizId: quiz.id, quizRevision: quiz.revision, status: 'submitted',
+      startedAt: row.started_at, updatedAt: row.client_updated_at, submittedAt: row.submitted_at,
+      answers: decoded, result }, version }
+  } catch { throw new PersistenceError('invalid') }
+}
+
 export function fromDatabase(row: AttemptRow, answers: AnswerRow[], quiz: Quiz, userId: string,
   judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): StoredAttempt {
+  if (answerSchemaVersion(row) !== 1) throw new PersistenceError('invalid')
   if (row.user_id !== userId || !['draft', 'submitted'].includes(row.status) || answers.some(a => a.user_id !== userId || a.attempt_id !== row.id)
     || new Set(answers.map(a => a.question_id)).size !== answers.length || !Number.isFinite(Date.parse(row.updated_at))) throw new PersistenceError('invalid')
   const attempt = decodeAttempt(JSON.stringify({ schemaVersion: 1, quizId: row.quiz_id, quizRevision: row.quiz_revision,

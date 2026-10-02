@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
 import type { Quiz } from '../../models/quiz'
+import { isLegacyQuestionAnswer } from '../../lib/draft-v4'
 import { createCloudAttemptStore } from './cloud-attempt-store'
 import { AttemptContext } from './attempt-context'
 import { LocalAttemptRepository, type AttemptRepository } from './repositories'
@@ -14,7 +15,10 @@ export function CloudAttemptProvider({ quiz, userId, repository, children }: { q
   }, [store])
   return <AttemptContext.Provider value={{ quiz, attempt: state.attempt, storageNotice: state.notice, loading: state.loading, syncing: state.syncing,
     retry: store.retry, importLegacy: state.legacy ? store.importLegacy : undefined,
-    answerQuestion: (questionId, answer) => store.dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() }),
+    answerQuestion: (questionId, answer) => {
+      // Legacy v0.2 provider: schema 1 only.
+      if (isLegacyQuestionAnswer(answer)) store.dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() })
+    },
     submit: () => store.dispatch({ type: 'submit', now: new Date().toISOString() }), restart: store.restart,
   }}>{children}</AttemptContext.Provider>
 }

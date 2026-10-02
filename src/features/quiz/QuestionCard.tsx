@@ -2,15 +2,19 @@ import { useState } from 'react'
 import { Markdown } from '../../components/Markdown'
 import { hasAnswer } from '../../lib/grading'
 import { isObjectiveQuestion, QUESTION_LABEL, type Question } from '../../models/quiz'
-import type { QuestionAnswer } from '../../models/attempt'
+import type { DraftSchemaVersion, PracticeAnswer } from '../../models/draft-v4'
 import { QuestionInput } from './QuestionInput'
+import type { PendingInputFlush } from './attempt-context'
 import { AiTutorControls } from '../ai/AiTutorControls'
 import type { AiTutorState } from '../ai/use-ai-tutor'
 
-export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint }: {
-  question: Question; index: number; answer: QuestionAnswer | undefined; onChange: (answer: QuestionAnswer) => void
+export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint, draftSchema = 1, registerPendingFlush }: {
+  question: Question; index: number; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => void
   aiTutor?: AiTutorState; beforeAiHint?: () => Promise<void>
+  draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
+  // The text hint feature cannot see handwriting, so it is unavailable while handwriting is the active mode.
+  const handwriting = answer?.type === 'calculation' && answer.mode === 'drawing'
   const [hintOpen, setHintOpen] = useState(false)
   return <section className="question-card" aria-labelledby={`heading-${question.id}`}>
     <div className="question-meta"><h2 id={`heading-${question.id}`} tabIndex={-1}><span className="question-number">{String(index + 1).padStart(2, '0')}</span>{QUESTION_LABEL[question.type]}</h2>
@@ -18,12 +22,13 @@ export function QuestionCard({ question, index, answer, onChange, aiTutor, befor
         {hasAnswer(answer) && <span className="answered-mark">✓ 已作答</span>}</div>
     </div>
     <div id={`prompt-${question.id}`} className="question-prompt"><Markdown>{question.prompt}</Markdown></div>
-    <QuestionInput question={question} answer={answer} onChange={onChange} />
+    <QuestionInput question={question} answer={answer} onChange={onChange} draftSchema={draftSchema}
+      registerPendingFlush={registerPendingFlush} />
     {question.hint && <div className="hint-area"><button type="button" className="hint-button" aria-expanded={hintOpen}
       aria-controls={`hint-${question.id}`} onClick={() => setHintOpen(!hintOpen)}><span aria-hidden="true">{hintOpen ? '−' : '+'}</span> {hintOpen ? '收起提示' : '需要一點提示？'}</button>
       {hintOpen && <div id={`hint-${question.id}`} className="hint-content"><Markdown>{question.hint}</Markdown></div>}
     </div>}
-    {question.type !== 'drawing' && aiTutor && <AiTutorControls tutor={aiTutor} questionId={question.id}
+    {question.type !== 'drawing' && !handwriting && aiTutor && <AiTutorControls tutor={aiTutor} questionId={question.id}
       features={['hint']} beforeRun={beforeAiHint} />}
   </section>
 }

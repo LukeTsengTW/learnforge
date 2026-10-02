@@ -1,15 +1,21 @@
 import { createAttempt } from '../../lib/attempt'
 import { reduceAttempt } from '../../lib/attempt'
 import type { QuizAttempt } from '../../models/attempt'
+import type { PracticeAttempt } from '../../models/draft-v4'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { Quiz } from '../../models/quiz'
 import type { Database } from '../../types/database.types'
 import type { PracticeRepository } from './practice-context'
 import { ANALYTICS_PAGE_SIZE, type DraftReference, type PracticeRecord, type SubmittedPage,
   type SubmittedAnalyticsPage } from './practice-repository'
-import { PersistenceError, type StoredAttempt } from './repositories'
+import { PersistenceError, type StoredPracticeAttempt } from './repositories'
 
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
+/** Schema-1 test records: asserts the historical attempt shape instead of an unchecked cast. */
+export function legacyAttempt(record: { attempt: PracticeAttempt | null }): QuizAttempt {
+  if (!record.attempt || record.attempt.schemaVersion !== 1) throw new Error('Expected a schema-1 attempt')
+  return record.attempt
+}
 export function createMemoryPracticeRepository(userId: string): PracticeRepository & { all(): PracticeRecord[] } {
   const records = new Map<string, PracticeRecord>()
   let counter = 0
@@ -33,14 +39,15 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
         grading_version: 'deterministic-v1', submission_request_id: null,
         deterministic_score: null, deterministic_max_score: null, correct_count: null, partial_count: 0, incorrect_count: null, unanswered_count: null,
         created_at: now, updated_at: now }
-      const record = { id, row, quiz, attempt, version: { id, updatedAt: now } }
+      const record: PracticeRecord = { id, row, quiz, attempt, version: { id, updatedAt: now }, schemaVersion: 1 }
       records.set(id, record)
       return clone(record)
     },
-    async saveDraft(record: PracticeRecord, attempt: QuizAttempt): Promise<StoredAttempt> {
+    async saveDraft(record: PracticeRecord, attempt: PracticeAttempt): Promise<StoredPracticeAttempt> {
       const stored = records.get(record.id)
       if (!stored || stored.row.status !== 'draft' || stored.version.updatedAt !== record.version.updatedAt
-        || stored.row.quiz_revision !== attempt.quizRevision || attempt.status !== 'in-progress') throw new PersistenceError('conflict')
+        || stored.row.quiz_revision !== attempt.quizRevision || attempt.status !== 'in-progress'
+        || attempt.schemaVersion !== 1) throw new PersistenceError('conflict')
       const now = timestamp()
       stored.attempt = structuredClone(attempt)
       stored.row = { ...stored.row, client_updated_at: attempt.updatedAt, updated_at: now }
@@ -49,7 +56,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
     },
     async submitDraft(attemptId: string, expectedUpdatedAt: string, requestId: string) {
       const stored = records.get(attemptId)
-      if (!stored || !stored.quiz || !stored.attempt || stored.row.status !== 'draft'
+      if (!stored || !stored.quiz || !stored.attempt || stored.attempt.schemaVersion !== 1 || stored.row.status !== 'draft'
         || stored.version.updatedAt !== expectedUpdatedAt) throw new PersistenceError('conflict')
       const now = timestamp()
       const submitted = reduceAttempt(stored.quiz, stored.attempt, { type: 'submit', now })
@@ -82,7 +89,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
       const mapped: AnalyticsAttempt[] = slice.slice(0, ANALYTICS_PAGE_SIZE).map((record) => ({
         id: record.id, quizId: record.row.quiz_id, quizRevision: record.row.quiz_revision,
         submittedAt: record.row.submitted_at, status: 'submitted', quiz: record.quiz,
-        answers: record.attempt?.status === 'submitted' ? record.attempt.answers : null,
+        answers: record.attempt?.status === 'submitted' && record.attempt.schemaVersion === 1 ? record.attempt.answers : null,
       }))
       return { records: structuredClone(mapped), nextOffset: slice.length > ANALYTICS_PAGE_SIZE ? offset + ANALYTICS_PAGE_SIZE : null }
     },

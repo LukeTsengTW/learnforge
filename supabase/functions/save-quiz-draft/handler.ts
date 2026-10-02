@@ -1,6 +1,6 @@
 import type { DraftAnswerMapV4 } from '../../../src/models/draft-v4.ts'
 import { readBoundedJson, tutorContext, TutorInputError } from '../_shared/ai-tutor.ts'
-import { DRAFT_V4_LIMITS, DraftValidationError, normalizeDraftAnswersV4, sameDraftTimestamp,
+import { DRAFT_V4_LIMITS, DraftValidationError, normalizeDraftAnswersV4, requiresV4DraftContext, sameDraftTimestamp,
   validDraftTimestamp, type DraftQuestionContext } from '../_shared/draft-v4.ts'
 import { parseSaveQuizDraftRequest } from '../_shared/draft-request.ts'
 
@@ -45,7 +45,9 @@ export function createSaveQuizDraftHandler(backend: DraftSaveBackend, lookup: Dr
         || !sameDraftTimestamp(attempt.updated_at, input.expectedUpdatedAt)) return failure('conflict', 409)
       if (attempt.answer_schema_version !== 1 && attempt.answer_schema_version !== 2) return failure('unavailable', 503)
       const questions = lookup.listRevision(attempt.quiz_id, attempt.quiz_revision)
-      if (!questions.length) return failure('unavailable', 503)
+      // Server-owned capability: only an exact v4-capable revision may hold (or be promoted to) schema 2.
+      // This is configuration, not a student answer error, and nothing is validated or written.
+      if (!questions.length || !requiresV4DraftContext(questions)) return failure('unavailable', 503)
       const answers = normalizeDraftAnswersV4(questions, input.answers)
       const saved = await backend.saveDraft({ userId: backend.userId, attemptId: attempt.id,
         expectedUpdatedAt: input.expectedUpdatedAt, clientUpdatedAt: input.clientUpdatedAt, answers })

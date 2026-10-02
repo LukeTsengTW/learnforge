@@ -1,31 +1,57 @@
+import { FunctionsHttpError } from '@supabase/supabase-js'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
-import type { GradeResult, QuizAttempt } from '../../models/attempt'
+import { decodeQuizDraftV4, requiresV4Draft } from '../../lib/draft-v4'
+import type { AnswerMap, GradeResult } from '../../models/attempt'
 import type { AnalyticsAttempt } from '../../models/analytics'
+import type { DraftAnswerMapV4, DraftSchemaVersion, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
-import { GRADING_VERSION } from '../../models/grading-version'
+import { GRADING_VERSION, type GradingVersion } from '../../models/grading-version'
 import type { Database } from '../../types/database.types'
+import { draftExactKeys, draftRecord, validDraftTimestamp } from '../../../supabase/functions/_shared/draft-v4.ts'
 import { quizCatalog, type QuizCatalog } from './quiz-loader'
-import { fromDatabase, PersistenceError, toDatabase, trustedFillJudgments, trustedRubricJudgments,
-  type JudgmentRow, type RemoteVersion, type RubricJudgmentRow, type StoredAttempt } from './repositories'
+import { answerSchemaVersion, fromDatabasePractice, PersistenceError, toDatabase, trustedFillJudgments,
+  trustedRubricJudgments, type AttemptRowWithSchema, type JudgmentRow, type RemoteVersion, type RubricJudgmentRow,
+  type StoredPracticeAttempt } from './repositories'
 
-type AttemptRow = Database['public']['Tables']['attempts']['Row']
+type AttemptRow = AttemptRowWithSchema
 type AnswerRow = Database['public']['Tables']['answers']['Row']
 type JoinedRow = AttemptRow & { answers: AnswerRow[] }
 export interface PracticeRecord {
   id: string
   row: AttemptRow
   quiz: Quiz | null
-  attempt: QuizAttempt | null
+  attempt: PracticeAttempt | null
   version: RemoteVersion
+  /** Server-owned answer schema marker (1 legacy/v3, 2 multimodal/v4). */
+  schemaVersion: DraftSchemaVersion
 }
 export interface DraftReference { id: string; quizId: string; revision: string; updatedAt: string }
 export interface SubmittedPage { records: PracticeRecord[]; nextOffset: number | null }
 export interface SubmittedAnalyticsPage { records: AnalyticsAttempt[]; nextOffset: number | null }
 export type FormalSubmission = { state: 'pending' } | { state: 'submitted'; result: GradeResult }
 export class SubmissionError extends Error {
-  readonly kind: 'conflict' | 'unavailable'
+  readonly kind: 'conflict' | 'unavailable' | 'invalid'
   constructor(kind: SubmissionError['kind']) { super(kind); this.kind = kind }
+}
+const OFFICIAL_JUDGMENT_VERSIONS: readonly string[] = [GRADING_VERSION.semanticFillV2, GRADING_VERSION.aiGradingV3,
+  GRADING_VERSION.aiGradingV4]
+/** Local response consistency only; the browser never sends a grading version. */
+export const expectedGradingVersion = (schema: DraftSchemaVersion): GradingVersion =>
+  schema === 2 ? GRADING_VERSION.aiGradingV4 : GRADING_VERSION.aiGradingV3
+
+async function edgeErrorStatus(error: unknown): Promise<{ status: number | null; code: unknown }> {
+  // Only an HTTP error carries a trusted function status; relay and fetch failures are unavailable.
+  const http = error instanceof FunctionsHttpError
+    || (!!error && typeof error === 'object' && (error as { name?: unknown }).name === 'FunctionsHttpError')
+  const context = http ? (error as { context?: unknown }).context : null
+  if (!(context instanceof Response)) return { status: null, code: null }
+  let code: unknown = null
+  try {
+    const body: unknown = await context.json()
+    if (body && typeof body === 'object' && 'code' in body) code = body.code
+  } catch { /* A non-JSON body keeps only the status. */ }
+  return { status: context.status, code }
 }
 export const ANALYTICS_PAGE_SIZE = 50
 
@@ -43,13 +69,20 @@ export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizC
   if (row.user_id !== userId || row.answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)) {
     throw new PersistenceError('invalid')
   }
+  const schemaVersion = answerSchemaVersion(row)
   const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
-  let stored: StoredAttempt | null = null
-  try { stored = quiz ? fromDatabase(row, row.answers, quiz, userId, judgments, rubricJudgments) : null }
+  let stored: StoredPracticeAttempt | null = null
+  try { stored = quiz ? fromDatabasePractice(row, row.answers, quiz, userId, judgments, rubricJudgments) : null }
   catch (error) {
     if (!(error instanceof PersistenceError) || row.status !== 'submitted') throw error
   }
-  return { id: row.id, row, quiz, attempt: stored?.attempt ?? null, version: { id: row.id, updatedAt: row.updated_at } }
+  return { id: row.id, row, quiz, attempt: stored?.attempt ?? null, version: { id: row.id, updatedAt: row.updated_at },
+    schemaVersion }
+}
+
+/** Legacy-safe projection used only for objective occurrences (calculation answers are excluded). */
+function objectiveAnswerMap(answers: DraftAnswerMapV4): AnswerMap {
+  return Object.fromEntries(Object.entries(answers).filter(([, answer]) => answer.type !== 'calculation')) as AnswerMap
 }
 
 export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId: string,
@@ -64,13 +97,20 @@ export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId
   const quiz = catalog.getQuizRevision(row.quiz_id, row.quiz_revision)
   if (!quiz) return { ...base, quiz: null, answers: null, unavailableReason: 'missing-revision' }
   try {
-    const stored = fromDatabase(row, answers, quiz, userId, judgments, rubricJudgments)
+    const stored = fromDatabasePractice(row, answers, quiz, userId, judgments, rubricJudgments)
     if (stored.attempt.status !== 'submitted' || row.status !== 'submitted') throw new PersistenceError('invalid')
+    const version = row.grading_version
+    if (stored.attempt.schemaVersion === 2) {
+      if (version !== GRADING_VERSION.aiGradingV4) throw new PersistenceError('invalid')
+      return { ...base, quiz, answers: objectiveAnswerMap(stored.attempt.answers), answersV4: stored.attempt.answers,
+        gradingVersion: version, fillJudgments: trustedFillJudgments(row, judgments, userId, version),
+        rubricJudgments: trustedRubricJudgments(row, rubricJudgments, userId, version), gradeResult: stored.attempt.result }
+    }
     return { ...base, quiz, answers: stored.attempt.answers,
-      gradingVersion: row.grading_version as AnalyticsAttempt['gradingVersion'],
-      fillJudgments: row.grading_version === GRADING_VERSION.semanticFillV2 || row.grading_version === GRADING_VERSION.aiGradingV3
-        ? trustedFillJudgments(row, judgments, userId, row.grading_version) : [],
-      rubricJudgments: row.grading_version === GRADING_VERSION.aiGradingV3
+      gradingVersion: version as AnalyticsAttempt['gradingVersion'],
+      fillJudgments: version === GRADING_VERSION.semanticFillV2 || version === GRADING_VERSION.aiGradingV3
+        ? trustedFillJudgments(row, judgments, userId, version) : [],
+      rubricJudgments: version === GRADING_VERSION.aiGradingV3
         ? trustedRubricJudgments(row, rubricJudgments, userId) : [], gradeResult: stored.attempt.result }
   } catch {
     return { ...base, quiz, answers: null, unavailableReason: 'malformed' }
@@ -86,8 +126,9 @@ export class SupabasePracticeRepository {
   }
 
   private async loadJudgments(rows: AttemptRow[]): Promise<Map<string, LoadedJudgments>> {
-    const ids = rows.filter((row) => row.status === 'submitted'
-      && (row.grading_version === GRADING_VERSION.semanticFillV2 || row.grading_version === GRADING_VERSION.aiGradingV3))
+    // Explicit versions only: semantic-fill-v2 (fill), ai-grading-v3/v4 (fill + rubric). Unknown versions
+    // load no evidence and therefore decode as unavailable/malformed.
+    const ids = rows.filter((row) => row.status === 'submitted' && OFFICIAL_JUDGMENT_VERSIONS.includes(row.grading_version))
       .map((row) => row.id)
     const result = new Map<string, LoadedJudgments>()
     if (!ids.length) return result
@@ -144,11 +185,12 @@ export class SupabasePracticeRepository {
     return loaded
   }
 
-  async saveDraft(record: PracticeRecord, attempt: QuizAttempt): Promise<StoredAttempt> {
+  async saveDraft(record: PracticeRecord, attempt: PracticeAttempt): Promise<StoredPracticeAttempt> {
     if (attempt.status !== 'in-progress' || !record.quiz || record.id !== record.version.id || attempt.quizId !== record.row.quiz_id
-      || attempt.quizRevision !== record.row.quiz_revision || !decodeAttempt(JSON.stringify(attempt), record.quiz)) {
-      throw new PersistenceError('invalid')
-    }
+      || attempt.quizRevision !== record.row.quiz_revision) throw new PersistenceError('invalid')
+    if (attempt.schemaVersion === 2) return this.saveDraftV4(record, record.quiz, attempt)
+    // A server schema-2 draft is never written through the legacy v3 writer (no downgrade).
+    if (record.schemaVersion !== 1 || !decodeAttempt(JSON.stringify(attempt), record.quiz)) throw new PersistenceError('invalid')
     const { data, error } = await this.client.rpc('save_quiz_attempt_v3', {
       p_attempt_id: record.id, p_payload: toDatabase(attempt, this.userId), p_expected_updated_at: record.version.updatedAt,
     })
@@ -158,25 +200,47 @@ export class SupabasePracticeRepository {
     return { attempt, version: { id: row.id, updatedAt: row.updated_at } }
   }
 
-  async submitDraft(attemptId: string, expectedUpdatedAt: string, requestId: string): Promise<FormalSubmission> {
+  /**
+   * Schema-2 drafts are saved only through the authenticated save-quiz-draft Edge Function. The
+   * browser sends changes and CAS only; owner, quiz, revision and schema are server-owned.
+   */
+  private async saveDraftV4(record: PracticeRecord, quiz: Quiz, attempt: Extract<PracticeAttempt, { schemaVersion: 2 }>):
+    Promise<StoredPracticeAttempt> {
+    if (attempt.status !== 'in-progress' || !requiresV4Draft(quiz) || !decodeQuizDraftV4(JSON.stringify(attempt), quiz)
+      || !validDraftTimestamp(record.version.updatedAt) || !validDraftTimestamp(attempt.updatedAt)) throw new PersistenceError('invalid')
+    const body = { attemptId: record.id, expectedUpdatedAt: record.version.updatedAt,
+      clientUpdatedAt: attempt.updatedAt, answers: attempt.answers }
+    const { data, error } = await this.client.functions.invoke('save-quiz-draft', { body })
+    if (error) {
+      const { status } = await edgeErrorStatus(error)
+      // Never fall back to the v3 writer after a schema-2 failure.
+      throw new PersistenceError(status === 409 ? 'conflict' : status === 400 || status === 413 ? 'invalid' : 'unavailable')
+    }
+    if (!draftRecord(data) || !draftExactKeys(data, ['attemptId', 'updatedAt', 'answerSchemaVersion'])
+      || data.attemptId !== record.id || data.answerSchemaVersion !== 2 || !validDraftTimestamp(data.updatedAt)) {
+      throw new PersistenceError('invalid')
+    }
+    return { attempt, version: { id: record.id, updatedAt: data.updatedAt } }
+  }
+
+  /**
+   * Formal submission. The request is exactly {requestId, attemptId, expectedUpdatedAt}; the expected
+   * grading version is checked locally against the response and is never sent to the server.
+   */
+  async submitDraft(attemptId: string, expectedUpdatedAt: string, requestId: string,
+    gradingVersion: GradingVersion = GRADING_VERSION.aiGradingV3): Promise<FormalSubmission> {
     const { data, error } = await this.client.functions.invoke('submit-quiz', {
       body: { requestId, attemptId, expectedUpdatedAt },
     })
     if (error) {
-      const context = 'context' in error ? error.context : null
-      if (context instanceof Response) {
-        try {
-          const body: unknown = await context.json()
-          if (body && typeof body === 'object' && 'code' in body && body.code === 'conflict') {
-            throw new SubmissionError('conflict')
-          }
-        } catch (failure) { if (failure instanceof SubmissionError) throw failure }
-      }
+      const { status, code } = await edgeErrorStatus(error)
+      if (code === 'conflict' || status === 409) throw new SubmissionError('conflict')
+      if (status === 422 && code === 'invalid_answers') throw new SubmissionError('invalid')
       throw new SubmissionError('unavailable')
     }
     if (data && typeof data === 'object' && data.code === 'in_progress') return { state: 'pending' }
     if (!data || typeof data !== 'object' || data.attemptId !== attemptId
-      || data.gradingVersion !== GRADING_VERSION.aiGradingV3 || !data.result
+      || data.gradingVersion !== gradingVersion || !data.result
       || typeof data.result.score !== 'number' || !Array.isArray(data.result.questions)) {
       throw new SubmissionError('unavailable')
     }
