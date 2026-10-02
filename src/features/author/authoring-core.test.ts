@@ -196,4 +196,17 @@ describe('import, export and revision boundaries', () => {
     expect(validateProposedRevisionChange(existing, proposal, 'demo')).toMatchObject({ valid: false })
     expect(validateProposedRevisionChange(existing, proposal, 'demo').errors.join(' ')).toContain('rubric')
   })
+
+  it.each([800, 2000])('blocks calculation drawing capability in the real v3 publishing path at %i pixels', (size) => {
+    const textOnly = createRevisedSource(demoSource, 'v2', 'demo', existing).source
+    expect(validateProposedRevisionChange(existing, textOnly, 'demo').valid).toBe(true)
+    const start = textOnly.indexOf(':::question id="q6"')
+    const proposal = textOnly.slice(0, start) + textOnly.slice(start)
+      .replace(':::end', `:::drawing\nwidth=${size}\nheight=${size}\n:::end`)
+    expect(parseQuiz(proposal, true).questions.find((question) => question.id === 'q6'))
+      .toMatchObject({ type: 'calculation', drawing: { width: size, height: size } })
+    expect(validateProposedRevisionChange(existing, proposal, 'demo')).toMatchObject({
+      valid: false, errors: ['q6: calculation drawing capability 需要 ai-grading-v4。'],
+    })
+  })
 })

@@ -32,7 +32,7 @@ export function toTutorContext(quiz: Quiz, question: Question) {
     case 'calculation':
     case 'drawing':
       context.referenceAnswer = question.referenceAnswer
-      if (question.type === 'drawing') context.drawing = question.drawing
+      if (question.drawing !== undefined) context.drawing = question.drawing
       if (question.rubric.length > 0 && question.rubric.every((criterion) => criterion.score !== null)) {
         const gradingRubric = question.rubric.map((criterion, index) => ({
           id: `r${index + 1}`, points: criterion.score!, description: criterion.description,

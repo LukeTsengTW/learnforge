@@ -89,3 +89,85 @@ describe('Quiz Markdown parser', () => {
     expect(question.type === 'single' && question.options[0].content).toBe('First paragraph\n\nSecond paragraph')
   })
 })
+
+describe('future calculation drawing DSL', () => {
+  const source = [
+    '@quiz id="synthetic" revision="m1" subject="algebra" tags="algebra" estimatedMinutes="5" current="true"',
+    '# Synthetic calculation',
+    ':::question id="calc" type="calculation" points="2"',
+    'Solve $x+1=2$.',
+    ':::answer', '$x=1$',
+    ':::solution', 'Subtract one from both sides.',
+    ':::rubric', '- 2 | Show a valid derivation.',
+    ':::end',
+  ].join('\n')
+  const withDrawing = (config: string) => source.replace(':::end', ':::drawing\n' + config + '\n:::end')
+
+  it('leaves legacy calculations without a config structurally unchanged', () => {
+    expect(parseQuiz(source).questions[0]).toEqual({
+      id: 'calc', type: 'calculation', tags: [], points: 2, prompt: 'Solve $x+1=2$.',
+      hint: null, referenceAnswer: '$x=1$', solution: 'Subtract one from both sides.',
+      rubric: [{ score: 2, description: 'Show a valid derivation.' }],
+    })
+    expect(parseQuiz(demoSource).questions[5]).not.toHaveProperty('drawing')
+  })
+
+  it('uses the existing drawing grammar for optional calculation capability', () => {
+    expect(parseQuiz(withDrawing('width=1000\nheight=700')).questions[0]).toMatchObject({
+      type: 'calculation', drawing: { width: 1000, height: 700 },
+    })
+  })
+
+  it.each([
+    '', 'width=800', 'height=600', 'width=99\nheight=600', 'width=2001\nheight=600',
+    'width=800.5\nheight=600', 'width=800\nheight=no', 'width=800\nwidth=900\nheight=600',
+    'width=800\nheight=600\nmodel=forged',
+  ])('preserves line-aware errors for invalid calculation config %#', (config) => {
+    try {
+      parseQuiz(withDrawing(config))
+      throw new Error('Expected parser rejection')
+    } catch (error) {
+      expect(error).toBeInstanceOf(QuizParseError)
+      if (!(error instanceof QuizParseError)) throw error
+      expect(error.questionId).toBe('calc')
+      expect(error.line).toBeGreaterThan(0)
+      expect(error.message).toContain('drawing')
+    }
+  })
+
+  it('rejects duplicate drawing sections at the duplicate directive line', () => {
+    const duplicate = withDrawing('width=800\nheight=600').replace(':::end', ':::drawing\nwidth=800\nheight=600\n:::end')
+    const directives = duplicate.split('\n').flatMap((line, index) => line === ':::drawing' ? [index + 1] : [])
+    try {
+      parseQuiz(duplicate)
+      throw new Error('Expected parser rejection')
+    } catch (error) {
+      expect(error).toBeInstanceOf(QuizParseError)
+      if (!(error instanceof QuizParseError)) throw error
+      expect(error.line).toBe(directives[1])
+      expect(error.message).toContain('重複的 drawing')
+    }
+  })
+
+  it.each(['single', 'multiple', 'true-false', 'fill'])('keeps drawing sections disallowed on %s', (type) => {
+    const metadata = 'type="' + type + '"' + (type === 'fill' ? ' match="exact"' : '')
+    let invalid = withDrawing('width=800\nheight=600').replace('type="calculation"', metadata)
+    if (type === 'single' || type === 'multiple') {
+      invalid = invalid.replace(':::answer\n$x=1$', ':::options\n- [x] a | 1\n- [ ] b | 2')
+    } else if (type === 'true-false') invalid = invalid.replace(':::answer\n$x=1$', ':::answer\ntrue')
+    expect(() => parseQuiz(invalid))
+      .toThrow(new RegExp(type + ' 題型不接受 drawing'))
+  })
+
+  it('retains required drawing config for actual drawing questions', () => {
+    expect(parseQuiz(withDrawing('width=800\nheight=600').replace('type="calculation"', 'type="drawing"')).questions[0])
+      .toMatchObject({ type: 'drawing', drawing: { width: 800, height: 600 } })
+    expect(() => parseQuiz(source.replace('type="calculation"', 'type="drawing"'))).toThrow(/drawing/)
+  })
+
+  it('retains historical parse dimensions separately from future publication bounds', () => {
+    expect(parseQuiz(withDrawing('width=2000\nheight=2000')).questions[0]).toMatchObject({
+      type: 'calculation', drawing: { width: 2000, height: 2000 },
+    })
+  })
+})

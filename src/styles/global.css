@@ -287,6 +287,14 @@
   .ai-usage-item > div:last-child { text-align: right; flex-shrink: 0; }
   .text-answer label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 10px; }
   .text-answer input { max-width: 460px; }
+  .calculation-answer-editor { min-width: 0; }
+  .calculation-mode-selector { margin-bottom: 20px; }
+  .calculation-mode-selector legend { margin-bottom: 10px; font-size: 13px; font-weight: 600; }
+  .calculation-modes { display: flex; flex-wrap: wrap; gap: 8px; }
+  .calculation-modes label { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px;
+    flex: 1 1 100px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 7px; background: white; cursor: pointer; }
+  .calculation-modes label:has(input:checked) { border-color: var(--teal); background: #eaf6f3; color: var(--teal-dark); font-weight: 700; }
+  .calculation-modes label:has(input:focus-visible) { outline: 3px solid #1d76c1; outline-offset: 4px; }
   .field-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
   .manual-notice { font-size: 13px; padding: 12px 16px; border-left: 3px solid #8eaec2; background: #f2f6fa; color: var(--muted); margin-bottom: 20px; }
   .drawing-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }

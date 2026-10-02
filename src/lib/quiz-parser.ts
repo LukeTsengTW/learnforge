@@ -130,7 +130,7 @@ function toQuestion(block: Block): Question {
   const allowed = new Set(['prompt', 'solution', 'hint', 'rubric'])
   const choice = type === QUESTION_TYPE.single || type === QUESTION_TYPE.multiple
   allowed.add(choice ? 'options' : 'answer')
-  if (type === QUESTION_TYPE.drawing) allowed.add('drawing')
+  if (type === QUESTION_TYPE.drawing || type === QUESTION_TYPE.calculation) allowed.add('drawing')
   for (const section of block.sections.keys()) if (!allowed.has(section)) fail(`${type} 題型不接受 ${section} 區塊。`, block)
   if (match !== undefined && type !== QUESTION_TYPE.fill) fail('match 屬性只適用於填空題。', block)
   switch (type) {
@@ -154,7 +154,8 @@ function toQuestion(block: Block): Question {
       if (sectionText(block, 'answer', true).includes('\n')) fail('填空題 answer 必須是單行文字。', block)
       return { ...common, type, match, correctAnswer: sectionText(block, 'answer', true) }
     case QUESTION_TYPE.calculation:
-      return { ...common, type, referenceAnswer: sectionText(block, 'answer', true) }
+      return { ...common, type, referenceAnswer: sectionText(block, 'answer', true),
+        ...(block.sections.has('drawing') ? { drawing: parseDrawing(block) } : {}) }
     case QUESTION_TYPE.drawing:
       return { ...common, type, referenceAnswer: sectionText(block, 'answer', true), drawing: parseDrawing(block) }
     default: return fail('未知題型。', block)

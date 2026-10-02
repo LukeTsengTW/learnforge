@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz } from './quiz-parser'
 import { createAttempt, reduceAttempt } from './attempt'
@@ -41,6 +41,34 @@ describe('attempt lifecycle and persistence', () => {
     saveAttempt(restarted, storage)
     expect(storage.getItem(attemptKey(quiz.id))).toBeNull()
   })
+  it('keeps legacy calculation drafts and submitted answers in schema 1 without writes on read', () => {
+    const draft = reduceAttempt(quiz, empty, {
+      type: 'answer', questionId: 'q6', answer: { type: 'calculation', text: '  $x=3$ \n' }, now,
+    })
+    const legacySubmitted = reduceAttempt(quiz, draft, { type: 'submit', now })
+    for (const attempt of [draft, legacySubmitted]) {
+      const storage = memoryStorage()
+      const raw = JSON.stringify(attempt)
+      storage.setItem(attemptKey(quiz.id), raw)
+      const writes = vi.spyOn(storage, 'setItem')
+      const deletes = vi.spyOn(storage, 'removeItem')
+      const loaded = loadAttempt(quiz, now, storage).attempt
+      expect(loaded.schemaVersion).toBe(1)
+      expect(loaded.answers.q6).toEqual({ type: 'calculation', text: '  $x=3$ \n' })
+      expect(loaded.answers.q6).not.toHaveProperty('mode')
+      expect(loaded.answers.q6).not.toHaveProperty('strokes')
+      expect(storage.getItem(attemptKey(quiz.id))).toBe(raw)
+      expect(writes).not.toHaveBeenCalled()
+      expect(deletes).not.toHaveBeenCalled()
+      if (loaded.status === 'submitted') {
+        expect(loaded.result.questions.find((grade) => grade.questionId === 'q6')).toMatchObject({
+          type: 'calculation', status: 'manual', score: null, maxScore: null,
+        })
+      }
+    }
+    expect(decodeAttempt(JSON.stringify({ ...draft, schemaVersion: 2 }), quiz)).toBeNull()
+  })
+
   it('does not trust forged stored scores', () => {
     const loaded = decodeAttempt(JSON.stringify({ ...submitted, result: { score: 1000 } }), quiz)
     expect(loaded?.status === 'submitted' && loaded.result.score).toBe(2)

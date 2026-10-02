@@ -41,6 +41,8 @@ export interface FillBlankQuestion extends QuestionBase {
 export interface CalculationQuestion extends QuestionBase {
   type: typeof QUESTION_TYPE.calculation
   referenceAnswer: string
+  /** Only this exact revision may declare future handwriting capability. */
+  drawing?: DrawingConfig
 }
 export interface DrawingQuestion extends QuestionBase {
   type: typeof QUESTION_TYPE.drawing

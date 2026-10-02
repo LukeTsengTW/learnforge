@@ -820,7 +820,12 @@ begin
     or not has_table_privilege('service_role','public.answers','SELECT')
     or has_table_privilege('service_role','public.answers','INSERT')
     or has_table_privilege('service_role','public.answers','UPDATE')
-    or has_table_privilege('service_role','public.answers','DELETE')
+    or not has_table_privilege('service_role','public.answers','DELETE')
+    or not has_column_privilege('service_role','public.answers','attempt_id','INSERT')
+    or not has_column_privilege('service_role','public.answers','user_id','INSERT')
+    or not has_column_privilege('service_role','public.answers','question_id','INSERT')
+    or not has_column_privilege('service_role','public.answers','answer','INSERT')
+    or has_column_privilege('service_role','public.answers','id','INSERT')
     or not has_table_privilege('service_role','public.fill_judgments','INSERT')
     or not has_table_privilege('service_role','public.rubric_judgments','INSERT') then
     raise exception 'FAIL service_role least privilege'; end if;
@@ -829,12 +834,10 @@ begin
       values(owner_id,'service-role-forged','1','draft',clock_timestamp(),clock_timestamp());
     raise exception 'FAIL service_role inserted attempt'; exception when insufficient_privilege then null; end;
   begin
-    insert into public.answers(attempt_id,user_id,question_id,answer)
-      values(a,owner_id,'service-role-forged','{}'::jsonb);
+    insert into public.answers(id,attempt_id,user_id,question_id,answer)
+      values(gen_random_uuid(),a,owner_id,'service-role-forged','{}'::jsonb);
     raise exception 'FAIL service_role inserted answer'; exception when insufficient_privilege then null; end;
   begin update public.answers set answer=answer where attempt_id=a; raise exception 'FAIL service_role updated answers';
-    exception when insufficient_privilege then null; end;
-  begin delete from public.answers where attempt_id=a; raise exception 'FAIL service_role deleted answers';
     exception when insufficient_privilege then null; end;
 end $$;
 reset role;
@@ -1039,6 +1042,155 @@ set local role authenticated;
 do $$ begin
   if exists(select 1 from public.rubric_judgments where attempt_id=current_setting('test.v12_attempt')::uuid)
     then raise exception 'FAIL foreign rubric judgment read'; end if;
+end $$;
+reset role;
+
+-- M3: server-only schema-2 persistence, CAS, legacy-writer, and least-privilege checks.
+set local role postgres;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; a public.attempts; legacy public.attempts;
+begin
+  if exists(select 1 from public.attempts where answer_schema_version <> 1) then
+    raise exception 'FAIL pre-M3 attempts were not schema 1'; end if;
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(owner_id,'m3-v4-fixture','fixture-v1','draft',clock_timestamp(),clock_timestamp()) returning * into a;
+  if a.answer_schema_version <> 1 then raise exception 'FAIL draft default schema version'; end if;
+  insert into public.answers(attempt_id,user_id,question_id,answer)
+    values(a.id,owner_id,'calc','{"type":"calculation","text":"old answer"}'::jsonb);
+  perform set_config('test.m3_v4_attempt',a.id::text,true);
+  perform set_config('test.m3_v4_updated_at',a.updated_at::text,true);
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(owner_id,'m3-v3-fixture','fixture-v1','draft',clock_timestamp(),clock_timestamp()) returning * into legacy;
+  insert into public.answers(attempt_id,user_id,question_id,answer)
+    values(legacy.id,owner_id,'calc','{"type":"calculation","text":"legacy answer"}'::jsonb);
+  perform set_config('test.m3_v3_attempt',legacy.id::text,true);
+  perform set_config('test.m3_v3_updated_at',legacy.updated_at::text,true);
+end $$;
+
+do $$ declare rpc regprocedure:=to_regprocedure('public.save_quiz_attempt_v4(uuid,uuid,timestamptz,timestamptz,jsonb)');
+begin
+  if rpc is null or not has_function_privilege('service_role',rpc,'EXECUTE')
+    or has_function_privilege('anon',rpc,'EXECUTE')
+    or has_function_privilege('authenticated',rpc,'EXECUTE') then
+    raise exception 'FAIL v4 RPC execute grants'; end if;
+end $$;
+reset role;
+
+set local role anon;
+do $$ begin
+  begin perform public.save_quiz_attempt_v4(null::uuid,null::uuid,null::timestamptz,null::timestamptz,'{}'::jsonb);
+    raise exception 'FAIL anon v4 RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+set local role authenticated;
+do $$ begin
+  begin perform public.save_quiz_attempt_v4(null::uuid,null::uuid,null::timestamptz,null::timestamptz,'{}'::jsonb);
+    raise exception 'FAIL authenticated v4 RPC'; exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
+set local role service_role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; other_id uuid:=current_setting('test.user_b')::uuid;
+  a uuid:=current_setting('test.m3_v4_attempt')::uuid; row_before public.attempts; row_after public.attempts;
+  answer_before jsonb; too_many jsonb; submitted public.attempts; saved public.attempts; client_time timestamptz:=clock_timestamp();
+begin
+  select * into row_before from public.attempts where id=a;
+  select answer into answer_before from public.answers where attempt_id=a and question_id='calc';
+  -- Invalid owner, stale CAS, submitted status, malformed object, excessive entry count,
+  -- unsafe question ID, non-object answer, and non-finite timestamp must all roll back.
+  begin perform public.save_quiz_attempt_v4(other_id,a,row_before.updated_at,client_time,'{}'::jsonb);
+    raise exception 'FAIL cross-user v4 save'; exception when serialization_failure then null; end;
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at-interval '1 second',client_time,'{}'::jsonb);
+    raise exception 'FAIL stale v4 CAS'; exception when serialization_failure then null; end;
+  select * into submitted from public.attempts where id=current_setting('test.v12_attempt')::uuid;
+  begin perform public.save_quiz_attempt_v4(owner_id,submitted.id,submitted.updated_at,client_time,'{}'::jsonb);
+    raise exception 'FAIL submitted v4 save'; exception when serialization_failure then null; end;
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,client_time,'[]'::jsonb);
+    raise exception 'FAIL non-object v4 answers'; exception when invalid_parameter_value then null; end;
+  select jsonb_object_agg('q'||i,'{}'::jsonb) into too_many from generate_series(1,101) as seq(i);
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,client_time,too_many);
+    raise exception 'FAIL oversized v4 answer count'; exception when invalid_parameter_value then null; end;
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,client_time,'{"bad/question":{}}'::jsonb);
+    raise exception 'FAIL unsafe v4 question ID'; exception when invalid_parameter_value then null; end;
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,client_time,'{"calc":"not-an-object"}'::jsonb);
+    raise exception 'FAIL scalar v4 answer'; exception when invalid_parameter_value then null; end;
+  begin perform public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,'infinity'::timestamptz,'{}'::jsonb);
+    raise exception 'FAIL non-finite v4 client time'; exception when invalid_parameter_value then null; end;
+  select * into row_after from public.attempts where id=a;
+  if row_after.answer_schema_version <> 1 or row_after.updated_at is distinct from row_before.updated_at
+    or row_after.client_updated_at is distinct from row_before.client_updated_at
+    or (select answer from public.answers where attempt_id=a and question_id='calc') is distinct from answer_before then
+    raise exception 'FAIL atomic v4 validation failure'; end if;
+
+  select * into saved from public.save_quiz_attempt_v4(owner_id,a,row_before.updated_at,client_time,
+    '{"calc":{"type":"calculation","mode":"text","text":"new answer","strokes":[]}}'::jsonb);
+  if saved.answer_schema_version <> 2 or saved.status <> 'draft' or saved.updated_at = row_before.updated_at
+    or saved.client_updated_at is distinct from client_time or saved.grading_version <> 'deterministic-v1'
+    or saved.submission_request_id is not null or saved.submitted_at is not null
+    or saved.deterministic_score is not null or saved.deterministic_max_score is not null then
+    raise exception 'FAIL valid atomic v4 promotion'; end if;
+  if (select count(*) from public.answers where attempt_id=a) <> 1
+    or (select answer from public.answers where attempt_id=a and question_id='calc')
+      is distinct from '{"type":"calculation","mode":"text","text":"new answer","strokes":[]}'::jsonb then
+    raise exception 'FAIL v4 answer replacement'; end if;
+  perform set_config('test.m3_v4_saved_updated_at',saved.updated_at::text,true);
+  perform set_config('test.m3_v4_client_updated_at',client_time::text,true);
+end $$;
+reset role;
+
+select set_config('request.jwt.claims',jsonb_build_object('sub',current_setting('test.user_a'),'role','authenticated')::text,true);
+set local role authenticated;
+do $$ declare owner_id uuid:=auth.uid(); v4_id uuid:=current_setting('test.m3_v4_attempt')::uuid;
+  v3_id uuid:=current_setting('test.m3_v3_attempt')::uuid; a public.attempts; saved public.attempts;
+  answer_before jsonb; updated_before timestamptz;
+begin
+  select * into a from public.attempts where id=v4_id;
+  select answer into answer_before from public.answers where attempt_id=v4_id and question_id='calc';
+  updated_before:=a.updated_at;
+  begin update public.attempts set answer_schema_version=1 where id=v4_id;
+    raise exception 'FAIL schema-2 downgrade'; exception when check_violation then null; end;
+  begin update public.attempts set answer_schema_version=2 where id=v3_id;
+    raise exception 'FAIL authenticated schema promotion'; exception when insufficient_privilege then null; end;
+  begin perform public.save_quiz_attempt_v3(v4_id,jsonb_build_object('ownerId',owner_id,'quizId',a.quiz_id,
+    'quizRevision',a.quiz_revision,'status','in-progress','startedAt',a.started_at,'updatedAt',clock_timestamp(),
+    'answers','{"calc":{"type":"calculation","text":"stale legacy overwrite"}}'::jsonb),a.updated_at);
+    raise exception 'FAIL v3 overwrote schema 2'; exception when serialization_failure then null; end;
+  begin insert into public.answers(attempt_id,user_id,question_id,answer)
+    values(v4_id,owner_id,'direct-insert','{"type":"calculation","mode":"text","text":"forged","strokes":[]}'::jsonb);
+    raise exception 'FAIL schema-2 direct answer insert'; exception when insufficient_privilege then null; end;
+  begin update public.answers set answer='{"type":"calculation","mode":"text","text":"forged","strokes":[]}'::jsonb
+    where attempt_id=v4_id and question_id='calc';
+    raise exception 'FAIL schema-2 direct answer update'; exception when insufficient_privilege then null; end;
+  begin delete from public.answers where attempt_id=v4_id;
+    raise exception 'FAIL schema-2 direct answer delete'; exception when insufficient_privilege then null; end;
+  select * into a from public.attempts where id=v4_id;
+  if a.answer_schema_version <> 2 or a.updated_at is distinct from updated_before
+    or (select count(*) from public.answers where attempt_id=v4_id) <> 1
+    or (select answer from public.answers where attempt_id=v4_id and question_id='calc') is distinct from answer_before then
+    raise exception 'FAIL old writer/direct mutation changed schema 2'; end if;
+
+  select * into a from public.attempts where id=v3_id;
+  select answer into answer_before from public.answers where attempt_id=v3_id and question_id='calc';
+  updated_before:=a.updated_at;
+  begin perform public.save_quiz_attempt_v3(v3_id,jsonb_build_object('ownerId',owner_id,'quizId',a.quiz_id,
+    'quizRevision',a.quiz_revision,'status','in-progress','startedAt',a.started_at,'updatedAt',clock_timestamp(),
+    'answers','{"calc":{"type":"calculation","mode":"text","text":"forged","strokes":[]}}'::jsonb),a.updated_at);
+    raise exception 'FAIL v3 accepted future calculation shape'; exception when insufficient_privilege then null; end;
+  begin insert into public.answers(attempt_id,user_id,question_id,answer)
+    values(v3_id,owner_id,'calc-direct','{"type":"calculation","mode":"text","text":"forged","strokes":[]}'::jsonb);
+    raise exception 'FAIL schema-1 direct future calculation insert'; exception when insufficient_privilege then null; end;
+  begin update public.answers set answer='{"type":"calculation","text":"forged","mode":"text","strokes":[]}'::jsonb
+    where attempt_id=v3_id and question_id='calc';
+    raise exception 'FAIL schema-1 direct future calculation update'; exception when insufficient_privilege then null; end;
+  if (select updated_at from public.attempts where id=v3_id) is distinct from updated_before
+    or (select answer from public.answers where attempt_id=v3_id and question_id='calc') is distinct from answer_before then
+    raise exception 'FAIL rejected v3 future shape changed schema 1'; end if;
+  select * into saved from public.save_quiz_attempt_v3(v3_id,jsonb_build_object('ownerId',owner_id,'quizId',a.quiz_id,
+    'quizRevision',a.quiz_revision,'status','in-progress','startedAt',a.started_at,'updatedAt',clock_timestamp(),
+    'answers','{"calc":{"type":"calculation","text":"legacy refresh"}}'::jsonb),a.updated_at);
+  if saved.answer_schema_version <> 1
+    or (select answer from public.answers where attempt_id=v3_id and question_id='calc')
+      is distinct from '{"type":"calculation","text":"legacy refresh"}'::jsonb then
+    raise exception 'FAIL schema-1 v3 compatibility'; end if;
 end $$;
 reset role;
 rollback;

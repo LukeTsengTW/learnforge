@@ -18,6 +18,25 @@ describe('bundled quiz catalog', () => {
   it('preserves the published demo revision', () => {
     expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')?.questions).toHaveLength(7)
   })
+  it('keeps calculation handwriting capability bound to the exact synthetic revision', () => {
+    const original = demoSource.replaceAll('\r\n', '\n')
+    const next = original.replace('revision="v1-7d7c900e"', 'revision="synthetic-m1"')
+      .replace(/(:::question id="q6"[\s\S]*?)(:::end)/, '$1:::drawing\nwidth=1000\nheight=700\n$2')
+    const catalog = createQuizCatalog({
+      original: original.replace('current="true"', 'current="false"'),
+      next,
+    })
+    expect(catalog.errors).toEqual([])
+    const oldQuestion = catalog.getQuizRevision('demo', 'v1-7d7c900e')!.questions.find((question) => question.type === 'calculation')!
+    const nextQuestion = catalog.getQuizRevision('demo', 'synthetic-m1')!.questions.find((question) => question.type === 'calculation')!
+    expect(oldQuestion).not.toHaveProperty('drawing')
+    expect(nextQuestion.drawing).toEqual({ width: 1000, height: 700 })
+    expect(catalog.getCurrentQuiz('demo')?.revision).toBe('synthetic-m1')
+    expect(catalog.getQuizRevision('demo', 'missing-historical-revision')).toBeNull()
+    expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!.questions.find((question) => question.type === 'calculation'))
+      .not.toHaveProperty('drawing')
+  })
+
   it('normalizes quiz and question tags without affecting grading', () => {
     const quiz = parseQuiz(booleanSource.replace('tags="boolean-algebra,logic-gates"', 'tags="Boolean-Algebra, boolean-algebra,LOGIC-GATES"'))
     expect(quiz.tags).toEqual(['boolean-algebra', 'logic-gates'])

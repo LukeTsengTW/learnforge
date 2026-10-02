@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent } from 'react'
+import { useEffect, useImperativeHandle, useRef, useState, type PointerEvent, type Ref } from 'react'
 import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
@@ -8,10 +8,15 @@ interface DrawingCanvasProps {
   config: DrawingConfig
   strokes: DrawingStroke[]
   onChange: (strokes: DrawingStroke[]) => void
+  ref?: Ref<DrawingCanvasHandle>
+}
+export interface DrawingCanvasHandle {
+  /** Commit visible pending ink and return the strokes for a combined controlled update. */
+  flushPendingStroke: () => DrawingStroke[]
 }
 const COLOR_LABELS = ['黑色', '紅色', '藍色']
 
-export function DrawingCanvas({ id, config, strokes, onChange }: DrawingCanvasProps) {
+export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const pending = useRef<{ pointerId: number; stroke: DrawingStroke } | null>(null)
   const [undone, setUndone] = useState<DrawingStroke[]>([])
@@ -37,6 +42,7 @@ export function DrawingCanvas({ id, config, strokes, onChange }: DrawingCanvasPr
     onChange(next.strokes)
     setConfirmClear(false)
     if (action.type !== 'add') setStatus(action.type === 'clear' ? '畫布已清除。' : action.type === 'undo' ? '已復原上一筆。' : '已重做一筆。')
+    return next.strokes
   }
   function point(event: PointerEvent<HTMLCanvasElement>) {
     return toLogicalPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), config)
@@ -59,10 +65,18 @@ export function DrawingCanvas({ id, config, strokes, onChange }: DrawingCanvasPr
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
     if (event.type === 'pointerup') active.stroke.points.push(point(event))
-    pending.current = null
-    changeDrawing({ type: 'add', stroke: active.stroke })
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
+    flushPendingStroke()
   }
+  function flushPendingStroke() {
+    const active = pending.current
+    if (!active) return strokes
+    pending.current = null
+    const next = changeDrawing({ type: 'add', stroke: active.stroke })
+    const element = canvas.current
+    if (element?.hasPointerCapture(active.pointerId)) element.releasePointerCapture(active.pointerId)
+    return next
+  }
+  useImperativeHandle(ref, () => ({ flushPendingStroke }))
   async function exportPng() {
     try { await downloadDrawingPng(config, history.strokes, `${id}.png`); setStatus('PNG 已匯出。') }
     catch { setStatus('PNG 匯出失敗，請重試。') }

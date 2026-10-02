@@ -6,8 +6,9 @@ import { fileURLToPath } from 'node:url'
 import ts from 'typescript'
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const entryPoint = path.join(repositoryRoot, 'supabase/functions/submit-quiz/index.ts')
-const pending = [entryPoint]
+const entryPoints = ['supabase/functions/submit-quiz/index.ts', 'supabase/functions/save-quiz-draft/index.ts']
+  .map((entry) => path.join(repositoryRoot, entry))
+const pending = [...entryPoints]
 const visited = new Set()
 const violations = []
 
@@ -119,7 +120,7 @@ while (pending.length > 0) {
   }
 }
 
-log(`Scanned ${visited.size} Edge-reachable TypeScript modules from ${repositoryPath(entryPoint)}.`)
+log(`Scanned ${visited.size} Edge-reachable TypeScript modules from ${entryPoints.map(repositoryPath).join(', ')}.`)
 
 if (violations.length > 0) {
   for (const violation of violations) {

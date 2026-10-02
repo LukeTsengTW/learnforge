@@ -1,12 +1,28 @@
 import type { DrawingStroke } from './drawing.ts'
 import type { QuestionType } from './quiz.ts'
 
+export type CalculationAnswerMode = 'text' | 'drawing'
+export interface LegacyCalculationAnswer {
+  type: 'calculation'
+  text: string
+  mode?: never
+  strokes?: never
+}
+/** Future draft representation; current QuestionAnswer and writers remain legacy-only. */
+export interface CalculationAnswerV4 {
+  type: 'calculation'
+  mode: CalculationAnswerMode
+  text: string
+  strokes: DrawingStroke[]
+}
+export type CalculationAnswer = LegacyCalculationAnswer | CalculationAnswerV4
+
 export type QuestionAnswer =
   | { type: 'single'; optionId: string }
   | { type: 'multiple'; optionIds: string[] }
   | { type: 'true-false'; value: boolean }
   | { type: 'fill'; text: string }
-  | { type: 'calculation'; text: string }
+  | LegacyCalculationAnswer
   | { type: 'drawing'; strokes: DrawingStroke[] }
 
 export type AnswerMap = Record<string, QuestionAnswer>
