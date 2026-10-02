@@ -25,7 +25,7 @@ function fixture(text: string | null, verdict: FillVerdict = correct) {
   const provider = { judge: vi.fn(async () => ({ verdict, responseId: 'resp_fake', usage: validUsage })) }
   const state = {
     attempt: { id: attemptId, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
-      status: 'draft', updated_at: firstVersion, grading_version: 'deterministic-v1',
+      status: 'draft', updated_at: firstVersion, answer_schema_version: 1, grading_version: 'deterministic-v1',
       submission_request_id: null as string | null,
       deterministic_score: null as number | null, deterministic_max_score: null as number | null,
       correct_count: null as number | null, partial_count: null as number | null,

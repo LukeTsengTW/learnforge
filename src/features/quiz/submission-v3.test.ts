@@ -86,7 +86,7 @@ function fixture(answerRows: { question_id: string; answer: unknown }[]) {
     personalCredits: number
   } = {
     attempt: { id: attemptId, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
-      status: 'draft', updated_at: firstVersion, grading_version: 'deterministic-v1', submission_request_id: null,
+      status: 'draft', updated_at: firstVersion, answer_schema_version: 1, grading_version: 'deterministic-v1', submission_request_id: null,
       deterministic_score: null, deterministic_max_score: null, correct_count: null, partial_count: null,
       incorrect_count: null, unanswered_count: null, answers: structuredClone(answerRows) },
     finalFill: [], finalRubric: [], fillCache: new Map(), pendingFill: new Map(), rubricCache: new Map(),

@@ -1,7 +1,10 @@
 import { GRADE_STATUS, type AnswerMap, type GradeResult, type QuestionAnswer, type QuestionGrade,
   type TrustedFillJudgment, type TrustedRubricJudgment } from '../models/attempt.ts'
+import type { DraftAnswerMapV4 } from '../models/draft-v4.ts'
 import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, type ObjectiveQuestion,
   type Quiz, type Question, type SingleChoiceQuestion, type TrueFalseQuestion } from '../models/quiz.ts'
+import { isV4BlankText } from './v4-blank.ts'
+import { canonicalV4Score, isCanonicalV4Score } from './v4-score.ts'
 
 export function hasAnswer(answer: QuestionAnswer | undefined): boolean {
   if (!answer) return false
@@ -186,6 +189,84 @@ export function gradeQuizV3(quiz: Quiz, answers: AnswerMap,
       }
       return { questionId: question.id, type: question.type, status: GRADE_STATUS.unanswered,
         score: 0, maxScore: question.points, source: 'system', answerHash: judgment.answerHash } satisfies QuestionGrade
+    }
+    validateRubricJudgment(question, judgment)
+    const status = judgment.score === question.points ? GRADE_STATUS.correct
+      : judgment.score === 0 ? GRADE_STATUS.incorrect : GRADE_STATUS.partial
+    return { questionId: question.id, type: question.type, status, score: judgment.score,
+      maxScore: question.points, source: 'ai', answerHash: judgment.answerHash,
+      criteria: judgment.criteria.map((criterion) => ({ ...criterion })), confidence: judgment.confidence,
+      summary: judgment.summary,
+      ...(judgment.strengths ? { strengths: [...judgment.strengths] } : {}),
+      ...(judgment.improvements ? { improvements: [...judgment.improvements] } : {}),
+      ...(judgment.observations ? { observations: [...judgment.observations] } : {}),
+      ...(judgment.missingOrUnclear ? { missingOrUnclear: [...judgment.missingOrUnclear] } : {}),
+    } satisfies QuestionGrade
+  })
+  return aggregate(grades)
+}
+
+type RubricQuestion = Extract<Question, { type: 'calculation' | 'drawing' }>
+
+/**
+ * Pure official v4 composition for schema-2 answers. Calculation evidence is bound to the
+ * ACTIVE mode only: text-mode blankness uses the v4 classifier, while drawing-mode and
+ * DrawingQuestion blankness is server raster evidence and is never inferred here from strokes.
+ * Handwritten calculation remains calculation and must not carry drawing-only detail fields.
+ */
+export function gradeQuizV4(quiz: Quiz, answers: DraftAnswerMapV4,
+  fillJudgments: readonly TrustedFillJudgment[],
+  rubricJudgments: readonly TrustedRubricJudgment[]): GradeResult {
+  const objectiveAnswers: AnswerMap = {}
+  for (const [questionId, answer] of Object.entries(answers)) {
+    const question = quiz.questions.find((item) => item.id === questionId)
+    if (!question || answer.type !== question.type) throw new Error('Invalid v4 answer')
+    if (answer.type === QUESTION_TYPE.calculation) {
+      if ((answer.mode !== 'text' && answer.mode !== 'drawing') || typeof answer.text !== 'string'
+        || !Array.isArray(answer.strokes)
+        || (question.type === QUESTION_TYPE.calculation && question.drawing === undefined
+          && (answer.mode !== 'text' || answer.strokes.length !== 0))) throw new Error('Invalid v4 calculation answer')
+      continue
+    }
+    objectiveAnswers[questionId] = answer
+  }
+  const fillGrades = gradeQuizWithFillJudgments(quiz, objectiveAnswers, fillJudgments)
+  const rubricQuestions = quiz.questions.filter((question): question is RubricQuestion =>
+    question.type === QUESTION_TYPE.calculation || question.type === QUESTION_TYPE.drawing)
+  const judgmentById = new Map(rubricJudgments.map((judgment) => [judgment.questionId, judgment]))
+  if (judgmentById.size !== rubricJudgments.length || judgmentById.size !== rubricQuestions.length) {
+    throw new Error('Incomplete official rubric judgments')
+  }
+
+  const grades = fillGrades.questions.map((grade) => {
+    const question = quiz.questions.find((item) => item.id === grade.questionId)
+    if (!question || (question.type !== QUESTION_TYPE.calculation && question.type !== QUESTION_TYPE.drawing)) return grade
+    const judgment = judgmentById.get(question.id)
+    if (!judgment) throw new Error('Missing official rubric judgment')
+    const answer = answers[question.id]
+    const activeText = answer?.type === QUESTION_TYPE.calculation && answer.mode === 'text' ? answer.text : null
+    if (judgment.source === 'system') {
+      if (judgment.questionId !== question.id || judgment.questionType !== question.type
+        || judgment.status !== GRADE_STATUS.unanswered || judgment.score !== 0
+        || judgment.maxScore !== question.points || !Number.isFinite(question.points) || question.points <= 0
+        || !/^[a-f0-9]{64}$/.test(judgment.answerHash) || !Array.isArray(judgment.criteria)
+        || judgment.criteria.length !== 0
+        || (activeText !== null && !isV4BlankText(activeText))) {
+        throw new Error('Invalid system unanswered rubric evidence')
+      }
+      return { questionId: question.id, type: question.type, status: GRADE_STATUS.unanswered,
+        score: 0, maxScore: question.points, source: 'system', answerHash: judgment.answerHash } satisfies QuestionGrade
+    }
+    if (!answer || (activeText !== null && isV4BlankText(activeText))
+      || (question.type === QUESTION_TYPE.calculation && (judgment.observations !== undefined || judgment.missingOrUnclear !== undefined))
+      || (question.type === QUESTION_TYPE.drawing && (judgment.strengths !== undefined || judgment.improvements !== undefined))) {
+      throw new Error('Invalid v4 AI rubric evidence')
+    }
+    // v4 precision: evidence is already canonical; the total is exactly the canonical criterion sum.
+    if (!isCanonicalV4Score(judgment.score) || !isCanonicalV4Score(judgment.maxScore) || !Array.isArray(judgment.criteria)
+      || judgment.criteria.some((criterion) => !isCanonicalV4Score(criterion.awardedScore) || !isCanonicalV4Score(criterion.maxScore))
+      || canonicalV4Score(judgment.criteria.reduce((sum, criterion) => sum + criterion.awardedScore, 0)) !== judgment.score) {
+      throw new Error('Non-canonical v4 rubric score')
     }
     validateRubricJudgment(question, judgment)
     const status = judgment.score === question.points ? GRADE_STATUS.correct

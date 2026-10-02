@@ -2,11 +2,13 @@ import { withSupabase } from 'npm:@supabase/server@1.5.3'
 import type { Database, Json } from '../../../src/types/database.types.ts'
 import { GRADING_VERSION } from '../../../src/models/grading-version.ts'
 import { createOpenAIFillProvider } from '../_shared/semantic-fill.ts'
-import { createOpenAISubmissionCalculationProvider } from '../_shared/calculation-grading.ts'
+import { createOpenAISubmissionCalculationProvider,
+  createOpenAISubmissionCalculationV4Provider } from '../_shared/calculation-grading.ts'
 import { createOpenAISubmissionDrawingProvider } from '../_shared/drawing-analysis.ts'
 import { submissionRubricPayload, type SubmissionRubricJudgment } from '../_shared/submission-rubric.ts'
-import { createSubmitQuizHandler, SubmissionConflict, type AttemptSnapshot, type PersistedFillJudgment,
-  type PersistedRubricJudgment } from './handler.ts'
+import { createSubmitQuizHandler, SubmissionConflict, type AnswerHashesV4, type AttemptSnapshot,
+  type FinalizeSubmissionInput, type PersistedFillJudgment, type PersistedRubricJudgment,
+  type RubricClaimResult } from './handler.ts'
 
 interface QueryResponse { data: unknown; error: { code?: string; message: string } | null }
 interface QueryBuilder extends PromiseLike<QueryResponse> { eq(column: string, value: unknown): QueryBuilder }
@@ -100,61 +102,98 @@ export default {
         if (error) throw new Error('Rubric claim release failed')
       },
       async finalize(input) {
-        const resultPayload = {
-          score: input.result.score, maxScore: input.result.maxScore,
-          correctCount: input.result.correctCount, partialCount: input.result.partialCount,
-          incorrectCount: input.result.incorrectCount, unansweredCount: input.result.unansweredCount,
-          manualCount: input.result.manualCount,
-          questions: input.result.questions.map((grade) => ({ questionId: grade.questionId, type: grade.type,
-            status: grade.status, score: grade.score, maxScore: grade.maxScore })),
-        } satisfies Json
-        const fillPayload = input.fillJudgments.map((judgment) => ({ questionId: judgment.questionId,
-          answerHash: judgment.answerHash, source: judgment.source, status: judgment.status,
-          confidence: judgment.confidence, reason: judgment.reason })) satisfies Json
-        const rubricPayload = input.rubricJudgments.map((judgment) => judgment.source === 'system'
-          ? { questionId: judgment.questionId, questionType: judgment.questionType, answerHash: judgment.answerHash,
-            source: judgment.source, status: judgment.status, score: judgment.score, maxScore: judgment.maxScore,
-            criteria: [] }
-          : { questionId: judgment.questionId, questionType: judgment.questionType, answerHash: judgment.answerHash,
-            source: judgment.source, status: judgment.status, score: judgment.score, maxScore: judgment.maxScore,
-            criteria: judgment.criteria.map((criterion) => ({ criterionId: criterion.criterionId,
-              awardedScore: criterion.awardedScore, maxScore: criterion.maxScore, status: criterion.status,
-              ...(criterion.feedback === undefined ? {} : { feedback: criterion.feedback }) })),
-            confidence: judgment.confidence, summary: judgment.summary,
-            model: judgment.model, reasoningEffort: judgment.reasoningEffort,
-            ...(judgment.strengths ? { strengths: judgment.strengths } : {}),
-            ...(judgment.improvements ? { improvements: judgment.improvements } : {}),
-            ...(judgment.observations ? { observations: judgment.observations } : {}),
-            ...(judgment.missingOrUnclear ? { missingOrUnclear: judgment.missingOrUnclear } : {}) }) satisfies Json
-        const canonicalQuestions = input.questions.map((question) => ({
-          questionId: question.questionId, type: question.type, points: question.points,
-          ...(question.correctOptionId === undefined ? {} : { correctOptionId: question.correctOptionId }),
-          ...(question.correctOptionIds === undefined ? {} : { correctOptionIds: [...question.correctOptionIds] }),
-          ...(question.correctAnswer === undefined ? {} : { correctAnswer: question.correctAnswer }),
-          ...(question.match === undefined ? {} : { match: question.match }),
-          ...(question.referenceAnswer === undefined ? {} : { referenceAnswer: question.referenceAnswer }),
-          ...(question.solution === undefined ? {} : { solution: question.solution }),
-          ...(question.drawing === undefined ? {} : { drawing: { width: question.drawing.width, height: question.drawing.height } }),
-          ...(question.rubric === undefined ? {} : { rubric: question.rubric.map((criterion) => ({
-            criterionId: criterion.criterionId, maxScore: criterion.maxScore,
-          })) }),
-        })) satisfies Json
-        const { data, error } = await untypedAdmin.rpc('finalize_ai_grading_submission', {
-          p_user_id: input.userId, p_attempt_id: input.attemptId,
-          p_expected_updated_at: input.expectedUpdatedAt, p_request_id: input.requestId,
-          p_quiz_id: input.quizId, p_quiz_revision: input.quizRevision,
-          p_result: resultPayload, p_fill_judgments: fillPayload,
-          p_rubric_judgments: rubricPayload, p_questions: canonicalQuestions,
-        })
+        const { data, error } = await untypedAdmin.rpc('finalize_ai_grading_submission', finalizeArgs(input))
         if (error?.code === '40001') throw new SubmissionConflict()
         if (error) throw new Error('V3 finalization failed')
-        return Array.isArray(data) && data.length === 1
-          && !!data[0] && typeof data[0] === 'object'
-          && (data[0] as Record<string, unknown>).id === input.attemptId
-          && (data[0] as Record<string, unknown>).user_id === input.userId
-          && (data[0] as Record<string, unknown>).status === 'submitted'
-          && (data[0] as Record<string, unknown>).grading_version === GRADING_VERSION.aiGradingV3
+        return finalizedRow(data, input, GRADING_VERSION.aiGradingV3)
+      },
+      // Schema-2 drafts: v4-only RPCs. Version selection is server-owned; the browser never chooses.
+      v4: {
+        calculationProvider: key ? createOpenAISubmissionCalculationV4Provider(key) : null,
+        async claimRubric(input) {
+          const { data, error } = await untypedAdmin.rpc('claim_rubric_judgment_v4', {
+            p_user_id: input.userId, p_attempt_id: input.attemptId,
+            p_expected_updated_at: input.expectedUpdatedAt, p_request_id: input.requestId,
+            p_quiz_id: input.quizId, p_quiz_revision: input.quizRevision,
+            p_question_id: input.questionId, p_question_type: input.questionType, p_max_score: input.maxScore,
+            p_system_unanswered: input.systemUnanswered,
+          })
+          if (error || !data || typeof data !== 'object') throw new Error('V4 rubric claim failed')
+          return data as RubricClaimResult
+        },
+        async loadAnswerHashes(attemptId) {
+          const { data, error } = await untypedAdmin.rpc('rubric_answer_hashes_v4', {
+            p_user_id: userId, p_attempt_id: attemptId,
+          })
+          if (error || !data || typeof data !== 'object') throw new Error('V4 answer identity unavailable')
+          return data as AnswerHashesV4
+        },
+        async finalize(input) {
+          const { data, error } = await untypedAdmin.rpc('finalize_ai_grading_v4_submission', finalizeArgs(input))
+          if (error?.code === '40001') throw new SubmissionConflict()
+          if (error) throw new Error('V4 finalization failed')
+          return finalizedRow(data, input, GRADING_VERSION.aiGradingV4)
+        },
       },
     })(request)
   }),
+}
+
+function finalizedRow(data: unknown, input: FinalizeSubmissionInput, version: string): boolean {
+  return Array.isArray(data) && data.length === 1
+    && !!data[0] && typeof data[0] === 'object'
+    && (data[0] as Record<string, unknown>).id === input.attemptId
+    && (data[0] as Record<string, unknown>).user_id === input.userId
+    && (data[0] as Record<string, unknown>).status === 'submitted'
+    && (data[0] as Record<string, unknown>).grading_version === version
+}
+
+/** Shared v3/v4 finalizer arguments; every authority field comes from the server pipeline. */
+function finalizeArgs(input: FinalizeSubmissionInput): Record<string, unknown> {
+  const resultPayload = {
+    score: input.result.score, maxScore: input.result.maxScore,
+    correctCount: input.result.correctCount, partialCount: input.result.partialCount,
+    incorrectCount: input.result.incorrectCount, unansweredCount: input.result.unansweredCount,
+    manualCount: input.result.manualCount,
+    questions: input.result.questions.map((grade) => ({ questionId: grade.questionId, type: grade.type,
+      status: grade.status, score: grade.score, maxScore: grade.maxScore })),
+  } satisfies Json
+  const fillPayload = input.fillJudgments.map((judgment) => ({ questionId: judgment.questionId,
+    answerHash: judgment.answerHash, source: judgment.source, status: judgment.status,
+    confidence: judgment.confidence, reason: judgment.reason })) satisfies Json
+  const rubricPayload = input.rubricJudgments.map((judgment) => judgment.source === 'system'
+    ? { questionId: judgment.questionId, questionType: judgment.questionType, answerHash: judgment.answerHash,
+      source: judgment.source, status: judgment.status, score: judgment.score, maxScore: judgment.maxScore,
+      criteria: [] }
+    : { questionId: judgment.questionId, questionType: judgment.questionType, answerHash: judgment.answerHash,
+      source: judgment.source, status: judgment.status, score: judgment.score, maxScore: judgment.maxScore,
+      criteria: judgment.criteria.map((criterion) => ({ criterionId: criterion.criterionId,
+        awardedScore: criterion.awardedScore, maxScore: criterion.maxScore, status: criterion.status,
+        ...(criterion.feedback === undefined ? {} : { feedback: criterion.feedback }) })),
+      confidence: judgment.confidence, summary: judgment.summary,
+      model: judgment.model, reasoningEffort: judgment.reasoningEffort,
+      ...(judgment.strengths ? { strengths: judgment.strengths } : {}),
+      ...(judgment.improvements ? { improvements: judgment.improvements } : {}),
+      ...(judgment.observations ? { observations: judgment.observations } : {}),
+      ...(judgment.missingOrUnclear ? { missingOrUnclear: judgment.missingOrUnclear } : {}) }) satisfies Json
+  const canonicalQuestions = input.questions.map((question) => ({
+    questionId: question.questionId, type: question.type, points: question.points,
+    ...(question.correctOptionId === undefined ? {} : { correctOptionId: question.correctOptionId }),
+    ...(question.correctOptionIds === undefined ? {} : { correctOptionIds: [...question.correctOptionIds] }),
+    ...(question.correctAnswer === undefined ? {} : { correctAnswer: question.correctAnswer }),
+    ...(question.match === undefined ? {} : { match: question.match }),
+    ...(question.referenceAnswer === undefined ? {} : { referenceAnswer: question.referenceAnswer }),
+    ...(question.solution === undefined ? {} : { solution: question.solution }),
+    ...(question.drawing === undefined ? {} : { drawing: { width: question.drawing.width, height: question.drawing.height } }),
+    ...(question.rubric === undefined ? {} : { rubric: question.rubric.map((criterion) => ({
+      criterionId: criterion.criterionId, maxScore: criterion.maxScore,
+    })) }),
+  })) satisfies Json
+  return {
+    p_user_id: input.userId, p_attempt_id: input.attemptId,
+    p_expected_updated_at: input.expectedUpdatedAt, p_request_id: input.requestId,
+    p_quiz_id: input.quizId, p_quiz_revision: input.quizRevision,
+    p_result: resultPayload, p_fill_judgments: fillPayload,
+    p_rubric_judgments: rubricPayload, p_questions: canonicalQuestions,
+  }
 }

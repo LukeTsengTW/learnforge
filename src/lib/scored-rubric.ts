@@ -1,6 +1,7 @@
 import type { CalculationQuestion, DrawingQuestion, Quiz } from '../models/quiz'
 import { DRAWING_LIMITS } from '../../supabase/functions/_shared/drawing-raster'
 import { isSupportedDrawingConfig } from './calculation-answer'
+import { isCanonicalV4RubricContext } from './v4-score'
 
 /** Checks the scored rubric shared by current v3 publishing and legacy advisory controls. */
 export function hasScoredRubric(question: CalculationQuestion | DrawingQuestion): boolean {
@@ -42,6 +43,12 @@ export function validateV4Publication(quiz: Quiz): string[] {
   for (const question of quiz.questions) {
     if (question.type !== 'calculation' && question.type !== 'drawing') continue
     errors.push(...commonPublicationErrors(question))
+    // Shared rubric errors above keep their historical tolerance; v4 additionally requires the exact
+    // 8-decimal invariant enforced by the v4 submit preflight and SQL finalizer.
+    if (hasScoredRubric(question)
+      && !isCanonicalV4RubricContext(question.points, question.rubric.map((criterion) => criterion.score))) {
+      errors.push(`${question.id}: v4 配分與 rubric 分數必須為最多 8 位小數，且 rubric 總分須與題目配分完全相等。`)
+    }
     if (question.type === 'calculation' && question.drawing === undefined) continue
     if (!isSupportedDrawingConfig(question.drawing)) {
       errors.push(`${question.id}: v4 drawing config 的寬高必須為 100 至 ${DRAWING_LIMITS.maxDimension} 的整數。`)

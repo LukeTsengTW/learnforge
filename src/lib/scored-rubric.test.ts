@@ -82,6 +82,34 @@ describe('versioned publication gates', () => {
     expect(validateV4Publication(input)).toEqual(['q7: v4 drawing config 的寬高必須為 100 至 1200 的整數。'])
   })
 
+  describe('M4.2 v4 exact rubric precision', () => {
+    const V4_PRECISION = 'q6: v4 配分與 rubric 分數必須為最多 8 位小數，且 rubric 總分須與題目配分完全相等。'
+    const scored = (points: number, scores: number[]) => ({ points,
+      rubric: scores.map((score, index) => ({ description: `Criterion ${index + 1}`, score })) })
+
+    it('accepts an exact fractional v4 rubric (0.3 = 0.1 + 0.2)', () => {
+      expect(validateV4Publication(withCalculation(scored(0.3, [0.1, 0.2])))).toEqual([])
+      expect(validateV4Publication(withCalculation({ ...scored(0.3, [0.1, 0.2]), drawing: { width: 800, height: 600 } }))).toEqual([])
+    })
+
+    it.each([
+      ['close-but-not-equal total', scored(0.3, [0.1, 0.20000001])],
+      ['non-canonical criterion', scored(0.3, [0.100000001, 0.2])],
+      ['non-canonical question points', scored(0.3000000001, [0.1, 0.2])],
+    ])('rejects %s for v4 while v3 keeps its historical tolerance', (_label, overrides) => {
+      const input = withCalculation(overrides)
+      expect(validateV3Publication(input)).toEqual([])
+      expect(validateV4Publication(input)).toEqual([V4_PRECISION])
+      expect(validateV4Publication(withCalculation({ ...overrides, drawing: { width: 800, height: 600 } }))).toEqual([V4_PRECISION])
+    })
+
+    it('applies the same rule to an actual DrawingQuestion under v4 only', () => {
+      const input = { ...quiz, questions: [{ ...drawingQuestion, ...scored(0.3, [0.1, 0.20000001]) }] }
+      expect(validateV3Publication(input)).toEqual([])
+      expect(validateV4Publication(input)).toEqual(['q7: v4 配分與 rubric 分數必須為最多 8 位小數，且 rubric 總分須與題目配分完全相等。'])
+    })
+  })
+
   it.each([
     { referenceAnswer: '' }, { solution: ' \n' }, { rubric: [] },
     { rubric: calculation.rubric.map((criterion) => ({ ...criterion, score: null })) },

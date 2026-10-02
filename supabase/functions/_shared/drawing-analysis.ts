@@ -123,7 +123,7 @@ If a line, label, or connection is unclear, lower confidence and set requiresMan
 Do not change the deterministic quiz score or imply this is official teacher grading.
 Respond in the question's language, using Traditional Chinese for Traditional Chinese questions. Output only required JSON.`
 
-function base64(bytes: Uint8Array) {
+export function base64(bytes: Uint8Array) {
   const chunks: string[] = []
   for (let i = 0; i < bytes.length; i += 32768) chunks.push(String.fromCharCode(...bytes.subarray(i, i + 32768)))
   return btoa(chunks.join(''))
