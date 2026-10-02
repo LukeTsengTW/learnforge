@@ -149,6 +149,7 @@ export type Database = {
       }
       attempts: {
         Row: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string
@@ -169,6 +170,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          answer_schema_version?: number
           client_updated_at: string
           correct_count?: number | null
           created_at?: string
@@ -189,6 +191,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          answer_schema_version?: number
           client_updated_at?: string
           correct_count?: number | null
           created_at?: string
@@ -435,6 +438,21 @@ export type Database = {
         }
         Returns: Json
       }
+      claim_rubric_judgment_v4: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_max_score: number
+          p_question_id: string
+          p_question_type: string
+          p_quiz_id: string
+          p_quiz_revision: string
+          p_request_id: string
+          p_system_unanswered: boolean
+          p_user_id: string
+        }
+        Returns: Json
+      }
       complete_ai_request: {
         Args: {
           p_cached_input_tokens: number
@@ -496,6 +514,48 @@ export type Database = {
           p_user_id: string
         }
         Returns: {
+          answer_schema_version: number
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          grading_version: string
+          id: string
+          incorrect_count: number | null
+          partial_count: number
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submission_request_id: string | null
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      finalize_ai_grading_v4_submission: {
+        Args: {
+          p_attempt_id: string
+          p_expected_updated_at: string
+          p_fill_judgments: Json
+          p_questions: Json
+          p_quiz_id: string
+          p_quiz_revision: string
+          p_request_id: string
+          p_result: Json
+          p_rubric_judgments: Json
+          p_user_id: string
+        }
+        Returns: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string
@@ -532,6 +592,7 @@ export type Database = {
           p_user_id: string
         }
         Returns: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string
@@ -602,6 +663,7 @@ export type Database = {
       get_or_create_quiz_draft: {
         Args: { p_owner_id: string; p_quiz_id: string; p_quiz_revision: string }
         Returns: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string
@@ -656,6 +718,10 @@ export type Database = {
         }
         Returns: Json
       }
+      rubric_answer_hashes_v4: {
+        Args: { p_attempt_id: string; p_user_id: string }
+        Returns: Json
+      }
       save_quiz_attempt: {
         Args: {
           p_expected_id?: string
@@ -664,6 +730,7 @@ export type Database = {
           p_quiz_id: string
         }
         Returns: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string
@@ -697,6 +764,43 @@ export type Database = {
           p_payload: Json
         }
         Returns: {
+          answer_schema_version: number
+          client_updated_at: string
+          correct_count: number | null
+          created_at: string
+          deterministic_max_score: number | null
+          deterministic_score: number | null
+          grading_version: string
+          id: string
+          incorrect_count: number | null
+          partial_count: number
+          quiz_id: string
+          quiz_revision: string
+          started_at: string
+          status: string
+          submission_request_id: string | null
+          submitted_at: string | null
+          unanswered_count: number | null
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "attempts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      save_quiz_attempt_v4: {
+        Args: {
+          p_answers: Json
+          p_attempt_id: string
+          p_client_updated_at: string
+          p_expected_updated_at: string
+          p_user_id: string
+        }
+        Returns: {
+          answer_schema_version: number
           client_updated_at: string
           correct_count: number | null
           created_at: string

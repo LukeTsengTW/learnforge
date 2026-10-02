@@ -34,6 +34,11 @@ verify_jwt = false
 [functions.submit-quiz]
 verify_jwt = false
 
+# New in v1.3 and only called through supabase.functions.invoke with a user session JWT, so the
+# platform check stays on; the handler still authenticates through withSupabase({ auth: 'user' }).
+[functions.save-quiz-draft]
+verify_jwt = true
+
 [api]
 enabled = true
 # Port to use for the API URL.

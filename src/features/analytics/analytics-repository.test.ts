@@ -12,7 +12,7 @@ const source = quizCatalog.getCurrentQuiz('demo')!
 const now = '2026-09-21T12:00:00Z'
 function attempt(id: string, user = 'student'): AttemptRow {
   return { id, user_id: user, quiz_id: source.id, quiz_revision: source.revision, status: 'submitted',
-    started_at: now, client_updated_at: now, submitted_at: now,
+    started_at: now, client_updated_at: now, submitted_at: now, answer_schema_version: 1,
     grading_version: 'deterministic-v1', submission_request_id: null,
     deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, partial_count: 0, incorrect_count: 999,
     unanswered_count: 999, created_at: now, updated_at: now }

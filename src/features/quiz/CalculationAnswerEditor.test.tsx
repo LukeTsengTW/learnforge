@@ -219,8 +219,11 @@ describe('standalone calculation editor', () => {
     expect(screen.getByRole('button', { name: '重做' })).toBeDisabled()
   })
 
-  it('leaves bundled demo q6 and the current production calculation writer text-only', () => {
-    const question = quizCatalog.getCurrentQuiz('demo')!.questions.find((item) => item.id === 'q6')!
+  it('keeps historical demo q6 and its legacy calculation writer text-only', () => {
+    // demo/v2-handwriting is now current and declares q6 handwriting; v1-7d7c900e stays text-only.
+    expect(quizCatalog.getCurrentQuiz('demo')!.questions.find((item) => item.id === 'q6'))
+      .toMatchObject({ type: 'calculation', drawing: { width: 800, height: 600 } })
+    const question = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!.questions.find((item) => item.id === 'q6')!
     expect(question.type).toBe('calculation')
     expect(question).not.toHaveProperty('drawing')
     const onChange = vi.fn()

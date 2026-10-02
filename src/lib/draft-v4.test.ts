@@ -7,7 +7,8 @@ import type { QuizAttempt } from '../models/attempt'
 import type { Quiz } from '../models/quiz'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 
-const quiz = quizCatalog.getCurrentQuiz('demo')!
+// The text-only historical revision; `future` below is a synthetic capable copy of it.
+const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
 const future: Quiz = { ...quiz, revision: 'future-v4', questions: quiz.questions.map((question) =>
   question.type === 'calculation' ? { ...question, drawing: { width: 800, height: 600 } } : question) }
 const now = '2026-10-01T10:00:00.123456Z'

@@ -146,7 +146,8 @@ describe('authoring workspace', () => {
     await user.type(revision, 'v2')
     await user.click(screen.getByRole('button', { name: '建立新 revision' }))
     await screen.findByText('Valid')
-    expect(screen.getByText('src/content/quizzes/demo/v2.quiz.md')).toBeInTheDocument()
+    // demo/v2.quiz.md is the bundled v2-handwriting revision, so the next free path is v3.
+    expect(screen.getByText('src/content/quizzes/demo/v3.quiz.md')).toBeInTheDocument()
     expect(screen.getByText(/Catalog 模擬：通過/)).toBeInTheDocument()
     expect(bundledQuizSources[demoFile].replaceAll('\r\n', '\n')).toBe(demoSource)
     const clicked = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})

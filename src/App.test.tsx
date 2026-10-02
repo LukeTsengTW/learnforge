@@ -14,6 +14,17 @@ import { QuizErrorPage } from './components/ErrorPage'
 import { HashRouter } from 'react-router-dom'
 import { loadQuizSource, quizCatalog } from './features/quiz/quiz-loader'
 
+// These flows cover the schema-1 / ai-grading-v3 UI path with the v3 memory repository, so they keep the
+// v1.2 catalog shape (text-only demo v1-7d7c900e current). The shipped demo/v2-handwriting catalog is
+// exercised end to end in App-v4.test.tsx.
+vi.mock('./features/quiz/quiz-loader', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./features/quiz/quiz-loader')>()
+  const sources = Object.fromEntries(Object.entries(actual.bundledQuizSources)
+    .filter(([file]) => !file.endsWith('/demo/v2.quiz.md'))
+    .map(([file, source]) => [file, file.endsWith('/demo/v1.quiz.md') ? source.replace('current="false"', 'current="true"') : source]))
+  return { ...actual, quizCatalog: actual.createQuizCatalog(sources) }
+})
+
 type MemoryRepo = ReturnType<typeof createMemoryPracticeRepository>
 const demo = quizCatalog.getCurrentQuiz('demo')!
 async function createSubmitted(repo: MemoryRepo) {

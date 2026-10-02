@@ -7,7 +7,8 @@ import { listPracticeBackups, readBackup, restorePracticeBackup } from './practi
 import { quizCatalog } from './quiz-loader'
 import { reduceAttempt } from '../../lib/attempt'
 import { PersistenceError } from './repositories'
-const quiz = quizCatalog.getCurrentQuiz('demo')!
+// Schema-1 / ai-grading-v3 sync behavior on the text-only exact revision (schema 2: practice-cache-v4.test.ts).
+const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
 const cloneStorage = (): Storage => {
   const data = new Map<string, string>()
   return { get length() { return data.size }, key: i => [...data.keys()][i] ?? null,

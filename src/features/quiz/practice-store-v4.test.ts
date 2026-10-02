@@ -18,8 +18,11 @@ describe('M5 v4-capability predicate and in-memory promotion', () => {
   it('uses the exact revision: only calculation drawing capability selects schema 2', () => {
     expect(requiresV4Draft(v4Quiz)).toBe(true)
     expect(requiresV4Draft(v3Quiz)).toBe(false)
-    // Current bundled production revisions stay schema 1 / v3.
-    for (const entry of quizCatalog.current) expect(requiresV4Draft(entry.quiz)).toBe(false)
+    // Exactly one bundled current revision (demo/v2-handwriting) selects schema 2; the archived demo
+    // v1-7d7c900e and every other current revision stay schema 1 / v3.
+    expect(quizCatalog.current.filter((entry) => requiresV4Draft(entry.quiz)).map(({ quiz }) => `${quiz.id}/${quiz.revision}`))
+      .toEqual(['demo/v2-handwriting'])
+    expect(requiresV4Draft(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!)).toBe(false)
   })
 
   it('promotes a schema-1 draft without changing objective/fill answers, text or timestamps', () => {

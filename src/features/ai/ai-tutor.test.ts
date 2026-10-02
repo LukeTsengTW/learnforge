@@ -25,7 +25,8 @@ const responseBody = (text: string) => ({ id: 'resp_fixture', status: 'completed
 
 describe('generated canonical Tutor context', () => {
   it('matches every bundled quiz revision and exact question through the existing parser', () => {
-    expect(contexts.length).toBe(22)
+    // 22 v1.2 questions plus the seven demo/v2-handwriting questions.
+    expect(contexts.length).toBe(29)
     for (const context of contexts) {
       const quiz = quizCatalog.getQuizRevision(context.quizId, context.revision)
       expect(quiz).not.toBeNull()

@@ -42,7 +42,7 @@ describe('conflict rule', () => {
 })
 describe('database mapping', () => {
   const row = { id: version.id, user_id: 'owner', quiz_id: quiz.id, quiz_revision: quiz.revision, status: 'submitted', started_at: t1, client_updated_at: t2,
-    grading_version: 'deterministic-v1', submission_request_id: null,
+    answer_schema_version: 1, grading_version: 'deterministic-v1', submission_request_id: null,
     submitted_at: t2, deterministic_score: 999, deterministic_max_score: 999, correct_count: 999, partial_count: 0, incorrect_count: 0, unanswered_count: 0, created_at: t1, updated_at: t2 }
   const answers = [{ id: 'answer', user_id: 'owner', attempt_id: version.id, question_id: 'q1', answer: { type: 'single', optionId: 'b' }, grade: null, created_at: t1, updated_at: t2 }]
   it('regrades stored scores and maps unchanged domain answers', () => {

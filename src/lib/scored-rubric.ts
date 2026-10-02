@@ -37,7 +37,7 @@ export function validateV3Publication(quiz: Quiz): string[] {
   return errors
 }
 
-/** Future v4 publication foundation; current publishing continues to use the v3 gate. */
+/** Publication gate for a current revision that declares handwriting (ai-grading-v4); others use the v3 gate. */
 export function validateV4Publication(quiz: Quiz): string[] {
   const errors: string[] = []
   for (const question of quiz.questions) {

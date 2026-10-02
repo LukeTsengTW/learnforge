@@ -395,6 +395,233 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q1",
+    "questionIndex": 0,
+    "type": "single",
+    "prompt": "### 認識 AND Gate\n下列哪一個是兩個輸入 $A$、$B$ 的 **AND Gate** Boolean expression？",
+    "hint": "AND 代表「而且」：兩個輸入都成立時，輸出才成立。",
+    "solution": "AND Gate 只有在兩個輸入皆為 $1$ 時輸出 $1$，因此 Boolean expression 為 $Y = AB$。\n\n$$\n1 \\cdot 1 = 1,\\qquad 1 \\cdot 0 = 0\n$$",
+    "rubric": [],
+    "points": 2,
+    "options": [
+      {
+        "id": "a",
+        "content": "$A + B$"
+      },
+      {
+        "id": "b",
+        "content": "$AB$"
+      },
+      {
+        "id": "c",
+        "content": "$\\overline{A}$"
+      },
+      {
+        "id": "d",
+        "content": "$A \\oplus B$"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q2",
+    "questionIndex": 1,
+    "type": "single",
+    "prompt": "### 找出方程式的解\n下列哪一組數值是這個方程式的所有實數解？\n\n$$\nx^2 - 5x + 6 = 0\n$$",
+    "hint": "尋找兩個相乘為 $6$、相加為 $5$ 的數。",
+    "solution": "將左式因式分解：\n\n$$\nx^2 - 5x + 6 = (x-2)(x-3) = 0\n$$\n\n因此 $x=2$ 或 $x=3$。",
+    "rubric": [],
+    "points": 2,
+    "options": [
+      {
+        "id": "a",
+        "content": "$x = 1$ 或 $x = 6$"
+      },
+      {
+        "id": "b",
+        "content": "$x = 2$ 或 $x = 3$"
+      },
+      {
+        "id": "c",
+        "content": "$x = -2$ 或 $x = -3$"
+      },
+      {
+        "id": "d",
+        "content": "$x = 0$ 或 $x = 5$"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q3",
+    "questionIndex": 2,
+    "type": "multiple",
+    "prompt": "### OR Gate 的輸入組合\n對於 $Y = A + B$ 的 **OR Gate**，哪些輸入組合會使 $Y=1$？請選出所有正確選項。",
+    "hint": "只要至少一個輸入為 $1$，OR Gate 就會輸出 $1$。",
+    "solution": "正確選項是 **B、C、D**。Boolean algebra 中的 $+$ 代表 OR 運算，因此 $1+1=1$。",
+    "rubric": [],
+    "points": 3,
+    "options": [
+      {
+        "id": "a",
+        "content": "$A=0,\\ B=0$"
+      },
+      {
+        "id": "b",
+        "content": "$A=0,\\ B=1$"
+      },
+      {
+        "id": "c",
+        "content": "$A=1,\\ B=0$"
+      },
+      {
+        "id": "d",
+        "content": "$A=1,\\ B=1$"
+      }
+    ],
+    "correctOptionIds": [
+      "b",
+      "c",
+      "d"
+    ]
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q4",
+    "questionIndex": 3,
+    "type": "true-false",
+    "prompt": "### 德摩根定律\n以下等式對所有 Boolean 輸入皆成立。\n\n$$\n\\overline{AB} = \\overline{A} + \\overline{B}\n$$",
+    "hint": "把「不是兩者都成立」想成「至少一個不成立」。",
+    "solution": "**正確。** 這是德摩根定律。對 AND 的輸出取反，相當於先對兩個輸入取反，再做 OR 運算。",
+    "rubric": [],
+    "points": 1,
+    "correctAnswer": true
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q5",
+    "questionIndex": 4,
+    "type": "fill",
+    "prompt": "### 寫出邏輯閘名稱\n只有在兩個輸入**不同**時才輸出 $1$ 的邏輯閘，英文縮寫是什麼？\n\n請輸入三個英文字母，不區分大小寫。",
+    "hint": "它的完整名稱是 Exclusive OR，符號是 $\\oplus$。",
+    "solution": "答案是 **XOR**（互斥或）。當 $A \\ne B$ 時，$A \\oplus B = 1$。",
+    "rubric": [],
+    "points": 2,
+    "correctAnswer": "XOR",
+    "match": "case-insensitive"
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q6",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 把解題過程寫下來\n請解出以下方程式，並寫出**完整推導**與代回檢查的過程。\n\n$$\n2x^2 - 7x + 3 = 0\n$$",
+    "hint": "試著將左式寫成 $(2x-1)(x-3)$。",
+    "solution": "1. 因式分解：$2x^2-7x+3=(2x-1)(x-3)$。\n2. 由零乘積性質，$2x-1=0$ 或 $x-3=0$。\n3. 解得 $x=\\frac{1}{2}$ 或 $x=3$。\n4. 代回確認：\n\n$$\n2(3)^2-7(3)+3=0\n$$\n\n$$\n2\\left(\\frac{1}{2}\\right)^2-7\\left(\\frac{1}{2}\\right)+3=0\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確因式分解為 $(2x-1)(x-3)$。"
+      },
+      {
+        "score": 2,
+        "description": "寫出兩個根 $x=3$ 與 $x=\\frac{1}{2}$。"
+      },
+      {
+        "score": 2,
+        "description": "將兩個根代回原式，確認等式成立。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$x=3$ 或 $x=\\frac{1}{2}$。",
+    "drawing": {
+      "width": 800,
+      "height": 600
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確因式分解為 $(2x-1)(x-3)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "寫出兩個根 $x=3$ 與 $x=\\frac{1}{2}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "將兩個根代回原式，確認等式成立。"
+      }
+    ]
+  },
+  {
+    "quizId": "demo",
+    "revision": "v2-handwriting",
+    "questionId": "q7",
+    "questionIndex": 6,
+    "type": "drawing",
+    "prompt": "### 畫出你的邏輯\n畫出具有兩個輸入 **A、B** 與一個輸出 **Y** 的 **AND Gate** 示意圖。\n\n標示輸入、輸出與邏輯閘的外形，並註記 $Y=AB$。",
+    "hint": "先畫 D 形閘體，再加上左邊兩條線與右邊一條線。",
+    "solution": "確認圖中具有：\n\n- 左側兩個獨立輸入 A、B。\n- AND Gate 的 D 形外框（輸出端沒有反相小圓圈）。\n- 右側一個輸出 Y。\n- 與圖一致的 Boolean expression：$Y=AB$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確畫出 AND Gate 的 D 形外框。"
+      },
+      {
+        "score": 1,
+        "description": "正確標示兩個輸入 A、B。"
+      },
+      {
+        "score": 1,
+        "description": "正確標示輸出 Y。"
+      },
+      {
+        "score": 1,
+        "description": "正確註記 $Y=AB$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "AND Gate 的左側為一直線，右側為半圓，整體呈 **D 形**。左側接兩條輸入線，分別標示 **A** 與 **B**；右側接一條輸出線，標示 **Y**，並寫上 $Y=AB$。",
+    "drawing": {
+      "width": 800,
+      "height": 600
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確畫出 AND Gate 的 D 形外框。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確標示兩個輸入 A、B。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確標示輸出 Y。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確註記 $Y=AB$。"
+      }
+    ]
+  },
+  {
     "quizId": "relations",
     "revision": "1",
     "questionId": "composition",

@@ -6,7 +6,8 @@ import { createPracticeStore } from './practice-store'
 import { quizCatalog } from './quiz-loader'
 import { reduceAttempt } from '../../lib/attempt'
 
-const quiz = quizCatalog.getCurrentQuiz('demo')!
+// Schema-1 / ai-grading-v3 store behavior on the text-only exact revision (schema 2: practice-store-v4.test.ts).
+const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
 function storage() {
   const values = new Map<string, string>()
   return {

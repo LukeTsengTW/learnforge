@@ -1,6 +1,7 @@
 import { gradeQuiz } from '../../lib/grading'
 import { parseQuiz, QuizParseError } from '../../lib/quiz-parser'
-import { validateV3Publication } from '../../lib/scored-rubric'
+import { requiresV4Draft } from '../../lib/draft-v4'
+import { validateV3Publication, validateV4Publication } from '../../lib/scored-rubric'
 import { QUESTION_TYPE, type QuestionType, type Quiz } from '../../models/quiz'
 
 export const MAX_AUTHOR_SOURCE_BYTES = 1024 * 1024
@@ -149,15 +150,27 @@ export function inspectQuiz(quiz: Quiz): QuizMetadata {
     calculationDrawingPoints: Number((totalDeclaredPoints - deterministicMax).toFixed(8)) }
 }
 
+/** Same selector as check:quizzes: a revision that declares handwriting is published under v4, others under v3. */
+function publicationGate(quiz: Quiz): { name: 'v3' | 'v4'; validate: (quiz: Quiz) => string[] } {
+  return requiresV4Draft(quiz)
+    ? { name: 'v4', validate: validateV4Publication }
+    : { name: 'v3', validate: validateV3Publication }
+}
+export function publicationErrors(quiz: Quiz): string[] {
+  return publicationGate(quiz).validate(quiz)
+}
+
 export interface AiCapability { questionId: string; type: 'calculation' | 'drawing'; available: boolean; message: string }
 export function inspectAiCapabilities(quiz: Quiz): AiCapability[] {
+  // Every question is held to the gate of the whole revision, as it would be on publication.
+  const gate = publicationGate(quiz)
   return quiz.questions.flatMap((question) => {
     if (question.type !== 'calculation' && question.type !== 'drawing') return []
-    const publicationErrors = validateV3Publication({ ...quiz, questions: [question] })
-    const available = publicationErrors.length === 0
+    const errors = gate.validate({ ...quiz, questions: [question] })
+    const available = errors.length === 0
     const label = question.type === 'calculation' ? '計算題 AI 自動評分' : '畫圖題 AI 自動評分'
     return [{ questionId: question.id, type: question.type, available,
-      message: available ? `${label}可用` : `${label}尚未符合 v3 發布條件：${publicationErrors.join(' ')}` }]
+      message: available ? `${label}可用` : `${label}尚未符合 ${gate.name} 發布條件：${errors.join(' ')}` }]
   })
 }
 
@@ -192,7 +205,7 @@ export function validateProposedRevisionChange(existing: BundledRevisionMetadata
   let proposed: Quiz | undefined
   try { proposed = parseQuiz(newSource, true) }
   catch (error) { errors.push(error instanceof Error ? error.message : '新 revision 無法解析。') }
-  if (proposed) errors.push(...validateV3Publication(proposed))
+  if (proposed) errors.push(...publicationErrors(proposed))
   const identity = new Set<string>()
   const ids = new Set(existing.map((entry) => entry.id))
   for (const entry of existing) {

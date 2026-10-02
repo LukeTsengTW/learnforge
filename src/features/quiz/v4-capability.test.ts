@@ -14,7 +14,9 @@ import { fromDatabaseV4, type RubricJudgmentRow } from './repositories'
 import { createV4MemoryRepository, memoryStorage, pen, submittedV4Rows, v3Quiz, v4Catalog, v4Quiz } from './practice-v4.test-helper'
 import { ctx, fixture as edgeFixture, lookup as edgeLookup, R0, R1, submit as edgeSubmit } from './submission-v4.test-helper'
 
-const demo = quizCatalog.getCurrentQuiz('demo')!
+// The archived text-only exact revision; demo/v2-handwriting is the current v4-capable revision.
+const demo = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
+const demoV4 = quizCatalog.getCurrentQuiz('demo')!
 const attemptId = '00000000-0000-4000-8000-0000000000e1'
 const userId = '00000000-0000-4000-8000-0000000000e2'
 const version = '2026-10-02T05:00:00.123456Z'
@@ -34,15 +36,17 @@ const saveRequest = (answers: Record<string, unknown>) => new Request('https://l
   body: JSON.stringify({ attemptId, expectedUpdatedAt: version, clientUpdatedAt: '2026-10-02T05:00:02.000Z', answers }) })
 
 describe('M5.1 one exact-revision v4 capability rule', () => {
-  it('client and Edge share the same predicate; every bundled revision stays schema 1 / v3', () => {
+  it('client and Edge share the same predicate; only bundled demo/v2-handwriting selects schema 2 / v4', () => {
     expect(requiresV4DraftContext(v4Quiz.questions)).toBe(true)
     expect(requiresV4DraftContext(v3Quiz.questions)).toBe(false)
     expect(requiresV4DraftContext(edgeLookup.listRevision(v4Quiz.id, R1))).toBe(true)
     expect(requiresV4DraftContext(edgeLookup.listRevision(v4Quiz.id, R0))).toBe(false)
     for (const entry of quizCatalog.current) {
       expect(requiresV4Draft(entry.quiz)).toBe(requiresV4DraftContext(entry.quiz.questions))
-      expect(requiresV4Draft(entry.quiz)).toBe(false)
+      expect(requiresV4Draft(entry.quiz)).toBe(entry.quiz.id === 'demo' && entry.quiz.revision === 'v2-handwriting')
     }
+    expect(requiresV4Draft(demo)).toBe(false)
+    expect(requiresV4Draft(demoV4)).toBe(true)
   })
 })
 
@@ -56,6 +60,15 @@ describe('M5.1 save-quiz-draft enforces capability on the server', () => {
     expect((await response.json()).code).toBe('unavailable')
     expect(env.backend.saveDraft).not.toHaveBeenCalled()
     expect(env.state.attempt.answer_schema_version).toBe(1)
+  })
+
+  it('accepts bundled demo/v2-handwriting through the real regenerated server context', async () => {
+    const env = saveBackend(demoV4.id, demoV4.revision)
+    // Default lookup = the generated tutorContext, i.e. what the deployed Edge bundle will contain.
+    const response = await createSaveQuizDraftHandler(env.backend)(saveRequest({ q6: handText }))
+    expect(response.status).toBe(200)
+    expect(env.backend.saveDraft).toHaveBeenCalledTimes(1)
+    expect(env.state.attempt.answer_schema_version).toBe(2)
   })
 
   it('accepts the same valid request for a v4-capable exact revision', async () => {

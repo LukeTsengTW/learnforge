@@ -35,7 +35,7 @@ export function createMemoryPracticeRepository(userId: string): PracticeReposito
       const now = timestamp(), id = `00000000-0000-4000-8000-${counter.toString(16).padStart(12, '0')}`
       const attempt = createAttempt(quiz, now)
       const row: AttemptRow = { id, user_id: userId, quiz_id: quiz.id, quiz_revision: quiz.revision,
-        status: 'draft', started_at: now, client_updated_at: now, submitted_at: null,
+        status: 'draft', started_at: now, client_updated_at: now, submitted_at: null, answer_schema_version: 1,
         grading_version: 'deterministic-v1', submission_request_id: null,
         deterministic_score: null, deterministic_max_score: null, correct_count: null, partial_count: 0, incorrect_count: null, unanswered_count: null,
         created_at: now, updated_at: now }
