@@ -2,6 +2,15 @@ name: Deploy LearnForge to GitHub Pages
 
 on:
   workflow_dispatch:
+    inputs:
+      release_sha:
+        description: Exact 40-character lowercase commit SHA on master
+        required: true
+        type: string
+      release_version:
+        description: Exact package version (for example, 1.4.0)
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -16,20 +25,71 @@ jobs:
     permissions:
       contents: read
       pages: read
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
+      RELEASE_VERSION: ${{ inputs.release_version }}
     steps:
+      - name: Validate release inputs and workflow identity
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          if (process.env.GITHUB_REF !== 'refs/heads/master') {
+            throw new Error('The deployment workflow must be dispatched from refs/heads/master');
+          }
+          if (!/^[0-9a-f]{40}$/.test(process.env.RELEASE_SHA ?? '')) {
+            throw new Error('release_sha must be a full lowercase 40-character SHA');
+          }
+          if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(process.env.RELEASE_VERSION ?? '')) {
+            throw new Error('release_version must be a stable major.minor.patch version');
+          }
+          if (process.env.GITHUB_SHA !== process.env.RELEASE_SHA) {
+            throw new Error('The dispatched workflow revision must equal release_sha');
+          }
+          NODE
       - uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.release_sha }}
+          fetch-depth: 0
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '24.21.0'
           cache: npm
+      - name: Verify exact Node and npm versions
+        run: |
+          test "$(node --version)" = "v24.21.0"
+          test "$(npm --version)" = "11.19.0"
+      - name: Verify checked-out release, remote master, and package version
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import { readFileSync } from 'node:fs';
+          const sha = process.env.RELEASE_SHA;
+          const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+          if (git('rev-parse', 'HEAD') !== sha) {
+            throw new Error('Checked-out HEAD does not equal release_sha');
+          }
+          const rows = git('ls-remote', '--exit-code', 'origin', 'refs/heads/master').split('\n');
+          const [remoteSha, remoteRef, ...extra] = rows[0].split(/\s+/);
+          if (rows.length !== 1 || extra.length || remoteRef !== 'refs/heads/master' || remoteSha !== sha) {
+            throw new Error('Remote master does not equal release_sha');
+          }
+          const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+          if (pkg.version !== process.env.RELEASE_VERSION) {
+            throw new Error('package.json version does not equal release_version');
+          }
+          NODE
       - run: npm ci
       - run: npm run lint
       - run: npm run test
+        env:
+          VITE_TURNSTILE_SITE_KEY: ''
       - run: npm run check:quizzes
       - run: npm run check:ai-context
-      - name: Configure Pages and detect repository base path
+      - run: npm run check:edge-imports
+      - run: npm audit --omit=dev
+      - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
       - name: Build with Pages base path
@@ -37,9 +97,27 @@ jobs:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_TURNSTILE_SITE_KEY: ${{ vars.VITE_TURNSTILE_SITE_KEY }}
+          PAGES_BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: |
           test -n "$VITE_SUPABASE_URL" && test -n "$VITE_SUPABASE_PUBLISHABLE_KEY" && test -n "$VITE_TURNSTILE_SITE_KEY" || { echo "Public client configuration including Turnstile is required"; exit 1; }
-          npm run build -- --base="${{ steps.pages.outputs.base_path }}/"
+          node --input-type=module <<'NODE'
+          import { releaseConfig } from './scripts/release/config.mjs';
+          if (`${process.env.PAGES_BASE_PATH}/` !== releaseConfig.pagesBasePath) {
+            throw new Error('Configured Pages base path does not match release policy');
+          }
+          const supabaseUrl = new URL(process.env.VITE_SUPABASE_URL);
+          if (supabaseUrl.protocol !== 'https:' || supabaseUrl.hostname !== `${releaseConfig.supabaseProjectRef}.supabase.co` || supabaseUrl.username || supabaseUrl.password) {
+            throw new Error('Public Supabase URL does not match the production project');
+          }
+          NODE
+          npm run build -- --base="$PAGES_BASE_PATH/"
+      - name: Write public release identity into the artifact
+        run: npm run release:manifest -- --sha "$RELEASE_SHA"
+      - run: git diff --check
+      - name: Recheck remote master before uploading the artifact
+        run: |
+          remote_identity="$(git ls-remote --exit-code origin refs/heads/master)"
+          test "$remote_identity" = "$(printf '%s\trefs/heads/master' "$RELEASE_SHA")"
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
@@ -47,12 +125,26 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     permissions:
+      contents: read
       pages: write
       id-token: write
+    env:
+      RELEASE_SHA: ${{ inputs.release_sha }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.release_sha }}
+          persist-credentials: false
+      - name: Recheck release identity immediately before deployment
+        run: |
+          test "$GITHUB_REF" = "refs/heads/master"
+          test "$GITHUB_SHA" = "$RELEASE_SHA"
+          test "$(git rev-parse HEAD)" = "$RELEASE_SHA"
+          remote_identity="$(git ls-remote --exit-code origin refs/heads/master)"
+          test "$remote_identity" = "$(printf '%s\trefs/heads/master' "$RELEASE_SHA")"
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

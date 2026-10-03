@@ -14,7 +14,13 @@
     "generate:ai-context": "node scripts/generate-ai-quiz-context.mjs",
     "check:ai-context": "node scripts/generate-ai-quiz-context.mjs --check",
     "check:quizzes": "node scripts/check-quizzes.mjs",
-    "check:edge-imports": "node scripts/check-edge-imports.mjs"
+    "check:edge-imports": "node scripts/check-edge-imports.mjs",
+    "release:preflight": "node scripts/release/preflight.mjs",
+    "release:check": "node scripts/release/check.mjs",
+    "release:manifest": "node scripts/release/write-manifest.mjs",
+    "release:smoke": "node scripts/release/public-smoke.mjs",
+    "release:report": "node scripts/release/report.mjs",
+    "release:classify": "node scripts/release/classify-impact.mjs"
   },
   "engines": {
     "node": "24.21.0"

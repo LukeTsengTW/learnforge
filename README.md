@@ -473,7 +473,7 @@ npm run build -- --base=/learnforge/
 
 Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/)。**Settings → Pages → Source** 為 **GitHub Actions**；`.github/workflows/deploy.yml` 僅由 `workflow_dispatch` 手動觸發。初始 v1.3 production cutover 是 implementation SHA `8ef526583578c917526075e459ef76eea533741b`、Pages run `37090982945`；v1.2 recovery lineage 及尚未完成的 docs-only closure/deploy/tag 見 [v1.3 交付文件](docs/v1.3-delivery.md)。
 
-**Settings → Secrets and variables → Actions → Variables** 使用三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key；缺任一變數會停止 build。Workflow 固定 Node 24.21.0，執行 npm ci、lint、test、check:quizzes、check:ai-context，再使用 `configure-pages` 輸出的 `base_path` build。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。Workflow 不硬編 username、repository name 或分支名稱；目前僅有 `workflow_dispatch`，push 不會自動部署。
+**Settings → Secrets and variables → Actions → Variables** 使用三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key；缺任一變數會停止 build。CI 在 pull request／master push 執行完整本機 gates；部署維持 `workflow_dispatch`，要求 `release_sha`、`release_version`，並核對 workflow、checkout、remote master 與 package version。Workflow 固定 Node 24.21.0／npm 11.19.0，包含 Edge import check 與 production dependency audit，核對 Pages base path 後 build 並產生公開 `release.json`。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。Push 不會自動部署；完整風險政策與指令見 [release process](docs/release-process.md)。
 
 ## Known limitations
 
