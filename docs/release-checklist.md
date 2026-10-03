@@ -1,6 +1,48 @@
 # Release checklist
 
+## v1.3.0 final release closure
+
+以下是 2026-10-03 的 v1.3 發布記錄；本輪僅準備 documentation-only diff，尚未建立 closure commit。
+
+- Production frontend：[https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/)（v1.3.0）。
+- Production backend：Supabase `learnforge-demo`，ref `mrrssxqolvcjxgqzoeqt`，Tokyo / `ap-northeast-1`。
+- Implementation SHA：`8ef526583578c917526075e459ef76eea533741b`；初始 v1.3 Pages cutover：[run 37090982945](https://github.com/LukeTsengTW/learnforge/actions/runs/37090982945)。
+- Production migrations 共 17 筆；v1.3 新增 `20261001140508_multimodal_calculation_drafts`、`20261002024103_ai_grading_v4_multimodal_submission`。
+- 六個 rollout functions 維持 ACTIVE：ai-grade v15、ai-tutor v15、ai-drawing v15、ai-responses v17、save-quiz-draft v1、submit-quiz v3。`save-quiz-draft` 平台 `verify_jwt=true`；其他五個為 false，由 handler 驗證 user。
+- Product contract、證據範圍與限制見 [v1.3 delivery](v1.3-delivery.md)。
+
+| Release gate | 已完成狀態 |
+|---|---|
+| M6.2 database rollout / M6.3 Edge rollout | PASS |
+| Legacy v1.2 frontend compatibility：BS2、BS3、BS5、BS6 | PASS |
+| M6.4 real Tutor/provider smoke | PASS：兩次完成、3 personal credits；restore 無新 provider |
+| M6.5 初始 v1.3 Pages cutover | PASS：exact implementation SHA |
+| Typed schema1→schema2 autosave / browser reload | PASS：真實 authenticated UI 與 normal save-quiz-draft path |
+| BS4 runtime/auth/persistence replacement | CLOSED |
+| Handwriting mode autosave / reload | PASS |
+| Formal ai-grading-v4 submission | PASS：恰一個手寫 calculation provider execution，零 personal Tutor credits |
+| Result reload / History reconstruction | PASS：persisted evidence，零 grading-provider replay |
+| Protected historical / non-canary integrity | 捕捉的 release snapshots 未見非 canary corruption |
+
+**Original direct legacy BS4 HTTP 503 probe：NOT EXECUTED。** Browser tooling 缺少 direct authenticated execution channel；不把未執行的 legacy 503 probe 寫成 PASS。其 runtime/auth/persistence requirement 由更強的 typed-v4 production autosave/reload proof 關閉。
+
+下列 closure steps 全部 **NOT YET DONE**，需要後續各階段授權：
+
+1. [ ] 發布審閱此 documentation-only diff。
+2. [ ] 建立並 push docs-only closure commit。
+3. [ ] 從該 exact closure SHA 部署最終 Pages。
+4. [ ] 執行 final public/read-only/no-provider smoke。
+5. [ ] 建立指向 exact deployed closure commit 的 annotated `v1.3.0` tag。
+
+目前沒有 docs-closure SHA 可填寫；不得先把以上項目標成完成。GitHub Release 不在本次 closure 計畫／授權內。
+
+Recovery lineage：前一 public v1.2 closure commit `0ebdc270e20c5798d08f27234ade771dbdaf3267`／[Pages run 36589054006](https://github.com/LukeTsengTW/learnforge/actions/runs/36589054006)；初始 v1.3 cutover commit `8ef526583578c917526075e459ef76eea533741b`／run `37090982945`。回復舊 artifact 前仍須另審相容性，這是 recovery evidence，不授權 rollback。
+
+Security accepted baseline：ERROR 0 / WARN 1 / INFO 9；leaked-password protection warning 保留。Performance baseline：ERROR 0 / WARN 0 / INFO 8。Global rows 是觀察值，不因普通 concurrent user activity 單獨判定 release drift。既有 canary evidence 保留，cleanup 需另行授權。
+
 ## v1.2.0 final release closure
+
+以下保留 v1.2 初始 cutover 當時的紀錄及待辦，不描述目前 v1.3 狀態；後續 v1.2 closure recovery point 已列於上方。
 
 Current public production frontend: [https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/). Current production backend is Supabase `learnforge-demo`, ref `mrrssxqolvcjxgqzoeqt`, Tokyo. The old “linked development project” label for this ref is historical; the public frontend uses this production backend.
 
@@ -18,7 +60,7 @@ See [v1.2 delivery notes](v1.2-delivery.md) for the product contract and release
 
 ## Historical v1.0 release checklist
 
-The following records the v1.0 release gate as it stood on 2026-09-27; its status and pre-release assumptions do not describe the current v1.2 production state.
+The following records the v1.0 release gate as it stood on 2026-09-27; its status and pre-release assumptions do not describe the current v1.3 production state.
 
 Status on 2026-09-27: **READY FOR PUBLIC DEPLOYMENT** after the Final Release Gate. No Git commit, push, Pages deploy or tag has been performed; the public URL remains 404 until deployment.
 

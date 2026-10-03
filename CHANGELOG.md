@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0 — Multimodal calculation submission
+
+發布日期：2026-10-03。
+
+- 精確版本宣告手寫能力後，計算題可選打字或手寫；schema2 保留兩個 buffer，只有 active mode 參與評分。
+- schema2 草稿透過 authenticated `save-quiz-draft` 保存，採 CAS；失敗不 fallback 至 legacy v3 writer。
+- 新增 `ai-grading-v4` 正式提交：文字模式評 active text，手寫模式由 server rasterize active strokes，沿用 calculation rubric；DrawingQuestion 仍是不同路徑。
+- 保留 schema1 與 `deterministic-v1`、`semantic-fill-v2`、`ai-grading-v3` 歷史相容；Result、History、Analytics 重建已保存的 v4 evidence，不重跑 AI。
+- 正式 grading 與 personal Tutor quota 分離；空白保存 system/rule unanswered evidence，不需要 provider。AI 評分仍僅供學習參考。
+
 ## 1.2.0 — AI submission grading
 
 - Grade all six question types in the submitted practice score. Calculation and drawing questions use server-validated AI rubric judgments with partial credit; blank answers are persisted as system unanswered evidence without an AI call.
