@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0 — Quiz Library search and filters
+
+發布日期：2026-10-05。
+
+- 新增 client-side Library metadata 搜尋；標籤／科目選項依 current catalog 動態產生，題型篩選沿用既有六型。
+- 搜尋與標籤、科目、題型採 AND 組合，保留原題庫順序。
+- 無結果時提供空狀態與「清除篩選」，重設後恢復搜尋／篩選預設值及完整 current catalog。
+- 原生 select／search controls 支援 responsive 排版、鍵盤操作與可見 focus。
+- 沒有 DB、Edge、Auth、grading 或 provider 行為變更；不需要 provider canary。
+
 ## 1.3.0 — Multimodal calculation submission
 
 發布日期：2026-10-03。

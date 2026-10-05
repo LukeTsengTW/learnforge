@@ -1,5 +1,37 @@
 # Release checklist
 
+## v1.4.0 final release closure
+
+以下狀態記錄 2026-10-05 documentation-only closure preparation 時點。
+
+初始 production 身分：version `1.4.0`、SHA `dfe351a95bffd101148296c900e67ec342861881`；[Pages run 37248564582](https://github.com/LukeTsengTW/learnforge/actions/runs/37248564582)／deployment ID `6848985198`（`github-pages`）。
+
+| Pre-closure evidence | 此 preparation 時點已完成的結果 |
+|---|---|
+| Library implementation 審閱 | PASS |
+| Release identity commit push | PASS：上述 exact SHA |
+| Automatic CI | PASS：[run 37213421513](https://github.com/LukeTsengTW/learnforge/actions/runs/37213421513)；86 files／1,249 tests |
+| Strict local preflight | PASS |
+| `release:check` | PASS：10/10 gates |
+| 初始 v1.4 Pages build／deploy | PASS：run `37248564582`、attempt 1；fresh 86 files／1,249 tests |
+| Public release identity smoke | PASS：exact version／SHA |
+| Production Library UI smoke | PASS：搜尋、篩選、空狀態／重設、鍵盤及 360 × 800 排版 |
+| Authenticated read-only smoke | PASS：使用既有 session；沒有完整 request-level network trace |
+| Provider canary | 不需要：`providerCanaryRequired=false` |
+| v1.4 feature rollout mutation audit | 零 backend／provider mutation；沒有 Edge／Auth 變更 |
+
+Human-reviewed product release policy 為 Risk B；machine classifier 保留 `impact=security-ai`、`risk=C`、`providerCanaryRequired=false` 的寬 lineage／設定 inventory 結果。完整契約、證據範圍及限制見 [v1.4 delivery](v1.4-delivery.md)。
+
+此 preparation snapshot 之後的 final closure sequence 為：
+
+1. 審閱此 documentation-only diff。
+2. 另行授權後建立並 push exact docs-only closure commit。
+3. 部署該 exact closure SHA。
+4. 執行 final public／read-only／no-provider smoke。
+5. 建立指向該 exact deployed closure commit 的 annotated `v1.4.0` tag。
+
+在此 preparation 時點，docs-only closure commit 尚未建立，final closure SHA／Pages run 與 annotated tag 因此沒有可記錄的身分；未把後續步驟標成 PASS。GitHub Release 未規劃或授權。
+
 ## v1.3.0 final release closure
 
 以下是 2026-10-03 的 v1.3 發布記錄；本輪僅準備 documentation-only diff，尚未建立 closure commit。

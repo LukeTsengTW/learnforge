@@ -1,6 +1,8 @@
 # LearnForge
 
-**公開版本：v1.3.0。** 宣告手寫能力的精確題目版本可讓計算題選擇打字或手寫；正式提交依目前選取的模式評分，結果保存供日後重建。產品契約、production 身分與發布狀態見 [v1.3 交付文件](docs/v1.3-delivery.md)。[v1.2 交付文件](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史參考。
+**公開版本：v1.4.0。** Quiz Library 新增 client-side metadata 搜尋與標籤／科目／題型篩選，可組合條件尋找題庫。產品契約、production 身分與發布證據見 [v1.4 交付文件](docs/v1.4-delivery.md)。[v1.3 交付文件](docs/v1.3-delivery.md)、[v1.2 交付文件](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史參考。
+
+v1.3 的多模態計算題契約維持：宣告手寫能力的精確題目版本可讓計算題選擇打字或手寫；正式提交依目前選取的模式評分，結果保存供日後重建。
 
 v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 
@@ -9,6 +11,10 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 ## 功能
 
 - 公開題庫目前有三份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題。題庫卡片顯示科目、標籤、題數、自動評分總分與預估時間。
+- `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
+- Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
+- 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。
+- 篩選／搜尋無結果時顯示空狀態與「清除篩選」；重設會清空搜尋、恢復三個預設值及完整 current catalog，並將 focus 回到搜尋。桌面與 360 × 800 手機排版、鍵盤巡覽及可見 focus 已做 UI smoke；這不是 WCAG 認證。
 - `#/author` 可編寫 raw Quiz Markdown、匯入本機檔案、複製 bundled revision、即時解析、正式題目／答案預覽、檢視 metadata 與題目導覽、建立新 revision、本機草稿、複製及下載 .quiz.md。編寫頁不建立正式作答，也不呼叫 AI 或寫入 Supabase。
 - 原範例共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖。
 - 目前 demo revision 為 `demo/v2-handwriting`，其計算題提供「打字／手寫」；封存的 `demo/v1-7d7c900e` 保留文字計算題及歷史結果。其他未宣告此能力的精確版本仍使用原有文字輸入。
@@ -119,7 +125,8 @@ docs/v0.6-delivery.md        # v0.6 計算題 AI 參考評分與驗證
 docs/v0.7-delivery.md        # v0.7 圖像題 AI 參考分析與驗證
 docs/v0.8-delivery.md        # v0.8 題庫編寫工作區與驗證
 docs/v0.9-delivery.md        # v0.9 學習分析、錯題複習與驗證
-docs/v1.3-delivery.md        # v1.3 產品契約、production 驗證與待完成 closure
+docs/v1.3-delivery.md        # v1.3 歷史多模態計算題與評分交付
+docs/v1.4-delivery.md        # v1.4 題庫搜尋／篩選與 closure preparation snapshot
 scripts/generate-ai-quiz-context.mjs
 scripts/ai-quiz-context.ts  # 使用既有 parser 的 manifest 投影與大小限制
 supabase/
@@ -471,7 +478,7 @@ npm run build -- --base=/learnforge/
 
 也可在 `vite.config.ts` 的 `defineConfig` 頂層設定 `base: '/你的-repository-name/'`。不要把 hash route 加進 base，且保留前後斜線。沒有假定 username 或 custom domain，未建立 `CNAME`。
 
-Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/)。**Settings → Pages → Source** 為 **GitHub Actions**；`.github/workflows/deploy.yml` 僅由 `workflow_dispatch` 手動觸發。初始 v1.3 production cutover 是 implementation SHA `8ef526583578c917526075e459ef76eea533741b`、Pages run `37090982945`；v1.2 recovery lineage 及尚未完成的 docs-only closure/deploy/tag 見 [v1.3 交付文件](docs/v1.3-delivery.md)。
+Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luketsengtw.github.io/learnforge/)。**Settings → Pages → Source** 為 **GitHub Actions**；`.github/workflows/deploy.yml` 僅由 `workflow_dispatch` 手動觸發。初始 v1.4 production 部署為 SHA `dfe351a95bffd101148296c900e67ec342861881`、[Pages run 37248564582](https://github.com/LukeTsengTW/learnforge/actions/runs/37248564582)；驗證證據與 2026-10-05 closure preparation snapshot 見 [v1.4 交付文件](docs/v1.4-delivery.md)。歷史 v1.3 初始 cutover 為 SHA `8ef526583578c917526075e459ef76eea533741b`、Pages run `37090982945`；v1.3 契約與 v1.2 recovery lineage 保留於 [v1.3 交付文件](docs/v1.3-delivery.md)。
 
 **Settings → Secrets and variables → Actions → Variables** 使用三個公開變數：`VITE_SUPABASE_URL`、`VITE_SUPABASE_PUBLISHABLE_KEY`、`VITE_TURNSTILE_SITE_KEY`。不要設定 server key；缺任一變數會停止 build。CI 在 pull request／master push 執行完整本機 gates；部署維持 `workflow_dispatch`，要求 `release_sha`、`release_version`，並核對 workflow、checkout、remote master 與 package version。Workflow 固定 Node 24.21.0／npm 11.19.0，包含 Edge import check 與 production dependency audit，核對 Pages base path 後 build 並產生公開 `release.json`。Checkout 不保留憑證；只有 deploy job 取得 pages:write / id-token:write。Push 不會自動部署；完整風險政策與指令見 [release process](docs/release-process.md)。
 
