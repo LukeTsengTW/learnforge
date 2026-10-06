@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5.0 — Discrete Mathematics midterm quiz
+
+準備日期：2026-10-06。
+狀態：release candidate；production rollout 尚未完成。
+
+- 新增 bundled「2025 Discrete Mathematics 期中考」discrete-math/1：11 題、宣告總分 100 分、6 題單選／5 題計算；沿用已審閱的題目、答案、解答與 rubric。
+- Library／Home 題庫卡片改用宣告 totalPoints；deterministic maxPoints 的原有評分容量語意維持不變。
+- Home featured quiz 固定為 boolean-algebra「布林代數基礎」，不受新增題庫的標題排序影響。
+- Canonical AI quiz context 從 29 增為 40 contexts；原有 29 個 contexts 保留不變。
+- Production rollout 需同步重新部署包含該 context 的六個 Edge bundles：ai-tutor、ai-responses、save-quiz-draft、ai-grade、ai-drawing、submit-quiz；之後才可讓 Pages 暴露新題庫。部署尚未執行。
+- KaTeX 安全修復：direct dependency 改為 ^0.18.2，lockfile 解析為固定的 0.18.10；以最小 npm override 讓 rehype-katex／remark-math 相依鏈共用固定版本，排除 GHSA-238p-pmpm-9mq7。沒有新增套件或功能。
+- 本機 Layout 可見版本標籤準備為 v1.5.0；production 仍為 v1.4.0，尚未 rollout。
+- 沒有 DB schema／migration／RLS／Auth／secret／provider configuration 變更；除了 KaTeX 及其必要的 commander 相依版本外，其他 dependency 維持不變。
+- Release-prep commit／CI、嚴格 release classification、production smoke、最終 closure 與 annotated tag 都仍待完成；詳見 [v1.5 delivery](docs/v1.5-delivery.md)。
+
 ## 1.4.0 — Quiz Library search and filters
 
 發布日期：2026-10-05。

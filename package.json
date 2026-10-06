@@ -1,7 +1,7 @@
 {
   "name": "learnforge",
   "private": true,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "type": "module",
   "packageManager": "npm@11.19.0",
   "scripts": {
@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "2.117.1",
-    "katex": "^0.16.47",
+    "katex": "^0.18.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-markdown": "^10.1.0",
@@ -53,5 +53,8 @@
     "typescript-eslint": "^8.70.1",
     "vite": "^8.3.0",
     "vitest": "^5.0.1"
+  },
+  "overrides": {
+    "katex": "$katex"
   }
 }

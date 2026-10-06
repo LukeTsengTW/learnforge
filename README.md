@@ -1,8 +1,12 @@
 # LearnForge
 
-**公開版本：v1.4.0。** Quiz Library 新增 client-side metadata 搜尋與標籤／科目／題型篩選，可組合條件尋找題庫。產品契約、production 身分與發布證據見 [v1.4 交付文件](docs/v1.4-delivery.md)。[v1.3 交付文件](docs/v1.3-delivery.md)、[v1.2 交付文件](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史參考。
+**Source release candidate：v1.5.0。** 新增 Discrete Mathematics 期中考與宣告總分卡片；release preparation、必要的六個 Edge Function context rollout 與未完成 gates 見 [v1.5 交付文件](docs/v1.5-delivery.md)。目前尚未 production deployed。
+
+**Current production：v1.4.0。** 在 v1.5 rollout／closure 完成前，公開 production 維持 v1.4.0；已關閉的 annotated v1.4.0 tag 指向 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a。v1.4 的 Library metadata 搜尋與篩選契約維持；[v1.4 交付文件](docs/v1.4-delivery.md)、[v1.3 交付文件](docs/v1.3-delivery.md)、[v1.2 交付文件](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史參考。
 
 v1.3 的多模態計算題契約維持：宣告手寫能力的精確題目版本可讓計算題選擇打字或手寫；正式提交依目前選取的模式評分，結果保存供日後重建。
+
+v1.5.0 source RC 的可見導覽版本標籤已準備為 v1.5.0；KaTeX 已升級至固定的 0.18.x line，並以最小 npm override 排除相依鏈的 vulnerable copies。這是既有數學 renderer 的安全修復，沒有新增套件或功能；production rollout 仍待完成。
 
 v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 
@@ -10,7 +14,7 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 
 ## 功能
 
-- Source 的 bundled 公開題庫目前有四份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）。題庫卡片顯示科目、標籤、題數、宣告總分與預估時間。期中考整合是 v1.4.0 後的本機 source 變更，尚未部署；歷史發布證據維持原狀。
+- Source release candidate 有四份 current bundled 題庫、五個 revisions：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）。期中考已納入 v1.5.0 release candidate，production rollout 尚未完成。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
 - 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。
@@ -127,6 +131,7 @@ docs/v0.8-delivery.md        # v0.8 題庫編寫工作區與驗證
 docs/v0.9-delivery.md        # v0.9 學習分析、錯題複習與驗證
 docs/v1.3-delivery.md        # v1.3 歷史多模態計算題與評分交付
 docs/v1.4-delivery.md        # v1.4 題庫搜尋／篩選與 closure preparation snapshot
+docs/v1.5-delivery.md        # v1.5 release candidate、Edge dependency closure 與待完成 rollout gates
 scripts/generate-ai-quiz-context.mjs
 scripts/ai-quiz-context.ts  # 使用既有 parser 的 manifest 投影與大小限制
 supabase/

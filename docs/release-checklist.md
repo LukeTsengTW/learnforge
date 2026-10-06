@@ -1,5 +1,38 @@
 # Release checklist
 
+## v1.5.0 release preparation
+
+準備日期：2026-10-06。狀態：release candidate；尚未 production deployed。Current closed production 維持 v1.4.0，annotated tag target 為 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a。以下 v1.4 歷史 section 完整保留。
+
+已核對的 source facts：
+
+- [x] Feature commit b1858ec2686bcc91af60c63bec052efb1f137ed6：feat: add discrete math midterm quiz。
+- [x] Feature automatic CI [run 37394001697](https://github.com/LukeTsengTW/learnforge/actions/runs/37394001697)：push/master、attempt 1、success；87 files／1,266 tests。
+- [x] Package target 1.5.0；package.json 與 package-lock.json 的兩個 root version 一致。除了 KaTeX 及其必要的 commander 相依版本外，其他 dependency 版本維持不變。
+- [x] 已審閱的新題庫 discrete-math/1：11 題／100 宣告 points／6 single／5 calculation，source 內容與 canonical contexts 保持 committed feature 狀態。
+- [x] Canonical contexts 29 → 40；原有 29 個保留不變。所有 11 個 production-configured entrypoints 的 runtime import closure 已分析。
+- [x] v1.5.0 exact local／remote tag refs 在本機 preparation precheck 皆不存在。
+- [x] 本機 KaTeX remediation：^0.18.2 解析為 0.18.10；direct-only resolution 留下兩個 vulnerable nested copies，故加入最小 `"katex": "$katex"` override。最後只有一份 fixed copy；inherited-trust probe PASS，npm audit --omit=dev exit 0／0 vulnerabilities。
+- [x] 本機 Layout source diff 只有 v1.4.0 → v1.5.0；desktop 可見 v1.5.0，mobile 沿用既有隱藏 badge CSS，DOM 值為 v1.5.0。1280×900／360×800 Library、Home、Author 與 math regression PASS，沒有正式作答或 provider 呼叫。
+
+未完成的 release gates：
+
+- [ ] Release-prep diff review、exact release-prep commit 與 push。
+- [ ] Release-prep automatic CI success。
+- [ ] Clean-tree strict release checks 與 final risk classification；本 dirty preparation 不執行 release:check／release:manifest。
+- [ ] Provider canary requirement：TBD，依 classifier／rollout review 決定；執行需另行授權。
+- [ ] 再核對 v1.5.0 tag absence、exact source／remote release identity。
+- [ ] PENDING Edge rollout set：ai-tutor、ai-responses、save-quiz-draft、ai-grade、ai-drawing、submit-quiz → learnforge-demo / mrrssxqolvcjxgqzoeqt；先於 Pages cutover，保留既有 JWT 設定。
+- [ ] Edge versions／ACTIVE status／bundle provenance／canonical context compatibility verification。
+- [ ] Minimum discrete-math backend compatibility smoke；資料 mutation／provider probe 僅在另行授權時執行。
+- [ ] Exact v1.5 Pages deployment 與 public release.json identity smoke。
+- [ ] Production Library／Home UI 與 minimum authenticated quiz-path smoke。
+- [ ] Provider canary（僅在 final classification 要求且另行授權後）。
+- [ ] Closure evidence／commit（若需要）與 exact closure Pages deployment／final smoke。
+- [ ] Annotated v1.5.0 tag 指向已驗證的 final production closure SHA；沒有 GitHub Release 計畫或授權。
+
+本次 remediated local quality gates：lint／87 files、1266 tests／check:quizzes（5 revisions、4 current quizzes、40 questions）／check:ai-context（5 revisions、40 contexts）／check:edge-imports／build／git diff --check PASS；npm audit --omit=dev exit 0／0 vulnerabilities。Browser math regression PASS；只有開發環境 React DevTools shim／Fast Refresh warning 與 build chunk-size advisory，不影響上述 gates。不把 feature CI 當成 release-prep CI，也不把任何本機結果當成 production 證據。完整 dependency closure、schema1 draft／formal grading 路徑及 17 步 PENDING rollout 順序見 [v1.5 delivery](v1.5-delivery.md)。本次沒有 migration、schema、RLS、Auth、secret、provider configuration 或任何 production mutation。
+
 ## v1.4.0 final release closure
 
 以下狀態記錄 2026-10-05 documentation-only closure preparation 時點。
