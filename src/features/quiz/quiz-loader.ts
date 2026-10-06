@@ -3,7 +3,14 @@ import { parseQuiz, QuizParseError } from '../../lib/quiz-parser'
 import { gradeQuiz } from '../../lib/grading'
 
 export type QuizLoadResult = { ok: true; quiz: Quiz } | { ok: false; error: string }
-export interface QuizCatalogEntry { quiz: Quiz; questionCount: number; maxPoints: number }
+export interface QuizCatalogEntry {
+  quiz: Quiz
+  questionCount: number
+  /** Declared points across every question. */
+  totalPoints: number
+  /** Deterministic/local automatic grading capacity. */
+  maxPoints: number
+}
 export interface QuizCatalog {
   current: QuizCatalogEntry[]
   errors: { file: string; message: string }[]
@@ -33,7 +40,9 @@ export function createQuizCatalog(sources: Record<string, string>): QuizCatalog 
   }
   for (const id of revisions.keys()) if (!current.has(id)) throw new Error(`quiz ${id}: current revision missing`)
   const entries = [...current.values()].sort((a, b) => a.title.localeCompare(b.title, 'zh-Hant'))
-    .map((quiz) => ({ quiz, questionCount: quiz.questions.length, maxPoints: gradeQuiz(quiz, {}).maxScore }))
+    .map((quiz) => ({ quiz, questionCount: quiz.questions.length,
+      totalPoints: quiz.questions.reduce((sum, question) => sum + question.points, 0),
+      maxPoints: gradeQuiz(quiz, {}).maxScore }))
   return { current: entries, errors,
     getCurrentQuiz: (id) => current.get(id) ?? null,
     getQuizRevision: (id, revision) => revisions.get(id)?.get(revision) ?? null }

@@ -41,7 +41,7 @@ export const v4Quiz = quizFor('m4-r1', true, true)
 /** Same quiz id, historical text-only revision: stays schema 1 / ai-grading-v3. */
 export const v3Quiz = quizFor('m4-r0', false, false)
 export const v4Catalog: QuizCatalog = {
-  current: [{ quiz: v4Quiz, questionCount: v4Quiz.questions.length, maxPoints: 12 }], errors: [],
+  current: [{ quiz: v4Quiz, questionCount: v4Quiz.questions.length, totalPoints: 12, maxPoints: 12 }], errors: [],
   getCurrentQuiz: (id) => id === V4_QUIZ_ID ? v4Quiz : null,
   getQuizRevision: (id, revision) => id !== V4_QUIZ_ID ? null : revision === v4Quiz.revision ? v4Quiz
     : revision === v3Quiz.revision ? v3Quiz : null,

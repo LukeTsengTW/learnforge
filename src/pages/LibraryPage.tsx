@@ -61,11 +61,11 @@ export function LibraryPage() {
         </div>
       </div>
     </div>
-    {entries.length > 0 ? <div className="library-grid">{entries.map(({ quiz, questionCount, maxPoints }) => <article className="library-card" key={quiz.id}>
+    {entries.length > 0 ? <div className="library-grid">{entries.map(({ quiz, questionCount, totalPoints }) => <article className="library-card" key={quiz.id}>
       <span className="subject-label">{quiz.subject}</span><h2>{quiz.title}</h2>
       <div className="library-description"><Markdown>{quiz.description}</Markdown></div>
       <ul className="tag-list" aria-label="題庫標籤">{quiz.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
-      <div className="quiz-facts"><span>{questionCount} 題</span><span>{maxPoints} 分自動評分</span><span>約 {quiz.estimatedMinutes} 分鐘</span></div>
+      <div className="quiz-facts"><span>{questionCount} 題</span><span>總分 {totalPoints} 分</span><span>約 {quiz.estimatedMinutes} 分鐘</span></div>
       <Link className="button primary" to={`/quiz/${quiz.id}`}>{active.has(quiz.id) ? '繼續作答' : '開始練習'}<span aria-hidden="true">↗</span></Link>
     </article>)}</div> : <div className="empty-state" role="status">
       <h2>找不到符合條件的題庫。</h2><p>試試其他關鍵字或調整篩選條件。</p>

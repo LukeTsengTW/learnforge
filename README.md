@@ -10,7 +10,7 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 
 ## 功能
 
-- 公開題庫目前有三份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題。題庫卡片顯示科目、標籤、題數、自動評分總分與預估時間。
+- Source 的 bundled 公開題庫目前有四份：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）。題庫卡片顯示科目、標籤、題數、宣告總分與預估時間。期中考整合是 v1.4.0 後的本機 source 變更，尚未部署；歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
 - 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。
@@ -434,7 +434,7 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 
 ## 完整 example quiz
 
-直接閱讀 [目前 demo/v2-handwriting](src/content/quizzes/demo/v2.quiz.md)、[封存 demo/v1-7d7c900e](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md) 與[離散數學：關係](src/content/quizzes/relations/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
+直接閱讀 [目前 demo/v2-handwriting](src/content/quizzes/demo/v2.quiz.md)、[封存 demo/v1-7d7c900e](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md)、[離散數學：關係](src/content/quizzes/relations/v1.quiz.md) 與[2025 離散數學期中考](src/content/quizzes/discrete-math/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
 
 ## Grading 規則
 
@@ -484,7 +484,7 @@ Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luket
 
 ## Known limitations
 
-- 題庫仍是 Git 內三個題庫、四個 bundled revisions；目前只有 `demo/v2-handwriting` 這個精確版本宣告 calculation handwriting，選用 schema2/v4。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
+- 題庫仍是 Git 內四個題庫、五個 bundled revisions；目前只有 `demo/v2-handwriting` 這個精確版本宣告 calculation handwriting，選用 schema2/v4。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
 - 錯題頁依序分頁載入提交並用 persisted grading evidence 重建結果；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
 - 沒有 email delivery；Recovery Code 是 bearer secret，遺失密碼且沒有有效碼時無法自行恢復。

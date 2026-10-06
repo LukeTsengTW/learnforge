@@ -23,7 +23,7 @@ function entry(id: string, title: string, subject: string, tags: string[], types
     return copy.type === QUESTION_TYPE.fill ? { ...copy, correctAnswer: 'only-answer-keyword' } : copy
   })
   return { quiz: { ...demo, id, title, subject, tags, description, questions },
-    questionCount: questions.length, maxPoints: 10 }
+    questionCount: questions.length, totalPoints: questions.reduce((sum, question) => sum + question.points, 0), maxPoints: 10 }
 }
 
 // Deliberately keep the catalog in a different order from its titles.
@@ -36,6 +36,8 @@ const fixtures = [
     [QUESTION_TYPE.single, QUESTION_TYPE.trueFalse], '入門練習與基本概念'),
 ]
 const allTitles = ['Logic Challenge', '數學進階', 'Logic Warmup']
+const midtermTitle = '2025 Discrete Mathematics 期中考'
+const bundledTitles = [midtermTitle, '布林代數基礎', '數位邏輯與基礎數學', '離散數學：關係']
 
 function renderLibrary(entries = fixtures, repo?: ReturnType<typeof createMemoryPracticeRepository>) {
   quizCatalog.current = entries
@@ -57,8 +59,45 @@ afterEach(() => { cleanup(); quizCatalog.current = originalCatalog })
 describe('Quiz Library search and filters', () => {
   it('keeps every current quiz visible by default and preserves the catalog order', () => {
     renderLibrary(originalCatalog)
-    expect(visibleTitles()).toEqual(originalCatalog.map(({ quiz }) => quiz.title))
+    expect(visibleTitles()).toEqual(bundledTitles)
     expect(screen.queryByRole('button', { name: '清除篩選' })).not.toBeInTheDocument()
+  })
+
+  it('shows declared total points instead of deterministic-only capacity', () => {
+    renderLibrary([{ ...fixtures[0], totalPoints: 100, maxPoints: 36 }])
+    const card = screen.getByRole('article')
+    expect(within(card).getByText('總分 100 分')).toBeInTheDocument()
+    expect(within(card).queryByText('36 分自動評分')).not.toBeInTheDocument()
+  })
+
+  it('shows the real bundled midterm facts and current quiz link', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: midtermTitle, level: 2 }).closest('article')!
+    expect(within(card).getByText('離散數學')).toBeInTheDocument()
+    expect(within(card).getByText('11 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 100 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 90 分鐘')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: /開始練習/ })).toHaveAttribute('href', '/quiz/discrete-math')
+    expect(within(card).queryByText('36 分自動評分')).not.toBeInTheDocument()
+  })
+
+  it.each(['2025', 'Discrete Mathematics', '期中考'])('finds the bundled midterm with %s', async (query) => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
+    expect(visibleTitles()).toEqual([midtermTitle])
+  })
+
+  it.each([
+    ['科目', '離散數學', [midtermTitle, '離散數學：關係']],
+    ['題型', QUESTION_TYPE.single, bundledTitles],
+    ['題型', QUESTION_TYPE.calculation, [midtermTitle, '數位邏輯與基礎數學']],
+    ['標籤', 'combinatorics', [midtermTitle]],
+    ['標籤', 'inclusion-exclusion', [midtermTitle]],
+    ['標籤', 'relations', [midtermTitle, '離散數學：關係']],
+  ])('filters the real bundle by %s=%s', async (label, value, expected) => {
+    const user = renderLibrary(originalCatalog)
+    await user.selectOptions(screen.getByRole('combobox', { name: label }), value)
+    expect(visibleTitles()).toEqual(expected)
   })
 
   it('uses the all-options as the default for each filter', () => {

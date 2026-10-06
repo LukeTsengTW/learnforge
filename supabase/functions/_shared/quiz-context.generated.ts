@@ -622,6 +622,513 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-i",
+    "questionIndex": 0,
+    "type": "single",
+    "prompt": "### 1. (I)\n在 COMPUTER 這個字中，若僅拿 5 個字母排列，不允許字母重複，則（大小為 5）的排列數為",
+    "hint": null,
+    "solution": "COMPUTER 的 $C,O,M,P,U,T,E,R$ 共 8 個字母皆不相同。依序選出 5 個不同字母，共有 $8\\cdot7\\cdot6\\cdot5\\cdot4=8!/3!=6720$ 種，因此選 (c)。亦可先選字母再排列：$\\binom{8}{5}5!=6720$。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "$8!$"
+      },
+      {
+        "id": "b",
+        "content": "$5!$"
+      },
+      {
+        "id": "c",
+        "content": "$8!/3!$"
+      },
+      {
+        "id": "d",
+        "content": "$8!/(3!5!)$"
+      },
+      {
+        "id": "e",
+        "content": "$8^5$"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-ii",
+    "questionIndex": 1,
+    "type": "single",
+    "prompt": "### 1. (II)\n將 5 個不同物體分配至 3 個相同容器且無容器是空的方法數 = ?",
+    "hint": null,
+    "solution": "相同容器對應沒有標號的三個非空組。組大小只能為 $(3,1,1)$ 或 $(2,2,1)$：前者有 $\\binom{5}{3}=10$ 種，後者先選單獨物體，再把其餘四個分成兩對，有 $5\\binom{4}{2}/2=15$ 種。因此共 $10+15=25$ 種，選 (a)。用容斥驗算：$S(5,3)=(3^5-3\\cdot2^5+3\\cdot1^5)/3!=25$。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "25"
+      },
+      {
+        "id": "b",
+        "content": "21"
+      },
+      {
+        "id": "c",
+        "content": "18"
+      },
+      {
+        "id": "d",
+        "content": "16"
+      },
+      {
+        "id": "e",
+        "content": "15"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-iii",
+    "questionIndex": 2,
+    "type": "single",
+    "prompt": "### 1. (III)\n$(x+y)^7$ 展開後 $x^5y^2$ 的係數等於",
+    "hint": null,
+    "solution": "二項式定理給出 $(x+y)^7=\\sum_{k=0}^{7}\\binom{7}{k}x^{7-k}y^k$。$x^5y^2$ 對應 $k=2$，係數為 $\\binom{7}{2}=21$，選 (b)。也就是在七個因式中選兩個提供 $y$。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "30"
+      },
+      {
+        "id": "b",
+        "content": "21"
+      },
+      {
+        "id": "c",
+        "content": "15"
+      },
+      {
+        "id": "d",
+        "content": "12"
+      },
+      {
+        "id": "e",
+        "content": "10"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-iv",
+    "questionIndex": 3,
+    "type": "single",
+    "prompt": "### 1. (IV)\n函數 $f:\\mathbb{R}\\to\\mathbb{R}$，$f(x)=x^2$",
+    "hint": null,
+    "solution": "原試卷選項中的 $R$ 依題幹指函數 $f$，此處保留原選項文字。因 $f(1)=f(-1)=1$ 且 $1\\ne-1$，$f$ 不是一對一函數。對每個實數 $x$，$x^2\\ge0$，所以陪域中的 $-1$ 沒有原像，$f$ 也不是映成函數。因此選 (d)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "$R$ 是一對一函數且是映成函數"
+      },
+      {
+        "id": "b",
+        "content": "$R$ 不是一對一函數且 $R$ 是映成函數"
+      },
+      {
+        "id": "c",
+        "content": "$R$ 是一對一函數且 $R$ 不是映成函數"
+      },
+      {
+        "id": "d",
+        "content": "$R$ 不是一對一函數且 $R$ 不是映成函數"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-v",
+    "questionIndex": 4,
+    "type": "single",
+    "prompt": "### 1. (V)\nHow many integers between 1 and 1000 are not divisible by 2, 5, or 17?",
+    "hint": null,
+    "solution": "在 $1,2,\\ldots,1000$ 中，2、5、17 的倍數分別有 $500,200,58$ 個。兩兩交集是 10、34、85 的倍數，分別有 $100,29,11$ 個；三者交集是 170 的倍數，有 $5$ 個。由容斥原理，不被三者中任何一個整除的個數為\n\n$$\n1000-(500+200+58)+(100+29+11)-5=377.\n$$\n\n因此選 (b)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "376"
+      },
+      {
+        "id": "b",
+        "content": "377"
+      },
+      {
+        "id": "c",
+        "content": "378"
+      },
+      {
+        "id": "d",
+        "content": "379"
+      },
+      {
+        "id": "e",
+        "content": "380"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q1-vi",
+    "questionIndex": 5,
+    "type": "single",
+    "prompt": "### 1. (VI)\n$A=\\{1,2,3\\}$，$A$ 上的關係 $R=\\{(1,1),(2,2),(3,3),(1,2),(2,1)\\}$",
+    "hint": null,
+    "solution": "三個對角有序對皆在 $R$ 中，故自反；$(1,2)$ 與 $(2,1)$ 同時存在，故對稱。關係恰為 $\\{1,2\\}\\times\\{1,2\\}$ 與 $\\{3\\}\\times\\{3\\}$ 的聯集；若 $aRb$ 且 $bRc$，三者必在同一組，故 $aRc$，因此傳遞。它是等價關係。但 $1R2$、$2R1$ 且 $1\\ne2$，不符合反對稱性，所以不是偏序關係，選 (c)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "$R$ 是等價關係且是偏序關係"
+      },
+      {
+        "id": "b",
+        "content": "$R$ 不是等價關係且 $R$ 是偏序關係"
+      },
+      {
+        "id": "c",
+        "content": "$R$ 是等價關係且 $R$ 不是偏序關係"
+      },
+      {
+        "id": "d",
+        "content": "$R$ 不是等價關係且 $R$ 不是偏序關係"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q2",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 2.（12 分）\nHow many arrangements of the letters in MISSISSIPPI have no consecutive S’s ?\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "MISSISSIPPI 有 $M$ 1 個、$I$ 4 個、$S$ 4 個、$P$ 2 個，共 11 個字母。\n\n先排列七個非 $S$ 字母 $M,I,I,I,I,P,P$。扣除相同 $I$ 與相同 $P$ 的重複計數，排列數為\n\n$$\n\\frac{7!}{4!2!}=105.\n$$\n\n對任何固定的非 $S$ 排列，七個字母之間有六個空隙，加上左右兩端共八個空隙。為了讓四個 $S$ 互不相鄰，每個空隙至多放一個 $S$；從八個空隙選出四個，共有\n\n$$\n\\binom{8}{4}=70\n$$\n\n種選法。四個 $S$ 相同，不再乘上 $4!$。所選空隙之間都有非 $S$ 字母隔開，故不會出現連續的 $S$。\n\n反過來，從任何符合條件的排列刪去四個 $S$，便唯一得到非 $S$ 排列及四個所選空隙。因此上述計數既無重複也無遺漏，答案為\n\n$$\n\\frac{7!}{4!2!}\\binom{8}{4}=105\\cdot70=7350.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確辨認 $M$ 1 個、$I$ 4 個、$S$ 4 個、$P$ 2 個，並算出非 $S$ 字母排列數 $7!/(4!2!)=105$。"
+      },
+      {
+        "score": 3,
+        "description": "說明七個非 $S$ 字母形成八個空隙，每個空隙至多放一個 $S$，故有 $\\binom{8}{4}=70$ 種選法。"
+      },
+      {
+        "score": 3,
+        "description": "說明四個 $S$ 相同，不乘 $4!$，且每個有效排列唯一對應一個非 $S$ 排列與四個空隙，保證沒有連續 $S$、重複或遺漏。"
+      },
+      {
+        "score": 3,
+        "description": "正確相乘得到 $105\\cdot70=7350$，或以同樣完整且正確的方法得到此結果。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$7350$ 種。",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確辨認 $M$ 1 個、$I$ 4 個、$S$ 4 個、$P$ 2 個，並算出非 $S$ 字母排列數 $7!/(4!2!)=105$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "說明七個非 $S$ 字母形成八個空隙，每個空隙至多放一個 $S$，故有 $\\binom{8}{4}=70$ 種選法。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "說明四個 $S$ 相同，不乘 $4!$，且每個有效排列唯一對應一個非 $S$ 排列與四個空隙，保證沒有連續 $S$、重複或遺漏。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確相乘得到 $105\\cdot70=7350$，或以同樣完整且正確的方法得到此結果。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q3",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 3.（14 分）\n(a) 有多少種方法可分配 10 個（相同）白彈珠至 6 個相異容器？\n\n(b) Determine the number of integer solutions of\n\n$$\nx_1+x_2+x_3+x_4=32,\n$$\n\nwhere $x_1\\ge5$, $x_2\\ge5$, $x_3\\ge7$, $x_4\\ge7$.\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 原文沒有要求每個容器非空，因此允許空容器。令第 $j$ 個容器有 $y_j$ 顆彈珠，則\n\n$$\ny_1+y_2+y_3+y_4+y_5+y_6=10,\\qquad y_j\\ge0.\n$$\n\n彈珠相同而六個容器相異，所以以十個星號與五個隔板表示分配；相鄰隔板或端點的隔板表示空容器。共有十五個位置，選五個放隔板，得\n\n$$\n\\binom{10+6-1}{6-1}=\\binom{15}{5}\n=\\frac{15\\cdot14\\cdot13\\cdot12\\cdot11}{5\\cdot4\\cdot3\\cdot2\\cdot1}\n=3003.\n$$\n\n**(b)** 原試卷的四個下界為 $\\ge$。令\n\n$$\ny_1=x_1-5,\\quad y_2=x_2-5,\\quad y_3=x_3-7,\\quad y_4=x_4-7.\n$$\n\n這建立原題整數解與下列非負整數解的一一對應：\n\n$$\ny_1+y_2+y_3+y_4=32-(5+5+7+7)=8,\\qquad y_i\\ge0.\n$$\n\n用八個星號與三個隔板，解的個數為\n\n$$\n\\binom{8+4-1}{4-1}=\\binom{11}{3}\n=\\frac{11\\cdot10\\cdot9}{3\\cdot2\\cdot1}=165.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 明確採用允許空容器的解讀，以六個非負整數表示相異容器的彈珠數，且總和為 10。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確使用十個星號、五個隔板的計數，得到 $\\binom{15}{5}$ 或等價的完整推導。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確算出 $3003$ 種分配。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 依原試卷的 $\\ge$ 下界，正確令 $y_1=x_1-5$、$y_2=x_2-5$、$y_3=x_3-7$、$y_4=x_4-7$，得到四個非負整數總和為 8。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確使用星與棒，得到 $\\binom{11}{3}$ 或等價的完整推導。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確算出 $165$ 個整數解。"
+      }
+    ],
+    "points": 14,
+    "referenceAnswer": "(a) $\\binom{15}{5}=3003$ 種（允許空容器）。\n\n(b) $\\binom{11}{3}=165$ 個整數解。",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 明確採用允許空容器的解讀，以六個非負整數表示相異容器的彈珠數，且總和為 10。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 正確使用十個星號、五個隔板的計數，得到 $\\binom{15}{5}$ 或等價的完整推導。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確算出 $3003$ 種分配。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(b) 依原試卷的 $\\ge$ 下界，正確令 $y_1=x_1-5$、$y_2=x_2-5$、$y_3=x_3-7$、$y_4=x_4-7$，得到四個非負整數總和為 8。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 正確使用星與棒，得到 $\\binom{11}{3}$ 或等價的完整推導。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(b) 正確算出 $165$ 個整數解。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q4",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 4.（12 分）\nFor the following relation $R$, determine whether the relation is reflexive, symmetric, antisymmetric, or transitive?\n\n$R$ is the relation on $\\mathbb{Z}^{+}$ where $aRb$ if $a\\mid b$（$a\\mid b$ 意即 $a$ 整除 $b$）。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "逐一檢查四個性質，所有元素皆為正整數。\n\n1. **Reflexive（自反）：是。** 對任意正整數 $a$，$a=a\\cdot1$，所以 $a\\mid a$，即 $aRa$。\n2. **Symmetric（對稱）：否。** $2\\mid4$，但 $4\\nmid2$；故 $2R4$ 不推出 $4R2$，這是反例。\n3. **Antisymmetric（反對稱）：是。** 假設 $a\\mid b$ 且 $b\\mid a$，則存在正整數 $m,n$ 使 $b=ma$、$a=nb$。代入得到 $a=nma$。因 $a>0$，可除以 $a$ 得 $mn=1$，因此 $m=n=1$，所以 $a=b$。\n4. **Transitive（傳遞）：是。** 假設 $a\\mid b$ 且 $b\\mid c$，則存在正整數 $m,n$ 使 $b=ma$、$c=nb$。於是 $c=nma$，所以 $a\\mid c$，即 $aRc$。\n\n因此此關係具有自反、反對稱、傳遞性，不具對稱性。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確判定自反，並以任意正整數 $a$ 滿足 $a=a\\cdot1$、故 $a\\mid a$ 證明。"
+      },
+      {
+        "score": 3,
+        "description": "正確判定不對稱，並給出 $2\\mid4$ 但 $4\\nmid2$，或其他有效反例。"
+      },
+      {
+        "score": 3,
+        "description": "正確判定反對稱，並由正整數的互相整除推出 $a=b$；例如使用正整數商 $m,n$ 滿足 $mn=1$。"
+      },
+      {
+        "score": 3,
+        "description": "正確判定傳遞，並由 $b=ma$、$c=nb$ 推出 $c=(nm)a$、故 $a\\mid c$，或給出等價的一般證明。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "Reflexive：是；symmetric：否；antisymmetric：是；transitive：是。",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確判定自反，並以任意正整數 $a$ 滿足 $a=a\\cdot1$、故 $a\\mid a$ 證明。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確判定不對稱，並給出 $2\\mid4$ 但 $4\\nmid2$，或其他有效反例。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確判定反對稱，並由正整數的互相整除推出 $a=b$；例如使用正整數商 $m,n$ 滿足 $mn=1$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確判定傳遞，並由 $b=ma$、$c=nb$ 推出 $c=(nm)a$、故 $a\\mid c$，或給出等價的一般證明。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q5",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### 5.（14 分）\n$A=\\{1,2,3,4\\}$\n\n(a) $A$ 上共有幾個對稱 (symmetric) 關係？\n\n(b) $A$ 上共有幾個反對稱 (antisymmetric) 關係？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "任何 $A$ 上的關係都是 $A\\times A$ 的子集合。四個對角有序對為 $(1,1),(2,2),(3,3),(4,4)$；相異元素構成 $\\binom{4}{2}=6$ 個無序對，每個無序對 $\\{a,b\\}$ 對應 $(a,b)$ 與 $(b,a)$。\n\n**(a) 對稱關係。** 對角有序對的反向仍是它自己，無論包含或不包含皆不違反對稱性，因此每個對角有序對有兩種選擇，共 $2^4$ 種。對每個無序對 $\\{a,b\\}$，對稱性要求 $(a,b)$、$(b,a)$ 同時包含或同時不包含，恰有兩種選擇；六個無序對共 $2^6$ 種。這些選擇彼此獨立，故\n\n$$\n2^4\\cdot2^6=2^{10}=1024.\n$$\n\n**(b) 反對稱關係。** 反對稱性只要求：若 $aRb$ 且 $bRa$，則 $a=b$。對角有序對可以任意包含或不包含，共 $2^4$ 種；這不要求關係自反。對每個相異元素的無序對 $\\{a,b\\}$，不能同時包含兩個方向，但可有三種選擇：兩者皆不包含、只包含 $(a,b)$、只包含 $(b,a)$。六個無序對的選擇獨立，因此\n\n$$\n2^4\\cdot3^6=16\\cdot729=11664.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 說明四個對角有序對各可任意包含或不包含，產生 $2^4$ 種選擇。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 辨認六個相異元素的無序對，每對的兩個方向必須同時包含或同時不包含，產生 $2^6$ 種選擇。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確相乘得到 $2^{10}=1024$ 個對稱關係。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明反對稱不要求自反，四個對角有序對各有兩種選擇，產生 $2^4$ 種。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 辨認六個無序對，每對僅允許皆不包含、只包含正向、只包含反向三種選擇，產生 $3^6$ 種。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確相乘得到 $2^4\\cdot3^6=11664$ 個反對稱關係。"
+      }
+    ],
+    "points": 14,
+    "referenceAnswer": "(a) $2^{10}=1024$ 個對稱關係。\n\n(b) $2^4\\cdot3^6=11664$ 個反對稱關係。",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 說明四個對角有序對各可任意包含或不包含，產生 $2^4$ 種選擇。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 辨認六個相異元素的無序對，每對的兩個方向必須同時包含或同時不包含，產生 $2^6$ 種選擇。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確相乘得到 $2^{10}=1024$ 個對稱關係。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 說明反對稱不要求自反，四個對角有序對各有兩種選擇，產生 $2^4$ 種。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(b) 辨認六個無序對，每對僅允許皆不包含、只包含正向、只包含反向三種選擇，產生 $3^6$ 種。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(b) 正確相乘得到 $2^4\\cdot3^6=11664$ 個反對稱關係。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math",
+    "revision": "1",
+    "questionId": "q6",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### 6.（12 分）\n計算 $x_1+x_2+x_3+x_4=18$ 非負整數解的個數，而且加上限制 $x_i\\le7$，對所有 $1\\le i\\le4$。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "先不加上界，四個非負整數總和為 18 的解有\n\n$$\n\\binom{18+4-1}{4-1}=\\binom{21}{3}=1330\n$$\n\n個。令 $E_i$ 為 $x_i\\ge8$ 的違規解集合。\n\n**一個變數違規。** 固定 $i$，令 $y_i=x_i-8\\ge0$，其他變數不變，新的總和為 $18-8=10$，故\n\n$$\n|E_i|=\\binom{10+3}{3}=\\binom{13}{3}=286.\n$$\n\n四個變數的單一違規計數總和為 $4\\cdot286=1144$。\n\n**兩個變數同時違規。** 固定 $i\\ne j$，對這兩個變數各減 8，剩餘總和為 $18-16=2$，故\n\n$$\n|E_i\\cap E_j|=\\binom{2+3}{3}=\\binom{5}{3}=10.\n$$\n\n共有 $\\binom{4}{2}=6$ 對，兩兩交集總和為 $6\\cdot10=60$。\n\n**三個或四個變數同時違規。** 三個變數各至少為 8 時，總和至少為 24，已超過 18；故所有三重交集及四重交集皆為空。\n\n因此由容斥原理，符合全部上界的解數為\n\n$$\n\\binom{21}{3}-4\\binom{13}{3}+\\binom{4}{2}\\binom{5}{3}\n=1330-1144+60=246.\n$$\n\n另可驗算：令 $z_i=7-x_i$，則 $0\\le z_i\\le7$ 且 $\\sum_{i=1}^{4}z_i=28-18=10$。不加上界時有 $\\binom{13}{3}=286$ 個解；每個 $z_i\\ge8$ 的違規集合有 $\\binom{5}{3}=10$ 個解，且兩個變數同時違規需總和至少 16，故交集為空。因此亦得 $286-4\\cdot10=246$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確使用星與棒得到不加上界的解數 $\\binom{21}{3}=1330$。"
+      },
+      {
+        "score": 3,
+        "description": "正確將單一違規定為 $x_i\\ge8$，平移後總和為 10，得到每個集合 $\\binom{13}{3}=286$、四個集合合計 1144。"
+      },
+      {
+        "score": 3,
+        "description": "正確將兩個違規變數各減 8，得到每個交集 $\\binom{5}{3}=10$，並乘六對得到 60。"
+      },
+      {
+        "score": 2,
+        "description": "說明三個違規變數的最小總和為 24，大於 18，因此三重及四重交集皆為空。"
+      },
+      {
+        "score": 2,
+        "description": "正確使用容斥符號並算出 $1330-1144+60=246$，所有條件均被計入。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$246$ 個非負整數解。",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確使用星與棒得到不加上界的解數 $\\binom{21}{3}=1330$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確將單一違規定為 $x_i\\ge8$，平移後總和為 10，得到每個集合 $\\binom{13}{3}=286$、四個集合合計 1144。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確將兩個違規變數各減 8，得到每個交集 $\\binom{5}{3}=10$，並乘六對得到 60。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "說明三個違規變數的最小總和為 24，大於 18，因此三重及四重交集皆為空。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "正確使用容斥符號並算出 $1330-1144+60=246$，所有條件均被計入。"
+      }
+    ]
+  },
+  {
     "quizId": "relations",
     "revision": "1",
     "questionId": "composition",

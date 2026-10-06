@@ -2,20 +2,39 @@ import { describe, expect, it } from 'vitest'
 import demoV1Source from '../../content/quizzes/demo/v1.quiz.md?raw'
 import demoSource from '../../content/quizzes/demo/v2.quiz.md?raw'
 import booleanSource from '../../content/quizzes/boolean-algebra/v1.quiz.md?raw'
-import relationsSource from '../../content/quizzes/relations/v1.quiz.md?raw'
 import { parseQuiz } from '../../lib/quiz-parser'
-import { createQuizCatalog, quizCatalog } from './quiz-loader'
+import { bundledQuizSources, createQuizCatalog, quizCatalog } from './quiz-loader'
 
-// Mirrors the bundle: archived demo v1-7d7c900e plus current demo v2-handwriting.
-const sources = { demoV1: demoV1Source, demo: demoSource, boolean: booleanSource, relations: relationsSource }
+// Includes archived revisions as well as every current bundled quiz.
+const sources = { ...bundledQuizSources }
 describe('bundled quiz catalog', () => {
-  it('parses three usable quizzes with four objective types', () => {
-    expect(quizCatalog.current).toHaveLength(3)
+  it('parses four current quizzes in zh-Hant title order without catalog errors', () => {
+    expect(quizCatalog.errors).toEqual([])
+    expect(quizCatalog.current.map(({ quiz }) => quiz.id)).toEqual(['discrete-math', 'boolean-algebra', 'demo', 'relations'])
     for (const { quiz, maxPoints } of quizCatalog.current) {
       expect(quiz.questions.length).toBeGreaterThanOrEqual(7)
-      expect(quiz.questions.map((question) => question.type)).toEqual(expect.arrayContaining(['single', 'multiple', 'true-false', 'fill']))
       expect(maxPoints).toBeGreaterThan(0)
     }
+  })
+  it.each(['boolean-algebra', 'demo', 'relations'])('preserves the four objective types in %s', (id) => {
+    expect(quizCatalog.getCurrentQuiz(id)!.questions.map((question) => question.type))
+      .toEqual(expect.arrayContaining(['single', 'multiple', 'true-false', 'fill']))
+  })
+  it('loads the approved midterm with declared total distinct from deterministic capacity', () => {
+    const entry = quizCatalog.current.find(({ quiz }) => quiz.id === 'discrete-math')
+    expect(entry).toMatchObject({ questionCount: 11, totalPoints: 100, maxPoints: 36,
+      quiz: { id: 'discrete-math', revision: '1', current: true, title: '2025 Discrete Mathematics 期中考', subject: '離散數學', estimatedMinutes: 90 } })
+    const quiz = quizCatalog.getCurrentQuiz('discrete-math')!
+    expect(quizCatalog.getQuizRevision('discrete-math', '1')).toBe(quiz)
+    expect(quizCatalog.current.filter(({ quiz }) => quiz.id === 'discrete-math')).toHaveLength(1)
+    expect(quiz.questions.filter((question) => question.type === 'single')).toHaveLength(6)
+    expect(quiz.questions.filter((question) => question.type === 'calculation')).toHaveLength(5)
+    expect(quiz.questions.map((question) => question.id)).toEqual(['q1-i', 'q1-ii', 'q1-iii', 'q1-iv', 'q1-v', 'q1-vi', 'q2', 'q3', 'q4', 'q5', 'q6'])
+    const q3 = quiz.questions.find((question) => question.id === 'q3')!
+    for (const bound of ['x_1\\ge5', 'x_2\\ge5', 'x_3\\ge7', 'x_4\\ge7']) {
+      expect(q3.prompt.replaceAll(/\s/g, '')).toContain(bound)
+    }
+    expect(q3).toMatchObject({ type: 'calculation', referenceAnswer: expect.stringContaining('=165') })
   })
   it('preserves the published demo revision', () => {
     expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')?.questions).toHaveLength(7)
@@ -56,7 +75,7 @@ describe('bundled quiz catalog', () => {
   it('resolves an archived revision without duplicating the library card', () => {
     const archived = demoSource.replace('revision="v2-handwriting"', 'revision="archive"').replace('current="true"', 'current="false"')
     const catalog = createQuizCatalog({ ...sources, archived })
-    expect(catalog.current).toHaveLength(3)
+    expect(catalog.current).toHaveLength(4)
     expect(catalog.getQuizRevision('demo', 'archive')?.revision).toBe('archive')
     expect(catalog.getQuizRevision('demo', 'v1-7d7c900e')?.current).toBe(false)
     expect(catalog.getCurrentQuiz('demo')?.revision).toBe('v2-handwriting')
@@ -79,7 +98,7 @@ describe('bundled quiz catalog', () => {
   })
   it('keeps valid quizzes available when one file fails parsing', () => {
     const catalog = createQuizCatalog({ ...sources, broken: '@quiz bad' })
-    expect(catalog.current).toHaveLength(3)
+    expect(catalog.current).toHaveLength(4)
     expect(catalog.errors[0].file).toBe('broken')
   })
   it('retains fingerprint revisions for legacy Quiz Markdown', () => {

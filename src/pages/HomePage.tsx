@@ -24,7 +24,7 @@ export function HomePage() {
   const { account } = useAuth()
   const drafts = useDrafts()
   const firstDraft = drafts.find((draft) => quizCatalog.getQuizRevision(draft.quizId, draft.revision))
-  const featured = quizCatalog.current[0]
+  const featured = quizCatalog.current.find(({ quiz }) => quiz.id === 'boolean-algebra')
   return <div className="home-page">
     <section className="home-intro"><div>
       <div className="section-kicker"><span className="small-rule" /> 自主學習，從練習開始</div>
@@ -38,7 +38,7 @@ export function HomePage() {
         <div className="demo-art" aria-hidden="true"><span>01</span><span className="demo-equation">x² − 5x + 6</span><span className="demo-subject">探索 × 練習</span></div>
         <div className="demo-content"><span className="subject-label">題庫精選</span><h3>{featured?.quiz.title ?? 'LearnForge 題庫'}</h3>
           <p>{featured?.quiz.description ?? '從題庫選擇一份練習。'}</p>
-          <div className="quiz-facts"><span>{featured?.questionCount ?? 0} 道題目</span><span>{featured?.maxPoints ?? 0} 分自動評分</span><span>可反覆練習</span></div>
+          <div className="quiz-facts"><span>{featured?.questionCount ?? 0} 道題目</span><span>總分 {featured?.totalPoints ?? 0} 分</span><span>可反覆練習</span></div>
           <div className="card-bottom"><span className="progress-note">草稿可繼續，提交後可在歷史紀錄回顧。</span>
             <Link className="button primary" to="/library">瀏覽題庫<span aria-hidden="true">↗</span></Link>
           </div>
