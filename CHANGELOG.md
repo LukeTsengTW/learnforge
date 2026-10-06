@@ -2,18 +2,18 @@
 
 ## 1.5.0 — Discrete Mathematics midterm quiz
 
-準備日期：2026-10-06。
-狀態：release candidate；production rollout 尚未完成。
+發布日期：2026-10-06。
+狀態：v1.5.0 已部署至 production，初始 release identity 與必要 smoke 已通過；docs-only closure 的最終部署／身分驗證與 annotated tag 尚待完成。
 
-- 新增 bundled「2025 Discrete Mathematics 期中考」discrete-math/1：11 題、宣告總分 100 分、6 題單選／5 題計算；沿用已審閱的題目、答案、解答與 rubric。
+- 上線 bundled「2025 Discrete Mathematics 期中考」discrete-math/1：11 題、宣告總分 100 分、6 題單選／5 題計算；沿用已審閱的題目、答案、解答與 rubric。
 - Library／Home 題庫卡片改用宣告 totalPoints；deterministic maxPoints 的原有評分容量語意維持不變。
 - Home featured quiz 固定為 boolean-algebra「布林代數基礎」，不受新增題庫的標題排序影響。
 - Canonical AI quiz context 從 29 增為 40 contexts；原有 29 個 contexts 保留不變。
-- Production rollout 需同步重新部署包含該 context 的六個 Edge bundles：ai-tutor、ai-responses、save-quiz-draft、ai-grade、ai-drawing、submit-quiz；之後才可讓 Pages 暴露新題庫。部署尚未執行。
+- 六個包含該 context 的 Edge bundles 已同步部署並驗證 ACTIVE／JWT／provenance：ai-tutor、ai-responses、save-quiz-draft、ai-grade、ai-drawing、submit-quiz；其餘五個 functions 未重新部署。Pages 隨後部署 exact v1.5.0 candidate SHA，public release.json 與 production smoke 已驗證。
 - KaTeX 安全修復：direct dependency 改為 ^0.18.2，lockfile 解析為固定的 0.18.10；以最小 npm override 讓 rehype-katex／remark-math 相依鏈共用固定版本，排除 GHSA-238p-pmpm-9mq7。沒有新增套件或功能。
-- 本機 Layout 可見版本標籤準備為 v1.5.0；production 仍為 v1.4.0，尚未 rollout。
+- Production 桌面導覽版本標籤為 v1.5.0；Home featured／總分、Library 四份題庫／搜尋／篩選／重設、360×800 排版與 Author math spot check 通過。使用既有 authenticated session 做唯讀檢查；沒有 provider 呼叫或正式作答／草稿／提交 mutation。
 - 沒有 DB schema／migration／RLS／Auth／secret／provider configuration 變更；除了 KaTeX 及其必要的 commander 相依版本外，其他 dependency 維持不變。
-- Release-prep commit／CI、嚴格 release classification、production smoke、最終 closure 與 annotated tag 都仍待完成；詳見 [v1.5 delivery](docs/v1.5-delivery.md)。
+- Release-prep CI 與 strict release checks 通過；machine classification 為 security-ai／Risk C／providerCanaryRequired=false。最終 docs-only closure SHA 與部署仍待建立／驗證，annotated v1.5.0 tag 尚未建立；詳見 [v1.5 delivery](docs/v1.5-delivery.md)。
 
 ## 1.4.0 — Quiz Library search and filters
 

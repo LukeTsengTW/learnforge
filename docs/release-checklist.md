@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.5.0 release preparation
+## v1.5.0 production verification / closure preparation
 
-準備日期：2026-10-06。狀態：release candidate；尚未 production deployed。Current closed production 維持 v1.4.0，annotated tag target 為 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a。以下 v1.4 歷史 section 完整保留。
+驗證日期：2026-10-06。狀態：初始 v1.5.0 production deployment 與 required smoke PASS；docs-only closure preparation。初始 deployed SHA 為 c1f7b53666b7e0c19df25aa57fb1a0e4621226a5。Previous closed v1.4.0 annotated tag target 維持 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a；以下 v1.4 歷史 section 完整保留。
 
 已核對的 source facts：
 
@@ -15,23 +15,31 @@
 - [x] 本機 KaTeX remediation：^0.18.2 解析為 0.18.10；direct-only resolution 留下兩個 vulnerable nested copies，故加入最小 `"katex": "$katex"` override。最後只有一份 fixed copy；inherited-trust probe PASS，npm audit --omit=dev exit 0／0 vulnerabilities。
 - [x] 本機 Layout source diff 只有 v1.4.0 → v1.5.0；desktop 可見 v1.5.0，mobile 沿用既有隱藏 badge CSS，DOM 值為 v1.5.0。1280×900／360×800 Library、Home、Author 與 math regression PASS，沒有正式作答或 provider 呼叫。
 
-未完成的 release gates：
+已完成的 committed／production gates：
 
-- [ ] Release-prep diff review、exact release-prep commit 與 push。
-- [ ] Release-prep automatic CI success。
-- [ ] Clean-tree strict release checks 與 final risk classification；本 dirty preparation 不執行 release:check／release:manifest。
-- [ ] Provider canary requirement：TBD，依 classifier／rollout review 決定；執行需另行授權。
-- [ ] 再核對 v1.5.0 tag absence、exact source／remote release identity。
-- [ ] PENDING Edge rollout set：ai-tutor、ai-responses、save-quiz-draft、ai-grade、ai-drawing、submit-quiz → learnforge-demo / mrrssxqolvcjxgqzoeqt；先於 Pages cutover，保留既有 JWT 設定。
-- [ ] Edge versions／ACTIVE status／bundle provenance／canonical context compatibility verification。
-- [ ] Minimum discrete-math backend compatibility smoke；資料 mutation／provider probe 僅在另行授權時執行。
-- [ ] Exact v1.5 Pages deployment 與 public release.json identity smoke。
-- [ ] Production Library／Home UI 與 minimum authenticated quiz-path smoke。
-- [ ] Provider canary（僅在 final classification 要求且另行授權後）。
-- [ ] Closure evidence／commit（若需要）與 exact closure Pages deployment／final smoke。
-- [ ] Annotated v1.5.0 tag 指向已驗證的 final production closure SHA；沒有 GitHub Release 計畫或授權。
+- [x] Release-prep diff review、exact commit c1f7b53666b7e0c19df25aa57fb1a0e4621226a5 與 push。
+- [x] Release-prep automatic CI [run 37473338473](https://github.com/LukeTsengTW/learnforge/actions/runs/37473338473)：push/master、attempt 1、success；87 files／1266 tests，production audit 0 vulnerabilities。
+- [x] Clean-tree strict preflight／release:check：10/10 gates PASS；full base 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a。Source fingerprint 91bedafa0e2174b2f1119c457c5c94ed232b5e50f7063801f1b0934145298fa0。
+- [x] Machine classification：impact=security-ai、Risk C、providerCanaryRequired=false；不覆寫 machine result，沒有 provider canary／OpenAI 呼叫。source-map-js advisory 維持 MINOR／build-tool-only；production audit clean。
+- [x] 初始 cutover 前 exact clean source／remote SHA 與 v1.5.0 local／remote tag absence 再核對。
+- [x] Edge batch rollout：ai-responses 17→18、ai-grade 15→16、ai-drawing 15→16、save-quiz-draft 1→2、ai-tutor 15→16、submit-quiz 3→4 → learnforge-demo / mrrssxqolvcjxgqzoeqt；一次 batch，無 retry，先於 Pages cutover。
+- [x] 六個 Edge Functions ACTIVE；save-quiz-draft verify_jwt=true，其餘五個 false。ai-tutor／submit-quiz deployed source provenance 證明 40 contexts、原有 29 不變、新增 11 discrete-math/1 identities；五個 unaffected functions 未重新部署。cutover 前後 inventory unchanged。
+- [x] Minimum backend compatibility 以 management-plane canonical source/provenance 驗證；沒有 application endpoint／provider probe 或資料 mutation，不宣稱完整 formal grading E2E。
+- [x] 初始 Pages [run 37486449686](https://github.com/LukeTsengTW/learnforge/actions/runs/37486449686)、attempt 1、build/deploy success；deployment 6887929745／github-pages；所有 identity、quality、audit、build、manifest gates PASS。
+- [x] Canonical GET-only public smoke：root／release.json HTTP 200；app learnforge、version 1.5.0、gitSha c1f7b53666b7e0c19df25aa57fb1a0e4621226a5，exact 三個 keys；HTTPS／base／assets／production Supabase identity 正確。
+- [x] Production Home／Library desktop 1280×900、mobile 360×800 PASS：四 current cards、midterm 11 題／總分100分／約90分鐘；Home 布林代數基礎／13分；搜尋2025／Discrete Mathematics、科目／計算題篩選、empty reset／focus 正常；沒有 page overflow 或 console error。
+- [x] Production Author bundled read-only preview PASS：Stirling note、Q3(b)四個≥／165／sum8、Q6 246；沒有 KaTeX error／raw LaTeX leakage，mobile 長公式安全內部捲動；沒有 import/export/edit/save。
+- [x] Optional authenticated read-only smoke PASS：使用已存在的 production session，navigation／Library／search／filters 正常；沒有 credentials entry、attempt／draft／submission／account mutation、Tutor quota 或 provider 呼叫。
 
-本次 remediated local quality gates：lint／87 files、1266 tests／check:quizzes（5 revisions、4 current quizzes、40 questions）／check:ai-context（5 revisions、40 contexts）／check:edge-imports／build／git diff --check PASS；npm audit --omit=dev exit 0／0 vulnerabilities。Browser math regression PASS；只有開發環境 React DevTools shim／Fast Refresh warning 與 build chunk-size advisory，不影響上述 gates。不把 feature CI 當成 release-prep CI，也不把任何本機結果當成 production 證據。完整 dependency closure、schema1 draft／formal grading 路徑及 17 步 PENDING rollout 順序見 [v1.5 delivery](v1.5-delivery.md)。本次沒有 migration、schema、RLS、Auth、secret、provider configuration 或任何 production mutation。
+在這個 closure preparation snapshot 尚未完成的 gates：
+
+- [ ] 審閱四個 closure docs；建立一次 docs-only closure commit，capture exact SHA；此文件寫成時 commit 尚未建立，SHA intentionally TBD。
+- [ ] Push exact closure SHA 一次，require automatic closure CI success。
+- [ ] 從 exact clean closure SHA／version 1.5.0 dispatch final Pages，require deployment success。
+- [ ] Final public release.json exact closure SHA／HTTP 200、compact UI/mobile smoke、Edge unchanged／ACTIVE verification。
+- [ ] Annotated v1.5.0 tag 指向已驗證的 final production closure SHA；tag 目前 absent、需要另行授權。沒有 GitHub Release 計畫或授權。
+
+保留的 local remediation evidence：lint／87 files、1266 tests／check:quizzes（5 revisions、4 current quizzes、40 questions）／check:ai-context（5 revisions、40 contexts）／check:edge-imports／build／git diff --check PASS；npm audit --omit=dev exit 0／0 vulnerabilities。Local browser math regression PASS；development-only React DevTools warning／build chunk-size advisory 不影響 gates。Committed CI、strict checks、初始 Pages 與 production smoke 分別具備上述真實證據；不把 local 結果當成 production 結果。完整 source dependency closure、schema1 draft／formal grading 路徑、initial production evidence 及 remaining closure sequence 見 [v1.5 delivery](v1.5-delivery.md)。已授權 mutations 為六個 Edge bundles 與初始 Pages rollout；沒有 migration／schema／RLS／Auth／secret／provider configuration 或 user-data mutation。Final closure deployment／tag 在此 snapshot 保持 pending。
 
 ## v1.4.0 final release closure
 
