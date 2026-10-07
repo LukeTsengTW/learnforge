@@ -22,7 +22,7 @@ beforeEach(() => {
     left: 10, top: 20, width: 400, height: 300, right: 410, bottom: 320, x: 10, y: 20, toJSON: () => ({}),
   })
 })
-afterEach(() => { cleanup(); vi.restoreAllMocks(); localStorage.clear() })
+afterEach(() => { cleanup(); vi.restoreAllMocks(); vi.unstubAllGlobals(); localStorage.clear(); window.history.replaceState(null, '', '/') })
 
 function Harness({ onChange = vi.fn() }: { onChange?: (ink: DrawingStroke[]) => void }) {
   const [ink, setInk] = useState<DrawingStroke[]>([])
@@ -55,6 +55,150 @@ function draw(canvas: HTMLCanvasElement, type: string, id: number) {
   pointer(canvas, 'pointermove', type, id, 40, 60)
   pointer(canvas, 'pointerup', type, id, 50, 70)
 }
+
+describe('opt-in local drawing event diagnostics', () => {
+  type TraceEntry = { source: string; phase: string; type: string; label: string; decision: string; reason: string | null;
+    pointerId: number | null; pendingPointerId: number | null; time: number; changedTouches?: unknown[] }
+  let writeText: ReturnType<typeof vi.fn>
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/?drawingDebug=1')
+    writeText = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: { writeText } })
+  })
+  async function log() {
+    fireEvent.click(screen.getByRole('button', { name: '複製診斷紀錄' }))
+    await screen.findByText(/已複製/)
+    return JSON.parse(writeText.mock.lastCall![0]) as { entries: TraceEntry[]; dropped: number }
+  }
+  function diagnosticPointer(target: Element, type = 'pointerdown', fields: Record<string, unknown> = {}) {
+    const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: 20, clientY: 40, button: Number(fields.button ?? 0), buttons: 1 })
+    Object.defineProperties(event, Object.fromEntries(Object.entries({ pointerType: 'pen', pointerId: 31, isPrimary: true, pressure: 0.7, ...fields })
+      .filter(([key]) => key !== 'button').map(([key, value]) => [key, { value }])))
+    fireEvent(target, event)
+    return event
+  }
+  it.each(['', '?drawingDebug=0', '?drawingDebug=true'])('has no diagnostic panel, listeners or output without exact opt-in %s', search => {
+    window.history.replaceState(null, '', `/${search}`)
+    const listen = vi.spyOn(document, 'addEventListener')
+    render(<Harness />)
+    expect(screen.queryByRole('region', { name: '繪圖事件診斷' })).not.toBeInTheDocument()
+    expect(listen.mock.calls.filter(([type]) => /^(pointer|touch|gotpointer|lostpointer)/.test(type))).toEqual([])
+    draw(surface(), 'pen', 31)
+    expect(writeText).not.toHaveBeenCalled()
+  })
+  it('exports document/native canvas delivery and accepted React start with current state, without answer or account content', async () => {
+    render(<Harness />)
+    expect(screen.getByRole('region', { name: '繪圖事件診斷' })).toBeInTheDocument()
+    const canvas = surface()
+    diagnosticPointer(canvas)
+    const { entries } = await log()
+    const accepted = entries.find(e => e.label === 'START_ACCEPTED')!
+    expect(accepted).toMatchObject({ source: 'canvas', phase: 'react-handler', type: 'pointerdown', decision: 'accepted', reason: null,
+      pointerId: 31, pointerType: 'pen', isPrimary: true, button: 0, buttons: 1, pressure: 0.7, clientX: 20, clientY: 40,
+      hasPointerCapture: true, pendingPointerId: 31, inputMode: 'standard', target: { tag: 'canvas', classes: ['drawing-canvas'] } })
+    expect(accepted.time).toBeGreaterThanOrEqual(0)
+    expect(entries.filter(e => e.type === 'pointerdown').map(e => [e.source, e.phase])).toEqual([
+      ['document-capture', 'dom'], ['canvas', 'dom'], ['canvas', 'react-handler'],
+    ])
+    expect(JSON.stringify(entries)).not.toMatch(/strokes|answer|email|account|input-test/)
+  })
+  it.each([
+    { reason: 'touch-stylus-mode', fields: { pointerType: 'touch' }, stylus: true, pending: false },
+    { reason: 'button', fields: { button: 2 }, stylus: false, pending: false },
+    { reason: 'not-primary', fields: { isPrimary: false }, stylus: false, pending: false },
+    { reason: 'pending-active', fields: { pointerId: 32 }, stylus: false, pending: true },
+  ])('records unchanged pointerdown rejection: $reason', async ({ reason, fields, stylus, pending }) => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    if (stylus) mode('stylus')
+    if (pending) diagnosticPointer(canvas)
+    const event = diagnosticPointer(canvas, 'pointerdown', fields)
+    const rejected = (await log()).entries.find(e => e.reason === reason)!
+    expect(rejected).toMatchObject({ decision: 'rejected', label: 'START_REJECTED', pendingPointerId: pending ? 31 : null })
+    expect(event.defaultPrevented).toBe(false)
+    expect(onChange).not.toHaveBeenCalled()
+    expect(canvas.setPointerCapture).toHaveBeenCalledTimes(pending ? 1 : 0)
+  })
+  it('observes document events without canvas delivery and native canvas events when React propagation is blocked', async () => {
+    render(<Harness />)
+    const canvas = surface()
+    const unrelated = document.createElement('input')
+    unrelated.className = 'private-account'; unrelated.value = 'private answer'
+    document.body.append(unrelated)
+    diagnosticPointer(unrelated, 'pointerdown', { pointerId: 77 })
+    canvas.addEventListener('pointerdown', event => event.stopPropagation(), { once: true })
+    diagnosticPointer(canvas)
+    const { entries } = await log()
+    expect(entries.filter(e => e.pointerId === 77)).toMatchObject([{ source: 'document-capture', target: { tag: 'input', classes: [] } }])
+    expect(entries.filter(e => e.pointerId === 31).map(e => e.phase)).toEqual(['dom', 'dom'])
+    expect(canvas.setPointerCapture).not.toHaveBeenCalled()
+    expect(JSON.stringify(entries)).not.toContain('private')
+    unrelated.remove()
+  })
+  it('passively observes all pointer boundary/capture and touch fallback events without drawing from Touch', async () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    for (const type of ['pointerover', 'pointerenter', 'pointerout', 'pointerleave', 'gotpointercapture', 'lostpointercapture']) diagnosticPointer(canvas, type)
+    for (const type of ['touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+      const event = new Event(type, { bubbles: true, cancelable: true })
+      Object.defineProperty(event, 'changedTouches', { value: [{ identifier: 9, touchType: 'stylus', clientX: 23, clientY: 45 }] })
+      fireEvent(canvas, event)
+      expect(event.defaultPrevented).toBe(false)
+    }
+    const { entries } = await log()
+    for (const type of ['pointerover', 'pointerenter', 'pointerout', 'pointerleave', 'gotpointercapture', 'lostpointercapture', 'touchstart', 'touchmove', 'touchend', 'touchcancel']) {
+      expect(entries.filter(e => e.type === type && e.phase === 'dom').map(e => e.source)).toEqual(['document-capture', 'canvas'])
+    }
+    expect(entries.find(e => e.type === 'touchstart')).toMatchObject({ changedTouches: [{ identifier: 9, touchType: 'stylus', clientX: 23, clientY: 45 }] })
+    expect(onChange).not.toHaveBeenCalled()
+    expect(canvas.setPointerCapture).not.toHaveBeenCalled()
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+  })
+  it('preserves rapid reused-ID strokes and records stale loss versus real commit without network or storage writes', async () => {
+    const fetch = vi.fn()
+    vi.stubGlobal('fetch', fetch)
+    const storage = vi.spyOn(Storage.prototype, 'setItem')
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'lostpointercapture', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
+    const { entries } = await log()
+    expect(onChange.mock.lastCall![0]).toEqual([stroke, stroke])
+    expect(entries.filter(e => e.label === 'UP_COMMIT')).toHaveLength(2)
+    expect(entries.find(e => e.label === 'STALE_CAPTURE_IGNORED')).toMatchObject({ hasPointerCapture: true, pendingPointerId: 31 })
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+    expect(fetch).not.toHaveBeenCalled()
+    expect(storage).not.toHaveBeenCalled()
+  })
+  it('bounds memory, clears all entries, and removes observation listeners when unmounted', async () => {
+    const remove = vi.spyOn(document, 'removeEventListener')
+    const view = render(<Harness />)
+    const canvas = surface()
+    for (let i = 0; i < 220; i++) diagnosticPointer(canvas, 'pointermove', { pointerId: i })
+    const full = await log()
+    expect(full.entries.length).toBeLessThanOrEqual(500)
+    expect(full.dropped).toBeGreaterThan(0)
+    expect(full.entries.some(e => e.pointerId === 219)).toBe(true)
+    fireEvent.click(screen.getByRole('button', { name: '清除紀錄' }))
+    expect((await log()).entries).toEqual([])
+    view.unmount()
+    expect(remove.mock.calls.filter(([type]) => /^(pointer|touch|gotpointer|lostpointer)/.test(type))).toHaveLength(14)
+  })
+  it('offers manual copy fallback if the browser clipboard is unavailable', async () => {
+    Object.defineProperty(navigator, 'clipboard', { configurable: true, value: undefined })
+    render(<Harness />)
+    diagnosticPointer(surface())
+    fireEvent.click(screen.getByRole('button', { name: '複製診斷紀錄' }))
+    const field = await screen.findByRole('textbox', { name: '診斷紀錄' })
+    expect(JSON.parse((field as HTMLTextAreaElement).value).entries.some((e: TraceEntry) => e.label === 'START_ACCEPTED')).toBe(true)
+  })
+})
 
 describe('drawing input preference and pointer routing', () => {
   it('defaults to standard and changes the accessible description without changing ink', () => {

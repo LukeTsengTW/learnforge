@@ -3,6 +3,7 @@ import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool
 import type { DrawingConfig } from '../../models/quiz'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
 import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
+import { DrawingDebugPanel, useDrawingDebug, type DebugDecision } from './drawing-debug'
 
 interface DrawingCanvasProps {
   id: string
@@ -32,6 +33,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const [status, setStatus] = useState('')
   const [confirmClear, setConfirmClear] = useState(false)
   const [inputMode, setInputMode] = useState<DrawingInputMode>(getDrawingInputMode)
+  const debug = useDrawingDebug(canvas, pending, inputMode)
 
   const paint = (ink: DrawingStroke[]) => {
     const context = canvas.current?.getContext('2d')
@@ -61,35 +63,49 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   function point(event: PointerEvent<HTMLCanvasElement>) {
     return toLogicalPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), config)
   }
+  function trace(event: PointerEvent<HTMLCanvasElement>, decision: DebugDecision, label: string, reason: string | null = null) {
+    if (debug) debug.record(event.nativeEvent, 'canvas', 'react-handler', {
+      canvas: event.currentTarget, pendingPointerId: pending.current?.pointerId ?? null, inputMode,
+    }, decision, label, reason)
+  }
   function start(event: PointerEvent<HTMLCanvasElement>) {
     // Reject touch before it can own pending ink or capture, including primary palms.
-    if (inputMode === 'stylus' && event.pointerType === 'touch') return
-    if (event.button !== 0 || !event.isPrimary || pending.current) return
+    if (inputMode === 'stylus' && event.pointerType === 'touch') { trace(event, 'rejected', 'START_REJECTED', 'touch-stylus-mode'); return }
+    if (event.button !== 0) { trace(event, 'rejected', 'START_REJECTED', 'button'); return }
+    if (!event.isPrimary) { trace(event, 'rejected', 'START_REJECTED', 'not-primary'); return }
+    if (pending.current) { trace(event, 'rejected', 'START_REJECTED', 'pending-active'); return }
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
+    trace(event, 'accepted', 'START_ACCEPTED')
     paint([...committed.current, pending.current.stroke])
   }
   function move(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
-    if (!active || active.pointerId !== event.pointerId) return
+    if (!active || active.pointerId !== event.pointerId) { trace(event, 'rejected', 'MOVE_IGNORED', active ? 'pointer-mismatch' : 'no-pending'); return }
+    trace(event, 'accepted', 'MOVE_ACCEPTED')
     event.preventDefault()
     active.stroke.points.push(point(event))
     paint([...committed.current, active.stroke])
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
-    if (!active || active.pointerId !== event.pointerId) return
+    if (!active || active.pointerId !== event.pointerId) { trace(event, 'rejected', 'UP_IGNORED', active ? 'pointer-mismatch' : 'no-pending'); return }
+    trace(event, 'accepted', 'UP_COMMIT')
     active.stroke.points.push(point(event))
     commitPendingStroke()
   }
   function cancel(event: PointerEvent<HTMLCanvasElement>) {
-    if (pending.current?.pointerId === event.pointerId) commitPendingStroke()
+    if (pending.current?.pointerId === event.pointerId) {
+      trace(event, 'accepted', event.type === 'lostpointercapture' ? 'LOST_CAPTURE_COMMIT' : 'CANCEL_COMMIT')
+      commitPendingStroke()
+    } else trace(event, 'rejected', 'END_IGNORED', pending.current ? 'pointer-mismatch' : 'no-pending')
   }
   function lostCapture(event: PointerEvent<HTMLCanvasElement>) {
     // A delayed loss from the previous contact can reuse the current pointerId.
     // hasPointerCapture reflects the new capture immediately after pointerdown.
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) cancel(event)
+    else trace(event, 'rejected', 'STALE_CAPTURE_IGNORED', 'currently-captured')
   }
   function commitPendingStroke() {
     const active = pending.current
@@ -100,6 +116,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   }
   function flushPendingStroke() {
     const active = pending.current
+    debug?.record(null, 'canvas', 'imperative', { canvas: canvas.current, pendingPointerId: active?.pointerId ?? null, inputMode },
+      active ? 'accepted' : 'observed', active ? 'FLUSH_COMMIT' : 'FLUSH_IDLE')
     const next = commitPendingStroke()
     const element = canvas.current
     // Only imperative flush needs explicit release; up/cancel release implicitly.
@@ -166,5 +184,6 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
       <div className="inline-actions"><button type="button" onClick={() => changeDrawing({ type: 'clear' })}>確認清除</button>
         <button type="button" onClick={() => setConfirmClear(false)}>保留畫布</button></div></div>}
     <p className="drawing-status" role="status">{status}</p>
+    {debug && <DrawingDebugPanel debug={debug} />}
   </div>
 }
