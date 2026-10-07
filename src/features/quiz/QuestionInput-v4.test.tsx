@@ -10,6 +10,8 @@ import type { PendingInputFlush } from './attempt-context'
 import { FORMAL_TEXT_LIMIT_NOTICE, QuestionInput } from './QuestionInput'
 import { QuestionCard } from './QuestionCard'
 import { pen, v3Quiz, v4Quiz } from './practice-v4.test-helper'
+import { quizCatalog } from './quiz-loader'
+import { requiresV4Draft } from '../../lib/draft-v4'
 
 vi.mock('../ai/AiTutorControls', () => ({ AiTutorControls: () => <div data-testid="ai-tutor-controls" /> }))
 const capable = v4Quiz.questions.find((question) => question.id === 'q_hand') as CalculationQuestion
@@ -41,6 +43,47 @@ function Harness({ question, schema, initial, onChange, register }: {
 }
 
 describe('M5 schema-aware calculation input', () => {
+  it.each(['q2', 'q3', 'q4', 'q5', 'q6'])('renders both modes and retains both buffers for discrete-math/2 %s', async (id) => {
+    const quiz = quizCatalog.getQuizRevision('discrete-math', '2')!
+    expect(requiresV4Draft(quiz)).toBe(true)
+    const question = quiz.questions.find((item) => item.id === id) as CalculationQuestion
+    const user = userEvent.setup(), onChange = vi.fn()
+    render(<Harness question={question} schema={2} onChange={onChange} />)
+    expect(screen.getByRole('radio', { name: '打字' })).toBeChecked()
+    fireEvent.change(screen.getByLabelText('你的推導過程'), { target: { value: '  $x = \\frac{6}{2}$\n' } })
+    await user.click(screen.getByRole('radio', { name: '手寫' }))
+    const canvas = screen.getByRole('img', { name: '繪圖作答區' })
+    expect(canvas).toHaveAttribute('width', '1200')
+    expect(canvas).toHaveAttribute('height', '900')
+    canvas.setPointerCapture = vi.fn(); canvas.hasPointerCapture = vi.fn(() => false); canvas.releasePointerCapture = vi.fn()
+    pointer(canvas, 'pointerdown', 10, 10); pointer(canvas, 'pointermove', 50, 50); pointer(canvas, 'pointerup', 60, 60)
+    const drawn = onChange.mock.lastCall![0]
+    expect(drawn.strokes).toHaveLength(1)
+    await user.click(screen.getByRole('radio', { name: '打字' }))
+    expect(screen.getByLabelText('你的推導過程')).toHaveValue(drawn.text)
+    expect(onChange).toHaveBeenLastCalledWith({ ...drawn, mode: 'text' })
+    await user.click(screen.getByRole('radio', { name: '手寫' }))
+    expect(onChange).toHaveBeenLastCalledWith(drawn)
+    cleanup()
+    const historical = quizCatalog.getQuizRevision('discrete-math', '1')!
+    expect(requiresV4Draft(historical)).toBe(false)
+    render(<Harness question={historical.questions.find((item) => item.id === id) as CalculationQuestion}
+      schema={1} onChange={vi.fn()} />)
+    expect(screen.queryByRole('radio')).toBeNull()
+    expect(screen.getByLabelText('你的推導過程')).toBeInTheDocument()
+  })
+
+  it('keeps all six discrete math single-choice inputs free of handwriting controls', () => {
+    const quiz = quizCatalog.getQuizRevision('discrete-math', '2')!
+    const singles = quiz.questions.filter((question) => question.type === 'single')
+    expect(singles).toHaveLength(6)
+    for (const question of singles) {
+      render(<QuestionInput question={question} answer={undefined} draftSchema={2} onChange={vi.fn()} />)
+      expect(screen.queryByRole('group', { name: '本題作答方式' })).toBeNull()
+      expect(screen.queryByRole('img', { name: '繪圖作答區' })).toBeNull()
+      cleanup()
+    }
+  })
   it('keeps the exact legacy textarea and legacy answer for schema 1', async () => {
     const onChange = vi.fn()
     render(<Harness question={legacyCalc} schema={1} onChange={onChange} />)

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { toTutorContext } from '../../../scripts/ai-quiz-context'
-import { quizCatalog } from '../quiz/quiz-loader'
+import { bundledQuizSources, quizCatalog } from '../quiz/quiz-loader'
+import { parseQuiz } from '../../lib/quiz-parser'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import {
   AI_TUTOR_MODEL, AI_TUTOR_REASONING_EFFORT, TUTOR_RESPONSE_SCHEMA, TUTOR_INSTRUCTIONS,
@@ -25,8 +26,17 @@ const responseBody = (text: string) => ({ id: 'resp_fixture', status: 'completed
 
 describe('generated canonical Tutor context', () => {
   it('matches every bundled quiz revision and exact question through the existing parser', () => {
-    // 29 existing questions plus the eleven discrete-math/1 questions.
-    expect(contexts.length).toBe(40)
+    const identity = (quizId: string, revision: string, questionId: string) => JSON.stringify([quizId, revision, questionId])
+    const expectedIdentities = Object.values(bundledQuizSources).flatMap((source) => {
+      const quiz = parseQuiz(source, true)
+      return quiz.questions.map((question) => identity(quiz.id, quiz.revision, question.id))
+    })
+    const expected = new Set(expectedIdentities)
+    const actual = new Set(contexts.map((context) => identity(context.quizId, context.revision, context.questionId)))
+    expect(expected.size).toBe(expectedIdentities.length)
+    expect(actual.size).toBe(contexts.length)
+    expect(actual).toEqual(expected)
+    expect(contexts.length).toBe(expected.size)
     for (const context of contexts) {
       const quiz = quizCatalog.getQuizRevision(context.quizId, context.revision)
       expect(quiz).not.toBeNull()

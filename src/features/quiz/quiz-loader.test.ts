@@ -23,9 +23,9 @@ describe('bundled quiz catalog', () => {
   it('loads the approved midterm with declared total distinct from deterministic capacity', () => {
     const entry = quizCatalog.current.find(({ quiz }) => quiz.id === 'discrete-math')
     expect(entry).toMatchObject({ questionCount: 11, totalPoints: 100, maxPoints: 36,
-      quiz: { id: 'discrete-math', revision: '1', current: true, title: '2025 Discrete Mathematics 期中考', subject: '離散數學', estimatedMinutes: 90 } })
+      quiz: { id: 'discrete-math', revision: '2', current: true, title: '2025 Discrete Mathematics 期中考', subject: '離散數學', estimatedMinutes: 90 } })
     const quiz = quizCatalog.getCurrentQuiz('discrete-math')!
-    expect(quizCatalog.getQuizRevision('discrete-math', '1')).toBe(quiz)
+    expect(quizCatalog.getQuizRevision('discrete-math', '2')).toBe(quiz)
     expect(quizCatalog.current.filter(({ quiz }) => quiz.id === 'discrete-math')).toHaveLength(1)
     expect(quiz.questions.filter((question) => question.type === 'single')).toHaveLength(6)
     expect(quiz.questions.filter((question) => question.type === 'calculation')).toHaveLength(5)
@@ -38,6 +38,23 @@ describe('bundled quiz catalog', () => {
   })
   it('preserves the published demo revision', () => {
     expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')?.questions).toHaveLength(7)
+  })
+  it('archives discrete math revision 1 and preserves every question field in revision 2', () => {
+    const v1 = quizCatalog.getQuizRevision('discrete-math', '1')!
+    const v2 = quizCatalog.getCurrentQuiz('discrete-math')!
+    expect(v1.current).toBe(false)
+    expect(v2.revision).toBe('2')
+    expect(v2.current).toBe(true)
+    expect({ ...v2, revision: v1.revision, current: v1.current, questions: v1.questions }).toEqual(v1)
+    expect(v2.questions.map(({ id }) => id)).toEqual(v1.questions.map(({ id }) => id))
+    const calculations = v2.questions.filter((question) => question.type === 'calculation')
+    expect(calculations.map(({ id }) => id)).toEqual(['q2', 'q3', 'q4', 'q5', 'q6'])
+    for (const [index, question] of v2.questions.entries()) {
+      expect(v1.questions[index]).not.toHaveProperty('drawing')
+      expect(question).toEqual(question.type === 'calculation'
+        ? { ...v1.questions[index], drawing: { width: 1200, height: 900 } }
+        : v1.questions[index])
+    }
   })
   it('publishes demo v2-handwriting as v1 content with handwriting added only to q6', () => {
     const v1 = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
