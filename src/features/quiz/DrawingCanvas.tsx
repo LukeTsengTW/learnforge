@@ -2,6 +2,7 @@ import { useEffect, useImperativeHandle, useRef, useState, type PointerEvent, ty
 import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
+import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
 
 interface DrawingCanvasProps {
   id: string
@@ -26,6 +27,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const [width, setWidth] = useState(4)
   const [status, setStatus] = useState('')
   const [confirmClear, setConfirmClear] = useState(false)
+  const [inputMode, setInputMode] = useState<DrawingInputMode>(getDrawingInputMode)
 
   const paint = (ink: DrawingStroke[]) => {
     const context = canvas.current?.getContext('2d')
@@ -48,6 +50,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     return toLogicalPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), config)
   }
   function start(event: PointerEvent<HTMLCanvasElement>) {
+    // Reject touch before it can own pending ink or capture, including primary palms.
+    if (inputMode === 'stylus' && event.pointerType === 'touch') return
     if (event.button !== 0 || !event.isPrimary || pending.current) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -103,15 +107,30 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
         <button type="button" disabled={!history.strokes.length} onClick={() => changeDrawing({ type: 'undo' })}>復原</button>
         <button type="button" disabled={!history.undone.length} onClick={() => changeDrawing({ type: 'redo' })}>重做</button>
       </div>
+      <label className="drawing-input-label" htmlFor={`${id}-input-mode`}>輸入方式
+        <select id={`${id}-input-mode`} value={inputMode} aria-describedby={`${id}-instructions`}
+          onChange={(event) => {
+            const mode: DrawingInputMode = event.target.value === 'stylus' ? 'stylus' : 'standard'
+            setInputMode(mode)
+            saveDrawingInputMode(mode)
+          }}>
+          <option value="standard">標準</option>
+          <option value="stylus">觸控筆優先</option>
+        </select>
+      </label>
     </div>
     <div className="canvas-frame">
       <canvas ref={canvas} width={config.width} height={config.height} className="drawing-canvas"
         aria-label="繪圖作答區" aria-describedby={`${id}-instructions`} role="img"
+        onContextMenu={(event) => event.preventDefault()}
         onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish}>
         你的瀏覽器不支援 Canvas。請使用新版瀏覽器繪圖。
       </canvas>
     </div>
-    <div className="drawing-bottom"><p id={`${id}-instructions`}>使用滑鼠、手指或觸控筆繪圖。工具可用鍵盤操作。</p>
+    <div className="drawing-bottom"><p id={`${id}-instructions`}>
+      <span>{inputMode === 'stylus' ? '已忽略手指與手掌觸控；請使用觸控筆或滑鼠繪圖。' : '滑鼠、手指與觸控筆皆可繪圖'}</span>
+      {' '}工具可用鍵盤操作。
+    </p>
       <div className="inline-actions">
         <button className="text-button" type="button" disabled={!history.strokes.length} onClick={() => setConfirmClear(true)}>清除畫布</button>
         <button className="text-button" type="button" onClick={exportPng}>匯出 PNG</button>
