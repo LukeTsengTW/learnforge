@@ -1,8 +1,8 @@
 # LearnForge
 
-**Release target：v1.6.0 — Dark Mode。** Source version 與桌面版本標籤已準備為 v1.6.0；CI、Pages 與 production smoke 依 exact SHA 執行，尚未把 preparation 視為 production PASS。Light／Dark 主題、明確選擇的本機持久保存與首次造訪的系統預設見 [v1.6 交付文件](docs/v1.6-delivery.md)。
+**Production verified：v1.6.0 — Dark Mode。** Replacement Pages deployment 與 canonical／authenticated read-only smoke 已在 e3aaedb5badc34f9b64507ef5de5b06fa796c445 通過；此為 docs-only closure snapshot，final closure SHA／CI／Pages 身分由 post-commit verification report 記錄。Immutable v1.6.0 tag 尚未建立，需要另行授權。Light／Dark、偏好保存及完整 remediation history 見 [v1.6 交付文件](docs/v1.6-delivery.md)。
 
-**Current closed production：v1.5.0。** Production release.json 與 annotated v1.5.0 tag 都指向 e06b740be8cc33776757f16360d76c381ed56a19；此 release identity 永久保留。v1.5 的期中考、declared totalPoints、KaTeX 修復與既有 backend rollout 維持。[v1.5 交付文件](docs/v1.5-delivery.md)、[v1.4](docs/v1.4-delivery.md)、[v1.3](docs/v1.3-delivery.md)、[v1.2](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史 snapshots。
+**Previous permanently closed release：v1.5.0。** Annotated v1.5.0 tag 的 canonical target 維持 e06b740be8cc33776757f16360d76c381ed56a19；此 release identity 永久保留，不把 v1.6 source 當成 v1.5 重新部署。v1.5 的期中考、declared totalPoints、KaTeX 修復與既有 backend rollout 維持。[v1.5 交付文件](docs/v1.5-delivery.md)、[v1.4](docs/v1.4-delivery.md)、[v1.3](docs/v1.3-delivery.md)、[v1.2](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史 snapshots。
 
 v1.3 的多模態計算題契約維持：宣告手寫能力的精確題目版本可讓計算題選擇打字或手寫；正式提交依目前選取的模式評分，結果保存供日後重建。
 

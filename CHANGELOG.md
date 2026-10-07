@@ -3,12 +3,14 @@
 ## 1.6.0 — Dark Mode
 
 準備日期：2026-10-07。
-狀態：release preparation；exact-SHA CI／Pages／production smoke 與 docs-only closure 尚待完成，annotated v1.6.0 tag 未建立且需要另行授權。
+狀態：replacement production deployment、canonical public smoke 與 authenticated read-only Dark Mode smoke PASS；docs-only closure preparation。Final closure commit／CI／Pages／manifest 在 post-commit verification report 核對；annotated v1.6.0 tag 未建立且需要另行授權。
 
 - 新增全域 Light／Dark 主題，以 centralized semantic CSS tokens 與 root data-theme 套用至 navigation、surfaces、controls、quiz/result states、code、KaTeX 與 Author；保留原有 Light 配色。
 - Header 的「深色模式」原生按鈕提供 aria-pressed、Enter／Space 操作與可見 keyboard focus，維持手機與平板排版。
 - 明確選擇保存於 learnforge:theme，reload 與後續 OS theme 變更不覆寫；首次沒有有效偏好時使用 prefers-color-scheme。同步同源 head bootstrap 避免 saved-dark 載入時的 Light flash，沿用既有 CSP。
-- Dark Mode feature commit 567039f236b751434f28b8664f61e0b66a09021f 的 CI 與既有實作驗證已完成；本 release preparation 只更新版本與發布文件，不修改該實作。
+- Dark Mode feature commit 567039f236b751434f28b8664f61e0b66a09021f 與 release-prep b18d9460bf6d199ab04ccfcae3f59c566ad17fed 的 CI 通過。初始 Pages 成功，但 canonical smoke 拒絕 public-root bootstrap；remediation e3aaedb5badc34f9b64507ef5de5b06fa796c445 將相同 bytes 移至 /learnforge/assets/theme-init.js，維持 synchronous classic head script 與原有 theme semantics。
+- 保留 jsdom test-harness failure、Node harness 修正／109 focused tests PASS，以及第二次 offline smoke failure 的完整歷史。後者實際是 AdGuard 注入 loopback HTML；原 stop report 將 linkedAssets 的 line 192 誤標為 static import。Canonical smoke/parser/security contract 未改，exact-file offline harness 與 production network smoke 均通過。
+- Remediation CI 37575119526、replacement Pages 37575293906／deployment 6902285847 成功；clean source-bound ten gates／1,284 tests／production audit PASS。Light／Dark switching、Enter／Space／focus、reload persistence、Library filters 與 360／768／1440 的 quiz/result KaTeX previews 通過；system fallback 另由 production bootstrap bytes 的七個 controlled VM scenarios 驗證。
 - 沒有 dependency、quiz content、scoring、AI context、Supabase／Edge／Auth／RLS 或 migration 變更；沒有 provider canary。v1.5.0 canonical release identity 與歷史文件保留。
 
 ## 1.5.0 — Discrete Mathematics midterm quiz

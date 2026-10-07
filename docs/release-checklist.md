@@ -1,22 +1,25 @@
 # Release checklist
 
-## v1.6.0 release preparation
+## v1.6.0 production verification / closure preparation
 
-準備日期：2026-10-07。Release target 1.6.0；production baseline 是永久 CLOSED 的 v1.5.0／e06b740be8cc33776757f16360d76c381ed56a19。以下歷史 sections 保留原樣。
+驗證日期：2026-10-07。Replacement v1.6.0 production／required smoke PASS at e3aaedb5badc34f9b64507ef5de5b06fa796c445；docs-only closure preparation。Comparison baseline 是永久 CLOSED 的 v1.5.0／e06b740be8cc33776757f16360d76c381ed56a19。以下歷史 sections 保留原樣。
 
 - [x] 起始 working tree clean；local HEAD／remote master = 567039f236b751434f28b8664f61e0b66a09021f；沒有 drift。
 - [x] Feature automatic CI [37552181064](https://github.com/LukeTsengTW/learnforge/actions/runs/37552181064) 成功，push/master、attempt 1、exact feature SHA。
 - [x] v1.5.0 local／remote annotated tag peeled target 與 production manifest baseline = e06b740be8cc33776757f16360d76c381ed56a19；v1.6.0 local／remote tag absent。
 - [x] 起始 strict preflight PASS。Machine impact=security-ai／Risk C／providerCanaryRequired=false；unknown bootstrap paths、author CSS path heuristic 與未修改的 ignored .env.local 保留 conservative result。Actual committed runtime delta 為 frontend-only，human-reviewed product policy Risk B；沒有 backend rollout。
 - [x] Package 與 lockfile root versions、visible Layout label 準備為 1.6.0；沒有 dependency／Dark Mode source／backend／content 修改。
-- [ ] Full local release:check／release-prep diff audit、one release-prep commit、exact-SHA push、automatic CI。
-- [ ] Clean candidate preflight（包含 tag absence）與 source-bound release:check PASS。
-- [ ] Initial deploy.yml dispatch from master：exact release-prep SHA、release_version=1.6.0；workflow／Pages deployment success。
-- [ ] Canonical GET-only public smoke、authenticated read-only theme smoke、desktop／tablet／mobile、math／result preview、persistence／system-default checks PASS。
+- [x] Original release-prep b18d9460bf6d199ab04ccfcae3f59c566ad17fed／CI [37554010777](https://github.com/LukeTsengTW/learnforge/actions/runs/37554010777) success。
+- [x] Initial Pages [37554255396](https://github.com/LukeTsengTW/learnforge/actions/runs/37554255396)／deployment 6898896968 success；其 canonical smoke 因 public-root /learnforge/theme-init.js 不符合 assets contract 而 FAIL，未把 deployment success 當成 smoke PASS。
+- [x] First continuation 的 jsdom filesystem URL harness defect 保留；Node source-text harness 修正後 3 files／109 focused tests PASS。Bootstrap bytes unchanged、Pages assets path／pre-paint order／no collision proof PASS。
+- [x] 第二次 offline FAIL 精確診斷：AdGuard 在 loopback index.html 注入 external script，offset 901；assetUrl line 36 的 %／?／& rejection 正確。原 report 的 static-import 說法更正為 HTML linkedAssets line 192。Ignored exact-file harness PASS，captured injected reference 仍在 fetch 前被拒絕；canonical source/parser/dependencies 未改。
+- [x] Exactly one remediation commit e3aaedb5badc34f9b64507ef5de5b06fa796c445／exact-SHA push／CI [37575119526](https://github.com/LukeTsengTW/learnforge/actions/runs/37575119526) success；strict clean preflight/tag absence／source-bound release:check against v1.5.0 的 ten gates、1,284 tests、production audit、release:report PASS。
+- [x] Replacement Pages [37575293906](https://github.com/LukeTsengTW/learnforge/actions/runs/37575293906)／deployment 6902285847 success，exact remediation SHA、release_version=1.6.0。
+- [x] Canonical network public smoke PASS：release.json exact remediation identity、five JS assets、expected Supabase public ref；authenticated read-only Light／Dark toggle／keyboard focus／reload persistence、Home／Library filters、bundled Student／Answer previews、360／768／1440、KaTeX／no raw LaTeX／no page overflow／no relevant console/CSP error PASS。七個 production-byte VM cases 驗證 system fallback；未修改 OS theme。
 - [ ] Exactly one docs-only closure commit／push、exact closure CI、final Pages deployment／production manifest／compact smoke PASS。
 - [ ] Separate immutable v1.6.0 tag authorization；此 stage 不建立 tag／GitHub Release。
 
-詳細 scope、lineage、evidence 與 remaining gates 見 [v1.6 delivery](v1.6-delivery.md)。Production Supabase project identity 沿用 learnforge-demo／mrrssxqolvcjxgqzoeqt；不做 DB／Edge／Auth／RLS／secret／provider 或 user-data mutation。
+Closure commit 尚未建立，不在文件內自我引用未來 SHA／CI／deployment；final gates 由 post-commit verification report 記錄，沒有第二個 closure docs commit。詳細 failure history、scope、evidence 與 remaining gates 見 [v1.6 delivery](v1.6-delivery.md)。Production Supabase identity 沿用 learnforge-demo／mrrssxqolvcjxgqzoeqt；沒有 DB／Edge／Auth／RLS／secret／provider 或 real-user practice mutation。
 
 ## v1.5.0 production verification / closure preparation
 
