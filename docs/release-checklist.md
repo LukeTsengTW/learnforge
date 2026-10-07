@@ -1,6 +1,6 @@
 # Release checklist
 
-## v1.6.1 release preparation
+## v1.6.1 production verification / closure preparation
 
 日期：2026-10-07。比較基準為 immutable `v1.6.0`／`9575a17f0541c85c46f81bd88820ff7f91c7964c`；以下歷史 records 保留原樣。
 
@@ -9,10 +9,11 @@
 - [x] 6 bundled revisions／4 current quizzes／51 questions／51 contexts；全部原有 40 contexts 不變，只新增 11 discrete-math/2 contexts。
 - [x] 16 files／411 focused tests；stale dynamic-inventory correction 後 supplemental 4 files／60 tests；DrawingStroke fixture typing correction 後 tsc、quizzes、AI context、Edge imports、Pages-base build、diff check PASS。
 - [x] One local feature commit `b43c3120be1d9aa73a00e5971f90bac084d50f9a`；package/lock roots/visible label 準備為 1.6.1，無 dependency changes。
-- [ ] Clean/source-bound candidate release checks against v1.6.0；single exact release-prep-tip push；exact CI。
-- [ ] Risk C production preflight；proven six-function Edge batch／ACTIVE／JWT／deployed source/context verification；provider canary only when classifier requires。
-- [ ] Initial exact Pages deployment；canonical public smoke；non-persisting typed/handwritten／Dark／KaTeX／responsive product smoke。
-- [ ] One docs-only closure commit／push／CI；final exact Pages deployment；manifest/SHA parity／UI/Edge smoke／clean tree。
+- [x] 兩個 stale capability assertions 已證明並窄幅修正；test-fix／final candidate `c8c84f89c8541a0e9a74ec666d983f7d198d0dad` 在既有 feature／release-prep 上追加，沒有改寫歷史。Affected 2 files／28 tests、tsc、full 90 files／1,300 tests 與 validators PASS。
+- [x] Clean/source-bound ten candidate release gates against v1.6.0；single exact candidate-tip push 含三個 commits；exact CI [37599748395](https://github.com/LukeTsengTW/learnforge/actions/runs/37599748395) success。
+- [x] Risk C／providerCanaryRequired=false；learnforge-demo／mrrssxqolvcjxgqzoeqt 確認。六函式一次 batch 部署、ACTIVE／JWT／完整 runtime source／51-context hash PASS；沒有重部署其他五函式或 provider canary。
+- [x] Initial exact Pages [37601057313](https://github.com/LukeTsengTW/learnforge/actions/runs/37601057313)／deployment 6906473959 success；canonical public smoke、live revision-2 Library/Author、controlled typed/handwritten fixture、Dark／KaTeX／360/768/1440 layouts PASS。九個 deployed JS assets 與 exact workflow artifact bytes 相同。
+- [ ] One docs-only closure commit／push／CI；final exact Pages deployment；manifest/SHA parity／UI/Edge smoke／clean tree：post-commit report 核對，未在此 snapshot 預先宣稱未執行的結果。
 - [x] v1.6.1 tag／GitHub Release excluded from this authorized stage；v1.6.0 immutable。
 
 Actual evidence and limitations: [v1.6.1 delivery](v1.6.1-delivery.md)。No DB/RLS/Auth/secret/data mutations or water-quality-system work.
