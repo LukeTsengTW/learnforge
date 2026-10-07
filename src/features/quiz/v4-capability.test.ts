@@ -36,17 +36,20 @@ const saveRequest = (answers: Record<string, unknown>) => new Request('https://l
   body: JSON.stringify({ attemptId, expectedUpdatedAt: version, clientUpdatedAt: '2026-10-02T05:00:02.000Z', answers }) })
 
 describe('M5.1 one exact-revision v4 capability rule', () => {
-  it('client and Edge share the same predicate; only bundled demo/v2-handwriting selects schema 2 / v4', () => {
+  it('client and Edge select schema 2 / v4 from each exact revision calculation drawing capability', () => {
     expect(requiresV4DraftContext(v4Quiz.questions)).toBe(true)
     expect(requiresV4DraftContext(v3Quiz.questions)).toBe(false)
     expect(requiresV4DraftContext(edgeLookup.listRevision(v4Quiz.id, R1))).toBe(true)
     expect(requiresV4DraftContext(edgeLookup.listRevision(v4Quiz.id, R0))).toBe(false)
     for (const entry of quizCatalog.current) {
       expect(requiresV4Draft(entry.quiz)).toBe(requiresV4DraftContext(entry.quiz.questions))
-      expect(requiresV4Draft(entry.quiz)).toBe(entry.quiz.id === 'demo' && entry.quiz.revision === 'v2-handwriting')
+      expect(requiresV4Draft(entry.quiz)).toBe(entry.quiz.questions.some((question) =>
+        question.type === 'calculation' && question.drawing !== undefined))
     }
     expect(requiresV4Draft(demo)).toBe(false)
     expect(requiresV4Draft(demoV4)).toBe(true)
+    expect(requiresV4Draft(quizCatalog.getQuizRevision('discrete-math', '1')!)).toBe(false)
+    expect(requiresV4Draft(quizCatalog.getQuizRevision('discrete-math', '2')!)).toBe(true)
   })
 })
 
