@@ -1,4 +1,4 @@
-import { useEffect, useImperativeHandle, useRef, useState, type PointerEvent, type Ref } from 'react'
+import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent, type Ref } from 'react'
 import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
@@ -20,8 +20,12 @@ const COLOR_LABELS = ['黑色', '紅色', '藍色']
 export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const pending = useRef<{ pointerId: number; stroke: DrawingStroke } | null>(null)
+  // Local commits must accumulate before a controlled parent acknowledges them.
+  const committed = useRef(strokes)
+  const [ink, setInk] = useState({ controlled: strokes, strokes })
+  if (ink.controlled !== strokes) setInk({ controlled: strokes, strokes })
   const [undone, setUndone] = useState<DrawingStroke[]>([])
-  const history = { strokes, undone }
+  const history = { strokes: ink.strokes, undone }
   const [tool, setTool] = useState<DrawingTool>('pen')
   const [color, setColor] = useState<DrawingColor>(DRAWING_COLORS[0])
   const [width, setWidth] = useState(4)
@@ -33,14 +37,22 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     const context = canvas.current?.getContext('2d')
     if (context) replayDrawing(context, config, ink)
   }
+  useLayoutEffect(() => {
+    // A new controlled value remains authoritative, including replacement/clear.
+    committed.current = strokes
+  }, [strokes])
   useEffect(() => {
     const context = canvas.current?.getContext('2d')
-    if (context) replayDrawing(context, config, strokes)
+    const active = pending.current
+    if (context) replayDrawing(context, config, active ? [...committed.current, active.stroke] : committed.current)
   }, [config, strokes])
 
   function changeDrawing(action: DrawingAction) {
-    const next = drawingReducer(history, action)
+    const next = drawingReducer({ strokes: committed.current, undone }, action)
+    committed.current = next.strokes
+    setInk({ controlled: strokes, strokes: next.strokes })
     setUndone(next.undone)
+    paint(next.strokes)
     onChange(next.strokes)
     setConfirmClear(false)
     if (action.type !== 'add') setStatus(action.type === 'clear' ? '畫布已清除。' : action.type === 'undo' ? '已復原上一筆。' : '已重做一筆。')
@@ -56,28 +68,42 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
-    paint([...history.strokes, pending.current.stroke])
+    paint([...committed.current, pending.current.stroke])
   }
   function move(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
     event.preventDefault()
     active.stroke.points.push(point(event))
-    paint([...history.strokes, active.stroke])
+    paint([...committed.current, active.stroke])
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
-    if (event.type === 'pointerup') active.stroke.points.push(point(event))
-    flushPendingStroke()
+    active.stroke.points.push(point(event))
+    commitPendingStroke()
+  }
+  function cancel(event: PointerEvent<HTMLCanvasElement>) {
+    if (pending.current?.pointerId === event.pointerId) commitPendingStroke()
+  }
+  function lostCapture(event: PointerEvent<HTMLCanvasElement>) {
+    // A delayed loss from the previous contact can reuse the current pointerId.
+    // hasPointerCapture reflects the new capture immediately after pointerdown.
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) cancel(event)
+  }
+  function commitPendingStroke() {
+    const active = pending.current
+    if (!active) return committed.current
+    pending.current = null
+    const next = changeDrawing({ type: 'add', stroke: active.stroke })
+    return next
   }
   function flushPendingStroke() {
     const active = pending.current
-    if (!active) return strokes
-    pending.current = null
-    const next = changeDrawing({ type: 'add', stroke: active.stroke })
+    const next = commitPendingStroke()
     const element = canvas.current
-    if (element?.hasPointerCapture(active.pointerId)) element.releasePointerCapture(active.pointerId)
+    // Only imperative flush needs explicit release; up/cancel release implicitly.
+    if (active && element?.hasPointerCapture(active.pointerId)) element.releasePointerCapture(active.pointerId)
     return next
   }
   useImperativeHandle(ref, () => ({ flushPendingStroke }))
@@ -123,7 +149,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
       <canvas ref={canvas} width={config.width} height={config.height} className="drawing-canvas"
         aria-label="繪圖作答區" aria-describedby={`${id}-instructions`} role="img"
         onContextMenu={(event) => event.preventDefault()}
-        onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish}>
+        onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={lostCapture}>
         你的瀏覽器不支援 Canvas。請使用新版瀏覽器繪圖。
       </canvas>
     </div>

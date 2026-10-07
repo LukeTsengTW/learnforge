@@ -36,15 +36,21 @@ beforeEach(() => {
 })
 afterEach(cleanup)
 
+const captureStates = new WeakMap<HTMLCanvasElement, Set<number>>()
 function pointer(element: HTMLCanvasElement, type: string, x = 20, y = 40, pointerId = 7) {
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 })
   Object.defineProperties(event, { pointerId: { value: pointerId }, isPrimary: { value: true } })
   fireEvent(element, event)
+  if (type === 'pointerup' || type === 'pointercancel') {
+    captureStates.get(element)?.delete(pointerId)
+    pointer(element, 'lostpointercapture', 0, 0, pointerId)
+  }
 }
 
 function getCanvas() {
   const element = screen.getByRole('img', { name: '繪圖作答區' }) as HTMLCanvasElement
   const captures = new Set<number>()
+  captureStates.set(element, captures)
   element.setPointerCapture = vi.fn((id: number) => { captures.add(id) })
   element.hasPointerCapture = vi.fn((id: number) => captures.has(id))
   element.releasePointerCapture = vi.fn((id: number) => {
@@ -199,6 +205,7 @@ describe('standalone calculation editor', () => {
     expect(onChange.mock.calls[0][0]).toEqual({ ...initial, strokes })
     expect(onChange).toHaveBeenLastCalledWith({ ...initial, mode: 'text', strokes })
     expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(7)
+    expect(canvas.hasPointerCapture(7)).toBe(false)
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
     await user.click(screen.getByRole('radio', { name: '手寫' }))
     expect(onChange).toHaveBeenLastCalledWith({ ...initial, strokes })
@@ -272,7 +279,8 @@ describe('DrawingCanvas flush and existing drawing regressions', () => {
     expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...first, points: [
       { x: 20, y: 40 }, { x: 60, y: 80 }, { x: 80, y: 100 },
     ] }])
-    expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(7)
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+    expect(canvas.hasPointerCapture(7)).toBe(false)
   })
 
   it.each(['pointercancel', 'lostpointercapture'])('preserves pending points once on %s', (event) => {
@@ -281,6 +289,7 @@ describe('DrawingCanvas flush and existing drawing regressions', () => {
     const canvas = getCanvas()
     pointer(canvas, 'pointerdown')
     pointer(canvas, 'pointermove', 40, 60)
+    if (event === 'lostpointercapture') captureStates.get(canvas)!.delete(7)
     pointer(canvas, event, 400, 300)
     expect(onChange).toHaveBeenCalledExactlyOnceWith([first])
     pointer(canvas, 'pointerup', 50, 70)

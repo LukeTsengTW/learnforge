@@ -1,14 +1,14 @@
 // @vitest-environment jsdom
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { useState } from 'react'
+import { createRef, useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { DrawingStroke } from '../../models/drawing'
 import * as drawing from '../../lib/drawing'
 import { DRAWING_INPUT_MODE_KEY } from '../../lib/drawing-input-mode'
-import { DrawingCanvas } from './DrawingCanvas'
+import { DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
 
 const config = { width: 800, height: 600 }
 const stroke: DrawingStroke = { tool: 'pen', color: '#202b38', width: 4,
@@ -28,9 +28,11 @@ function Harness({ onChange = vi.fn() }: { onChange?: (ink: DrawingStroke[]) => 
   const [ink, setInk] = useState<DrawingStroke[]>([])
   return <DrawingCanvas id="input-test" config={config} strokes={ink} onChange={next => { onChange(next); setInk(next) }} />
 }
+const captureStates = new WeakMap<HTMLCanvasElement, Set<number>>()
 function surface() {
   const canvas = screen.getByRole('img', { name: '繪圖作答區' }) as HTMLCanvasElement
   const captures = new Set<number>()
+  captureStates.set(canvas, captures)
   canvas.setPointerCapture = vi.fn(id => { captures.add(id) })
   canvas.hasPointerCapture = vi.fn(id => captures.has(id))
   canvas.releasePointerCapture = vi.fn(id => { captures.delete(id) })
@@ -41,6 +43,9 @@ function pointer(canvas: HTMLCanvasElement, type: string, pointerType: string, p
   const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 })
   Object.defineProperties(event, { pointerType: { value: pointerType }, pointerId: { value: pointerId }, isPrimary: { value: isPrimary } })
   fireEvent(canvas, event)
+  // The UA releases capture AFTER up/cancel handlers. A delayed old lost event
+  // does not clear a new capture; genuine loss is explicitly modelled by tests.
+  if (type === 'pointerup' || type === 'pointercancel') captureStates.get(canvas)?.delete(pointerId)
 }
 function mode(value: 'standard' | 'stylus') {
   fireEvent.change(screen.getByRole('combobox', { name: '輸入方式' }), { target: { value } })
@@ -93,7 +98,8 @@ describe('drawing input preference and pointer routing', () => {
     draw(canvas, type, 11)
     expect(canvas.setPointerCapture).toHaveBeenCalledExactlyOnceWith(11)
     expect(onChange).toHaveBeenCalledExactlyOnceWith([stroke])
-    expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(11)
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+    expect(canvas.hasPointerCapture(11)).toBe(false)
   })
   it.each(['mouse', 'pen', '', 'unknown'])('accepts %j in stylus mode', type => {
     const onChange = vi.fn()
@@ -135,7 +141,8 @@ describe('drawing input preference and pointer routing', () => {
     pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
     pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
     expect(onChange).toHaveBeenCalledExactlyOnceWith([stroke])
-    expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(31)
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+    expect(canvas.hasPointerCapture(31)).toBe(false)
   })
   it('allows only the active accepted ID to append or finish even for another pen', () => {
     const onChange = vi.fn()
@@ -203,5 +210,195 @@ describe('drawing input preference and pointer routing', () => {
     expect(protection).toMatch(/-webkit-user-select:\s*none/)
     expect(protection).toMatch(/-webkit-touch-callout:\s*none/)
     expect(css).toMatch(/\.drawing-canvas,\s*\.drawing-preview\s*\{[^}]*width:\s*100%;\s*height:\s*auto/)
+  })
+})
+
+describe('rapid stylus lifecycle', () => {
+  it.each([31, 32])('keeps B moving after delayed A capture loss with B pointerId=%i', nextId => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([stroke])
+    pointer(canvas, 'pointerdown', 'pen', nextId, 100, 100)
+    expect(canvas.hasPointerCapture(nextId)).toBe(true)
+    pointer(canvas, 'lostpointercapture', 'pen', 31)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    pointer(canvas, 'pointermove', 'pen', nextId, 120, 130)
+    pointer(canvas, 'pointerup', 'pen', nextId, 140, 150)
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onChange).toHaveBeenLastCalledWith([stroke, { ...stroke, points: [
+      { x: 180, y: 160 }, { x: 220, y: 220 }, { x: 260, y: 260 },
+    ] }])
+  })
+
+  it.each(['none', 'between', 'held'])('preserves A B C D with palm=%s and repeated pointerId reuse', palm => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    if (palm === 'held') pointer(canvas, 'pointerdown', 'touch', 21)
+    for (let i = 0; i < 4; i++) {
+      if (palm === 'between' && i === 1) draw(canvas, 'touch', 21)
+      pointer(canvas, 'pointerdown', 'pen', 31, 20 + i * 10, 40)
+      if (i > 0) pointer(canvas, 'lostpointercapture', 'pen', 31)
+      if (palm === 'held') pointer(canvas, 'pointermove', 'touch', 21, 300, 250)
+      pointer(canvas, 'pointermove', 'pen', 31, 40 + i * 10, 60)
+      pointer(canvas, 'pointerup', 'pen', 31, 50 + i * 10, 70)
+    }
+    if (palm === 'held') pointer(canvas, 'pointerup', 'touch', 21)
+    expect(onChange).toHaveBeenCalledTimes(4)
+    const ink = onChange.mock.lastCall![0] as DrawingStroke[]
+    expect(ink).toEqual(Array.from({ length: 4 }, (_, i) => ({ ...stroke,
+      points: stroke.points.map(p => ({ ...p, x: p.x + i * 20 })),
+    })))
+    expect(canvas.setPointerCapture).toHaveBeenCalledTimes(4)
+    expect(canvas.setPointerCapture).not.toHaveBeenCalledWith(21)
+  })
+
+  it.each(['pointerup', 'pointercancel', 'lostpointercapture'])('commits only once and accepts the next pen after genuine %s', ending => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    if (ending === 'lostpointercapture') captureStates.get(canvas)!.delete(31)
+    pointer(canvas, ending, 'pen', 31, 50, 70)
+    const first = ending === 'pointerup' ? stroke : { ...stroke, points: stroke.points.slice(0, 2) }
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([first])
+    pointer(canvas, 'lostpointercapture', 'pen', 31)
+    pointer(canvas, 'pointerup', 'pen', 31)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([first, stroke])
+  })
+
+  it('commits rapid dot contacts without locking the next pointerdown', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    for (let i = 0; i < 24; i++) {
+      pointer(canvas, 'pointerdown', 'pen', 31, 20 + i, 40)
+      if (i) pointer(canvas, 'lostpointercapture', 'pen', 31)
+      pointer(canvas, 'pointerup', 'pen', 31, 20 + i, 40)
+    }
+    expect(onChange).toHaveBeenCalledTimes(24)
+    expect(onChange.mock.lastCall![0]).toEqual(Array.from({ length: 24 }, (_, i) => ({ ...stroke,
+      points: [{ x: 20 + i * 2, y: 40 }, { x: 20 + i * 2, y: 40 }],
+    })))
+    expect(context.fill).toHaveBeenCalled()
+  })
+
+  it('retains captured moves outside the canvas in logical bounds', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 900, -100)
+    pointer(canvas, 'pointerup', 'pen', 31, 900, 900)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, points: [
+      { x: 20, y: 40 }, { x: 800, y: 0 }, { x: 800, y: 600 },
+    ] }])
+  })
+
+  it('imperatively flushes once, releases active capture and preserves the next stroke', () => {
+    const onChange = vi.fn(), ref = createRef<DrawingCanvasHandle>()
+    render(<DrawingCanvas ref={ref} id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    const first = { ...stroke, points: stroke.points.slice(0, 2) }
+    act(() => { expect(ref.current!.flushPendingStroke()).toEqual([first]) })
+    expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(31)
+    act(() => { expect(ref.current!.flushPendingStroke()).toEqual([first]) })
+    expect(onChange).toHaveBeenCalledTimes(1)
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'lostpointercapture', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(onChange).toHaveBeenLastCalledWith([first, stroke])
+  })
+})
+
+describe('deferred controlled acknowledgement', () => {
+  // The parent deliberately keeps the same strokes prop until rerender. React
+  // act/fireEvent can render local toolbar state but cannot acknowledge ink.
+  it('emits A plus B before the parent supplies either stroke back', () => {
+    const onChange = vi.fn(), initial: DrawingStroke[] = []
+    const view = render(<DrawingCanvas id="deferred" config={config} strokes={initial} onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([stroke])
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke])
+    const acknowledged = onChange.mock.lastCall![0] as DrawingStroke[]
+    view.rerender(<DrawingCanvas id="deferred" config={config} strokes={acknowledged} onChange={onChange} />)
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke, stroke])
+  })
+
+  it('repaints pending B when the parent acknowledges A', () => {
+    const onChange = vi.fn(), replay = vi.spyOn(drawing, 'replayDrawing')
+    const view = render(<DrawingCanvas id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    const first = onChange.mock.lastCall![0] as DrawingStroke[]
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    view.rerender(<DrawingCanvas id="deferred" config={config} strokes={first} onChange={onChange} />)
+    expect(replay).toHaveBeenLastCalledWith(context, config, [stroke, { ...stroke, points: stroke.points.slice(0, 2) }])
+    pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke])
+  })
+
+  it('keeps four unacknowledged strokes available to undo, redo, export and clear', async () => {
+    const onChange = vi.fn(), download = vi.spyOn(drawing, 'downloadDrawingPng').mockResolvedValue(undefined)
+    const replay = vi.spyOn(drawing, 'replayDrawing')
+    render(<DrawingCanvas id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    // One batch additionally prevents React renders between the four commits.
+    act(() => { for (let i = 0; i < 4; i++) draw(canvas, 'pen', 31) })
+    expect(onChange).toHaveBeenCalledTimes(4)
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke, stroke, stroke])
+    fireEvent.click(screen.getByRole('button', { name: '復原' }))
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke, stroke])
+    expect(replay).toHaveBeenLastCalledWith(context, config, [stroke, stroke, stroke])
+    fireEvent.click(screen.getByRole('button', { name: '重做' }))
+    expect(onChange).toHaveBeenLastCalledWith([stroke, stroke, stroke, stroke])
+    expect(replay).toHaveBeenLastCalledWith(context, config, [stroke, stroke, stroke, stroke])
+    fireEvent.click(screen.getByRole('button', { name: '匯出 PNG' }))
+    expect(download).toHaveBeenCalledExactlyOnceWith(config, [stroke, stroke, stroke, stroke], 'deferred.png')
+    await screen.findByText('PNG 已匯出。')
+    fireEvent.click(screen.getByRole('button', { name: '清除畫布' }))
+    fireEvent.click(screen.getByRole('button', { name: '確認清除' }))
+    expect(onChange).toHaveBeenLastCalledWith([])
+    expect(replay).toHaveBeenLastCalledWith(context, config, [])
+    expect(screen.getByRole('button', { name: '重做' })).toBeDisabled()
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([stroke])
+  })
+
+  it('uses an external replacement or clear as authority for the next local stroke', () => {
+    const onChange = vi.fn()
+    const view = render(<DrawingCanvas id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    mode('stylus')
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    const external = { ...stroke, color: '#c03535' as const }
+    view.rerender(<DrawingCanvas id="deferred" config={config} strokes={[external]} onChange={onChange} />)
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([external, stroke])
+    view.rerender(<DrawingCanvas id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([stroke])
   })
 })
