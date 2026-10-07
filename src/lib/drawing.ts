@@ -42,7 +42,8 @@ export function replayDrawing(context: CanvasRenderingContext2D, config: Drawing
     context.strokeStyle = stroke.color
     context.fillStyle = stroke.color
     context.lineWidth = stroke.width
-    if (stroke.points.length === 1) {
+    const hasDisplacement = stroke.points.some(point => point.x !== first.x || point.y !== first.y)
+    if (!hasDisplacement) {
       context.beginPath()
       context.arc(first.x, first.y, stroke.width / 2, 0, Math.PI * 2)
       context.fill()

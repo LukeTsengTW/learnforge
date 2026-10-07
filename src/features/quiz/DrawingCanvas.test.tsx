@@ -275,7 +275,7 @@ describe('rapid stylus lifecycle', () => {
     expect(onChange).toHaveBeenLastCalledWith([first, stroke])
   })
 
-  it('commits rapid dot contacts without locking the next pointerdown', () => {
+  it('commits rapid dots and repaints every committed dot after acknowledgement', () => {
     const onChange = vi.fn()
     render(<Harness onChange={onChange} />)
     mode('stylus')
@@ -289,7 +289,12 @@ describe('rapid stylus lifecycle', () => {
     expect(onChange.mock.lastCall![0]).toEqual(Array.from({ length: 24 }, (_, i) => ({ ...stroke,
       points: [{ x: 20 + i * 2, y: 40 }, { x: 20 + i * 2, y: 40 }],
     })))
-    expect(context.fill).toHaveBeenCalled()
+    // Replay only the final committed history, excluding pending pointerdown ink.
+    context.fill.mockClear(); context.arc.mockClear(); context.stroke.mockClear()
+    drawing.replayDrawing(context as unknown as CanvasRenderingContext2D, config, onChange.mock.lastCall![0])
+    expect(context.fill).toHaveBeenCalledTimes(24)
+    expect(context.arc.mock.calls).toEqual(Array.from({ length: 24 }, (_, i) => [20 + i * 2, 40, 2, 0, Math.PI * 2]))
+    expect(context.stroke).not.toHaveBeenCalled()
   })
 
   it('retains captured moves outside the canvas in logical bounds', () => {
