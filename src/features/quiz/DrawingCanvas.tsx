@@ -1,9 +1,9 @@
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent, type Ref } from 'react'
 import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
+import { isIPadOS } from '../../lib/platform'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
 import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
-import { DrawingDebugPanel, useDrawingDebug, type DebugDecision } from './drawing-debug'
 
 interface DrawingCanvasProps {
   id: string
@@ -19,6 +19,7 @@ export interface DrawingCanvasHandle {
 const COLOR_LABELS = ['黑色', '紅色', '藍色']
 
 export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
+  const showPencilNotice = isIPadOS(navigator)
   const canvas = useRef<HTMLCanvasElement>(null)
   const pending = useRef<{ pointerId: number; stroke: DrawingStroke } | null>(null)
   // Local commits must accumulate before a controlled parent acknowledges them.
@@ -33,7 +34,6 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const [status, setStatus] = useState('')
   const [confirmClear, setConfirmClear] = useState(false)
   const [inputMode, setInputMode] = useState<DrawingInputMode>(getDrawingInputMode)
-  const debug = useDrawingDebug(canvas, pending, inputMode)
 
   const paint = (ink: DrawingStroke[]) => {
     const context = canvas.current?.getContext('2d')
@@ -63,49 +63,35 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   function point(event: PointerEvent<HTMLCanvasElement>) {
     return toLogicalPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), config)
   }
-  function trace(event: PointerEvent<HTMLCanvasElement>, decision: DebugDecision, label: string, reason: string | null = null) {
-    if (debug) debug.record(event.nativeEvent, 'canvas', 'react-handler', {
-      canvas: event.currentTarget, pendingPointerId: pending.current?.pointerId ?? null, inputMode,
-    }, decision, label, reason)
-  }
   function start(event: PointerEvent<HTMLCanvasElement>) {
     // Reject touch before it can own pending ink or capture, including primary palms.
-    if (inputMode === 'stylus' && event.pointerType === 'touch') { trace(event, 'rejected', 'START_REJECTED', 'touch-stylus-mode'); return }
-    if (event.button !== 0) { trace(event, 'rejected', 'START_REJECTED', 'button'); return }
-    if (!event.isPrimary) { trace(event, 'rejected', 'START_REJECTED', 'not-primary'); return }
-    if (pending.current) { trace(event, 'rejected', 'START_REJECTED', 'pending-active'); return }
+    if (inputMode === 'stylus' && event.pointerType === 'touch') return
+    if (event.button !== 0 || !event.isPrimary || pending.current) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
-    trace(event, 'accepted', 'START_ACCEPTED')
     paint([...committed.current, pending.current.stroke])
   }
   function move(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
-    if (!active || active.pointerId !== event.pointerId) { trace(event, 'rejected', 'MOVE_IGNORED', active ? 'pointer-mismatch' : 'no-pending'); return }
-    trace(event, 'accepted', 'MOVE_ACCEPTED')
+    if (!active || active.pointerId !== event.pointerId) return
     event.preventDefault()
     active.stroke.points.push(point(event))
     paint([...committed.current, active.stroke])
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
-    if (!active || active.pointerId !== event.pointerId) { trace(event, 'rejected', 'UP_IGNORED', active ? 'pointer-mismatch' : 'no-pending'); return }
-    trace(event, 'accepted', 'UP_COMMIT')
+    if (!active || active.pointerId !== event.pointerId) return
     active.stroke.points.push(point(event))
     commitPendingStroke()
   }
   function cancel(event: PointerEvent<HTMLCanvasElement>) {
-    if (pending.current?.pointerId === event.pointerId) {
-      trace(event, 'accepted', event.type === 'lostpointercapture' ? 'LOST_CAPTURE_COMMIT' : 'CANCEL_COMMIT')
-      commitPendingStroke()
-    } else trace(event, 'rejected', 'END_IGNORED', pending.current ? 'pointer-mismatch' : 'no-pending')
+    if (pending.current?.pointerId === event.pointerId) commitPendingStroke()
   }
   function lostCapture(event: PointerEvent<HTMLCanvasElement>) {
     // A delayed loss from the previous contact can reuse the current pointerId.
     // hasPointerCapture reflects the new capture immediately after pointerdown.
     if (!event.currentTarget.hasPointerCapture(event.pointerId)) cancel(event)
-    else trace(event, 'rejected', 'STALE_CAPTURE_IGNORED', 'currently-captured')
   }
   function commitPendingStroke() {
     const active = pending.current
@@ -116,8 +102,6 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   }
   function flushPendingStroke() {
     const active = pending.current
-    debug?.record(null, 'canvas', 'imperative', { canvas: canvas.current, pendingPointerId: active?.pointerId ?? null, inputMode },
-      active ? 'accepted' : 'observed', active ? 'FLUSH_COMMIT' : 'FLUSH_IDLE')
     const next = commitPendingStroke()
     const element = canvas.current
     // Only imperative flush needs explicit release; up/cancel release implicitly.
@@ -180,10 +164,14 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
         <button className="text-button" type="button" onClick={exportPng}>匯出 PNG</button>
       </div>
     </div>
+    {showPencilNotice && <aside role="note" aria-label="Apple Pencil 使用提醒" className="drawing-compatibility">
+      <strong>Apple Pencil 使用提醒</strong>
+      <p>若使用 Apple Pencil 時出現快速抬筆後下一筆無法立即書寫的情況，請前往「設定」→「Apple Pencil」關閉「隨手寫」。</p>
+      <a href="https://support.apple.com/zh-tw/guide/ipad/ipad355ab2a7/ipados" target="_blank" rel="noopener noreferrer">查看 Apple 官方設定說明</a>
+    </aside>}
     {confirmClear && <div className="notice warning" role="alert"><p>清除所有筆畫後無法復原。</p>
       <div className="inline-actions"><button type="button" onClick={() => changeDrawing({ type: 'clear' })}>確認清除</button>
         <button type="button" onClick={() => setConfirmClear(false)}>保留畫布</button></div></div>}
     <p className="drawing-status" role="status">{status}</p>
-    {debug && <DrawingDebugPanel debug={debug} />}
   </div>
 }

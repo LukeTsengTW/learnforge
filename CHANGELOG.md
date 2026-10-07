@@ -2,13 +2,16 @@
 
 ## 1.6.3 — Rapid stylus stroke hotfix candidate
 
-Prepared 2026-10-07. **AWAITING REAL APPLE PENCIL VERIFICATION**; no closure or v1.6.3 tag.
+Prepared 2026-10-07. **AWAITING FINAL CANDIDATE IPAD NOTICE / APPLE PENCIL VERIFICATION**; no closure or v1.6.3 tag.
 
 - Reproduced two independent races against unchanged v1.6.2 production code: delayed old lostpointercapture terminates a new stroke reusing pointerId 31; delayed controlled acknowledgement causes B to replace A. The baseline regression run failed 8 of 39 tests, including the exact reused-ID sequence and explicitly deferred parent props.
 - Separate pointerup, pointercancel and capture-loss recovery. Ignore lostpointercapture while the canvas owns the new capture; normal up/cancel rely on implicit release, while imperative flush retains explicit release and commits once.
 - Synchronously accumulate committed strokes before parent acknowledgement; changed controlled props remain authoritative. Preserve pending ink during acknowledgement and immediately repaint local history operations. No schema change, timers, throttling or input lock.
 - Added 15 focused tests: same/different IDs, rapid A–D, palm between/held, 24 dot contacts, genuine/stale capture loss, flush, bounds, deferred acknowledgement, replacement/clear and history/export. Focused 70/70; canonical 91 files / 1,340 tests; TypeScript, zero-warning lint, diff-check and Pages-base build passed before feature commit.
 - Feature c89bbc4317b11dc2c8c5a4099182c2263778a3a6. Frontend-only; dependencies, quiz/context, grading, Edge/DB/RLS/Auth/secrets and v1.6.2 are unchanged. Candidate identity and deployed evidence are recorded separately after source-bound gates. See [delivery and required device checklist](docs/v1.6.3-delivery.md).
+- Retain the v1.6.3 navigation label correction and zero-displacement pen/eraser dot rendering, including persisted identical points and PNG replay.
+- User's real iPad + Apple Pencil trace completed the previous stroke and cleared pending, but delivered neither pointerdown nor stylus touchstart for failed rapid re-contact with Scribble enabled. Disabling Scribble eliminated that observed failure on the diagnostic candidate. This is device-specific compatibility evidence, not a pointer-handler regression or a claim that Scribble-enabled handwriting is fixed.
+- Add an iPadOS-only「Apple Pencil 使用提醒」near drawing instructions in both input modes, linking to [Apple's official 設定 > Apple Pencil > 隨手寫 guidance](https://support.apple.com/zh-tw/guide/ipad/ipad355ab2a7/ipados). The app cannot inspect that setting. Remove temporary event-trace instrumentation/UI and its debug-specific tests; preserve all product fixes. Exact replacement-candidate notice/link and Scribble-off physical handwriting acceptance remain required before closure.
 
 ## 1.6.2 — 行動裝置手寫 UX 修正
 
