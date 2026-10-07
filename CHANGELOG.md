@@ -2,7 +2,7 @@
 
 ## 1.6.2 — 行動裝置手寫 UX 修正
 
-準備日期：2026-10-07。狀態：release candidate；production 驗證待執行。
+驗證日期：2026-10-07。狀態：candidate production／complete browser smoke PASS；docs-only closure preparation。Final closure SHA／CI／Pages／manifest 由 post-commit report 核對。
 
 - DrawingCanvas 提供獨立的「輸入方式：標準／觸控筆優先」。標準接受 mouse／pen／touch；觸控筆優先在 pending ink／capture 前拒絕 touch，保留 mouse／pen 與未知 pointerType 的既有相容性。
 - 既有 pointerId ownership 防止其他指標 append／finish；手掌不打斷 active pen。沒有 palm-size heuristics，這是應用程式 touch filtering，不宣稱硬體 palm rejection。
@@ -10,6 +10,10 @@
 - learnforge:drawing-input-mode 僅存 standard／stylus；預設／無效值為 standard；storage 被封鎖仍可操作目前 canvas。
 - CSS contract test 改用 node:path resolve(process.cwd(), 'src/styles/global.css')；原 focused scope 55/55、full 91 files／1,325 tests、TypeScript／lint／Pages-base build 通過。
 - Feature bf2c7d3f45432796151fae9286720854aeb7c73b；無 dependency、quiz/context、schema、grading、Edge／DB／RLS／Auth／secret 變更。實際 release evidence 見 [delivery](docs/v1.6.2-delivery.md)。
+- Candidate 3c2a7034eafe864563daac618030580581eef0d6：canonical clean/source-bound 10/10 gates、CI [37609915649](https://github.com/LukeTsengTW/learnforge/actions/runs/37609915649)、Pages [37610202192](https://github.com/LukeTsengTW/learnforge/actions/runs/37610202192)／deployment 6908021226、canonical production smoke PASS。Classifier Risk C／providerCanaryRequired=false 只因 package/lock root metadata 的保守 path rule，不表示 backend rollout；Edge deployment 零次。
+- Windows clean-copy AI-context false drift 是 core.autocrlf=true 的 CRLF checkout；新 validation clone 僅設 local core.autocrlf=false，context byte 等同 baseline；沒有改 repo line-ending policy 或生成檔。
+- 原 KaTeX smoke 在 parser「解析中…」時立即計數，preview 尚無 cards/Markdown。狀態等待 Valid／revision 2／Student Preview／正確標題與 MISSISSIPPI prompt 後出現 inline/display KaTeX；17 browser checks 與 6 Light/Dark layouts（360/768/1440）通過，零 raw TeX／KaTeX／console／CSP errors。
+- Controlled pen/touch routing 與 native mouse evidence 通過；未取得真實 iPad Safari／Apple Pencil proof。零 user-data mutation；不建立 v1.6.2 tag／GitHub Release。
 
 ## 1.6.1 — 離散數學期中考計算題手寫
 

@@ -8,8 +8,11 @@
 - [x] TypeScript、lint、full 91 files／1,325 tests、Pages-base build、diff check PASS。
 - [x] Feature bf2c7d3f45432796151fae9286720854aeb7c73b 只有四個 frontend/test/helper/CSS files；protected quiz/context/models/Supabase paths unchanged。
 - [x] package/lock roots/visible label = 1.6.2；無 dependency maintenance。
-- [ ] Same-SHA clean candidate canonical gates／Risk B／no provider canary；candidate push／CI。
-- [ ] Initial exact Pages／public smoke／non-persisting browser feature smoke。
+- [x] LF exact-candidate clean clone canonical 10/10 gates；Risk C／providerCanaryRequired=false 由 package/lock root metadata 保守規則造成，actual delta frontend-only；single candidate push／CI 37609915649 success。
+- [x] Initial exact Pages 37610202192／deployment 6908021226 success；canonical public smoke PASS（5 assets／production Supabase identity unchanged）。
+- [x] Complete production browser smoke：17 checks／6 Light+Dark 360/768/1440 layouts，pointer ownership／palm concurrency／history／clear／PNG／storage failure PASS；zero overflow／console／CSP errors；CalculationAnswerEditor buffer regressions 由原 focused tests 證明。
+- [x] KaTeX initial zero-count 是 300ms parse debounce 的 smoke synchronization defect；當時「解析中…」、0 cards/Markdown；等待 Valid／title／revision 2／Student Preview／MISSISSIPPI 後 11 cards、46 KaTeX／2 display、zero raw leakage/errors。沒有修改 Markdown／quiz／math dependencies。
+- [x] CRLF validation checkout false context drift 原因已證明；只新建 local core.autocrlf=false clone，generated context byte 等同 v1.6.1，repo policy 未修改。
 - [ ] Docs-only closure／push／CI／final Pages／manifest parity／clean tree；actual final identity 由 post-commit report 核對。
 - [x] Zero backend／user-data mutations；v1.6.1 immutable；no v1.6.2 tag／GitHub Release。
 
