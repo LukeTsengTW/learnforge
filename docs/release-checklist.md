@@ -1,5 +1,23 @@
 # Release checklist
 
+## v1.6.0 release preparation
+
+準備日期：2026-10-07。Release target 1.6.0；production baseline 是永久 CLOSED 的 v1.5.0／e06b740be8cc33776757f16360d76c381ed56a19。以下歷史 sections 保留原樣。
+
+- [x] 起始 working tree clean；local HEAD／remote master = 567039f236b751434f28b8664f61e0b66a09021f；沒有 drift。
+- [x] Feature automatic CI [37552181064](https://github.com/LukeTsengTW/learnforge/actions/runs/37552181064) 成功，push/master、attempt 1、exact feature SHA。
+- [x] v1.5.0 local／remote annotated tag peeled target 與 production manifest baseline = e06b740be8cc33776757f16360d76c381ed56a19；v1.6.0 local／remote tag absent。
+- [x] 起始 strict preflight PASS。Machine impact=security-ai／Risk C／providerCanaryRequired=false；unknown bootstrap paths、author CSS path heuristic 與未修改的 ignored .env.local 保留 conservative result。Actual committed runtime delta 為 frontend-only，human-reviewed product policy Risk B；沒有 backend rollout。
+- [x] Package 與 lockfile root versions、visible Layout label 準備為 1.6.0；沒有 dependency／Dark Mode source／backend／content 修改。
+- [ ] Full local release:check／release-prep diff audit、one release-prep commit、exact-SHA push、automatic CI。
+- [ ] Clean candidate preflight（包含 tag absence）與 source-bound release:check PASS。
+- [ ] Initial deploy.yml dispatch from master：exact release-prep SHA、release_version=1.6.0；workflow／Pages deployment success。
+- [ ] Canonical GET-only public smoke、authenticated read-only theme smoke、desktop／tablet／mobile、math／result preview、persistence／system-default checks PASS。
+- [ ] Exactly one docs-only closure commit／push、exact closure CI、final Pages deployment／production manifest／compact smoke PASS。
+- [ ] Separate immutable v1.6.0 tag authorization；此 stage 不建立 tag／GitHub Release。
+
+詳細 scope、lineage、evidence 與 remaining gates 見 [v1.6 delivery](v1.6-delivery.md)。Production Supabase project identity 沿用 learnforge-demo／mrrssxqolvcjxgqzoeqt；不做 DB／Edge／Auth／RLS／secret／provider 或 user-data mutation。
+
 ## v1.5.0 production verification / closure preparation
 
 驗證日期：2026-10-06。狀態：初始 v1.5.0 production deployment 與 required smoke PASS；docs-only closure preparation。初始 deployed SHA 為 c1f7b53666b7e0c19df25aa57fb1a0e4621226a5。Previous closed v1.4.0 annotated tag target 維持 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a；以下 v1.4 歷史 section 完整保留。

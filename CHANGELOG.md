@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.0 — Dark Mode
+
+準備日期：2026-10-07。
+狀態：release preparation；exact-SHA CI／Pages／production smoke 與 docs-only closure 尚待完成，annotated v1.6.0 tag 未建立且需要另行授權。
+
+- 新增全域 Light／Dark 主題，以 centralized semantic CSS tokens 與 root data-theme 套用至 navigation、surfaces、controls、quiz/result states、code、KaTeX 與 Author；保留原有 Light 配色。
+- Header 的「深色模式」原生按鈕提供 aria-pressed、Enter／Space 操作與可見 keyboard focus，維持手機與平板排版。
+- 明確選擇保存於 learnforge:theme，reload 與後續 OS theme 變更不覆寫；首次沒有有效偏好時使用 prefers-color-scheme。同步同源 head bootstrap 避免 saved-dark 載入時的 Light flash，沿用既有 CSP。
+- Dark Mode feature commit 567039f236b751434f28b8664f61e0b66a09021f 的 CI 與既有實作驗證已完成；本 release preparation 只更新版本與發布文件，不修改該實作。
+- 沒有 dependency、quiz content、scoring、AI context、Supabase／Edge／Auth／RLS 或 migration 變更；沒有 provider canary。v1.5.0 canonical release identity 與歷史文件保留。
+
 ## 1.5.0 — Discrete Mathematics midterm quiz
 
 發布日期：2026-10-06。

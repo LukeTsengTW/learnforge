@@ -1,12 +1,12 @@
 # LearnForge
 
-**公開／Current production：v1.5.0。** Discrete Mathematics 期中考、宣告總分卡片與 KaTeX 安全修復已部署，必要的六個 Edge Function context rollout 與初始 production smoke 已驗證。實際部署／smoke 證據及 closure preparation snapshot 見 [v1.5 交付文件](docs/v1.5-delivery.md)。Docs-only closure 的最終部署／身分驗證與 annotated v1.5.0 tag 仍待完成；本文件不宣稱 tag 已建立。
+**Release target：v1.6.0 — Dark Mode。** Source version 與桌面版本標籤已準備為 v1.6.0；CI、Pages 與 production smoke 依 exact SHA 執行，尚未把 preparation 視為 production PASS。Light／Dark 主題、明確選擇的本機持久保存與首次造訪的系統預設見 [v1.6 交付文件](docs/v1.6-delivery.md)。
 
-**Previous closed production：v1.4.0。** 已關閉的 annotated v1.4.0 tag 指向 7bc49ccd34702158b3129b2e2ee190cd8bd06d9a。v1.4 的 Library metadata 搜尋與篩選契約維持；[v1.4 交付文件](docs/v1.4-delivery.md)、[v1.3 交付文件](docs/v1.3-delivery.md)、[v1.2 交付文件](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史參考。
+**Current closed production：v1.5.0。** Production release.json 與 annotated v1.5.0 tag 都指向 e06b740be8cc33776757f16360d76c381ed56a19；此 release identity 永久保留。v1.5 的期中考、declared totalPoints、KaTeX 修復與既有 backend rollout 維持。[v1.5 交付文件](docs/v1.5-delivery.md)、[v1.4](docs/v1.4-delivery.md)、[v1.3](docs/v1.3-delivery.md)、[v1.2](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史 snapshots。
 
 v1.3 的多模態計算題契約維持：宣告手寫能力的精確題目版本可讓計算題選擇打字或手寫；正式提交依目前選取的模式評分，結果保存供日後重建。
 
-v1.5.0 的桌面可見導覽版本標籤為 v1.5.0；KaTeX 已升級至固定的 0.18.x line，並以最小 npm override 排除相依鏈的 vulnerable copies。這是既有數學 renderer 的安全修復，沒有新增套件或功能；production math rendering smoke 已通過。
+v1.6.0 沿用既有固定 KaTeX 0.18.x 與最小 npm override；沒有 dependency maintenance。Dark Mode 使用共用 CSS semantic tokens 與 root data-theme；全域導覽的「深色模式」按鈕可用鍵盤操作，Light appearance 保留。
 
 v1.0 加入單次帳號復原碼、修改密碼、練習衝突備份 UI、Auth／RLS 強化及發布驗證，沒有新增主要學習功能。請先閱讀 [SECURITY.md](SECURITY.md)、[隱私說明](docs/privacy.md) 與 [發布檢查表](docs/release-checklist.md)。
 
@@ -14,6 +14,7 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 
 ## 功能
 
+- 全域 Light／Dark 主題涵蓋頁面、卡片、控制項、結果狀態、code／KaTeX 與 Author。明確選擇保存於 learnforge:theme 並在 reload 保留；沒有有效偏好時依 prefers-color-scheme 初始化，不將系統預設寫成明確偏好。同步 head bootstrap 在 React 載入前套用主題。
 - Production 有四份 current bundled 題庫、五個 revisions：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）。期中考已隨 v1.5.0 上線，六個 Edge bundles 的 canonical contexts 已同步為 40。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
