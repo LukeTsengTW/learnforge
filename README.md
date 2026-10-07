@@ -1,5 +1,7 @@
 # LearnForge
 
+**v1.6.1 release preparation — 離散數學期中考計算題手寫。** `discrete-math/2` 是唯一 current revision：11 題／宣告 100 分，q2–q6 使用既有打字／手寫 selector 與 1200 × 900 DrawingCanvas；六題單選維持原樣。封存的 `discrete-math/1` 保留 text-only 歷史契約。Bundled inventory 為 6 revisions／4 current quizzes／51 questions，canonical contexts 為 51，原有 40 objects 完全保留。Production cutover、Edge／Pages／smoke 尚待精確 candidate gates 通過；實際 evidence 見 [v1.6.1 delivery](docs/v1.6.1-delivery.md)。下列 v1.6.0 與更早敘述保留為歷史 snapshots；canonical v1.6.0 已永久 closed 在 `9575a17f0541c85c46f81bd88820ff7f91c7964c`，immutable tag 保持不變。
+
 **Production verified：v1.6.0 — Dark Mode。** Replacement Pages deployment 與 canonical／authenticated read-only smoke 已在 e3aaedb5badc34f9b64507ef5de5b06fa796c445 通過；此為 docs-only closure snapshot，final closure SHA／CI／Pages 身分由 post-commit verification report 記錄。Immutable v1.6.0 tag 尚未建立，需要另行授權。Light／Dark、偏好保存及完整 remediation history 見 [v1.6 交付文件](docs/v1.6-delivery.md)。
 
 **Previous permanently closed release：v1.5.0。** Annotated v1.5.0 tag 的 canonical target 維持 e06b740be8cc33776757f16360d76c381ed56a19；此 release identity 永久保留，不把 v1.6 source 當成 v1.5 重新部署。v1.5 的期中考、declared totalPoints、KaTeX 修復與既有 backend rollout 維持。[v1.5 交付文件](docs/v1.5-delivery.md)、[v1.4](docs/v1.4-delivery.md)、[v1.3](docs/v1.3-delivery.md)、[v1.2](docs/v1.2-delivery.md)、[v1.2 設計文件](docs/v1.2-design.md)、[v1.1](docs/v1.1-delivery.md)及 [v1.0](docs/v1.0-delivery.md)保留作為歷史 snapshots。

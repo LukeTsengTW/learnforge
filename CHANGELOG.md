@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.6.1 — 離散數學期中考計算題手寫
+
+準備日期：2026-10-07。狀態：local release preparation；production verification pending。
+
+- 新增唯一 current `discrete-math/2`；同標題、11 題／100 宣告 points／6 single／5 calculation。q2–q6 各宣告 1200 × 900 drawing，沿用 CalculationAnswerEditor、schema 2 與 ai-grading-v4；其他題目內容與 rubric 不變。
+- `discrete-math/1` 只改為 archived，歷史計算題仍 text-only／v3。Text/stroke buffers 在切換時保留；只有選取模式參與正式評分。
+- Canonical context 40 → 51；全部原有 40 objects 不變，新增 11 revision-2 contexts。Tutor-context inventory test 從所有 bundled sources（含 archived）動態推導 exact identity sets，消除固定總數。
+- Feature commit `b43c3120be1d9aa73a00e5971f90bac084d50f9a`；兩次 deterministic development stops 及窄幅測試修正已記錄。Typed DrawingStroke fixture、TypeScript、focused checks 與 Pages-base build 通過；full candidate/CI/Edge/Pages/production smoke 尚待完成。
+- 不變更 dependencies、drawing/grading architecture、DB/RLS/Auth/secrets；此 stage 不建立 v1.6.1 tag 或 GitHub Release。詳細 scope、hash、gates 與真實 rollout evidence 見 [v1.6.1 delivery](docs/v1.6.1-delivery.md)。
+
 ## 1.6.0 — Dark Mode
 
 準備日期：2026-10-07。

@@ -1,5 +1,22 @@
 # Release checklist
 
+## v1.6.1 release preparation
+
+日期：2026-10-07。比較基準為 immutable `v1.6.0`／`9575a17f0541c85c46f81bd88820ff7f91c7964c`；以下歷史 records 保留原樣。
+
+- [x] 起始 clean tree；continuations 保留既有 dirty implementation；remote master 無 drift，v1.6.1 tag absent。
+- [x] discrete-math/1 archived/text-only；discrete-math/2 uniquely current，11 題／100 分／6 single／5 calculation；q2–q6 = 1200 × 900。
+- [x] 6 bundled revisions／4 current quizzes／51 questions／51 contexts；全部原有 40 contexts 不變，只新增 11 discrete-math/2 contexts。
+- [x] 16 files／411 focused tests；stale dynamic-inventory correction 後 supplemental 4 files／60 tests；DrawingStroke fixture typing correction 後 tsc、quizzes、AI context、Edge imports、Pages-base build、diff check PASS。
+- [x] One local feature commit `b43c3120be1d9aa73a00e5971f90bac084d50f9a`；package/lock roots/visible label 準備為 1.6.1，無 dependency changes。
+- [ ] Clean/source-bound candidate release checks against v1.6.0；single exact release-prep-tip push；exact CI。
+- [ ] Risk C production preflight；proven six-function Edge batch／ACTIVE／JWT／deployed source/context verification；provider canary only when classifier requires。
+- [ ] Initial exact Pages deployment；canonical public smoke；non-persisting typed/handwritten／Dark／KaTeX／responsive product smoke。
+- [ ] One docs-only closure commit／push／CI；final exact Pages deployment；manifest/SHA parity／UI/Edge smoke／clean tree。
+- [x] v1.6.1 tag／GitHub Release excluded from this authorized stage；v1.6.0 immutable。
+
+Actual evidence and limitations: [v1.6.1 delivery](v1.6.1-delivery.md)。No DB/RLS/Auth/secret/data mutations or water-quality-system work.
+
 ## v1.6.0 production verification / closure preparation
 
 驗證日期：2026-10-07。Replacement v1.6.0 production／required smoke PASS at e3aaedb5badc34f9b64507ef5de5b06fa796c445；docs-only closure preparation。Comparison baseline 是永久 CLOSED 的 v1.5.0／e06b740be8cc33776757f16360d76c381ed56a19。以下歷史 sections 保留原樣。
