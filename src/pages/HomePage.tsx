@@ -6,15 +6,15 @@ import { useAuth } from '../features/auth/auth-context'
 function LogicIllustration() {
   return <div className="logic-illustration" aria-hidden="true">
     <svg viewBox="0 0 360 252" fill="none">
-      <defs><pattern id="circuit-grid" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#cedde7" /></pattern></defs>
+      <defs><pattern id="circuit-grid" width="18" height="18" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="var(--illustration-dot)" /></pattern></defs>
       <rect width="360" height="252" rx="16" fill="url(#circuit-grid)" />
-      <path d="M116 61H172C219 61 239 90 239 126S219 191 172 191H116Z" fill="white" stroke="#18334c" strokeWidth="3" />
-      <path d="M46 98H116M46 154H116M239 126H312" stroke="#087e80" strokeWidth="3" />
-      <circle cx="46" cy="98" r="5" fill="white" stroke="#087e80" strokeWidth="3" />
-      <circle cx="46" cy="154" r="5" fill="white" stroke="#087e80" strokeWidth="3" />
-      <circle cx="312" cy="126" r="5" fill="#087e80" />
-      <g fill="#18334c" fontFamily="Georgia, serif" fontSize="20"><text x="39" y="78">A</text><text x="39" y="187">B</text><text x="305" y="106">Y</text><text x="150" y="134">AND</text></g>
-      <text x="145" y="231" fill="#52677b" fontFamily="Georgia, serif" fontSize="18">Y = A · B</text>
+      <path d="M116 61H172C219 61 239 90 239 126S219 191 172 191H116Z" fill="var(--surface)" stroke="var(--ink)" strokeWidth="3" />
+      <path d="M46 98H116M46 154H116M239 126H312" stroke="var(--teal)" strokeWidth="3" />
+      <circle cx="46" cy="98" r="5" fill="var(--surface)" stroke="var(--teal)" strokeWidth="3" />
+      <circle cx="46" cy="154" r="5" fill="var(--surface)" stroke="var(--teal)" strokeWidth="3" />
+      <circle cx="312" cy="126" r="5" fill="var(--teal)" />
+      <g fill="var(--ink)" fontFamily="Georgia, serif" fontSize="20"><text x="39" y="78">A</text><text x="39" y="187">B</text><text x="305" y="106">Y</text><text x="150" y="134">AND</text></g>
+      <text x="145" y="231" fill="var(--muted)" fontFamily="Georgia, serif" fontSize="18">Y = A · B</text>
     </svg>
     <span className="illustration-caption">從一個邏輯閘，開始理解。</span>
   </div>

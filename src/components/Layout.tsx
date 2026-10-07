@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Brand } from './Brand'
+import { ThemeToggle } from './ThemeToggle'
 import { useAuth } from '../features/auth/auth-context'
 import { authError } from '../features/auth/auth-service'
 
@@ -38,6 +39,7 @@ export function Layout() {
           setLoggingOut(true); setLogoutError(null)
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
+        <ThemeToggle />
         <span className="version-label">v1.5.0</span>
       </nav>
     </div></header>
