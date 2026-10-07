@@ -1,5 +1,25 @@
 # Release checklist
 
+## v1.6.3 Apple Pencil stability / iPad compatibility closure
+
+日期：2026-10-07（Asia/Taipei）；immutable baseline v1.6.2 object `7f4d2431929dd88bac321b90cbd0817719c7f5c9`／peeled `82ea0f112ee6fe33d5ebc97a6bc00cb8765b11fe` 保持不變。
+
+- [x] Accepted exact candidate `f93ad94dc9d5843ab897dfe2313ecb51f4c6ca34`；pre-closure HEAD/master/origin/live remote／production manifest parity，clean tree/index，v1.6.3 tag／GitHub Release absent。
+- [x] Proven reused-ID stale capture-loss and delayed controlled-history races fixed; synchronous accumulation/pending replay and imperative flush contract preserved。
+- [x] Nonempty zero-displacement `[P,P]`／multiple-identical pen and eraser strokes replay as visible circular dots; shared PNG replay corrected。
+- [x] iPad trace: prior up/commit/pending-clear/loss completed; failed Scribble-enabled rapid re-contact delivered neither pointerdown nor stylus touchstart. No speculative input/timing workaround。
+- [x] iPad-only「Apple Pencil 使用提醒」links to exact [Apple Taiwan settings instructions](https://support.apple.com/zh-tw/guide/ipad/ipad355ab2a7/ipados)，設定 > Apple Pencil > 隨手寫；no Scribble-state detection claim。
+- [x] Temporary drawingDebug observer/UI and debug-specific tests removed before release; actual product regressions retained。
+- [x] Focused 89／full 91 files・1,359 tests／TypeScript／lint／Pages-base build／diff-check PASS；clean/source-bound 10/10 gates，unchanged classifier Risk C／providerCanaryRequired=false。
+- [x] Exact candidate CI 37640405750／Pages 37640714852／deployment 6913318153 success；version 1.6.3／manifest and navigation parity／canonical public smoke PASS。
+- [x] Complete controlled browser matrix: 24 groups, 24/24 committed dots including PNG, rapid A–D same/different IDs, stale capture, palm, tools/history, KaTeX, Light/Dark and 360/768/1440 PASS; notice platform/keyboard-link/responsive checks PASS。
+- [x] **REAL APPLE PENCIL PASS WITH SCRIBBLE DISABLED** on exact accepted candidate: actual iPad notice/link, rapid a–d／i j t x／dots／20+ contacts／palm／math all PASS. No missing ink/dot, phantom palm, pause requirement or lock. Scribble-enabled handwriting is not claimed fixed。
+- [x] User explicitly authorized exactly one docs-only closure commit／normal push／exact CI／final Pages dispatch／final smoke／one unsigned annotated tag creation and exact-ref push。
+- [ ] Post-commit closure SHA／CI／final Pages deployment／release.json parity and clean refs, then tag object/message/peeled-target/local-remote equality; exact results recorded in the final post-commit report without a second docs commit。
+- [x] Closure scope documentation-only; zero source/tests/package/workflow/quiz/context/dependency/backend changes, Edge/provider/user-data mutations or GitHub Release。
+
+Actual evidence: [v1.6.3 delivery](v1.6.3-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.6.2 frontend drawing UX release
 
 日期：2026-10-07；基準 immutable v1.6.1／911ea84f71e72cf29ff2ca2f56726d212056e401。
