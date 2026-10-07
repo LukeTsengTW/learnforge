@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.6.2 — 行動裝置手寫 UX 修正
+
+準備日期：2026-10-07。狀態：release candidate；production 驗證待執行。
+
+- DrawingCanvas 提供獨立的「輸入方式：標準／觸控筆優先」。標準接受 mouse／pen／touch；觸控筆優先在 pending ink／capture 前拒絕 touch，保留 mouse／pen 與未知 pointerType 的既有相容性。
+- 既有 pointerId ownership 防止其他指標 append／finish；手掌不打斷 active pen。沒有 palm-size heuristics，這是應用程式 touch filtering，不宣稱硬體 palm rejection。
+- canvas-frame／drawing-canvas 局部 touch-action、user-select、WebKit user-select／touch-callout 保護；canvas contextmenu preventDefault。工具與其他文字維持原有互動。
+- learnforge:drawing-input-mode 僅存 standard／stylus；預設／無效值為 standard；storage 被封鎖仍可操作目前 canvas。
+- CSS contract test 改用 node:path resolve(process.cwd(), 'src/styles/global.css')；原 focused scope 55/55、full 91 files／1,325 tests、TypeScript／lint／Pages-base build 通過。
+- Feature bf2c7d3f45432796151fae9286720854aeb7c73b；無 dependency、quiz/context、schema、grading、Edge／DB／RLS／Auth／secret 變更。實際 release evidence 見 [delivery](docs/v1.6.2-delivery.md)。
+
 ## 1.6.1 — 離散數學期中考計算題手寫
 
 驗證日期：2026-10-07。狀態：exact candidate production verification PASS；docs-only closure preparation。Final closure SHA／CI／Pages／manifest 在 post-commit report 核對。

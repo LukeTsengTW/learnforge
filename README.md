@@ -1,5 +1,7 @@
 # LearnForge
 
+**Release candidate：v1.6.2 — 行動裝置手寫 UX 修正。** DrawingCanvas 新增「輸入方式：標準／觸控筆優先」；觸控筆優先以 PointerEvent.pointerType 過濾手指與手掌 touch，保留 pen／mouse。局部 CSS 防選取／Safari callout，canvas 阻止 context menu；偏好僅存於本機。題庫、答案 schema、評分、AI context 與 backend 不變。測試與發布證據見 [v1.6.2 delivery](docs/v1.6.2-delivery.md)。以下是歷史 release snapshots。
+
 **Production verified：v1.6.1 — 離散數學期中考計算題手寫。** `discrete-math/2` 是唯一 current revision：11 題／宣告 100 分，q2–q6 使用既有打字／手寫 selector 與 1200 × 900 DrawingCanvas；六題單選維持原樣。封存的 `discrete-math/1` 保留 text-only 歷史契約。Bundled inventory 為 6 revisions／4 current quizzes／51 questions，canonical contexts 為 51，原有 40 objects 完全保留。Exact candidate `c8c84f89c8541a0e9a74ec666d983f7d198d0dad` 的完整 gates／CI、六函式 Edge batch、Pages／canonical smoke 與非持久化 UI evidence 已通過；此為 docs-only closure snapshot，final closure SHA／CI／Pages／parity 在 post-commit report 記錄。Author Preview 的 legacy contract 與受控手寫 fixture 證據分開記錄，不宣稱 live provider grading。實際 evidence 見 [v1.6.1 delivery](docs/v1.6.1-delivery.md)。下列 v1.6.0 與更早敘述保留為歷史 snapshots；canonical v1.6.0 已永久 closed 在 `9575a17f0541c85c46f81bd88820ff7f91c7964c`，immutable tag 保持不變。
 
 **Production verified：v1.6.0 — Dark Mode。** Replacement Pages deployment 與 canonical／authenticated read-only smoke 已在 e3aaedb5badc34f9b64507ef5de5b06fa796c445 通過；此為 docs-only closure snapshot，final closure SHA／CI／Pages 身分由 post-commit verification report 記錄。Immutable v1.6.0 tag 尚未建立，需要另行授權。Light／Dark、偏好保存及完整 remediation history 見 [v1.6 交付文件](docs/v1.6-delivery.md)。

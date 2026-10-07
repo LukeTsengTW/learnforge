@@ -1,5 +1,20 @@
 # Release checklist
 
+## v1.6.2 frontend drawing UX release
+
+日期：2026-10-07；基準 immutable v1.6.1／911ea84f71e72cf29ff2ca2f56726d212056e401。
+
+- [x] Preserve interrupted implementation；CSS harness-only correction；focused 55/55 PASS。
+- [x] TypeScript、lint、full 91 files／1,325 tests、Pages-base build、diff check PASS。
+- [x] Feature bf2c7d3f45432796151fae9286720854aeb7c73b 只有四個 frontend/test/helper/CSS files；protected quiz/context/models/Supabase paths unchanged。
+- [x] package/lock roots/visible label = 1.6.2；無 dependency maintenance。
+- [ ] Same-SHA clean candidate canonical gates／Risk B／no provider canary；candidate push／CI。
+- [ ] Initial exact Pages／public smoke／non-persisting browser feature smoke。
+- [ ] Docs-only closure／push／CI／final Pages／manifest parity／clean tree；actual final identity 由 post-commit report 核對。
+- [x] Zero backend／user-data mutations；v1.6.1 immutable；no v1.6.2 tag／GitHub Release。
+
+Actual evidence and limitations: [v1.6.2 delivery](v1.6.2-delivery.md)。歷史 checklist 保留如下。
+
 ## v1.6.1 production verification / closure preparation
 
 日期：2026-10-07。比較基準為 immutable `v1.6.0`／`9575a17f0541c85c46f81bd88820ff7f91c7964c`；以下歷史 records 保留原樣。
