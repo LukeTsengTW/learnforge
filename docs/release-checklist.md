@@ -1,5 +1,24 @@
 # Release checklist
 
+## v1.7.0 Chapter 1 counting examples candidate
+
+日期：2026-10-08（Asia/Taipei）。Immutable base v1.6.3：tag object `beab214501508d6df9f1c975bb34d04e4b6f6a1b`／peeled `94d5d5122b6725891b719658e41ecf15c76f3634`。以下勾選記錄 preparation 時已取得的證據；post-commit 執行結果另記於 candidate acceptance report。
+
+- [x] Pre-preparation HEAD/master/origin/live remote = `31ac42e68df9b173e63f3c3341411b818bcf5b47`；clean tree/index；v1.7.0 local/remote tag 和 GitHub Release absent；production 仍為 immutable v1.6.3。
+- [x] Feature/fix tip CI 37753146630：93 files／1,433 PASS，零 skipped；所有 canonical CI stages PASS。
+- [x] 新題庫 26 calculation／26 drawing-capable，150 分，1200×900；7 revisions／5 current／77 questions／77 contexts；既有內容雜湊保留。
+- [x] Prior feature browser evidence：26/26 Student Preview、26/26 Answer Preview、360/768/1440、無 document overflow、KaTeX errors 0。
+- [x] AST runtime graph 確認六個受影響 Edge functions；無 unresolved/nonliteral local imports；save-quiz-draft verify_jwt=true，其餘五個保留 false。
+- [x] 功能 delta 無 migration、DB/Auth/RLS/secrets/provider configuration/dependency change。Risk C 的 canonical context 必須同步到 Edge；不要求 paid provider canary。
+- [ ] Prepared source strict preflight／source-bound release:check against v1.6.3：10/10 PASS，lint／1,433 tests／TypeScript／Pages-base build／manifest／production audit／diff-check。
+- [ ] 一個 release-prep commit、一次 normal push、exact candidate push CI 全 PASS；local/master/origin/live parity。
+- [ ] 每個 required Edge function 部署一次；記錄 before/after id、version、bundle identity；全部 ACTIVE、source verification 通過；無 unrelated deployment。
+- [ ] 六個 Edge 確認後，一次 exact candidate deploy.yml dispatch；Pages workflow/deployment success。
+- [ ] Public release.json／navigation = 1.7.0／candidate SHA；canonical public smoke、Library/search/new quiz、Student/Answer Preview、responsive、KaTeX／console/CSP、來源修正與保留性 PASS。
+- [ ] 完成後 STOP：no closure commit、no second/final Pages dispatch、no v1.7.0 tag、no GitHub Release；等待 closure authorization。
+
+Candidate scope、來源校正、完整基準與部署程序：[v1.7.0 delivery](v1.7.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.6.3 Apple Pencil stability / iPad compatibility closure
 
 日期：2026-10-07（Asia/Taipei）；immutable baseline v1.6.2 object `7f4d2431929dd88bac321b90cbd0817719c7f5c9`／peeled `82ea0f112ee6fe33d5ebc97a6bc00cb8765b11fe` 保持不變。
