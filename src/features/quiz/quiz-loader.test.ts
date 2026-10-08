@@ -8,12 +8,18 @@ import { bundledQuizSources, createQuizCatalog, quizCatalog } from './quiz-loade
 // Includes archived revisions as well as every current bundled quiz.
 const sources = { ...bundledQuizSources }
 describe('bundled quiz catalog', () => {
-  it('parses four current quizzes in zh-Hant title order without catalog errors', () => {
+  it('parses every current quiz in zh-Hant title order without catalog errors', () => {
     expect(quizCatalog.errors).toEqual([])
-    expect(quizCatalog.current.map(({ quiz }) => quiz.id)).toEqual(['discrete-math', 'boolean-algebra', 'demo', 'relations'])
-    for (const { quiz, maxPoints } of quizCatalog.current) {
+    const currentIds = Object.values(sources).map((source) => parseQuiz(source, true))
+      .filter((quiz) => quiz.current).map((quiz) => quiz.id)
+    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(currentIds.sort())
+    const titles = quizCatalog.current.map(({ quiz }) => quiz.title)
+    expect(titles).toEqual([...titles].sort((a, b) => a.localeCompare(b, 'zh-Hant')))
+    for (const { quiz, maxPoints, totalPoints } of quizCatalog.current) {
       expect(quiz.questions.length).toBeGreaterThanOrEqual(7)
-      expect(maxPoints).toBeGreaterThan(0)
+      expect(totalPoints).toBeGreaterThan(0)
+      expect(maxPoints).toBeGreaterThanOrEqual(0)
+      expect(maxPoints).toBeLessThanOrEqual(totalPoints)
     }
   })
   it.each(['boolean-algebra', 'demo', 'relations'])('preserves the four objective types in %s', (id) => {
@@ -92,7 +98,7 @@ describe('bundled quiz catalog', () => {
   it('resolves an archived revision without duplicating the library card', () => {
     const archived = demoSource.replace('revision="v2-handwriting"', 'revision="archive"').replace('current="true"', 'current="false"')
     const catalog = createQuizCatalog({ ...sources, archived })
-    expect(catalog.current).toHaveLength(4)
+    expect(catalog.current).toHaveLength(quizCatalog.current.length)
     expect(catalog.getQuizRevision('demo', 'archive')?.revision).toBe('archive')
     expect(catalog.getQuizRevision('demo', 'v1-7d7c900e')?.current).toBe(false)
     expect(catalog.getCurrentQuiz('demo')?.revision).toBe('v2-handwriting')
@@ -115,7 +121,7 @@ describe('bundled quiz catalog', () => {
   })
   it('keeps valid quizzes available when one file fails parsing', () => {
     const catalog = createQuizCatalog({ ...sources, broken: '@quiz bad' })
-    expect(catalog.current).toHaveLength(4)
+    expect(catalog.current).toHaveLength(quizCatalog.current.length)
     expect(catalog.errors[0].file).toBe('broken')
   })
   it('retains fingerprint revisions for legacy Quiz Markdown', () => {

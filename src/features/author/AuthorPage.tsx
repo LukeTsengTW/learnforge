@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from 'react'
-import type { AnswerMap, QuestionAnswer } from '../../models/attempt'
+import type { PracticeAnswerMap, PracticeAnswer } from '../../models/draft-v4'
 import { QUESTION_LABEL, QUESTION_TYPE, type QuestionType } from '../../models/quiz'
 import { bundledQuizSources } from '../quiz/quiz-loader'
 import { AuthorPreview } from './AuthorPreview'
@@ -25,7 +25,7 @@ function cursorPosition(source: string, index: number) {
 
 export function AuthorPage() {
   const [authorDocument, setAuthorDocument] = useState<AuthoringDocument>(() => createAuthoringDocument())
-  const [answers, setAnswers] = useState<AnswerMap>({})
+  const [answers, setAnswers] = useState<PracticeAnswerMap>({})
   const [mode, setMode] = useState<'student' | 'answer'>('student')
   const [message, setMessage] = useState('')
   const [selectedFile, setSelectedFile] = useState(bundled[0]?.[0] ?? '')
@@ -281,7 +281,7 @@ export function AuthorPage() {
             <button type="button" onClick={() => { setAnswers({}); setMessage('預覽作答已重設。') }}>重設預覽作答</button>
           </div>
           {quiz ? <AuthorPreview quiz={quiz} mode={mode} answers={answers}
-            onAnswer={(id: string, answer: QuestionAnswer) => setAnswers((current) => ({ ...current, [id]: answer }))} />
+            onAnswer={(id: string, answer: PracticeAnswer) => setAnswers((current) => ({ ...current, [id]: answer }))} />
             : <div className="empty-state"><p>{authorDocument.parseState.status === 'invalid'
               ? '修正解析錯誤後即可預覽。' : '建立或載入題庫後，這裡會顯示正式渲染。'}</p></div>}
         </section>

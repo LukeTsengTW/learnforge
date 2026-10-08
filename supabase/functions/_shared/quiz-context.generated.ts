@@ -622,6 +622,1327 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 例題 1.1：選一本教科書（講義第 4 頁）\n某學院圖書館有 $40$ 本社會學方面的教科書，以及 $50$ 本和人類學有關的教科書。學生想從這兩類書中選一本，學習其中一個學科。依講義將兩類書視為不重疊的選項，共有多少種選擇？請說明理由。",
+    "hint": null,
+    "solution": "學生只選一本書，因此分成「選社會學教科書」與「選人類學教科書」兩種互斥情況。前者有 $40$ 種選法，後者有 $50$ 種，且涵蓋所有允許的選擇。\n\n由和規則，總數為\n\n$$\n40+50=90.\n$$\n\n此處不是各選一本，因此不用相乘。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "辨認只選一本，兩類書的選擇互斥且涵蓋全部情況，適用和規則。"
+      },
+      {
+        "score": 1,
+        "description": "正確列式 $40+50$，或用等價方式表達兩類選項合併。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $90$ 種選擇。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$90$ 種選擇。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "辨認只選一本，兩類書的選擇互斥且涵蓋全部情況，適用和規則。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列式 $40+50$，或用等價方式表達兩類選項合併。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $90$ 種選擇。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### 例題 1.5：選男女主角（講義第 6 頁）\n中央大學戲劇社正準備春季公演試演，有 $6$ 位男生與 $8$ 位女生參加試鏡，分別競爭男主角與女主角。若各選一人，共有多少種男女主角的組合？請說明理由。",
+    "hint": null,
+    "solution": "選男主角有 $6$ 種方法；對每一位選定的男主角，女主角都有 $8$ 種選擇。每個結果由一位男主角與一位女主角共同決定。\n\n由積規則，組合數為\n\n$$\n6\\cdot8=48.\n$$\n\n兩種角色都必須選定，所以不是把人數相加。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明每一種男主角的選法都可搭配任一位女主角，適用積規則。"
+      },
+      {
+        "score": 1,
+        "description": "正確列式 $6\\cdot8$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $48$ 種組合。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$48$ 種組合。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明每一種男主角的選法都可搭配任一位女主角，適用積規則。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列式 $6\\cdot8$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $48$ 種組合。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### 例題 1.6：車牌編號（講義第 7 頁）\n車牌由前面 $2$ 個英文字母與後面 $4$ 個數字組成。每個字母位置可用 $26$ 個英文字母，每個數字位置可用 $0$ 至 $9$；數字部分的第一位也可以是 $0$。\n\n(a) 字母彼此不重複，數字彼此也不重複時，有多少種不同車牌？\n\n(b) 字母與數字都允許重複時，有多少種不同車牌？\n\n請分別列式並說明每個位置的選擇數。",
+    "hint": null,
+    "solution": "**(a)** 第一個字母有 $26$ 種選擇，第二個只能使用尚未出現的字母，因此有 $25$ 種。四個數字位置依序有 $10,9,8,7$ 種選擇。由積規則，\n\n$$\n26\\cdot25\\cdot10\\cdot9\\cdot8\\cdot7=3{,}276{,}000.\n$$\n\n**(b)** 允許重複後，每一個字母位置始終有 $26$ 種選擇，每一個數字位置始終有 $10$ 種，故\n\n$$\n26^2\\cdot10^4=6{,}760{,}000.\n$$\n\n位置不同的排列代表不同車牌，不須除以位置的階乘。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確說明兩個字母位置有 $26,25$ 種選擇，四個數字位置有 $10,9,8,7$ 種選擇。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 使用積規則並算出 $3{,}276{,}000$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明重複不減少後續位置的選擇，列出 $26^2\\cdot10^4$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到 $6{,}760{,}000$，且沒有錯誤地限制首個數字或除去排列順序。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $3{,}276{,}000$ 種。\n\n(b) $6{,}760{,}000$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確說明兩個字母位置有 $26,25$ 種選擇，四個數字位置有 $10,9,8,7$ 種選擇。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 使用積規則並算出 $3{,}276{,}000$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 說明重複不減少後續位置的選擇，列出 $26^2\\cdot10^4$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確得到 $6{,}760{,}000$，且沒有錯誤地限制首個數字或除去排列順序。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### 排列例 1：三取二（講義第 9 頁）\n從 $3$ 個相異物件中取出 $2$ 個排成一列，物件不得重複且順序有別。求排列數 $P(3,2)$，並說明計算方式。",
+    "hint": null,
+    "solution": "第一個位置可從 $3$ 個物件中任選一個；選定後，第二個位置剩下 $2$ 個選項。由積規則，\n\n$$\nP(3,2)=3\\cdot2=\\frac{3!}{(3-2)!}=6.\n$$\n\n例如先選某一物件再選另一物件，與交換兩者位置是不同排列，因此不除以 $2!$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確辨認順序有別且不得重複，兩個位置分別有 $3$、$2$ 種選擇。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $3\\cdot2$ 或 $3!/(3-2)!$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $6$ 種排列。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$P(3,2)=6$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確辨認順序有別且不得重複，兩個位置分別有 $3$、$2$ 種選擇。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $3\\cdot2$ 或 $3!/(3-2)!$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $6$ 種排列。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 排列例 2：四取二（講義第 9 頁）\n從 $4$ 個相異物件中取出 $2$ 個排成一列，物件不得重複且順序有別。求排列數 $P(4,2)$，並說明計算方式。",
+    "hint": null,
+    "solution": "第一個位置有 $4$ 種選法；移除已選物件後，第二個位置有 $3$ 種選法。每一對依序選定的物件對應一個排列，所以\n\n$$\nP(4,2)=4\\cdot3=\\frac{4!}{(4-2)!}=12.\n$$\n\n此處記錄的是兩個位置的排列，不是忽略順序的二元素集合。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明第一個位置有 $4$ 種、第二個位置有 $3$ 種選擇，並保留順序。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $4\\cdot3$ 或 $4!/(4-2)!$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $12$ 種排列。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$P(4,2)=12$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明第一個位置有 $4$ 種、第二個位置有 $3$ 種選擇，並保留順序。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $4\\cdot3$ 或 $4!/(4-2)!$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $12$ 種排列。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 例題 1.10：COMPUTER 的字母（講義第 10 頁）\nCOMPUTER 共有 $8$ 個相異字母。\n\n(a) 使用全部字母，每個字母恰好一次，共有多少種排列？\n\n(b) 只取其中 $5$ 個字母排列，且不允許重複，共有多少種排列？\n\n(c) 使用這些字母組成長度為 $12$ 的字串，允許重複使用字母，共有多少種字串？\n\n請分別列式並說明是否允許重複如何影響計數。",
+    "hint": null,
+    "solution": "**(a)** 八個字母全部相異。由左至右填入八個位置，選擇數依序為 $8,7,\\ldots,1$，所以共有 $8!=40{,}320$ 種。\n\n**(b)** 只填五個位置且不重複，選擇數依序為 $8,7,6,5,4$，故\n\n$$\nP(8,5)=\\frac{8!}{3!}=8\\cdot7\\cdot6\\cdot5\\cdot4=6720.\n$$\n\n也可先選五個字母再排列，得到 $\\binom{8}{5}5!$。\n\n**(c)** 字母可重複，每個位置都保有 $8$ 種選擇；十二個位置由積規則得到 $8^{12}$ 種。這不是取十二個相異字母，所以不使用不重複排列公式。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 說明八個相異字母各用一次，列出 $8!$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確得到 $40{,}320$ 或保留等價的 $8!$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確列出 $8! / 3!$、$8\\cdot7\\cdot6\\cdot5\\cdot4$ 或 $\\binom{8}{5}5!$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到 $6720$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 說明十二個位置各自都有 $8$ 種選擇。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 正確得到 $8^{12}$，沒有套用不得重複的限制。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(a) $8!=40{,}320$ 種。\n\n(b) $P(8,5)=6720$ 種。\n\n(c) $8^{12}$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 說明八個相異字母各用一次，列出 $8!$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確得到 $40{,}320$ 或保留等價的 $8!$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確列出 $8! / 3!$、$8\\cdot7\\cdot6\\cdot5\\cdot4$ 或 $\\binom{8}{5}5!$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確得到 $6720$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(c) 說明十二個位置各自都有 $8$ 種選擇。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(c) 正確得到 $8^{12}$，沒有套用不得重複的限制。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 重複排列例 1：xxyy（講義第 11 頁）\n將兩個 $x$ 與兩個 $y$ 排成一列。同字母視為相同，請問共有多少種不同排列？請說明如何避免重複計數。",
+    "hint": null,
+    "solution": "若先把四個字母當成相異物件，會有 $4!$ 種排列。但交換兩個 $x$ 的標記不會產生新字串，交換兩個 $y$ 也一樣，因此每一個不同字串被算了 $2!2!$ 次。\n\n所以不同排列數為\n\n$$\n\\frac{4!}{2!2!}=6.\n$$\n\n等價地，從四個位置選出兩個放 $x$，其餘放 $y$，有 $\\binom{4}{2}=6$ 種。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "辨認兩個 $x$ 與兩個 $y$ 各自不可區分，說明除以 $2!2!$，或等價的位置選擇方法。"
+      },
+      {
+        "score": 1,
+        "description": "正確列式 $4!/(2!2!)$ 或 $\\binom{4}{2}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $6$ 種。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\dfrac{4!}{2!2!}=6$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "辨認兩個 $x$ 與兩個 $y$ 各自不可區分，說明除以 $2!2!$，或等價的位置選擇方法。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列式 $4!/(2!2!)$ 或 $\\binom{4}{2}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $6$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 重複排列例 2：xxxyy（講義第 11 頁）\n將三個 $x$ 與兩個 $y$ 排成一列。同字母視為相同，請問共有多少種不同排列？請說明如何避免重複計數。",
+    "hint": null,
+    "solution": "五個字母若全部標記為相異，共有 $5!$ 種排列。移除標記後，每個字串會因三個 $x$ 的 $3!$ 種交換與兩個 $y$ 的 $2!$ 種交換而重複計數。\n\n所以不同排列數為\n\n$$\n\\frac{5!}{3!2!}=10.\n$$\n\n也可選五個位置中的三個放 $x$，得到 $\\binom{5}{3}=10$；剩下兩個位置必須放 $y$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確辨認三個 $x$ 與兩個 $y$ 的重數，解釋重複因子 $3!2!$ 或等價方法。"
+      },
+      {
+        "score": 1,
+        "description": "正確列式 $5!/(3!2!)$ 或 $\\binom{5}{3}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $10$ 種。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\dfrac{5!}{3!2!}=10$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確辨認三個 $x$ 與兩個 $y$ 的重數，解釋重複因子 $3!2!$ 或等價方法。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列式 $5!/(3!2!)$ 或 $\\binom{5}{3}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $10$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 例題 1.13：MASSASAUGA（講義第 12 頁）\n使用 MASSASAUGA 中的所有字母排成一列，同字母視為相同。\n\n(a) 共有多少種不同排列？\n\n(b) 若要求所有 $A$ 排在一起，共有多少種不同排列？\n\n請先辨認各字母的重數，再列式計算。",
+    "hint": null,
+    "solution": "MASSASAUGA 有十個字母，其中 $A$ 有四個、$S$ 有三個，而 $M,U,G$ 各一個。\n\n**(a)** 先把十個字母視為相異得到 $10!$，再除去相同字母交換造成的重複：\n\n$$\n\\frac{10!}{4!3!}=25{,}200.\n$$\n\n**(b)** 把四個相鄰的 $A$ 合成一個區塊。此時排列的七個單位為一個 $AAAA$ 區塊、三個 $S$ 及 $M,U,G$，故有\n\n$$\n\\frac{7!}{3!}=840.\n$$\n\n區塊內四個 $A$ 全相同，不再乘 $4!$；每個符合條件的字串都唯一對應一個區塊排列。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確辨認 $A$ 有四個、$S$ 有三個、其餘三種字母各一個。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確使用 $10!/(4!3!)$ 並得到 $25{,}200$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 將四個 $A$ 視為一個區塊，辨認共有七個單位且仍有三個相同 $S$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確使用 $7!/3!$ 得到 $840$，不另乘區塊內的排列數；等價完整解法亦可。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\dfrac{10!}{4!3!}=25{,}200$ 種。\n\n(b) $\\dfrac{7!}{3!}=840$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確辨認 $A$ 有四個、$S$ 有三個、其餘三種字母各一個。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確使用 $10!/(4!3!)$ 並得到 $25{,}200$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 將四個 $A$ 視為一個區塊，辨認共有七個單位且仍有三個相同 $S$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確使用 $7!/3!$ 得到 $840$，不另乘區塊內的排列數；等價完整解法亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### 例題 1.14：格點路徑（講義第 13 頁）\n在平面格點上，由 $(2,1)$ 走到 $(7,4)$。每一步只能向右或向上移動一個單位。共有多少條不同路徑？請說明路徑與步驟排列如何對應。",
+    "hint": null,
+    "solution": "橫座標必須增加 $7-2=5$，所以恰好走五步向右；縱座標必須增加 $4-1=3$，所以恰好走三步向上。\n\n每條路徑都對應八個步驟中的五個向右步驟與三個向上步驟之排列。選定三個向上步驟的位置，其餘必為向右，故\n\n$$\n\\binom{8}{3}=\\frac{8!}{5!3!}=56.\n$$\n\n反過來，任一含五步向右與三步向上的序列都會到達終點，因此此對應既不重複也不遺漏。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確由座標差得到五步向右、三步向上，共八步。"
+      },
+      {
+        "score": 2,
+        "description": "說明路徑與步驟序列的一一對應，列出 $\\binom{8}{3}$、$\\binom{8}{5}$ 或 $8!/(5!3!)$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $56$ 條路徑，或用等價且完整的計數方法推導。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\binom{8}{3}=\\dfrac{8!}{5!3!}=56$ 條。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確由座標差得到五步向右、三步向上，共八步。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "說明路徑與步驟序列的一一對應，列出 $\\binom{8}{3}$、$\\binom{8}{5}$ 或 $8!/(5!3!)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $56$ 條路徑，或用等價且完整的計數方法推導。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### 組合例：三取二（講義第 14 頁）\n從 $\\{a,b,c\\}$ 中選取兩個不同元素，不考慮選取順序。共有多少種組合？請列出組合或說明排列與組合的差別。",
+    "hint": null,
+    "solution": "三種二元素集合分別是 $\\{a,b\\}$、$\\{a,c\\}$、$\\{b,c\\}$。因不考慮順序，$\\{a,b\\}$ 與 $\\{b,a\\}$ 是同一個組合。\n\n若先計算有序選取，共有 $P(3,2)=3\\cdot2$ 種；每個二元素集合被算了 $2!$ 次，故\n\n$$\n\\binom{3}{2}=\\frac{3\\cdot2}{2!}=3.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明順序不影響結果，或完整列出三個不重複的二元素集合。"
+      },
+      {
+        "score": 1,
+        "description": "正確使用 $\\binom{3}{2}$、$P(3,2)/2!$ 或完整列舉。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $3$ 種組合。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{3}{2}=3$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明順序不影響結果，或完整列出三個不重複的二元素集合。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確使用 $\\binom{3}{2}$、$P(3,2)/2!$ 或完整列舉。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $3$ 種組合。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### 例題 1.19：Lynn 與 Patti 選彩券號碼（講義第 15 頁）\n依講義中的威力球彩券規則，Lynn 從 $1$ 至 $49$ 選出五個不同號碼，Patti 另外從 $1$ 至 $42$ 選一個強力球號碼。前五個號碼不考慮順序，強力球是獨立的另一區選擇。兩人共有多少種方法選定彩券的六個號碼？請列式並說明理由。",
+    "hint": null,
+    "solution": "Lynn 的五個號碼互不相同且不計順序，所以有 $\\binom{49}{5}$ 種選法。Patti 從另一區的四十二個號碼中選一個，有 $\\binom{42}{1}=42$ 種；這個選擇不因 Lynn 的號碼而減少。\n\n每一組前區號碼都可搭配任何強力球號碼，依積規則，\n\n$$\n\\binom{49}{5}\\binom{42}{1}\n=1{,}906{,}884\\cdot42\n=80{,}089{,}128.\n$$\n\n不能把兩區合成同一集合選六個，也不能把前五個號碼的順序另行計入。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以 $\\binom{49}{5}$ 表示五個不同且不計順序的前區號碼。"
+      },
+      {
+        "score": 2,
+        "description": "正確辨認獨立的強力球區有 $\\binom{42}{1}=42$ 種選擇，使用積規則。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $80{,}089{,}128$，或以等價算式完整呈現計數。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\binom{49}{5}\\binom{42}{1}=80{,}089{,}128$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以 $\\binom{49}{5}$ 表示五個不同且不計順序的前區號碼。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確辨認獨立的強力球區有 $\\binom{42}{1}=42$ 種選擇，使用積規則。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $80{,}089{,}128$，或以等價算式完整呈現計數。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### 例題 1.21：組排球隊（講義第 16 頁）\nRydell 高中的體育老師想從高二及高三的女生中選 $9$ 位組成排球隊。可選的高二生有 $28$ 位，高三生有 $25$ 位，選隊員時不考慮順序。\n\n(a) 不限制各年級人數時，共有多少種選法？\n\n(c) 某場比賽要求球隊由 $4$ 位高二生及 $5$ 位高三生組成，共有多少種選法？\n\n請依各小題條件列式計算。",
+    "hint": null,
+    "solution": "**(a)** 兩個年級共有 $28+25=53$ 位候選人。沒有年級名額限制，直接選出九人，且順序無關，因此\n\n$$\n\\binom{53}{9}=4{,}431{,}613{,}550.\n$$\n\n**(c)** 高二生的四個名額有 $\\binom{28}{4}=20{,}475$ 種選法；對每一種選法，高三生的五個名額都有 $\\binom{25}{5}=53{,}130$ 種選法。由積規則，\n\n$$\n\\binom{28}{4}\\binom{25}{5}\n=20{,}475\\cdot53{,}130\n=1{,}087{,}836{,}750.\n$$\n\n各年級的選人結果唯一決定整隊，不必額外安排位置或乘隊員的排列數。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確合併為 $53$ 位候選人，辨認不計順序選九人。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確使用 $\\binom{53}{9}$ 並得到 $4{,}431{,}613{,}550$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 正確列出高二選四人的 $\\binom{28}{4}$ 及高三選五人的 $\\binom{25}{5}$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 使用積規則並得到 $1{,}087{,}836{,}750$；等價完整推導亦可。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\binom{53}{9}=4{,}431{,}613{,}550$ 種。\n\n(c) $\\binom{28}{4}\\binom{25}{5}=1{,}087{,}836{,}750$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確合併為 $53$ 位候選人，辨認不計順序選九人。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確使用 $\\binom{53}{9}$ 並得到 $4{,}431{,}613{,}550$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 正確列出高二選四人的 $\\binom{28}{4}$ 及高三選五人的 $\\binom{25}{5}$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(c) 使用積規則並得到 $1{,}087{,}836{,}750$；等價完整推導亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### 例題 1.23：TALLAHASSEE（講義第 17 頁）\n使用 TALLAHASSEE 中的所有字母排成一列，同字母視為相同。\n\n(a) 共有多少種不同排列？\n\n(b) 若要求三個 $A$ 彼此不相鄰，共有多少種不同排列？\n\n請說明重複字母及不相鄰條件如何影響計數。",
+    "hint": null,
+    "solution": "字母重數為：$A$ 三個，$L,S,E$ 各兩個，$T,H$ 各一個，共十一個字母。\n\n**(a)** 全部排列時，除去相同字母互換造成的重複，得到\n\n$$\n\\frac{11!}{3!2!2!2!}=831{,}600.\n$$\n\n**(b)** 先排八個非 $A$ 字母，其不同排列數為\n\n$$\n\\frac{8!}{2!2!2!}=5040.\n$$\n\n每個非 $A$ 排列形成九個空隙，包含最左及最右兩端。為使三個 $A$ 互不相鄰，每個空隙至多放一個 $A$，故選三個空隙有 $\\binom{9}{3}=84$ 種方法。\n\n三個 $A$ 相同，不再乘 $3!$。刪除一個有效排列中的所有 $A$，就能唯一還原非 $A$ 排列與所選空隙，因此\n\n$$\n5040\\cdot\\binom{9}{3}=5040\\cdot84=423{,}360.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確辨認各字母重數，列出 $11!/(3!2!2!2!)$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確得到 $831{,}600$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到非 $A$ 字母的排列數 $8!/(2!2!2!)=5040$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明九個空隙中選三個、每隙至多一個 $A$，得到 $5040\\binom{9}{3}=423{,}360$；等價完整的不相鄰計數亦可。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\dfrac{11!}{3!2!2!2!}=831{,}600$ 種。\n\n(b) $\\dfrac{8!}{2!2!2!}\\binom{9}{3}=423{,}360$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確辨認各字母重數，列出 $11!/(3!2!2!2!)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確得到 $831{,}600$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確得到非 $A$ 字母的排列數 $8!/(2!2!2!)=5040$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 說明九個空隙中選三個、每隙至多一個 $A$，得到 $5040\\binom{9}{3}=423{,}360$；等價完整的不相鄰計數亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### 二項式例 1：四次方的係數（講義第 19 頁）\n求 $(x+y)^4$ 展開式中 $x^2y^2$ 的係數，並說明如何選取各因式提供的項。",
+    "hint": null,
+    "solution": "把 $(x+y)^4$ 視為四個相同因式相乘。要產生 $x^2y^2$，必須從其中兩個因式選 $y$，另外兩個選 $x$。\n\n選出提供 $y$ 的兩個因式後，所有選擇都已確定，因此係數為\n\n$$\n\\binom{4}{2}=\\frac{4!}{2!2!}=6.\n$$\n\n這也正是二項式定理中對應 $x^{4-2}y^2$ 的係數。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明四個因式中有兩個提供 $y$、其餘提供 $x$，或正確套用二項式定理。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $\\binom{4}{2}$ 或 $4!/(2!2!)$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到係數 $6$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{4}{2}=6$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明四個因式中有兩個提供 $y$、其餘提供 $x$，或正確套用二項式定理。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $\\binom{4}{2}$ 或 $4!/(2!2!)$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到係數 $6$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### 二項式例 2：五次方的係數（講義第 20 頁）\n求 $(x+y)^5$ 展開式中 $x^3y^2$ 的係數，並說明如何選取各因式提供的項。",
+    "hint": null,
+    "solution": "在五個 $(x+y)$ 因式中，必須選兩個提供 $y$，其餘三個提供 $x$。不同的因式位置選擇會貢獻相同的單項式，合併後其數目就是係數。\n\n所以所求係數為\n\n$$\n\\binom{5}{2}=\\frac{5!}{3!2!}=10.\n$$\n\n也可改選三個提供 $x$ 的因式，得到相同的 $\\binom{5}{3}$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確辨認需要三個 $x$ 與兩個 $y$，並說明因式選擇或二項式定理。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $\\binom{5}{2}$、$\\binom{5}{3}$ 或等價階乘式。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到係數 $10$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{5}{2}=10$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確辨認需要三個 $x$ 與兩個 $y$，並說明因式選擇或二項式定理。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $\\binom{5}{2}$、$\\binom{5}{3}$ 或等價階乘式。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到係數 $10$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### 例題 1.26：二項式係數（講義第 21 頁）\n(a) 求 $(x+y)^7$ 展開式中 $x^5y^2$ 的係數。\n\n(b) 求 $(2a-3b)^7$ 展開式中 $a^5b^2$ 的係數。\n\n請分別列式，並說明第二小題的常數與符號如何計入。",
+    "hint": null,
+    "solution": "**(a)** 七個因式中選兩個提供 $y$，另外五個提供 $x$，所以 $x^5y^2$ 的係數為\n\n$$\n\\binom{7}{2}=21.\n$$\n\n**(b)** 七個因式中選兩個提供 $-3b$，其餘五個提供 $2a$，對應的完整項為\n\n$$\n\\binom{7}{2}(2a)^5(-3b)^2.\n$$\n\n取出 $a^5b^2$ 後，係數是\n\n$$\n\\binom{7}{2}2^5(-3)^2\n=21\\cdot32\\cdot9\n=6048.\n$$\n\n因為負數的次方為偶數，係數為正；常數的冪次與各變數冪次相同。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確辨認七個因式中選兩個提供 $y$，列出 $\\binom{7}{2}$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確得到係數 $21$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確列出 $\\binom{7}{2}2^5(-3)^2$，包含常數因子及其冪次。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確處理正負號並得到 $6048$；等價完整展開亦可。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\binom{7}{2}=21$。\n\n(b) $\\binom{7}{2}2^5(-3)^2=6048$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確辨認七個因式中選兩個提供 $y$，列出 $\\binom{7}{2}$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確得到係數 $21$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確列出 $\\binom{7}{2}2^5(-3)^2$，包含常數因子及其冪次。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確處理正負號並得到 $6048$；等價完整展開亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### 多項式例：四次方的係數（講義第 23 頁）\n求 $(x+y+z)^4$ 展開式中 $xy^2z$ 的係數，並說明各種項的選取次數。",
+    "hint": null,
+    "solution": "要從四個因式得到 $xy^2z$，必須選一個因式提供 $x$、兩個提供 $y$、一個提供 $z$。\n\n依多項式定理，係數為\n\n$$\n\\frac{4!}{1!2!1!}=12.\n$$\n\n也可依序選位置：先用 $\\binom{4}{1}$ 選 $x$ 的位置，再用 $\\binom{3}{2}$ 選 $y$ 的位置，最後一個位置給 $z$，得到 $4\\cdot3=12$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確辨認 $x,y,z$ 的次數分別為 $1,2,1$，總和為四。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $4!/(1!2!1!)$ 或等價的分步選位置算式。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到係數 $12$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\dfrac{4!}{1!2!1!}=12$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確辨認 $x,y,z$ 的次數分別為 $1,2,1$，總和為四。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $4!/(1!2!1!)$ 或等價的分步選位置算式。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到係數 $12$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q19",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### 例題 1.27：七次方的三個係數（講義第 24 頁）\n(a) 求 $(x+y+z)^7$ 展開式中下列三項的係數：\n\n1. $x^2y^2z^3$\n2. $xyz^5$\n3. $x^3z^4$\n\n請分別寫出指數分配及計算過程。",
+    "hint": null,
+    "solution": "多項式定理指出，當 $r+s+t=7$ 且三個指數皆為非負整數時，$x^ry^sz^t$ 的係數是\n\n$$\n\\frac{7!}{r!s!t!}.\n$$\n\n這是把七個因式的位置分配給 $x,y,z$ 的方法數。\n\n1. $x^2y^2z^3$ 的指數為 $(2,2,3)$，所以係數是 $\\dfrac{7!}{2!2!3!}=210$。\n2. $xyz^5$ 的指數為 $(1,1,5)$，所以係數是 $\\dfrac{7!}{1!1!5!}=42$。\n3. $x^3z^4$ 的指數為 $(3,0,4)$，沒有 $y$ 表示其指數為零。因 $0!=1$，係數是 $\\dfrac{7!}{3!0!4!}=35$。\n\n三者的指數總和均為七，且同屬原例題的 (a)。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "第 1 項正確辨認指數 $(2,2,3)$，列出 $7!/(2!2!3!)$。"
+      },
+      {
+        "score": 2,
+        "description": "第 1 項正確得到 $210$。"
+      },
+      {
+        "score": 2,
+        "description": "第 2 項正確辨認指數 $(1,1,5)$，列出 $7!/(1!1!5!)$。"
+      },
+      {
+        "score": 2,
+        "description": "第 2 項正確得到 $42$。"
+      },
+      {
+        "score": 2,
+        "description": "第 3 項正確辨認指數 $(3,0,4)$，列出 $7!/(3!0!4!)$ 或 $\\binom{7}{3}$。"
+      },
+      {
+        "score": 2,
+        "description": "第 3 項正確得到 $35$；各項亦接受等價的分步選位置方法。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(a) 依序為 $210$、$42$、$35$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "第 1 項正確辨認指數 $(2,2,3)$，列出 $7!/(2!2!3!)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "第 1 項正確得到 $210$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "第 2 項正確辨認指數 $(1,1,5)$，列出 $7!/(1!1!5!)$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "第 2 項正確得到 $42$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "第 3 項正確辨認指數 $(3,0,4)$，列出 $7!/(3!0!4!)$ 或 $\\binom{7}{3}$。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "第 3 項正確得到 $35$；各項亦接受等價的分步選位置方法。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q20",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### 重複組合例：三類取二（講義第 25 頁）\n從 $a,b,c$ 三種類型中取出兩個物件，每種類型可重複選取，且不考慮順序。共有多少種重複組合？請以非負整數解或星與棒說明。",
+    "hint": null,
+    "solution": "令 $x_a,x_b,x_c$ 分別表示所取三種類型的數量，則每個重複組合唯一對應\n\n$$\nx_a+x_b+x_c=2,\\qquad x_a,x_b,x_c\\ge0\n$$\n\n的一個整數解。用兩個星號表示物件、兩個隔板分隔三種類型，可從四個位置選兩個放隔板：\n\n$$\n\\binom{2+3-1}{3-1}=\\binom{4}{2}=6.\n$$\n\n列舉為 $aa,ab,ac,bb,bc,cc$；例如 $ab$ 與 $ba$ 視為同一組合。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以三個非負整數總和為二建模，或完整列出不計順序的重複組合。"
+      },
+      {
+        "score": 1,
+        "description": "正確使用兩個星號、兩個隔板及 $\\binom{4}{2}$，或等價計數。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $6$ 種。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{4}{2}=6$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以三個非負整數總和為二建模，或完整列出不計順序的重複組合。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確使用兩個星號、兩個隔板及 $\\binom{4}{2}$，或等價計數。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $6$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q21",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### 重複組合例：四類取二（講義第 26 頁）\n從 $a,b,c,d$ 四種類型中取出兩個物件，每種類型可重複選取，且不考慮順序。共有多少種重複組合？請以非負整數解或星與棒說明。",
+    "hint": null,
+    "solution": "令四個變數記錄各種類型的取用數量，則問題等價於\n\n$$\nx_a+x_b+x_c+x_d=2,\\qquad x_a,x_b,x_c,x_d\\ge0\n$$\n\n的整數解數。兩個星號表示所取物件，三個隔板區分四種類型，共五個位置，因此\n\n$$\n\\binom{2+4-1}{4-1}=\\binom{5}{3}=\\binom{5}{2}=10.\n$$\n\n也可分成兩個物件同類的四種情況，以及不同類的 $\\binom{4}{2}=6$ 種情況，合計十種。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以四個非負整數總和為二建模，或以同類、不同類作互斥且完整的分類。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $\\binom{5}{3}$、$\\binom{5}{2}$ 或 $4+\\binom{4}{2}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $10$ 種。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{5}{2}=10$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以四個非負整數總和為二建模，或以同類、不同類作互斥且完整的分類。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $\\binom{5}{3}$、$\\binom{5}{2}$ 或 $4+\\binom{4}{2}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $10$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q22",
+    "questionIndex": 21,
+    "type": "calculation",
+    "prompt": "### 例題 1.33：非負整數解（講義第 29 頁）\n求方程式\n\n$$\nx_1+x_2+x_3+x_4=7\n$$\n\n的非負整數解個數。各變數允許等於零，請說明星與棒的對應方式。",
+    "hint": null,
+    "solution": "用七個星號代表總和的七個單位，再用三個隔板分成四組。各組的星號數依序就是 $x_1,x_2,x_3,x_4$。\n\n隔板可相鄰，也可出現在最左或最右端，表示相應的變數為零。此表示法與非負整數解一一對應，故共有\n\n$$\n\\binom{7+4-1}{4-1}=\\binom{10}{3}=120\n$$\n\n個解。不要求四個變數皆為正數，因此不用先扣除四個單位。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明七個星號、三個隔板與四個非負整數的一一對應，包含零的情況。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $\\binom{10}{3}$ 或等價的 $\\binom{10}{7}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $120$ 個解。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{10}{3}=120$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明七個星號、三個隔板與四個非負整數的一一對應，包含零的情況。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $\\binom{10}{3}$ 或等價的 $\\binom{10}{7}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $120$ 個解。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q23",
+    "questionIndex": 22,
+    "type": "calculation",
+    "prompt": "### 例題 1.34：白彈珠與容器（講義第 31 頁）\n有多少種方法可以把 $10$ 顆相同的白彈珠分配到 $6$ 個相異容器中？允許容器為空。請說明「相同彈珠、相異容器」對計數的影響。",
+    "hint": null,
+    "solution": "令 $x_i$ 為第 $i$ 個容器的彈珠數。因容器相異，必須保留各容器的身分；因彈珠相同，只需記錄數量，不必排列個別彈珠。於是\n\n$$\nx_1+x_2+x_3+x_4+x_5+x_6=10,\\qquad x_i\\ge0.\n$$\n\n使用十個星號及五個隔板，共十五個位置，選五個放隔板即可唯一表示分配，故\n\n$$\n\\binom{10+6-1}{6-1}=\\binom{15}{5}=3003.\n$$\n\n相鄰隔板及端點隔板表示空容器，符合題意。不應把容器視為相同，也不應對彈珠額外乘上 $10!$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以六個非負整數總和為十建模，保留相異容器的身分並允許空容器。"
+      },
+      {
+        "score": 2,
+        "description": "正確說明十個星號與五個隔板，列出 $\\binom{15}{5}$ 或等價計數。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $3003$ 種，沒有重複排列相同彈珠。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\binom{15}{5}=3003$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以六個非負整數總和為十建模，保留相異容器的身分並允許空容器。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確說明十個星號與五個隔板，列出 $\\binom{15}{5}$ 或等價計數。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $3003$ 種，沒有重複排列相同彈珠。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q24",
+    "questionIndex": 23,
+    "type": "calculation",
+    "prompt": "### 展開式項數例 1：四變數十次方（講義第 32 頁）\n將 $(w+x+y+z)^{10}$ 展開並合併同類項後，共有多少個不同的單項式？請利用各變數的指數說明計算過程。",
+    "hint": null,
+    "solution": "每個不同單項式可寫成 $w^a x^b y^c z^d$，其中\n\n$$\na+b+c+d=10,\\qquad a,b,c,d\\ge0.\n$$\n\n每組非負整數指數都會在展開式出現，其多項式係數為正，因此不會被抵消；不同指數組合也不會合併成同一項。\n\n所以項數就是上述方程式的解數。以十個星號與三個隔板表示，得到\n\n$$\n\\binom{10+4-1}{4-1}=\\binom{13}{3}=286.\n$$\n\n這裡數的是合併同類項後的不同單項式，不是各項係數的總和。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確將單項式對應到四個非負整數指數，總和為十。"
+      },
+      {
+        "score": 2,
+        "description": "說明各指數組合皆出現且不被抵消，使用星與棒列出 $\\binom{13}{3}$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $286$ 項，或以等價完整方法計數。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\binom{13}{3}=286$ 項。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確將單項式對應到四個非負整數指數，總和為十。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "說明各指數組合皆出現且不被抵消，使用星與棒列出 $\\binom{13}{3}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $286$ 項，或以等價完整方法計數。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q25",
+    "questionIndex": 24,
+    "type": "calculation",
+    "prompt": "### 展開式項數例 2：二變數三次方（講義第 32 頁）\n將 $(x+y)^3$ 展開並合併同類項後，共有多少個不同的單項式？請用指數分配或直接展開說明。",
+    "hint": null,
+    "solution": "每個單項式是 $x^a y^b$，其中 $a+b=3$ 且 $a,b\\ge0$。$b$ 可以依序取 $0,1,2,3$，每個值都唯一決定 $a$。\n\n以星與棒表示，有三個星號及一個隔板，所以項數為\n\n$$\n\\binom{3+2-1}{2-1}=\\binom{4}{1}=4.\n$$\n\n直接展開也得到 $(x+y)^3=x^3+3x^2y+3xy^2+y^3$，恰有四個不同單項式。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以 $a+b=3$ 的非負整數指數建模，或完整展開並合併同類項。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $\\binom{4}{1}$，或說明一個指數有四種可能。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $4$ 項。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$\\binom{4}{1}=4$ 項。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以 $a+b=3$ 的非負整數指數建模，或完整展開並合併同類項。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確列出 $\\binom{4}{1}$，或說明一個指數有四種可能。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $4$ 項。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch1-counting-examples",
+    "revision": "1",
+    "questionId": "q26",
+    "questionIndex": 25,
+    "type": "calculation",
+    "prompt": "### 例題 1.39：三層迴圈（講義第 33–34 頁）\n下列程式的各迴圈上下界皆包含端點，變數每次增加一：\n\n~~~text\nfor i := 1 to 20 do\n  for j := 1 to i do\n    for k := 1 to j do\n      print(i * j + k)\n~~~\n\n請問列印敘述總共執行多少次？請依迴圈界限建立計數模型並說明理由。",
+    "hint": null,
+    "solution": "每一次列印唯一對應一組整數三元組，且\n\n$$\n1\\le k\\le j\\le i\\le20.\n$$\n\n依講義第 33 頁，令\n\n$$\nx_1=k-1,\\quad x_2=j-k,\\quad x_3=i-j,\\quad x_4=20-i.\n$$\n\n四個變數皆為非負整數，並滿足\n\n$$\nx_1+x_2+x_3+x_4=19.\n$$\n\n反過來，由任一此方程式的非負整數解，可唯一還原 $k=x_1+1$、$j=x_1+x_2+1$、$i=x_1+x_2+x_3+1$，且符合原迴圈界限。由星與棒，列印次數為\n\n$$\n\\binom{19+4-1}{4-1}\n=\\binom{22}{3}\n=1540.\n$$\n\n講義第 34 頁提供同一題的另一種解釋：從 $1$ 至 $20$ 可重複選三個值，再按非遞減順序放入 $(k,j,i)$，得到重複組合數 $\\binom{20+3-1}{3}$。也可直接計算 $\\sum_{i=1}^{20}\\sum_{j=1}^{i}j$。\n\n列印的內容是 $i\\cdot j+k$；其數值不影響列印次數，只要執行一次列印敘述就計一次。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確由迴圈得到 $1\\le k\\le j\\le i\\le20$，每個三元組對應一次列印。"
+      },
+      {
+        "score": 2,
+        "description": "正確建立四個非負變數總和為十九的一一對應，或等價的二十類取三重複組合、巢狀求和模型。"
+      },
+      {
+        "score": 2,
+        "description": "正確計算出 $\\binom{22}{3}=1540$ 次，並按執行次數而非輸出值計數。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\binom{22}{3}=1540$ 次。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確由迴圈得到 $1\\le k\\le j\\le i\\le20$，每個三元組對應一次列印。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確建立四個非負變數總和為十九的一一對應，或等價的二十類取三重複組合、巢狀求和模型。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確計算出 $\\binom{22}{3}=1540$ 次，並按執行次數而非輸出值計數。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math",
     "revision": "1",
     "questionId": "q1-i",

@@ -1,6 +1,6 @@
 @layer components {
   .author-main { max-width: 1500px; }
-  .author-page { display: grid; gap: 20px; min-width: 0; }
+  .author-page { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; min-width: 0; }
   .author-heading { display: flex; align-items: start; justify-content: space-between; gap: 24px; padding: 8px 0 12px; }
   .author-heading h1 { margin: 5px 0 8px; }
   .author-heading p { color: var(--muted); max-width: 72ch; }
