@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.7.0 Chapter 1 counting examples candidate
+## v1.7.0 Chapter 1 counting examples documentation closure
 
-日期：2026-10-08（Asia/Taipei）。Immutable base v1.6.3：tag object `beab214501508d6df9f1c975bb34d04e4b6f6a1b`／peeled `94d5d5122b6725891b719658e41ecf15c76f3634`。以下勾選記錄 preparation 時已取得的證據；post-commit 執行結果另記於 candidate acceptance report。
+日期：2026-10-08（Asia/Taipei）。Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a` 的 production acceptance 已完成。Immutable base v1.6.3：tag object `beab214501508d6df9f1c975bb34d04e4b6f6a1b`／peeled `94d5d5122b6725891b719658e41ecf15c76f3634` 不變。以下記錄已完成的 candidate 證據；documentation-only closure 準備 final deployment，closure SHA／CI／final Pages／精簡 parity smoke 留於 post-commit report，不預先宣稱 future mutations 成功。
 
 - [x] Pre-preparation HEAD/master/origin/live remote = `31ac42e68df9b173e63f3c3341411b818bcf5b47`；clean tree/index；v1.7.0 local/remote tag 和 GitHub Release absent；production 仍為 immutable v1.6.3。
 - [x] Feature/fix tip CI 37753146630：93 files／1,433 PASS，零 skipped；所有 canonical CI stages PASS。
@@ -10,12 +10,16 @@
 - [x] Prior feature browser evidence：26/26 Student Preview、26/26 Answer Preview、360/768/1440、無 document overflow、KaTeX errors 0。
 - [x] AST runtime graph 確認六個受影響 Edge functions；無 unresolved/nonliteral local imports；save-quiz-draft verify_jwt=true，其餘五個保留 false。
 - [x] 功能 delta 無 migration、DB/Auth/RLS/secrets/provider configuration/dependency change。Risk C 的 canonical context 必須同步到 Edge；不要求 paid provider canary。
-- [ ] Prepared source strict preflight／source-bound release:check against v1.6.3：10/10 PASS，lint／1,433 tests／TypeScript／Pages-base build／manifest／production audit／diff-check。
-- [ ] 一個 release-prep commit、一次 normal push、exact candidate push CI 全 PASS；local/master/origin/live parity。
-- [ ] 每個 required Edge function 部署一次；記錄 before/after id、version、bundle identity；全部 ACTIVE、source verification 通過；無 unrelated deployment。
-- [ ] 六個 Edge 確認後，一次 exact candidate deploy.yml dispatch；Pages workflow/deployment success。
-- [ ] Public release.json／navigation = 1.7.0／candidate SHA；canonical public smoke、Library/search/new quiz、Student/Answer Preview、responsive、KaTeX／console/CSP、來源修正與保留性 PASS。
-- [ ] 完成後 STOP：no closure commit、no second/final Pages dispatch、no v1.7.0 tag、no GitHub Release；等待 closure authorization。
+- [x] Prepared source strict preflight／source-bound release:check against v1.6.3：10/10 PASS，lint／1,433 tests／TypeScript／Pages-base build／manifest／production audit／diff-check。
+- [x] 一個 release-prep commit、一次 normal push、exact candidate CI 37759361106：93 files／1,433 PASS、零 skipped、全部 stages success；local/master/origin/live parity。
+- [x] 六個 required Edge 各部署一次，全部 ACTIVE，id/JWT 保留，accepted revisions ai-tutor 18、ai-grade 18、ai-drawing 18、ai-responses 20、save-quiz-draft 4、submit-quiz 6；無 unrelated deployment。
+- [x] ai-tutor live canonical source 完全相符；ai-grade independent API source inspection 確認 revision/hash、readable source 與 Chapter 1 contexts。CLI UnsafeFunctionDownloadPathError 是 verification-tool extraction limitation；沒有 safety bypass，不要求其餘 CLI downloads、不 redeploy。
+- [x] 六個 Edge 確認後，一次 exact candidate Pages 37762035891／deployment 6932859081，全部 workflow stages／deployment success。
+- [x] Public release.json／navigation = 1.7.0／candidate SHA；root、manifest、assets HTTP 200，base=/learnforge/，production Supabase ref unchanged。
+- [x] 五個 current Library quizzes、離散數學／計數搜尋、新 quiz 26 題／150 分與 q01/q06/q14/q19/q26、來源修正與保留性 PASS。
+- [x] 26/26 Student／Answer Preview、schema-1/schema-2 controls、雙 buffers／question isolation／active-only／reset；360/768/1440 無 overflow；KaTeX／非預期 rendered raw TeX／application console／page errors／LearnForge CSP 均 0。沒有 provider canary／user-data mutation；不宣稱實機 iPad/Safari/Apple Pencil。
+- [x] Candidate acceptance 已完成並取得 documentation-only closure／一次 final Pages 的授權；closure 不變更 runtime，不 redeploy Edge，不重試 source download。
+- [ ] Immutable v1.7.0 tag：尚未建立，final closure verification 後仍 STOP，等待另行授權；不建立 GitHub Release。
 
 Candidate scope、來源校正、完整基準與部署程序：[v1.7.0 delivery](v1.7.0-delivery.md)。以下歷史 checklist 保留原樣。
 

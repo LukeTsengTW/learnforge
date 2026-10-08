@@ -1,6 +1,6 @@
 # LearnForge
 
-**Current release candidate：v1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答。** 新題庫 `discrete-math-ch1-counting-examples/1` 含 26 題計算題、150 分，每題支援打字與 1200×900 手寫；總庫存為 7 revisions／5 current quizzes／77 questions／77 canonical contexts。Author Preview 依 `requiresV4Draft` 使用 schema 2，保留兩種作答緩衝與 local/manual Answer Preview；另保留 360px source controls 排版修正。Feature/fix tip `31ac42e68df9b173e63f3c3341411b818bcf5b47` 的 CI 37753146630 已通過 93 files／1,433 tests，零 skipped。Candidate 必須先同步六個 Edge functions，再部署 exact-SHA Pages 並完成 production smoke；closure／tag 尚未授權。實際 candidate 部署結果由 post-commit report 記錄，不能由這份 preparation snapshot 推定。[v1.7.0 delivery](docs/v1.7.0-delivery.md)。
+**Production accepted：v1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答。** Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a`：CI 37759361106、Pages 37762035891／deployment 6932859081 與 production identity 全 PASS。新題庫 `discrete-math-ch1-counting-examples/1` 含 26 題計算題、150 分，每題支援打字與 1200×900 手寫；總庫存為 7 revisions／5 current quizzes／77 questions／77 canonical contexts。正式站 26/26 Student／Answer Preview、schema-1/schema-2 controls、雙 buffer／active-only／reset、360/768/1440 與 KaTeX／console／CSP 均 PASS。六個 Edge 已先於 candidate Pages 完成同步；CLI source-download 問題已確認為 verification-tool extraction limitation，沒有 safety bypass、provider canary 或 user-data mutation。此為 documentation-only closure snapshot，已完成 candidate acceptance、準備 final closure deployment；closure SHA／CI／final Pages／parity 由 post-commit report 記錄。Immutable v1.7.0 tag 尚未建立，需另行授權；沒有 GitHub Release。不宣稱本功能已做真實 iPad／Safari／Apple Pencil 驗證。[v1.7.0 delivery](docs/v1.7.0-delivery.md)。
 
 以下為保留的歷史 release snapshots。
 
@@ -25,7 +25,7 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 ## 功能
 
 - 全域 Light／Dark 主題涵蓋頁面、卡片、控制項、結果狀態、code／KaTeX 與 Author。明確選擇保存於 learnforge:theme 並在 reload 保留；沒有有效偏好時依 prefers-color-scheme 初始化，不將系統預設寫成明確偏好。同步 head bootstrap 在 React 載入前套用主題。
-- Production 有四份 current bundled 題庫、五個 revisions：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）。期中考已隨 v1.5.0 上線，六個 Edge bundles 的 canonical contexts 已同步為 40。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
+- Production 有五份 current bundled 題庫；全庫七個 revisions／77 questions／77 canonical contexts：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算），以及「離散數學第一章：計數的基本原理－例題練習」26 題計算題／150 分。期中考隨 v1.5.0 上線；v1.7.0 的六個 Edge bundles 已同步全部 77 canonical contexts。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
 - 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。

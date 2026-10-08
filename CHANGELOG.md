@@ -2,7 +2,7 @@
 
 ## 1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答
 
-Release candidate preparation：2026-10-08。基準 immutable v1.6.3；feature/fix tip `31ac42e68df9b173e63f3c3341411b818bcf5b47`。Candidate CI／Edge／Pages／production smoke 的 exact identities 在 post-commit report 記錄；這不是 closure 或 tag。
+Candidate production accepted／documentation-only closure：2026-10-08。Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a`，CI 37759361106、Pages 37762035891／deployment 6932859081 全 PASS，production manifest 與 navigation 為 1.7.0／candidate SHA。Immutable v1.6.3 不變；本次只記錄驗證結果，準備 final closure deployment。Closure SHA／CI／final Pages／parity 由 post-commit report 核對；v1.7.0 tag 尚未建立，需另行授權，沒有 GitHub Release。
 
 - 新 bundled quiz family `discrete-math-ch1-counting-examples/1`：依 `01 計數的基本原理 - 2026.pdf` 收錄 26 題 worked examples、26 calculation／drawing-capable、150 分、1200×900，支援打字與手寫。全庫 7 revisions／5 current／77 questions／77 canonical contexts。
 - 保留 PDF 原文差異：p.4 社會學／人類學；例題 1.21 僅 (a)/(c)；p.24 三個係數計算同屬可見的 (a)；p.33 使用 `print(i * j + k)`，例題 1.39 答案為 1540。
@@ -11,6 +11,7 @@ Release candidate preparation：2026-10-08。基準 immutable v1.6.3；feature/f
 - 舊六份 Quiz、51 questions、51 canonical contexts 與 current `discrete-math/2` 均保留。功能沒有 migration、Auth／RLS／secrets／provider configuration 或 dependency delta。
 - Generated canonical context 是 Edge-visible artifact；runtime import graph 確認僅 ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz 需要部署。Risk C／providerCanaryRequired=false；部署順序為 candidate CI → 六個 Edge → Pages → production smoke。
 - Feature/fix CI [37753146630](https://github.com/LukeTsengTW/learnforge/actions/runs/37753146630)：93 files／1,433 PASS，零 skipped，全部 stages success。來源瀏覽器證據與 release candidate 邊界見 [delivery](docs/v1.7.0-delivery.md)。
+- Candidate 正式站 26/26 Student／Answer Preview、schema-1 legacy／既有 discrete-math/2 schema-2／新 quiz schema-2、buffer retention／question isolation／active-only／reset、360/768/1440 無 document overflow、KaTeX／非預期 rendered raw TeX／application console／page errors／LearnForge CSP 全 PASS。六個 Edge revisions 18/18/18/20/4/6 已在 Pages 前部署一次；ai-grade CLI extraction limitation 經 independent API source inspection 確認，沒有 safety bypass 或 redeployment。零 provider canary／user-data mutation；本功能沒有真實 iPad／Safari／Apple Pencil 驗證聲明。
 
 ## 1.6.3 — Apple Pencil 手寫穩定性與 iPad 相容性
 
