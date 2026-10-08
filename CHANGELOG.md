@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.8.0 — 電子白板橡皮擦大小與範圍預覽
+
+Release preparation：2026-10-08。功能 commit `d982a788139dd952a09fbe8056034ea5680e8024` 已通過 supervisor review 並 push；[LearnForge CI 37793995779](https://github.com/LukeTsengTW/learnforge/actions/runs/37793995779) 為 completed／success，head SHA 與功能 commit 相符。此階段只準備 release metadata／文件，candidate commit、Pages、production acceptance 與 v1.8.0 tag 均尚未完成。
+
+- 畫筆寬度與橡皮擦大小分離；切換工具後各自保留尺寸。建立 stroke 時選用對應工具的 width，沿用既有 `DrawingStroke { tool, color, width, points }`，沒有 schema migration。
+- 新增橡皮擦範圍 DOM overlay，與 pending stroke 分離；`pointer-events: none`／`aria-hidden="true"`，不進 Canvas bitmap、stroke/history 或 PNG。Border-box 與 inset 對比環讓外部邊界對應真正擦除 diameter。
+- 依 `getBoundingClientRect()` 與 Canvas logical width/height 換算 pointer 座標，再以 logical／config 比例定位與縮放 overlay；Canvas 顯示為 50% 時，preview diameter 同步為 50%。
+- Mouse hover 顯示 preview，pointerup 後保留於最後位置並回到目前 eraserWidth，離開 Canvas 後隱藏。Pen／touch 接觸期間顯示，pointerup／cancel 後隱藏；pen 後續 hover 可恢復。Stylus mode 仍在 pending stroke／pointer capture 前拒絕 touch。
+- 保留 Apple Pencil rapid stroke、reused pointerId 與 delayed lostpointercapture 的既有生命週期，沒有額外 stroke、commit 或 capture。Eraser 仍使用 `destination-out`；server rasterizer、Supabase 與 drawing persistence schema 未修改。
+- Local implementation gates：93 files／1,454 tests 全部 success，lint／build／diff check 通過；涵蓋獨立尺寸、responsive preview、mouse pointerup、CSS 外徑、history／PNG 與既有 stylus lifecycle。沒有真實 iPad／Safari／Apple Pencil 驗證聲明。
+- Release-prep package／lock root version 與 visible navigation label 準備為 1.8.0；無 dependency、quiz inventory、generated AI context、Edge source、migration、DB／Auth／RLS 或 provider configuration delta。完整證據與尚待驗收項目見 [v1.8.0 delivery](docs/v1.8.0-delivery.md)。
+
 ## 1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答
 
 Candidate production accepted／documentation-only closure：2026-10-08。Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a`，CI 37759361106、Pages 37762035891／deployment 6932859081 全 PASS，production manifest 與 navigation 為 1.7.0／candidate SHA。Immutable v1.6.3 不變；本次只記錄驗證結果，準備 final closure deployment。Closure SHA／CI／final Pages／parity 由 post-commit report 核對；v1.7.0 tag 尚未建立，需另行授權，沒有 GitHub Release。

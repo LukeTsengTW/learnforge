@@ -1,5 +1,28 @@
 # Release checklist
 
+## v1.8.0 drawing eraser release preparation
+
+日期：2026-10-08（Asia/Taipei）。本階段僅 metadata／documentation preparation 與 local release gates，STOP BEFORE COMMIT。Immutable v1.7.0：tag object `84991972d4d2040e06bd1f5060b3bb9b13548923`／peeled target `860386404d3c78c9aa5cad8d014f18e7fa86e5ff`，保持不變。
+
+- [x] Preflight clean tree；HEAD／fetched origin/master = `d982a788139dd952a09fbe8056034ea5680e8024`；local／remote v1.8.0 tag absent。
+- [x] Feature implementation：獨立 pen／eraser 尺寸、DOM preview、responsive scaling；原 drawing schema／destination-out 與 pointer lifecycle 保留。
+- [x] Supervisor Diff review 通過；修正 mouse pointerup preview retention 與 border／shadow 外徑，regression tests 已同步。
+- [x] Local implementation gates：focused 3 files／110 tests、full 93 files／1,454 tests、lint／build／diff check PASS。
+- [x] Feature commit／normal push 完成：`d982a788139dd952a09fbe8056034ea5680e8024`，subject `feat: improve drawing eraser controls`。
+- [x] Exact feature [CI 37793995779](https://github.com/LukeTsengTW/learnforge/actions/runs/37793995779)：LearnForge CI／master push／completed／success，head SHA 完全相符。
+- [x] Canonical version surfaces 準備為 1.8.0；本輪 version metadata 的 lint／93 files・1,454 tests／build／Edge import check／production audit（0 vulnerabilities）／diff check PASS。
+- [x] Reviewed scope：frontend feature＋release metadata/docs；無 dependency、quiz/context、Edge／Supabase／migration／DB／Auth／RLS／provider configuration delta。Machine classification security-ai／Risk C／providerCanaryRequired=false，含 package/lock 與現存 ignored .env.local 的保守規則。
+- [ ] Release-prep candidate commit：尚未建立，本階段禁止 commit。
+- [ ] Candidate push／exact candidate CI：尚未執行，不以 feature CI 取代 candidate CI。
+- [ ] Production Pages deployment：尚未執行，需另行授權；不 deploy Edge。
+- [ ] Production manifest／navigation／exact candidate SHA parity：尚未驗證。
+- [ ] Production browser smoke：eraser hover／pointerup／離開、尺寸、history／PNG、Light/Dark 與 responsive 行為，尚未驗證。
+- [ ] Device-specific validation：真實 iPad／Safari／Apple Pencil 與 touch 行為，尚未取得本功能證據。
+- [ ] Production acceptance／documentation closure：尚未完成。
+- [ ] Annotated v1.8.0 tag：尚未建立，需 closure 驗證與另行授權；不建立 GitHub Release。
+
+Source-bound local gates 沿用 `npm run release:check -- --base v1.7.0`，結果由 ignored `output/release/checks.json`／`report.json` 記錄；本輪為未提交 preparation，之後 exact clean candidate 仍須重新 preflight／CI。Scope、證據層級與剩餘驗收見 [v1.8.0 delivery](v1.8.0-delivery.md)。以下歷史 release sections 保留原樣。
+
 ## v1.7.0 Chapter 1 counting examples documentation closure
 
 日期：2026-10-08（Asia/Taipei）。Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a` 的 production acceptance 已完成。Immutable base v1.6.3：tag object `beab214501508d6df9f1c975bb34d04e4b6f6a1b`／peeled `94d5d5122b6725891b719658e41ecf15c76f3634` 不變。以下記錄已完成的 candidate 證據；documentation-only closure 準備 final deployment，closure SHA／CI／final Pages／精簡 parity smoke 留於 post-commit report，不預先宣稱 future mutations 成功。
