@@ -68,10 +68,10 @@ async function fillBoth(user: ReturnType<typeof userEvent.setup>) {
   expect(card().getByRole('button', { name: '復原' })).toBeEnabled()
 }
 
-async function load(user: ReturnType<typeof userEvent.setup>, revision: '1' | '2') {
+async function load(user: ReturnType<typeof userEvent.setup>, revision: '1' | '2', sourceControls: ReturnType<typeof within>) {
   const file = Object.keys(bundledQuizSources).find((path) => path.endsWith(`/discrete-math/v${revision}.quiz.md`))!
-  await user.selectOptions(screen.getByLabelText('Bundled revision'), file)
-  await user.click(screen.getByRole('button', { name: '載入 bundled source' }))
+  await user.selectOptions(sourceControls.getByLabelText('Bundled revision'), file)
+  await user.click(sourceControls.getByRole('button', { name: '載入 bundled source' }))
   await screen.findByText('Valid')
 }
 
@@ -143,27 +143,42 @@ describe('Author preview calculation capability', () => {
     expect(screen.queryByRole('button', { name: /AI 參考評分|AI 圖像/ })).toBeNull()
   })
 
+  it('AuthorPage preserves both buffers when switching between student and answer previews', async () => {
+    const user = userEvent.setup()
+    render(<AuthorPage />)
+    const sourceControls = within(screen.getByRole('region', { name: '題庫來源與草稿' }))
+    const previewControls = within(screen.getByRole('group', { name: '預覽模式' }))
+    await load(user, '2', sourceControls)
+    await fillBoth(user)
+    await user.click(previewControls.getByRole('button', { name: 'Answer Preview' }))
+    expect(card().getByRole('img', { name: '已提交的繪圖答案' })).toBeInTheDocument()
+    expect(document.querySelector('#author-question-q2 .student-answer')).not.toHaveTextContent('我的推導')
+    await user.click(previewControls.getByRole('button', { name: 'Student Preview' }))
+    expect(card().getByRole('radio', { name: '手寫' })).toBeChecked()
+    expect(card().getByRole('button', { name: '復原' })).toBeEnabled()
+    await user.click(card().getByRole('radio', { name: '打字' }))
+    expect(card().getByRole('textbox')).toHaveValue(text)
+  })
+
   it.each(['reset', 'edit', 'replace'] as const)('AuthorPage %s clears both buffers without persisting or sending answers', async (action) => {
     const user = userEvent.setup()
     render(<AuthorPage />)
-    await load(user, '2')
+    const sourceControls = within(screen.getByRole('region', { name: '題庫來源與草稿' }))
+    const previewControls = within(screen.getByRole('group', { name: '預覽模式' }))
+    await load(user, '2', sourceControls)
     await fillBoth(user)
-    await user.click(screen.getByRole('button', { name: 'Answer Preview' }))
-    expect(card().getByRole('img', { name: '已提交的繪圖答案' })).toBeInTheDocument()
-    expect(document.querySelector('#author-question-q2 .student-answer')).not.toHaveTextContent('我的推導')
-    await user.click(screen.getByRole('button', { name: 'Student Preview' }))
     expect(card().getByRole('radio', { name: '手寫' })).toBeChecked()
-    if (action === 'reset') await user.click(screen.getByRole('button', { name: '重設預覽作答' }))
+    if (action === 'reset') await user.click(previewControls.getByRole('button', { name: '重設預覽作答' }))
     if (action === 'edit') {
       const editor = screen.getByRole('textbox', { name: '題庫 Markdown 編輯器' }) as HTMLTextAreaElement
       fireEvent.change(editor, { target: { value: `${editor.value}\n` } })
       await screen.findByText('Valid')
     }
     if (action === 'replace') {
-      await load(user, '1')
+      await load(user, '1', sourceControls)
       expect(card().queryByRole('radio')).toBeNull()
       expect(card().getByRole('textbox')).toHaveValue('')
-      await load(user, '2')
+      await load(user, '2', sourceControls)
     }
     await waitFor(() => expect(card().getByRole('radio', { name: '打字' })).toBeChecked())
     expect(card().getByRole('textbox')).toHaveValue('')
