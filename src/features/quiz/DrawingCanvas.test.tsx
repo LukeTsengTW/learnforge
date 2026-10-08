@@ -5,6 +5,7 @@ import { createRef, useState } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import type { DrawingStroke } from '../../models/drawing'
 import * as drawing from '../../lib/drawing'
 import { DRAWING_INPUT_MODE_KEY } from '../../lib/drawing-input-mode'
@@ -180,8 +181,9 @@ describe('drawing input preference and pointer routing', () => {
     fireEvent.click(screen.getByRole('button', { name: '紅色' }))
     fireEvent.change(screen.getByRole('slider'), { target: { value: '12' } })
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    fireEvent.change(screen.getByRole('slider', { name: '橡皮擦大小' }), { target: { value: '32' } })
     draw(surface(), 'pen', 31)
-    const eraser: DrawingStroke = { ...stroke, tool: 'eraser', color: '#c03535', width: 12 }
+    const eraser: DrawingStroke = { ...stroke, tool: 'eraser', color: '#c03535', width: 32 }
     // The canonical palette is authoritative; never change the stored stroke shape.
     const ink = onChange.mock.calls[0][0] as DrawingStroke[]
     expect(ink).toEqual([eraser])
@@ -210,6 +212,315 @@ describe('drawing input preference and pointer routing', () => {
     expect(protection).toMatch(/-webkit-user-select:\s*none/)
     expect(protection).toMatch(/-webkit-touch-callout:\s*none/)
     expect(css).toMatch(/\.drawing-canvas,\s*\.drawing-preview\s*\{[^}]*width:\s*100%;\s*height:\s*auto/)
+    expect(css).toMatch(/\.canvas-frame\s*\{[^}]*position:\s*relative/)
+    expect(css).toMatch(/\.eraser-preview\s*\{[^}]*position:\s*absolute;\s*pointer-events:\s*none/)
+  })
+  it('keeps the eraser preview border and contrast ring inside its diameter', () => {
+    const css = readFileSync(resolve(process.cwd(), 'src/styles/global.css'), 'utf8')
+    const overlay = css.match(/\.eraser-preview\s*\{([^}]+)\}/)?.[1]
+    expect(overlay).toMatch(/box-sizing:\s*border-box/)
+    const shadows = overlay?.match(/box-shadow:\s*([^;]+);/)?.[1]
+    expect(shadows).toBeDefined()
+    for (const shadow of shadows!.split(',')) expect(shadow.trim()).toMatch(/^inset\b/)
+    expect(overlay).toMatch(/border-radius:\s*50%/)
+    expect(overlay).toMatch(/transform:\s*translate\(-50%,\s*-50%\)/)
+  })
+})
+
+function preview() { return document.querySelector<HTMLElement>('.eraser-preview') }
+// jsdom has no layout engine. Resolve the overlay's CSS percentages against the
+// displayed canvas rect to check the size/position a browser will render.
+function previewBounds(canvas: HTMLCanvasElement) {
+  const { style } = preview()!, rect = canvas.getBoundingClientRect()
+  return {
+    x: rect.left + Number.parseFloat(style.left) * rect.width / 100,
+    y: rect.top + Number.parseFloat(style.top) * rect.height / 100,
+    width: Number.parseFloat(style.width) * rect.width / 100,
+    height: Number.parseFloat(style.height) * rect.height / 100,
+  }
+}
+
+describe('independent drawing tool sizes and eraser preview', () => {
+  it('retains each size across tool/color switches and writes the selected tool size', async () => {
+    const user = userEvent.setup(), onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    const pen = screen.getByRole('slider', { name: '筆寬' })
+    pen.focus()
+    expect(pen).toHaveFocus()
+    expect(pen).toHaveAttribute('type', 'range')
+    expect(pen).toHaveAttribute('min', '1')
+    expect(pen).toHaveAttribute('max', '24')
+    fireEvent.change(pen, { target: { value: '12' } })
+    draw(canvas, 'mouse', 11)
+    await user.click(screen.getByRole('button', { name: '橡皮擦' }))
+    const eraser = screen.getByRole('slider', { name: '橡皮擦大小' })
+    expect(eraser).toHaveValue('24')
+    expect(eraser).toHaveAttribute('min', '4')
+    expect(eraser).toHaveAttribute('max', '40')
+    // Tab from the eraser button through the three palette buttons to the range.
+    for (let i = 0; i < 4; i++) await user.tab()
+    expect(eraser).toHaveFocus()
+    fireEvent.change(eraser, { target: { value: '40' } })
+    expect(screen.getByText('40', { selector: 'output' })).toBeInTheDocument()
+    draw(canvas, 'pen', 31)
+    fireEvent.click(screen.getByRole('button', { name: '畫筆' }))
+    expect(screen.getByRole('slider', { name: '筆寬' })).toHaveValue('12')
+    draw(canvas, 'touch', 21)
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '6' } })
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    expect(screen.getByRole('slider', { name: '橡皮擦大小' })).toHaveValue('40')
+    fireEvent.click(screen.getByRole('button', { name: '藍色' }))
+    expect(screen.getByRole('slider', { name: '筆寬' })).toHaveValue('6')
+    expect(onChange).toHaveBeenCalledTimes(3)
+    expect(onChange).toHaveBeenLastCalledWith([
+      { ...stroke, width: 12 }, { ...stroke, tool: 'eraser', width: 40 }, { ...stroke, width: 12 },
+    ])
+  })
+
+  it('shows only in eraser mode on mouse entry/movement and hides on leave or tool/color switch', () => {
+    render(<Harness />)
+    const canvas = surface()
+    pointer(canvas, 'pointermove', 'mouse', 11)
+    expect(preview()).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    pointer(canvas, 'pointerover', 'mouse', 11, 110, 95)
+    expect(preview()).toHaveAttribute('aria-hidden', 'true')
+    expect(previewBounds(canvas)).toEqual({ x: 110, y: 95, width: 12, height: 12 })
+    pointer(canvas, 'pointermove', 'mouse', 11, 210, 170)
+    expect(previewBounds(canvas)).toEqual({ x: 210, y: 170, width: 12, height: 12 })
+    pointer(canvas, 'pointerout', 'mouse', 11)
+    expect(preview()).not.toBeInTheDocument()
+    pointer(canvas, 'pointermove', 'mouse', 11)
+    fireEvent.click(screen.getByRole('button', { name: '畫筆' }))
+    expect(preview()).not.toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    expect(preview()).not.toBeInTheDocument()
+    pointer(canvas, 'pointermove', 'mouse', 11)
+    fireEvent.click(screen.getByRole('button', { name: '紅色' }))
+    expect(preview()).not.toBeInTheDocument()
+  })
+
+  it.each([1, 0.5, 0.25])('scales the logical diameter and position at display scale %s', scale => {
+    render(<Harness />)
+    const canvas = surface()
+    vi.mocked(canvas.getBoundingClientRect).mockReturnValue({
+      left: 30, top: 50, width: 800 * scale, height: 600 * scale,
+      right: 30 + 800 * scale, bottom: 50 + 600 * scale, x: 30, y: 50, toJSON: () => ({}),
+    })
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    pointer(canvas, 'pointermove', 'mouse', 11, 30 + 200 * scale, 50 + 150 * scale)
+    expect(previewBounds(canvas)).toEqual({
+      x: 30 + 200 * scale, y: 50 + 150 * scale, width: 40 * scale, height: 40 * scale,
+    })
+    // A stationary pointer's logical preview also scales when RWD changes the
+    // canvas dimensions, without needing another move or a resize observer.
+    vi.mocked(canvas.getBoundingClientRect).mockReturnValue({
+      left: 30, top: 50, width: 400, height: 300, right: 430, bottom: 350, x: 30, y: 50, toJSON: () => ({}),
+    })
+    expect(previewBounds(canvas)).toEqual({ x: 130, y: 125, width: 20, height: 20 })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
+    expect(previewBounds(canvas)).toMatchObject({ x: 130, y: 125, width: 16 })
+    expect(previewBounds(canvas).height).toBeCloseTo(16)
+  })
+
+  it('previews the active stroke width until finish, then uses the next eraser size', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    expect(previewBounds(canvas).width).toBe(20)
+    expect(previewBounds(canvas).height).toBe(20)
+    pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 40 }])
+    pointer(canvas, 'pointermove', 'mouse', 11)
+    expect(previewBounds(canvas).width).toBe(16)
+    draw(canvas, 'pen', 31)
+    expect(onChange).toHaveBeenLastCalledWith([
+      { ...stroke, tool: 'eraser', width: 40 }, { ...stroke, tool: 'eraser', width: 32 },
+    ])
+  })
+
+  it('keeps mouse preview at pointerup without another move, uses the current size and hides on leave', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    pointer(canvas, 'pointerdown', 'mouse', 11)
+    pointer(canvas, 'pointermove', 'mouse', 11, 110, 95)
+    expect(previewBounds(canvas)).toEqual({ x: 110, y: 95, width: 20, height: 20 })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
+    pointer(canvas, 'pointerup', 'mouse', 11, 210, 170)
+    // No pointermove after pointerup: the stationary mouse must remain visible.
+    expect(preview()).toHaveAttribute('aria-hidden', 'true')
+    expect(previewBounds(canvas)).toMatchObject({ x: 210, y: 170, width: 16 })
+    expect(previewBounds(canvas).height).toBeCloseTo(16)
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 40,
+      points: [{ x: 20, y: 40 }, { x: 200, y: 150 }, { x: 400, y: 300 }],
+    }])
+    pointer(canvas, 'lostpointercapture', 'mouse', 11)
+    expect(preview()).toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(canvas.setPointerCapture).toHaveBeenCalledExactlyOnceWith(11)
+    expect(canvas.releasePointerCapture).not.toHaveBeenCalled()
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '24' } })
+    expect(previewBounds(canvas)).toEqual({ x: 210, y: 170, width: 12, height: 12 })
+    pointer(canvas, 'pointerout', 'mouse', 11)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps mouse preview hidden when captured pointerup finishes outside the canvas', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    pointer(canvas, 'pointerdown', 'mouse', 11)
+    pointer(canvas, 'pointermove', 'mouse', 11, 110, 95)
+    pointer(canvas, 'pointerup', 'mouse', 11, 900, 900)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 24,
+      points: [{ x: 20, y: 40 }, { x: 200, y: 150 }, { x: 800, y: 600 }],
+    }])
+    expect(canvas.setPointerCapture).toHaveBeenCalledExactlyOnceWith(11)
+  })
+
+  it.each(['pen', 'touch'])('previews accepted %s contact and hides after pointerup', type => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    if (type === 'touch') {
+      pointer(canvas, 'pointermove', type, 31)
+      expect(preview()).not.toBeInTheDocument()
+    }
+    pointer(canvas, 'pointerdown', type, 31)
+    expect(preview()).toBeInTheDocument()
+    expect(onChange).not.toHaveBeenCalled()
+    pointer(canvas, 'pointermove', type, 31, 110, 95)
+    expect(previewBounds(canvas)).toEqual({ x: 110, y: 95, width: 12, height: 12 })
+    pointer(canvas, 'pointerup', type, 31, 110, 95)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 24,
+      points: [{ x: 20, y: 40 }, { x: 200, y: 150 }, { x: 200, y: 150 }],
+    }])
+    pointer(canvas, 'lostpointercapture', type, 31)
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('restores hover pen preview after pointerup without another stroke or capture', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    draw(canvas, 'pen', 31)
+    expect(preview()).not.toBeInTheDocument()
+    pointer(canvas, 'pointermove', 'pen', 31, 110, 95)
+    expect(previewBounds(canvas)).toEqual({ x: 110, y: 95, width: 12, height: 12 })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 24 }])
+    expect(canvas.setPointerCapture).toHaveBeenCalledExactlyOnceWith(31)
+    pointer(canvas, 'pointerout', 'pen', 31)
+    expect(preview()).not.toBeInTheDocument()
+  })
+
+  it.each(['mouse', 'pen', 'touch'].flatMap(type => ['pointercancel', 'lostpointercapture'].map(ending => [type, ending])))('hides %s preview after genuine %s without an extra commit', (type, ending) => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    pointer(canvas, 'pointerdown', type, 31)
+    expect(preview()).toBeInTheDocument()
+    if (ending === 'lostpointercapture') captureStates.get(canvas)!.delete(31)
+    pointer(canvas, ending, type, 31)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 24, points: [{ x: 20, y: 40 }] }])
+    pointer(canvas, 'pointerup', type, 31)
+    expect(onChange).toHaveBeenCalledTimes(1)
+  })
+
+  it('ignores rejected palms and delayed capture loss while a reused pen ID keeps erasing', () => {
+    const onChange = vi.fn()
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    mode('stylus')
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    draw(canvas, 'touch', 21)
+    expect(preview()).not.toBeInTheDocument()
+    expect(canvas.setPointerCapture).not.toHaveBeenCalled()
+    expect(onChange).not.toHaveBeenCalled()
+    draw(canvas, 'pen', 31)
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    const visible = preview()
+    expect(visible).toBeInTheDocument()
+    pointer(canvas, 'lostpointercapture', 'pen', 31)
+    pointer(canvas, 'pointerdown', 'touch', 21)
+    pointer(canvas, 'pointermove', 'touch', 21, 300, 250)
+    pointer(canvas, 'pointerout', 'touch', 21)
+    pointer(canvas, 'pointerup', 'touch', 21)
+    expect(preview()).toBe(visible)
+    expect(onChange).toHaveBeenCalledTimes(1)
+    pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
+    pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).toHaveBeenLastCalledWith([
+      { ...stroke, tool: 'eraser', width: 24 }, { ...stroke, tool: 'eraser', width: 24 },
+    ])
+    expect(canvas.setPointerCapture).toHaveBeenCalledTimes(2)
+  })
+
+  it('hides outside captured bounds, resumes inside and flushes only real ink', () => {
+    const onChange = vi.fn(), ref = createRef<DrawingCanvasHandle>()
+    render(<DrawingCanvas ref={ref} id="deferred" config={config} strokes={[]} onChange={onChange} />)
+    const canvas = surface()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    pointer(canvas, 'pointerdown', 'pen', 31)
+    pointer(canvas, 'pointerout', 'pen', 31)
+    expect(preview()).not.toBeInTheDocument()
+    expect(onChange).not.toHaveBeenCalled()
+    pointer(canvas, 'pointermove', 'pen', 31, 900, -100)
+    expect(preview()).not.toBeInTheDocument()
+    pointer(canvas, 'pointermove', 'pen', 31, 110, 95)
+    expect(preview()).toBeInTheDocument()
+    const first = { ...stroke, tool: 'eraser', width: 24, points: [{ x: 20, y: 40 }, { x: 800, y: 0 }, { x: 200, y: 150 }] }
+    act(() => { expect(ref.current!.flushPendingStroke()).toEqual([first]) })
+    expect(preview()).not.toBeInTheDocument()
+    expect(canvas.releasePointerCapture).toHaveBeenCalledExactlyOnceWith(31)
+    act(() => { expect(ref.current!.flushPendingStroke()).toEqual([first]) })
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([first])
+  })
+
+  it('keeps hover/size changes out of bitmap, redo history and PNG export', async () => {
+    const onChange = vi.fn(), download = vi.spyOn(drawing, 'downloadDrawingPng').mockResolvedValue(undefined)
+    render(<Harness onChange={onChange} />)
+    const canvas = surface()
+    draw(canvas, 'pen', 31)
+    fireEvent.click(screen.getByRole('button', { name: '復原' }))
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    context.clearRect.mockClear(); context.arc.mockClear(); context.stroke.mockClear()
+    pointer(canvas, 'pointermove', 'mouse', 11)
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    expect(preview()).toBeInTheDocument()
+    expect(onChange).toHaveBeenCalledTimes(2)
+    expect(context.clearRect).not.toHaveBeenCalled()
+    expect(context.arc).not.toHaveBeenCalled()
+    expect(context.stroke).not.toHaveBeenCalled()
+    expect(screen.getByRole('button', { name: '復原' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '重做' })).toBeEnabled()
+    fireEvent.click(screen.getByRole('button', { name: '匯出 PNG' }))
+    expect(download).toHaveBeenCalledExactlyOnceWith(config, [], 'input-test.png')
+    await screen.findByText('PNG 已匯出。')
+    fireEvent.click(screen.getByRole('button', { name: '重做' }))
+    expect(onChange).toHaveBeenLastCalledWith([stroke])
+    fireEvent.click(screen.getByRole('button', { name: '清除畫布' }))
+    fireEvent.click(screen.getByRole('button', { name: '確認清除' }))
+    expect(onChange).toHaveBeenLastCalledWith([])
+    expect(screen.getByRole('button', { name: '重做' })).toBeDisabled()
   })
 })
 

@@ -30,7 +30,13 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const history = { strokes: ink.strokes, undone }
   const [tool, setTool] = useState<DrawingTool>('pen')
   const [color, setColor] = useState<DrawingColor>(DRAWING_COLORS[0])
-  const [width, setWidth] = useState(4)
+  const [penWidth, setPenWidth] = useState(4)
+  const [eraserWidth, setEraserWidth] = useState(24)
+  const width = tool === 'eraser' ? eraserWidth : penWidth
+  const widthLabel = tool === 'eraser' ? '橡皮擦大小' : '筆寬'
+  // UI only: a contact snapshots its width; hover follows the eraser slider.
+  const [eraserPreview, setEraserPreview] = useState<{ pointerId: number; x: number; y: number; width?: number } | null>(null)
+  const previewWidth = eraserPreview?.width ?? eraserWidth
   const [status, setStatus] = useState('')
   const [confirmClear, setConfirmClear] = useState(false)
   const [inputMode, setInputMode] = useState<DrawingInputMode>(getDrawingInputMode)
@@ -63,6 +69,22 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   function point(event: PointerEvent<HTMLCanvasElement>) {
     return toLogicalPoint(event.clientX, event.clientY, event.currentTarget.getBoundingClientRect(), config)
   }
+  function hidePreview(event: PointerEvent<HTMLCanvasElement>) {
+    setEraserPreview(current => current?.pointerId === event.pointerId ? null : current)
+  }
+  function updatePreview(event: PointerEvent<HTMLCanvasElement>, strokeWidth?: number) {
+    if (tool !== 'eraser' || !event.isPrimary || (inputMode === 'stylus' && event.pointerType === 'touch')) return
+    const rect = event.currentTarget.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0
+      || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) {
+      hidePreview(event)
+      return
+    }
+    setEraserPreview({ pointerId: event.pointerId, ...toLogicalPoint(event.clientX, event.clientY, rect, config), width: strokeWidth })
+  }
+  function hover(event: PointerEvent<HTMLCanvasElement>) {
+    if (!pending.current && (event.pointerType === 'mouse' || event.pointerType === 'pen')) updatePreview(event)
+  }
   function start(event: PointerEvent<HTMLCanvasElement>) {
     // Reject touch before it can own pending ink or capture, including primary palms.
     if (inputMode === 'stylus' && event.pointerType === 'touch') return
@@ -71,19 +93,24 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     event.currentTarget.setPointerCapture(event.pointerId)
     pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
     paint([...committed.current, pending.current.stroke])
+    if (tool === 'eraser') updatePreview(event, eraserWidth)
   }
   function move(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
-    if (!active || active.pointerId !== event.pointerId) return
+    if (!active) { hover(event); return }
+    if (active.pointerId !== event.pointerId) return
     event.preventDefault()
     active.stroke.points.push(point(event))
     paint([...committed.current, active.stroke])
+    if (active.stroke.tool === 'eraser') updatePreview(event, active.stroke.width)
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
     active.stroke.points.push(point(event))
     commitPendingStroke()
+    // Mouse release remains a hover, using the current size rather than the finished stroke's snapshot.
+    if (event.pointerType === 'mouse') updatePreview(event)
   }
   function cancel(event: PointerEvent<HTMLCanvasElement>) {
     if (pending.current?.pointerId === event.pointerId) commitPendingStroke()
@@ -97,6 +124,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     const active = pending.current
     if (!active) return committed.current
     pending.current = null
+    setEraserPreview(null)
     const next = changeDrawing({ type: 'add', stroke: active.stroke })
     return next
   }
@@ -117,19 +145,22 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   return <div className="drawing-editor">
     <div className="drawing-toolbar" role="group" aria-label="畫布工具">
       <div className="tool-group">
-        <button type="button" aria-pressed={tool === 'pen'} onClick={() => setTool('pen')}>畫筆</button>
-        <button type="button" aria-pressed={tool === 'eraser'} onClick={() => setTool('eraser')}>橡皮擦</button>
+        <button type="button" aria-pressed={tool === 'pen'} onClick={() => { setTool('pen'); setEraserPreview(null) }}>畫筆</button>
+        <button type="button" aria-pressed={tool === 'eraser'} onClick={() => { setTool('eraser'); setEraserPreview(null) }}>橡皮擦</button>
       </div>
       <div className="tool-group" role="group" aria-label="畫筆顏色">
         {DRAWING_COLORS.map((item, index) => <button key={item} type="button" className="color-button"
           aria-label={COLOR_LABELS[index]} title={COLOR_LABELS[index]} aria-pressed={color === item}
-          onClick={() => { setColor(item); setTool('pen') }}>
+          onClick={() => { setColor(item); setTool('pen'); setEraserPreview(null) }}>
           <span style={{ backgroundColor: item }} aria-hidden="true" />
           {color === item && <span className="color-check" aria-hidden="true">✓</span>}
         </button>)}
       </div>
-      <label className="brush-label" htmlFor={`${id}-width`}>筆寬 <output>{width}</output>
-        <input id={`${id}-width`} type="range" min="1" max="24" value={width} onChange={(event) => setWidth(Number(event.target.value))} />
+      <label className="brush-label" htmlFor={`${id}-width`}><span id={`${id}-width-label`}>{widthLabel}</span>
+        <output htmlFor={`${id}-width`}>{width}</output>
+        <input id={`${id}-width`} type="range" aria-labelledby={`${id}-width-label`}
+          min={tool === 'eraser' ? 4 : 1} max={tool === 'eraser' ? 40 : 24} step="1" value={width}
+          onChange={(event) => (tool === 'eraser' ? setEraserWidth : setPenWidth)(Number(event.target.value))} />
       </label>
       <div className="tool-group">
         <button type="button" disabled={!history.strokes.length} onClick={() => changeDrawing({ type: 'undo' })}>復原</button>
@@ -140,6 +171,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
           onChange={(event) => {
             const mode: DrawingInputMode = event.target.value === 'stylus' ? 'stylus' : 'standard'
             setInputMode(mode)
+            setEraserPreview(null)
             saveDrawingInputMode(mode)
           }}>
           <option value="standard">標準</option>
@@ -151,9 +183,16 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
       <canvas ref={canvas} width={config.width} height={config.height} className="drawing-canvas"
         aria-label="繪圖作答區" aria-describedby={`${id}-instructions`} role="img"
         onContextMenu={(event) => event.preventDefault()}
+        onPointerEnter={hover} onPointerLeave={hidePreview}
         onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={lostCapture}>
         你的瀏覽器不支援 Canvas。請使用新版瀏覽器繪圖。
       </canvas>
+      {tool === 'eraser' && eraserPreview && <div className="eraser-preview" aria-hidden="true" style={{
+        // Percentages project logical coordinates onto the canvas's responsive
+        // display rect and keep scaling even when no new pointer event arrives.
+        left: `${eraserPreview.x / config.width * 100}%`, top: `${eraserPreview.y / config.height * 100}%`,
+        width: `${previewWidth / config.width * 100}%`, height: `${previewWidth / config.height * 100}%`,
+      }} />}
     </div>
     <div className="drawing-bottom"><p id={`${id}-instructions`}>
       <span>{inputMode === 'stylus' ? '已忽略手指與手掌觸控；請使用觸控筆或滑鼠繪圖。' : '滑鼠、手指與觸控筆皆可繪圖'}</span>
