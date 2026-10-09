@@ -33,6 +33,15 @@ function tutor(remaining: number, state: AiDrawingState = { kind: 'idle', respon
 }
 
 describe('advisory drawing controls', () => {
+  it('allows analysis of visible ink with width-100 erasers but rejects width 101', () => {
+    const eraser = { ...pen, tool: 'eraser' as const, width: 100, points: [{ x: 600, y: 500 }] }
+    const view = render(<AiDrawingControls tutor={tutor(4)} question={question}
+      answer={{ type: 'drawing', strokes: [pen, eraser] }} />)
+    expect(screen.getByRole('button', { name: '取得 AI 圖像參考分析 · 4 credits' })).toBeTruthy()
+    view.rerender(<AiDrawingControls tutor={tutor(4)} question={question}
+      answer={{ type: 'drawing', strokes: [pen, { ...eraser, width: 101 }] }} />)
+    expect(screen.queryByRole('button', { name: /取得 AI/ })).toBeNull()
+  })
   it('requires visible ink, a scored rubric and four credits for a new request', () => {
     const erased = { type: 'drawing' as const, strokes: [pen, { ...pen, tool: 'eraser' as const, width: 12 }] }
     const view = render(<AiDrawingControls tutor={tutor(4)} question={question} answer={erased} />)

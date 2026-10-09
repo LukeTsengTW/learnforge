@@ -80,6 +80,11 @@ describe('canonical future answer validation', () => {
   it.each(['text', 'drawing'])('keeps both bounded buffers in calculation %s mode', (mode) => {
     expect(normalizeDraftAnswersV4(contexts, { calc: { ...calc, mode } })).toEqual({ calc: { ...calc, mode } })
   })
+  it.each(['text', 'drawing'])('preserves width-100 erasers in %s buffers and drawing answers', (mode) => {
+    const eraser = { ...stroke, tool: 'eraser', width: 100 }
+    const answers = { calc: { ...calc, mode, strokes: [eraser] }, draw: { type: 'drawing', strokes: [eraser] } }
+    expect(normalizeDraftAnswersV4(contexts, answers)).toEqual(answers)
+  })
   it('accepts text-only calculation and blank strokes without meaningful-blankness/raster work', () => {
     expect(normalizeDraftAnswersV4(contexts, { textonly: { ...calc, text: '', strokes: [] },
       draw: { type: 'drawing', strokes: [] } })).toEqual({ textonly: { ...calc, text: '', strokes: [] },
@@ -111,6 +116,17 @@ describe('canonical future answer validation', () => {
 })
 
 describe('authenticated Edge draft save', () => {
+  it('saves width-100 erasers without changing the answer schema', async () => {
+    const env = setup()
+    const eraser = { ...stroke, tool: 'eraser', width: 100 }
+    const answers = { calc: { ...calc, mode: 'drawing', strokes: [eraser] }, draw: { type: 'drawing', strokes: [eraser] } }
+    const response = await env.handler(request({ ...input, answers }))
+    expect(response.status).toBe(200)
+    expect(env.backend.saveDraft).toHaveBeenCalledExactlyOnceWith({ userId, attemptId, expectedUpdatedAt: version,
+      clientUpdatedAt: nextVersion, answers })
+    expect(env.state.answers).toEqual(answers)
+    expect(await response.json()).toEqual({ attemptId, updatedAt: nextVersion, answerSchemaVersion: 2 })
+  })
   it('calls the service backend with authenticated identity and normalized answers, returning only version metadata', async () => {
     const env = setup()
     const response = await env.handler(request({ ...input, answers: { calc: { type: 'calculation', text: calc.text } } }))
@@ -201,7 +217,7 @@ describe('authenticated Edge draft save', () => {
     [{ calc: { ...calc, strokes: [{ ...stroke, points: [{ x: 801, y: 100 }] }] } }, 400],
     [{ calc: { ...calc, strokes: [{ ...stroke, tool: 'brush' }] } }, 400],
     [{ calc: { ...calc, strokes: [{ ...stroke, color: '#ffffff' }] } }, 400],
-    [{ calc: { ...calc, strokes: [{ ...stroke, width: 41 }] } }, 400],
+    [{ calc: { ...calc, strokes: [{ ...stroke, width: 101 }] } }, 400],
     [{ calc: { ...calc, strokes: [{ ...stroke, points: [{ x: 100, y: 100, score: 1 }] }] } }, 400],
     [{ calc: { ...calc, drawing: { width: 2000, height: 2000 } } }, 400],
     [{ calc: { ...calc, score: 6 } }, 400],

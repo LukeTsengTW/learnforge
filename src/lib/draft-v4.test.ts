@@ -29,6 +29,19 @@ describe('strict future draft decoder', () => {
     expect(decoded).toEqual(value)
     expect(decoded.answers.q6).not.toBe(value.answers.q6)
   })
+  it.each(['text', 'drawing'] as const)('preserves width-100 erasers in %s mode and DrawingQuestion drafts', (mode) => {
+    const eraser = { ...stroke, tool: 'eraser' as const, width: 100 }
+    const value = { ...base, quizRevision: future.revision, answers: {
+      q6: { ...calculation, mode, strokes: [eraser] }, q7: { type: 'drawing', strokes: [eraser] },
+    } }
+    expect(decodeQuizDraftV4(JSON.stringify(value), future)).toEqual(value)
+    expect(decodeQuizDraftV4(JSON.stringify({ ...value, answers: {
+      ...value.answers, q6: { ...value.answers.q6, strokes: [{ ...eraser, width: 101 }] },
+    } }), future)).toBeNull()
+    expect(decodeQuizDraftV4(JSON.stringify({ ...value, answers: {
+      ...value.answers, q7: { type: 'drawing', strokes: [{ ...eraser, width: 101 }] },
+    } }), future)).toBeNull()
+  })
 
   it.each([
     { type: 'calculation', text: 'legacy' },

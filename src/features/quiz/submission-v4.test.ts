@@ -87,6 +87,7 @@ describe('ai-grading-v4 formal revalidation', () => {
     ['text-only drawing mode', { q_text: calcHand([pen()]) }],
     ['text-only inactive strokes', { q_text: calcText('x', [pen()]) }],
     ['invalid DrawingQuestion geometry', { q_draw: { type: 'drawing', strokes: [{ ...pen(), color: '#ffffff' }] } }],
+    ['oversized eraser width', { q_hand: calcHand([{ ...eraser(), width: 101 }]) }],
   ])('keeps the draft and calls no provider for %s', async (_label, answers) => {
     const test = fixture(answers)
     const response = await test.submit(submit())
@@ -107,6 +108,17 @@ describe('ai-grading-v4 formal revalidation', () => {
 })
 
 describe('ai-grading-v4 calculation and drawing routing', () => {
+  it('submits width-100 erasers through calculation and drawing PNG raster paths', async () => {
+    const strokes = [pen(), { ...eraser(), width: 100, points: [{ x: 200, y: 150 }] }]
+    const test = fixture({ q_hand: calcHand(strokes), q_draw: { type: 'drawing', strokes } })
+    expect((await test.submit(submit())).status).toBe(200)
+    expect(test.calculationV4.generateDrawing).toHaveBeenCalledTimes(1)
+    expect(test.drawingProvider.generate).toHaveBeenCalledTimes(1)
+    for (const call of [test.calculationV4.generateDrawing.mock.calls[0], test.drawingProvider.generate.mock.calls[0]]) {
+      expect([...call[1].subarray(0, 8)]).toEqual([137, 80, 78, 71, 13, 10, 26, 10])
+    }
+    expect(test.state.attempt.status).toBe('submitted')
+  })
   it('text mode uses only the calculation text provider with active text, never raster or drawing providers', async () => {
     // Drawing-capable question in text mode: the inactive strokes are retained but never rasterized or sent.
     const test = fixture({ q_hand: calcText('3x = 9 so x = 3', [pen()]) })

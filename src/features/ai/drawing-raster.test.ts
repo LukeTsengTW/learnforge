@@ -1,7 +1,8 @@
 /// <reference types="node" />
+import { readFileSync, readdirSync } from 'node:fs'
 import { inflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
-import type { DrawingStroke } from '../../models/drawing'
+import { DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX, type DrawingStroke } from '../../models/drawing'
 import { DrawingRasterError, DRAWING_LIMITS, encodeDrawingPng, isMeaningfullyNonBlank,
   parseStoredDrawing, rasterDrawingPixels, rasterizeStoredDrawing } from '../../../supabase/functions/_shared/drawing-raster'
 
@@ -30,6 +31,15 @@ function decodeRgba(png: Uint8Array) {
 }
 
 describe('Edge drawing rasterization and PNG', () => {
+  it('keeps the latest SQL stored-width bounds aligned with the canonical drawing limits', () => {
+    const directory = new URL('../../../supabase/migrations/', import.meta.url)
+    const definitions = readdirSync(directory).filter(name => name.endsWith('.sql')).sort().flatMap(name => {
+      const source = readFileSync(new URL(name, directory), 'utf8')
+      return source.match(/create(?: or replace)? function private\.v4_strokes_shape_valid\([\s\S]*?end \$\$;/gi) ?? []
+    })
+    const bounds = definitions.at(-1)?.match(/\(v_stroke->>'width'\)::numeric < (\d+) or \(v_stroke->>'width'\)::numeric > (\d+)/)
+    expect(bounds?.slice(1).map(Number)).toEqual([DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX])
+  })
   it('encodes an opaque white blank canvas', async () => {
     const pixels = rasterDrawingPixels(config, [])
     expect(pixel(pixels, 10, 10)).toEqual([255, 255, 255, 255])
@@ -65,6 +75,35 @@ describe('Edge drawing rasterization and PNG', () => {
     expect(isMeaningfullyNonBlank(tiny, 100, 100)).toBe(false)
     const line = rasterDrawingPixels(config, [stroke()])
     expect(isMeaningfullyNonBlank(line, 100, 100)).toBe(true)
+  })
+  it('accepts width-100 erasers and rejects width 101', () => {
+    const eraser: DrawingStroke = { ...stroke(), tool: 'eraser', width: 100 }
+    expect(parseStoredDrawing(answer([eraser]), config)).toEqual([eraser])
+    expect(() => parseStoredDrawing(answer([{ ...eraser, width: 101 }]), config)).toThrow('invalid')
+  })
+  it('preserves historical pen and eraser widths, including erasers below the UI minimum', () => {
+    for (const tool of ['pen', 'eraser'] as const) {
+      for (const width of Array.from({ length: 40 }, (_, index) => index + 1)) {
+        const saved = { ...stroke(), tool, width }
+        expect(parseStoredDrawing(answer([saved]), config)).toEqual([saved])
+      }
+    }
+  })
+  it('rasterizes and encodes a width-100 eraser with its logical diameter', async () => {
+    const pen = stroke('#202b38', 4, [{ x: 0, y: 50 }, { x: 100, y: 50 }])
+    const remainingInk = stroke('#c03535', 4, [{ x: 5, y: 5 }, { x: 95, y: 5 }])
+    const eraser: DrawingStroke = { ...stroke(), tool: 'eraser', width: 100, points: [{ x: 50, y: 50 }] }
+    const result = await rasterizeStoredDrawing(answer([pen, remainingInk, eraser]), config)
+    expect(pixel(result.pixels, 50, 50)).toEqual([255, 255, 255, 255])
+    expect(pixel(result.pixels, 5, 50)).toEqual([255, 255, 255, 255])
+    expect(pixel(result.pixels, 10, 5)).toEqual([192, 53, 53, 255])
+    expect(decodeRgba(result.png)).toEqual(result.pixels)
+  })
+  it('still rejects width-100 geometry that exceeds the existing pixel budget', () => {
+    const eraser: DrawingStroke = { ...stroke(), tool: 'eraser', width: 100,
+      points: Array.from({ length: 2500 }, () => ({ x: 600, y: 600 })),
+    }
+    expect(() => parseStoredDrawing(answer([eraser]), { width: 1200, height: 1200 })).toThrow('oversized')
   })
   it('produces deterministic PNG bytes and rejects oversized or malformed saved strokes', async () => {
     const saved = answer([stroke()])

@@ -83,8 +83,8 @@ describe('stationary stroke replay', () => {
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(context)
     const blob = new Blob(['export fixture'], { type: 'image/png' })
     const toBlob = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(callback => callback(blob))
-    expect(await exportDrawingPng(config, [stationary(2), stationary(5, 'eraser')])).toBe(blob)
-    expect(calls.arc.mock.calls).toEqual([[20, 40, 6, 0, Math.PI * 2], [20, 40, 6, 0, Math.PI * 2]])
+    expect(await exportDrawingPng(config, [stationary(2), { ...stationary(5, 'eraser'), width: 100 }])).toBe(blob)
+    expect(calls.arc.mock.calls).toEqual([[20, 40, 6, 0, Math.PI * 2], [20, 40, 50, 0, Math.PI * 2]])
     expect(fills).toEqual([
       { operation: 'source-over', color: '#c03535' },
       { operation: 'destination-out', color: '#c03535' },

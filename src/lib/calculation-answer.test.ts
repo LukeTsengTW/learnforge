@@ -145,7 +145,7 @@ describe('server-equivalent geometry validation without rasterization', () => {
   it('accepts the existing tools, palette and brush boundaries', () => {
     for (const tool of ['pen', 'eraser'] as const) {
       for (const color of DRAWING_COLORS) {
-        for (const width of [1, 40]) {
+        for (const width of [1, 40, 100]) {
           expect(isCalculationAnswerV4(future({ strokes: [stroke({ tool, color, width })] }), capable)).toBe(true)
         }
       }
@@ -153,7 +153,7 @@ describe('server-equivalent geometry validation without rasterization', () => {
   })
 
   it.each([
-    { tool: 'brush' }, { color: '#ffffff' }, { width: 0 }, { width: 41 },
+    { tool: 'brush' }, { color: '#ffffff' }, { width: 0 }, { width: 101 },
     { width: NaN }, { width: Infinity }, { width: '4' }, { points: [] }, { points: 'bad' },
     { points: [{ x: -1, y: 0 }] }, { points: [{ x: 801, y: 0 }] }, { points: [{ x: 0, y: 601 }] },
     { points: [{ x: NaN, y: 0 }] }, { points: [{ x: 0, y: Infinity }] }, { points: [{ x: '1', y: 0 }] },

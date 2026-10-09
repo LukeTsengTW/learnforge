@@ -74,6 +74,21 @@ function EditorHarness({ initial = draft, question = capable, onChange = vi.fn()
 }
 
 describe('standalone calculation editor', () => {
+  it('retains a width-100 eraser stroke in controlled calculation state across mode switches', () => {
+    const onChange = vi.fn()
+    render(<EditorHarness initial={{ ...draft, mode: 'drawing', strokes: [] }} onChange={onChange} />)
+    const canvas = getCanvas()
+    fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
+    fireEvent.change(screen.getByRole('slider', { name: '橡皮擦大小' }), { target: { value: '100' } })
+    pointer(canvas, 'pointerdown')
+    pointer(canvas, 'pointerup', 40, 60)
+    const strokes = [{ ...first, tool: 'eraser', width: 100 }]
+    expect(onChange).toHaveBeenLastCalledWith({ ...draft, mode: 'drawing', strokes })
+    fireEvent.click(screen.getByRole('radio', { name: '打字' }))
+    expect(onChange).toHaveBeenLastCalledWith({ ...draft, mode: 'text', strokes })
+    fireEvent.click(screen.getByRole('radio', { name: '手寫' }))
+    expect(onChange).toHaveBeenLastCalledWith({ ...draft, mode: 'drawing', strokes })
+  })
   it('keeps the text-only textarea contract and never exposes handwriting without capability', () => {
     const onChange = vi.fn()
     const initial = { ...draft, strokes: [] }

@@ -1,5 +1,6 @@
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent, type Ref } from 'react'
-import { DRAWING_COLORS, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
+import { DRAWING_COLORS, DRAWING_ERASER_WIDTH_MIN, DRAWING_ERASER_WIDTH_MAX,
+  DRAWING_PEN_WIDTH_MIN, DRAWING_PEN_WIDTH_MAX, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
 import { isIPadOS } from '../../lib/platform'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
@@ -159,7 +160,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
       <label className="brush-label" htmlFor={`${id}-width`}><span id={`${id}-width-label`}>{widthLabel}</span>
         <output htmlFor={`${id}-width`}>{width}</output>
         <input id={`${id}-width`} type="range" aria-labelledby={`${id}-width-label`}
-          min={tool === 'eraser' ? 4 : 1} max={tool === 'eraser' ? 40 : 24} step="1" value={width}
+          min={tool === 'eraser' ? DRAWING_ERASER_WIDTH_MIN : DRAWING_PEN_WIDTH_MIN}
+          max={tool === 'eraser' ? DRAWING_ERASER_WIDTH_MAX : DRAWING_PEN_WIDTH_MAX} step="1" value={width}
           onChange={(event) => (tool === 'eraser' ? setEraserWidth : setPenWidth)(Number(event.target.value))} />
       </label>
       <div className="tool-group">

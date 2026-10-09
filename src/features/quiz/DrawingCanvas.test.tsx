@@ -251,30 +251,34 @@ describe('independent drawing tool sizes and eraser preview', () => {
     expect(pen).toHaveAttribute('type', 'range')
     expect(pen).toHaveAttribute('min', '1')
     expect(pen).toHaveAttribute('max', '24')
+    expect(pen).toHaveValue('4')
+    fireEvent.change(pen, { target: { value: '24' } })
+    expect(pen).toHaveValue('24')
     fireEvent.change(pen, { target: { value: '12' } })
     draw(canvas, 'mouse', 11)
     await user.click(screen.getByRole('button', { name: '橡皮擦' }))
     const eraser = screen.getByRole('slider', { name: '橡皮擦大小' })
     expect(eraser).toHaveValue('24')
     expect(eraser).toHaveAttribute('min', '4')
-    expect(eraser).toHaveAttribute('max', '40')
+    expect(eraser).toHaveAttribute('max', '100')
+    expect(eraser).toHaveAttribute('step', '1')
     // Tab from the eraser button through the three palette buttons to the range.
     for (let i = 0; i < 4; i++) await user.tab()
     expect(eraser).toHaveFocus()
-    fireEvent.change(eraser, { target: { value: '40' } })
-    expect(screen.getByText('40', { selector: 'output' })).toBeInTheDocument()
+    fireEvent.change(eraser, { target: { value: '100' } })
+    expect(screen.getByText('100', { selector: 'output' })).toBeInTheDocument()
     draw(canvas, 'pen', 31)
     fireEvent.click(screen.getByRole('button', { name: '畫筆' }))
     expect(screen.getByRole('slider', { name: '筆寬' })).toHaveValue('12')
     draw(canvas, 'touch', 21)
     fireEvent.change(screen.getByRole('slider'), { target: { value: '6' } })
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
-    expect(screen.getByRole('slider', { name: '橡皮擦大小' })).toHaveValue('40')
+    expect(screen.getByRole('slider', { name: '橡皮擦大小' })).toHaveValue('100')
     fireEvent.click(screen.getByRole('button', { name: '藍色' }))
     expect(screen.getByRole('slider', { name: '筆寬' })).toHaveValue('6')
     expect(onChange).toHaveBeenCalledTimes(3)
     expect(onChange).toHaveBeenLastCalledWith([
-      { ...stroke, width: 12 }, { ...stroke, tool: 'eraser', width: 40 }, { ...stroke, width: 12 },
+      { ...stroke, width: 12 }, { ...stroke, tool: 'eraser', width: 100 }, { ...stroke, width: 12 },
     ])
   })
 
@@ -309,17 +313,19 @@ describe('independent drawing tool sizes and eraser preview', () => {
       right: 30 + 800 * scale, bottom: 50 + 600 * scale, x: 30, y: 50, toJSON: () => ({}),
     })
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
-    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '100' } })
     pointer(canvas, 'pointermove', 'mouse', 11, 30 + 200 * scale, 50 + 150 * scale)
-    expect(previewBounds(canvas)).toEqual({
-      x: 30 + 200 * scale, y: 50 + 150 * scale, width: 40 * scale, height: 40 * scale,
+    expect(previewBounds(canvas)).toMatchObject({
+      x: 30 + 200 * scale, y: 50 + 150 * scale, width: 100 * scale,
     })
+    expect(previewBounds(canvas).height).toBeCloseTo(100 * scale)
     // A stationary pointer's logical preview also scales when RWD changes the
     // canvas dimensions, without needing another move or a resize observer.
     vi.mocked(canvas.getBoundingClientRect).mockReturnValue({
       left: 30, top: 50, width: 400, height: 300, right: 430, bottom: 350, x: 30, y: 50, toJSON: () => ({}),
     })
-    expect(previewBounds(canvas)).toEqual({ x: 130, y: 125, width: 20, height: 20 })
+    expect(previewBounds(canvas)).toMatchObject({ x: 130, y: 125, width: 50 })
+    expect(previewBounds(canvas).height).toBeCloseTo(50)
     fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
     expect(previewBounds(canvas)).toMatchObject({ x: 130, y: 125, width: 16 })
     expect(previewBounds(canvas).height).toBeCloseTo(16)
@@ -330,19 +336,19 @@ describe('independent drawing tool sizes and eraser preview', () => {
     render(<Harness onChange={onChange} />)
     const canvas = surface()
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
-    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '100' } })
     pointer(canvas, 'pointerdown', 'pen', 31)
     fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
     pointer(canvas, 'pointermove', 'pen', 31, 40, 60)
-    expect(previewBounds(canvas).width).toBe(20)
-    expect(previewBounds(canvas).height).toBe(20)
+    expect(previewBounds(canvas).width).toBe(50)
+    expect(previewBounds(canvas).height).toBeCloseTo(50)
     pointer(canvas, 'pointerup', 'pen', 31, 50, 70)
-    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 40 }])
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 100 }])
     pointer(canvas, 'pointermove', 'mouse', 11)
     expect(previewBounds(canvas).width).toBe(16)
     draw(canvas, 'pen', 31)
     expect(onChange).toHaveBeenLastCalledWith([
-      { ...stroke, tool: 'eraser', width: 40 }, { ...stroke, tool: 'eraser', width: 32 },
+      { ...stroke, tool: 'eraser', width: 100 }, { ...stroke, tool: 'eraser', width: 32 },
     ])
   })
 
@@ -351,17 +357,18 @@ describe('independent drawing tool sizes and eraser preview', () => {
     render(<Harness onChange={onChange} />)
     const canvas = surface()
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
-    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '100' } })
     pointer(canvas, 'pointerdown', 'mouse', 11)
     pointer(canvas, 'pointermove', 'mouse', 11, 110, 95)
-    expect(previewBounds(canvas)).toEqual({ x: 110, y: 95, width: 20, height: 20 })
+    expect(previewBounds(canvas)).toMatchObject({ x: 110, y: 95, width: 50 })
+    expect(previewBounds(canvas).height).toBeCloseTo(50)
     fireEvent.change(screen.getByRole('slider'), { target: { value: '32' } })
     pointer(canvas, 'pointerup', 'mouse', 11, 210, 170)
     // No pointermove after pointerup: the stationary mouse must remain visible.
     expect(preview()).toHaveAttribute('aria-hidden', 'true')
     expect(previewBounds(canvas)).toMatchObject({ x: 210, y: 170, width: 16 })
     expect(previewBounds(canvas).height).toBeCloseTo(16)
-    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 40,
+    expect(onChange).toHaveBeenCalledExactlyOnceWith([{ ...stroke, tool: 'eraser', width: 100,
       points: [{ x: 20, y: 40 }, { x: 200, y: 150 }, { x: 400, y: 300 }],
     }])
     pointer(canvas, 'lostpointercapture', 'mouse', 11)
@@ -504,7 +511,7 @@ describe('independent drawing tool sizes and eraser preview', () => {
     fireEvent.click(screen.getByRole('button', { name: '橡皮擦' }))
     context.clearRect.mockClear(); context.arc.mockClear(); context.stroke.mockClear()
     pointer(canvas, 'pointermove', 'mouse', 11)
-    fireEvent.change(screen.getByRole('slider'), { target: { value: '40' } })
+    fireEvent.change(screen.getByRole('slider'), { target: { value: '100' } })
     expect(preview()).toBeInTheDocument()
     expect(onChange).toHaveBeenCalledTimes(2)
     expect(context.clearRect).not.toHaveBeenCalled()

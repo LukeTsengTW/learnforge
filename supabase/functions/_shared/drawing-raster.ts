@@ -1,4 +1,4 @@
-import { DRAWING_COLORS, type DrawingStroke } from '../../../src/models/drawing.ts'
+import { DRAWING_COLORS, DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX, type DrawingStroke } from '../../../src/models/drawing.ts'
 import type { DrawingConfig } from '../../../src/models/quiz.ts'
 
 // The browser canvas and this Edge rasterizer use the same logical coordinates,
@@ -37,7 +37,7 @@ export function parseStoredDrawing(raw: unknown, config: DrawingConfig): Drawing
   for (const value of raw.strokes) {
     if (!record(value) || (value.tool !== 'pen' && value.tool !== 'eraser')
       || !DRAWING_COLORS.some((color) => color === value.color)
-      || !finite(value.width) || value.width < 1 || value.width > 40
+      || !finite(value.width) || value.width < DRAWING_STORED_WIDTH_MIN || value.width > DRAWING_STORED_WIDTH_MAX
       || !Array.isArray(value.points) || value.points.length === 0) throw new DrawingRasterError('invalid')
     pointCount += value.points.length
     if (pointCount > DRAWING_LIMITS.maxPoints) throw new DrawingRasterError('oversized')

@@ -41,6 +41,22 @@ describe('attempt lifecycle and persistence', () => {
     saveAttempt(restarted, storage)
     expect(storage.getItem(attemptKey(quiz.id))).toBeNull()
   })
+  it.each([1, 2, 3, 4, 24, 40, 100])('roundtrips width-%i erasers in legacy drafts and submitted drawings', (width) => {
+    const draft = reduceAttempt(quiz, empty, { type: 'answer', questionId: 'q7', now,
+      answer: { type: 'drawing', strokes: [{ tool: 'eraser', color: '#202b38', width, points: [{ x: 100, y: 100 }] }] },
+    })
+    for (const attempt of [draft, reduceAttempt(quiz, draft, { type: 'submit', now })]) {
+      const storage = memoryStorage()
+      expect(saveAttempt(attempt, storage)).toBeNull()
+      expect(loadAttempt(quiz, now, storage).attempt).toEqual(attempt)
+    }
+  })
+  it('rejects width-101 erasers at the legacy storage boundary', () => {
+    const answers = { q7: { type: 'drawing', strokes: [
+      { tool: 'eraser', color: '#202b38', width: 101, points: [{ x: 100, y: 100 }] },
+    ] } }
+    expect(decodeAttempt(JSON.stringify({ ...empty, answers }), quiz)).toBeNull()
+  })
   it('keeps legacy calculation drafts and submitted answers in schema 1 without writes on read', () => {
     const draft = reduceAttempt(quiz, empty, {
       type: 'answer', questionId: 'q6', answer: { type: 'calculation', text: '  $x=3$ \n' }, now,

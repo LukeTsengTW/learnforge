@@ -1,5 +1,5 @@
 import type { AnswerMap, QuestionAnswer, QuizAttempt } from '../models/attempt'
-import { DRAWING_COLORS, type DrawingStroke } from '../models/drawing'
+import { DRAWING_COLORS, DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX, type DrawingStroke } from '../models/drawing'
 import { QUESTION_TYPE, type Question, type Quiz } from '../models/quiz'
 import { createAttempt } from './attempt'
 import { gradeQuiz } from './grading'
@@ -15,7 +15,7 @@ const finite = (value: unknown): value is number => typeof value === 'number' &&
 function validStroke(value: unknown, question: Extract<Question, { type: 'drawing' }>): value is DrawingStroke {
   if (!isRecord(value) || (value.tool !== 'pen' && value.tool !== 'eraser')
     || !DRAWING_COLORS.some((color) => color === value.color)
-    || !finite(value.width) || value.width < 1 || value.width > 40 || !Array.isArray(value.points)
+    || !finite(value.width) || value.width < DRAWING_STORED_WIDTH_MIN || value.width > DRAWING_STORED_WIDTH_MAX || !Array.isArray(value.points)
     || value.points.length === 0 || value.points.length > 100000) return false
   return value.points.every((point: unknown) => isRecord(point) && finite(point.x) && finite(point.y)
     && point.x >= 0 && point.x <= question.drawing.width && point.y >= 0 && point.y <= question.drawing.height)
