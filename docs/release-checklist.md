@@ -1,49 +1,46 @@
 # Release checklist
 
-## v1.8.0 corrected eraser-width-100 release preparation
+## v1.8.0 corrected eraser-width-100 production verification closure
 
-日期：2026-10-09（Asia/Taipei）。本 section 是 corrected docs candidate 建立前的證據 snapshot；下方未完成項不預先勾選，candidate SHA／clean gates／push／exact CI 應由本 stage 的 post-commit report 核對。Immutable v1.7.0：tag object `84991972d4d2040e06bd1f5060b3bb9b13548923`／peeled `860386404d3c78c9aa5cad8d014f18e7fa86e5ff`，保持不變。
+日期：2026-10-10（Asia/Taipei）。已接受的 production runtime candidate 為 `621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`。本 section 在 documentation closure commit 前整理；**closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable v1.7.0：tag object `84991972d4d2040e06bd1f5060b3bb9b13548923`／peeled `860386404d3c78c9aa5cad8d014f18e7fa86e5ff`，保持不變。
 
-- [x] Canonical preflight：HEAD／origin/master／live master = `d1a6235c962fc1b2398f0f7a1224e6924ffde782`，working tree clean、staged empty，local／remote v1.8.0 tag absent。
-- [x] 初始 feature supervisor review、mouse pointerup retention／preview 外徑修正與 normal commit/push：`d982a788139dd952a09fbe8056034ea5680e8024`，`feat: improve drawing eraser controls`；[exact CI 37793995779](https://github.com/LukeTsengTW/learnforge/actions/runs/37793995779) success。歷史 focused 3 files／110 tests、full 93 files／1,454 tests、lint／build／diff check PASS。
-- [x] 舊 release-prep `7b2fe6bab4aba53b209fad935c5801f7c59c036b`（`chore: prepare LearnForge v1.8.0 release`）保留歷史證據，已被 eraser-width-100 correction supersede，**不得作為 final candidate／tag target**。舊 Pages acceptance 不能代替 corrected width-100 acceptance。
-- [x] Eraser-width-100 implementation Diff review PASS；正式 correction `d1a6235c962fc1b2398f0f7a1224e6924ffde782`，`fix: expand drawing eraser width limit`，精確 16 implementation files；不是 disposable verification commit。
-- [x] [Canonical correction CI 37896952651](https://github.com/LukeTsengTW/learnforge/actions/runs/37896952651)：LearnForge CI／master push／attempt 1／completed-success，exact correction SHA；checks job `113710363113`。Lint、93 files／1,476 tests、quizzes、AI-context、Edge imports、build、production audit（0 vulnerabilities）全 PASS；release:check／release:classify 不在此 workflow steps。
-- [x] Drawing contract：pen default 4、UI 1–24；eraser default 24、UI 4–100；stored pen／eraser structural width 1–100。DrawingStroke 結構不變、無 eraserSize field、無 drawing-data schema migration；DOM preview／logical-to-CSS scaling／destination-out 與 pointer lifecycle 保留。
-- [x] Actual backend scope：shared `drawing-raster.ts` upper width 40→100；新 `20261009025324_drawing_width_100.sql` 僅 replace `private.v4_strokes_shape_valid(jsonb,jsonb)` upper width 40→100。No DrawingStroke persisted schema change and no table/column/RLS/Auth change；無 secret／provider configuration change，resource ceilings／grammar／coordinates 不變。
-- [x] Read-only runtime graph 核對：**ai-drawing、ai-grade、ai-responses、save-quiz-draft、submit-quiz** 精確五個 production functions 可到達 shared drawing raster；其餘不加入 rollout。
-- [x] Canonical [ephemeral PostgreSQL gate 37894748704](https://github.com/LukeTsengTW/learnforge/actions/runs/37894748704)：job `113703442902`／attempt 1／20 of 20 PASS；Supabase CLI 2.117.0、local ephemeral PostgreSQL 17.6；fresh 18 migrations，`20261009025324` applied。
-- [x] Live helper：plpgsql／immutable／owner postgres／empty search_path／upper width 100；function identity、owner、ACL 保留；postgres＋service_role EXECUTE，PUBLIC／anon／authenticated EXECUTE false；256 strokes／6000 points 與 grammar／coordinate validation 保留。
-- [x] 完整 `supabase/tests/security.sql` 由 container psql（`-X -v ON_ERROR_STOP=1 -U postgres -d postgres`，stdin 原檔）執行 exit 0；width helper、width-100 draft／finalizer、width-101 rejection 及 historical security/RLS PASS；ROLLBACK 與 actual final PASS marker observed；37／37 table counts before=after、fixture users 0→0、credential scan 0。
-- [x] Frozen package／lock root 1.8.0、navigation v1.8.0；dependency、quiz inventory（7 revisions／5 current quizzes／77 questions）、generated AI context（7 quizzes／77 questions）無 delta。
-- [x] GET-only public identity smoke：目前仍為 `7b2fe6bab4aba53b209fad935c5801f7c59c036b / 1.8.0`；root／manifest HTTP 200、5 assets success，`/learnforge/`，Supabase project `mrrssxqolvcjxgqzoeqt`。Correction `d1a6235…` 是 source/master，尚未部署至 Pages。
-- [x] Canonical machine classification：**security-ai／Risk C／providerCanaryRequired=true**；實際原因為 DB function migration、Edge shared raster validation 與 raster/provider evidence path。Docs 修改後及 clean candidate 必須重新確認，source fingerprint／exact result 由 post-commit report 記錄。
-- [ ] Corrected release candidate docs commit：本 snapshot 建立時尚未 commit；本 stage 授權單一 `docs: prepare corrected LearnForge v1.8.0 candidate`，parent 必須是 `d1a6235…`、scope 僅三份 docs。
-- [ ] Clean corrected candidate release gates：strict local-ref preflight、require-clean／tag absence、source-bound release:check 10／10，尚待 candidate 建立後執行。
-- [ ] Candidate normal push／exact candidate CI：尚未執行，不以 implementation CI 取代；由 post-commit report 記錄 attempt 1／exact SHA。
-- [ ] Backend preflight：production project／migration inventory／five-function revision/runtime identity，尚待另行 read-only 確認。
-- [ ] Explicit production migration／Edge mutation authorization：尚未取得；本 docs stage 不執行 production mutation。
-- [ ] Production DB migration application：`20261009025324` 尚未在 production 套用。
-- [ ] Deploy exactly 5 affected Edge Functions：ai-drawing、ai-grade、ai-responses、save-quiz-draft、submit-quiz；尚未執行。
-- [ ] Required provider canary：**providerCanaryRequired=true；provider canary NOT RUN**。需 backend production mutation 完成後，依 release policy另行授權；local TypeScript／raster／SQL tests 不等於 canary。
-- [ ] Explicit final Pages authorization：尚未取得。
-- [ ] Exact corrected candidate Pages deployment：尚未執行；release.json／version／SHA parity 尚未驗證。
-- [ ] Corrected deployment public smoke：尚未執行。
-- [ ] Authenticated read-only／drawing browser behavior acceptance：尚未完成；不得沿用舊 width-40 Pages acceptance。
-- [ ] Eraser max 100 actual erase／preview footprint：尚待 production browser acceptance。
-- [ ] History／bitmap／PNG preview isolation：尚待 corrected production browser acceptance。
-- [ ] Light／Dark preview contrast 與 toolbar／Canvas：尚待驗證。
-- [ ] Responsive 360／768／desktop diameter／overflow：尚待驗證。
-- [ ] Touch／pen routing、mouse hover／pointerup／leave：尚待 corrected browser validation；synthetic evidence 必須與真實裝置區分。
-- [ ] Real iPad／Safari／Apple Pencil acceptance：仍 pending，依 release scope確認 rapid lift／re-contact、palm、實際 preview footprint。
-- [ ] Documentation closure：尚未完成。
-- [ ] Final closure CI／exact final Pages parity：若 closure SHA 改變，需重新驗證與明確部署授權。
+- [x] Closure initial immutable gate：HEAD／origin/master／live master = `621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`，working tree clean、staged empty、diff-check PASS，local／remote v1.8.0 tag absent。
+- [x] 初始 feature `d982a788139dd952a09fbe8056034ea5680e8024`／[CI 37793995779](https://github.com/LukeTsengTW/learnforge/actions/runs/37793995779) 保留為歷史證據；舊 release-prep `7b2fe6bab4aba53b209fad935c5801f7c59c036b` 已被 width-100 correction supersede，不能作為 final tag target。
+- [x] Eraser-width-100 reviewed implementation：`d1a6235c962fc1b2398f0f7a1224e6924ffde782`，精確 16 implementation files；[CI 37896952651](https://github.com/LukeTsengTW/learnforge/actions/runs/37896952651)／checks job `113710363113`／attempt 1／success，93 files／1,476 tests PASS。
+- [x] Corrected release candidate docs commit：`621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`，parent `d1a6235…`；scope 僅 CHANGELOG、release checklist、v1.8.0 delivery。
+- [x] Clean corrected candidate release gates：strict local-ref preflight、clean tree／tag absence、source-bound release:check 10／10 PASS。
+- [x] Candidate normal master push／[exact LearnForge CI 37901220379](https://github.com/LukeTsengTW/learnforge/actions/runs/37901220379)：push／master／exact `621fb86…`／attempt 1／completed-success，93 files／1,476 tests；lint、quizzes、AI context、Edge imports、build、production audit PASS。Release check／classification 是另外的 local evidence，非 CI steps。
+- [x] Drawing contract：pen default 4、UI 1–24；eraser default 24、UI 4–100；stored structural width 1–100。DrawingStroke 結構不變、無 eraserSize field；DOM preview、logical-to-CSS scaling 與 destination-out 保留。
+- [x] Reviewed backend scope：shared drawing-raster validation 與 DB helper upper width 40→100；無 table／column／RLS／Auth、secret／provider configuration change，resource ceilings／grammar／coordinate validation 不變。
+- [x] Canonical [PostgreSQL gate 37894748704](https://github.com/LukeTsengTW/learnforge/actions/runs/37894748704)：job `113703442902`／attempt 1／20 of 20 PASS；Supabase CLI 2.117.0／PostgreSQL 17.6／fresh 18 migrations；完整 security.sql 經 container psql exit 0、ROLLBACK／actual final PASS marker observed，37／37 table counts unchanged、fixture users 0→0。
+- [x] Backend read-only preflight 與明確 production backend mutation human authorization 已完成；採 DB first、five Edge next、provider canary、Pages later。
+- [x] Production migration `20261009025324_drawing_width_100` applied exactly once；18 migrations。Live helper OID `18187`、postgres owner、plpgsql／IMMUTABLE／empty search_path、max width 100；postgres＋service_role EXECUTE，PUBLIC／anon／authenticated 無 EXECUTE。
+- [x] Production DB boundaries：pen／eraser width 0=false、1/40/41/99/100=true、101=false；256/257 strokes=true/false，6000/6001 points=true/false；只用 read-only SELECT，不在 production 跑 security.sql。
+- [x] Exactly five Edge deployments／ACTIVE／exact candidate source closure／JWT parity：ai-drawing v19 false、ai-grade v19 false、ai-responses v21 false、save-quiz-draft v5 true、submit-quiz v7 false；stored width 1–100，resource ceilings 不變。
+- [x] Classification **security-ai／Risk C／providerCanaryRequired=true**；required production canary 已完成，非以 local tests 代替。
+- [x] Width-100 canary A/B/C：q7 width100 saved/reloaded、production raster/PNG path、fresh provider grading/finalizer PASS；exactly 1 provider call、cached=false、ai_requests=0、personal AI credits=0。
+- [x] Retained canary application deltas：attempts +1、answers +1、fill judgments +1、rubric judgments +2、rubric cache +1、rubric calls +1；successful evidence 保留，沒有 cleanup 待辦。
+- [x] Explicit exact-candidate Pages authorization；[Deploy LearnForge to GitHub Pages 37957364887](https://github.com/LukeTsengTW/learnforge/actions/runs/37957364887)／attempt 1／workflow_dispatch／master／exact candidate success；build job `113911180474`、deploy job `113911788399`、deployment `6965441041` 均 success。
+- [x] Production release.json／navigation：version 1.8.0／v1.8.0、gitSha `621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`。Root／manifest HTTP 200、all 7 index-referenced JS/CSS assets HTTP 200、base /learnforge/、Supabase project `mrrssxqolvcjxgqzoeqt`。
+- [x] Public zero-write drawing acceptance：`#/author` → demo / v2-handwriting bundled source → Student Preview q7；local React answer state，不建立 draft、不 save／submit、不呼叫 provider。
+- [x] Eraser max100 actual erase／preview：ink pixels 7324→6124，移除 1200；logical erase gap 100，width40 對照移除 480。Pen／eraser independence 與 active contact width snapshot PASS。
+- [x] Preview scaling／responsive：1440 viewport Canvas 564，expected 70.5 CSS px；768 Canvas 618，expected 77.25；360 Canvas 256，expected 32。Observed width 符合、height 僅 subpixel rounding、border 無額外 +2px、document overflow 0。
+- [x] Undo／redo／clear、q6/q7 isolation、bitmap replay、hover／size change 不新增 history；PNG 800×600、6124 ink pixels，preview shown/hidden PNG hash 相同，preview ring 不在 bitmap／PNG。
+- [x] Light／Dark preview、border/inset contrast 與 toolbar／Canvas layout PASS；測試後恢復原 theme。
+- [x] Automated real-browser mouse hover／down／drag／up（無新 move）／leave／rapid re-entry PASS；pen/palette 隱藏正常，無 stale footprint／非預期擦除。
+- [x] Controlled pen／touch lifecycle 與 stylus rejected touch PASS，**SYNTHETIC ONLY**；不將此項當作真實 Apple Pencil evidence。
+- [x] Authenticated read-only acceptance：既有專用 canary session 的 history／submitted result／q7 answer bitmap／judgment／navigation 正常；canary counts 維持 1/1/1/2/1/1、ai_requests=0，provider retained total=1。
+- [x] First-party application console/page/CSP errors 0、asset 404 0；第三方 browser／Cloudflare noise 分開分類。Credential scan 0 matches。
+- [x] Human-confirmed real iPad／Safari／Apple Pencil acceptance：human 明確回覆「v1.8.0 iPad / Safari / Apple Pencil acceptance PASS」，涵蓋先前 real-device checklist；Codex 未自動控制 iPad。
+- [x] Documentation closure content：三份授權 docs 反映已接受 runtime；本 snapshot 不預先宣稱 closure commit／CI 或 final closure-SHA Pages deployment 成功。
+- [ ] Closure commit exact CI：本文件 commit 前尚未取得；由 post-commit evidence 記錄 exact closure SHA、push／master／attempt 1 與結果。
+- [ ] Exact closure-SHA Pages parity/deployment：**尚未授權**；production 暫時保持已接受 runtime candidate `621fb86…`，不得沿用此 SHA 代替未來 closure SHA parity。
 - [ ] Explicit annotated-tag authorization：尚未取得。
-- [ ] Annotated v1.8.0 tag：尚未建立；不建立 GitHub Release。
+- [ ] Annotated v1.8.0 tag：尚未建立。GitHub Release：**not used / not planned**。
 
-後續順序：corrected candidate CI → backend preflight → explicit backend production mutation authorization → production DB migration → exactly 5 affected Edge deployments → required provider canary → explicit final Pages authorization → exact candidate Pages deployment → public smoke → authenticated/read-only＋drawing behavior smoke → real-device acceptance where required → documentation closure → final closure CI／exact final Pages parity if SHA changes → explicit annotated-tag authorization → annotated v1.8.0 tag。採 **backend first, frontend Pages later**：目前 production frontend 只產生舊合法 width，backend 放寬至 100 向後相容。
+Production 已含 retained width100 canary data，**DB max must not automatically narrow back to40**；rollback 需另行分析／授權。後續順序僅為 documentation closure commit／exact CI → 明確授權 exact closure-SHA Pages deployment＋parity smoke → explicit annotated-tag authorization → annotated v1.8.0 tag。
 
-沿用 `scripts/release/` 的 strict preflight 與 `npm run release:check -- --base v1.7.0`（preflight、lint、test、quizzes、AI-context、Edge imports、Pages-base build、manifest、audit、diff-check）。Ignored `output/release/checks.json`／`report.json` 綁定 source fingerprint；它們是 local evidence，不是 production acceptance 或 CI steps。完整證據層級見 [v1.8.0 delivery](v1.8.0-delivery.md)。以下歷史 release sections 保留原樣。
+本 closure stage 只允許三份 docs、單一 normal commit／push；local `npm run release:check -- --base v1.7.0` 的 source-bound 結果與 closure CI 另留 evidence。完整 runtime evidence 見 [v1.8.0 delivery](v1.8.0-delivery.md)。以下歷史 release sections 保留原樣。
 
 ## v1.7.0 Chapter 1 counting examples documentation closure
 
