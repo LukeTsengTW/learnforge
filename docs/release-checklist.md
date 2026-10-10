@@ -1,5 +1,26 @@
 # Release checklist
 
+## v1.9.0 discrete-math exercises 2026 candidate
+
+日期：2026-10-10（Asia/Taipei）。Immutable base v1.8.0：tag object `331383ac77aa8492db0abc4d2c3ab7142b67148f`／peeled `e4ca50ec3668046cdc4430befc434799c89922bb`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `e4ca50ec3668046cdc4430befc434799c89922bb`；staged empty；local／remote v1.9.0 tag absent。
+- [x] 五份 PDF 共 15 頁逐頁對照頁面影像：13 exercises／36 個小題皆有對應題目；canonical answers 獨立重算 57/57 相符，未發現講義答案有誤。
+- [x] 新題庫 13 calculation／13 drawing-capable，150 分，1200×900；8 revisions／6 current／90 questions／90 contexts；既有 77 題 baseline 雜湊保留。
+- [x] Local gates：94 files／1,513 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence：13/13 Student Preview、13/13 Answer Preview、13/13 打字／手寫切換、Library 卡片與篩選、本機隔離 Supabase stack 上的登入作答與草稿還原；360/768/1440 無 document overflow，KaTeX errors 0，console／page errors 0，沒有 submit 或 provider 呼叫。
+- [x] Independent review（feature candidate，cycle 1）：PASS，無 blocking finding。
+- [x] Runtime import graph 確認六個受影響 Edge functions；save-quiz-draft verify_jwt=true，其餘五個維持 false。
+- [x] 功能 delta 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。Classifier：security-ai／Risk C／providerCanaryRequired=false。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] 每個 required Edge function 部署一次（需 backend production mutation 授權）；記錄 before/after id、version；全部 ACTIVE、source verification 通過；無 unrelated deployment。
+- [ ] 六個 Edge 確認後，一次 exact candidate deploy.yml dispatch（需 Pages deployment 授權）；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.9.0／candidate SHA；canonical public smoke、Library／search／new quiz、Student／Answer Preview、responsive、KaTeX／console／CSP 與保留性 PASS。
+- [ ] 新題庫的 submit／AI 評分尚無端到端證據；是否以 provider canary 驗證由使用者決定並另行授權。
+- [ ] Closure 與 annotated v1.9.0 tag 需另行授權；沒有 GitHub Release。
+
+Candidate scope、來源對應、完整基準與部署程序：[v1.9.0 delivery](v1.9.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.8.0 corrected eraser-width-100 production verification closure
 
 日期：2026-10-10（Asia/Taipei）。已接受的 production runtime candidate 為 `621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`。本 section 在 documentation closure commit 前整理；**closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable v1.7.0：tag object `84991972d4d2040e06bd1f5060b3bb9b13548923`／peeled `860386404d3c78c9aa5cad8d014f18e7fa86e5ff`，保持不變。

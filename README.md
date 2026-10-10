@@ -1,8 +1,12 @@
 # LearnForge
 
-**Production accepted：v1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答。** Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a`：CI 37759361106、Pages 37762035891／deployment 6932859081 與 production identity 全 PASS。新題庫 `discrete-math-ch1-counting-examples/1` 含 26 題計算題、150 分，每題支援打字與 1200×900 手寫；總庫存為 7 revisions／5 current quizzes／77 questions／77 canonical contexts。正式站 26/26 Student／Answer Preview、schema-1/schema-2 controls、雙 buffer／active-only／reset、360/768/1440 與 KaTeX／console／CSP 均 PASS。六個 Edge 已先於 candidate Pages 完成同步；CLI source-download 問題已確認為 verification-tool extraction limitation，沒有 safety bypass、provider canary 或 user-data mutation。此為 documentation-only closure snapshot，已完成 candidate acceptance、準備 final closure deployment；closure SHA／CI／final Pages／parity 由 post-commit report 記錄。Immutable v1.7.0 tag 尚未建立，需另行授權；沒有 GitHub Release。不宣稱本功能已做真實 iPad／Safari／Apple Pencil 驗證。[v1.7.0 delivery](docs/v1.7.0-delivery.md)。
+**Current release candidate：v1.9.0 — 離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8。** 新題庫 `discrete-math-exercises-2026/1` 依五份 2026 習題解答講義收錄 13 題計算題（36 個小題）、150 分，每題支援打字與 1200×900 手寫；總庫存為 8 revisions／6 current quizzes／90 questions／90 canonical contexts。另修正行內數學式以下標結尾時多出水平捲軸的共用樣式。Local gates 為 94 files／1,513 tests，零 skipped；candidate commit SHA 與其 push CI 由 post-commit report 記錄。Candidate 必須先同步六個 Edge functions，再部署 exact-SHA Pages 並完成 production smoke；Edge／Pages／tag 均尚未授權，本 candidate 尚未部署。[v1.9.0 delivery](docs/v1.9.0-delivery.md)。
 
 以下為保留的歷史 release snapshots。
+
+**v1.8.0 — 電子白板橡皮擦大小與範圍預覽。** 本 README 沒有保留這一版的獨立 snapshot；內容與驗收紀錄見 [CHANGELOG](CHANGELOG.md) 與 [v1.8.0 delivery](docs/v1.8.0-delivery.md)。
+
+**Production accepted：v1.7.0 — 離散數學第一章例題與 Author Preview 手寫作答。** Accepted candidate `45b9bfb765792a43425ccc2e2c434c403da2360a`：CI 37759361106、Pages 37762035891／deployment 6932859081 與 production identity 全 PASS。新題庫 `discrete-math-ch1-counting-examples/1` 含 26 題計算題、150 分，每題支援打字與 1200×900 手寫；總庫存為 7 revisions／5 current quizzes／77 questions／77 canonical contexts。正式站 26/26 Student／Answer Preview、schema-1/schema-2 controls、雙 buffer／active-only／reset、360/768/1440 與 KaTeX／console／CSP 均 PASS。六個 Edge 已先於 candidate Pages 完成同步；CLI source-download 問題已確認為 verification-tool extraction limitation，沒有 safety bypass、provider canary 或 user-data mutation。此為 documentation-only closure snapshot，已完成 candidate acceptance、準備 final closure deployment；closure SHA／CI／final Pages／parity 由 post-commit report 記錄。Immutable v1.7.0 tag 尚未建立，需另行授權；沒有 GitHub Release。不宣稱本功能已做真實 iPad／Safari／Apple Pencil 驗證。[v1.7.0 delivery](docs/v1.7.0-delivery.md)。
 
 **Production verified：v1.6.3 — Apple Pencil 手寫穩定性與 iPad 相容性。** Accepted candidate `f93ad94dc9d5843ab897dfe2313ecb51f4c6ca34` 修正 reused pointerId 的 stale lostpointercapture、rapid controlled-history race，以及 `[P,P]`／全零位移 pen/eraser strokes 的 dot／PNG replay。iPad DrawingCanvas 提供「Apple Pencil 使用提醒」，連到 Apple 官方「設定 > Apple Pencil > 隨手寫」說明；temporary event-trace instrumentation 已移除。使用者在這個 exact candidate 實機確認 notice/link、快速分筆／dots／20+ lifts／palm／math 全部 PASS：**REAL APPLE PENCIL PASS WITH SCRIBBLE DISABLED**。Scribble-enabled 失敗接觸未送出 PointerEvent 或 stylus Touch；不宣稱已修復 Scribble-enabled 手寫，也無法偵測該設定。89 focused、91 files／1,359 tests、10/10 gates、candidate CI 37640405750／Pages 37640714852／deployment 6913318153、完整 controlled browser matrix／24 dots PASS。Frontend-only、零 backend／user-data mutation；這是 docs-only closure snapshot，final closure SHA／CI／Pages／immutable tag parity 在 post-commit report 核對。[v1.6.3 delivery](docs/v1.6.3-delivery.md)。以下為歷史 release snapshots。
 
@@ -25,7 +29,7 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 ## 功能
 
 - 全域 Light／Dark 主題涵蓋頁面、卡片、控制項、結果狀態、code／KaTeX 與 Author。明確選擇保存於 learnforge:theme 並在 reload 保留；沒有有效偏好時依 prefers-color-scheme 初始化，不將系統預設寫成明確偏好。同步 head bootstrap 在 React 載入前套用主題。
-- Production 有五份 current bundled 題庫；全庫七個 revisions／77 questions／77 canonical contexts：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算），以及「離散數學第一章：計數的基本原理－例題練習」26 題計算題／150 分。期中考隨 v1.5.0 上線；v1.7.0 的六個 Edge bundles 已同步全部 77 canonical contexts。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
+- Repository 有六份 current bundled 題庫；全庫八個 revisions／90 questions／90 canonical contexts：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）、「離散數學第一章：計數的基本原理－例題練習」26 題計算題／150 分，以及 v1.9.0 candidate 新增的「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」13 題計算題／150 分。期中考隨 v1.5.0 上線；v1.7.0 的六個 Edge bundles 已同步當時全部 77 canonical contexts，v1.9.0 新增的 13 個 contexts 要等六個 Edge functions 重新部署後才會進入 production。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
 - 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。
@@ -450,7 +454,7 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 
 ## 完整 example quiz
 
-直接閱讀 [目前 demo/v2-handwriting](src/content/quizzes/demo/v2.quiz.md)、[封存 demo/v1-7d7c900e](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md)、[離散數學：關係](src/content/quizzes/relations/v1.quiz.md) 與[2025 離散數學期中考](src/content/quizzes/discrete-math/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
+直接閱讀 [目前 demo/v2-handwriting](src/content/quizzes/demo/v2.quiz.md)、[封存 demo/v1-7d7c900e](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md)、[離散數學：關係](src/content/quizzes/relations/v1.quiz.md)、[2025 離散數學期中考](src/content/quizzes/discrete-math/v1.quiz.md)、[離散數學第一章例題](src/content/quizzes/discrete-math-ch1-counting-examples/v1.quiz.md) 與[離散數學習題 2026](src/content/quizzes/discrete-math-exercises-2026/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
 
 ## Grading 規則
 
@@ -500,7 +504,7 @@ Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luket
 
 ## Known limitations
 
-- 題庫仍是 Git 內四個題庫、五個 bundled revisions；目前只有 `demo/v2-handwriting` 這個精確版本宣告 calculation handwriting，選用 schema2/v4。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
+- 題庫仍是 Git 內六個題庫、八個 bundled revisions；宣告 calculation handwriting 而選用 schema2/v4 的精確版本為 `demo/v2-handwriting`、`discrete-math/2`、`discrete-math-ch1-counting-examples/1` 與 `discrete-math-exercises-2026/1`。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
 - 錯題頁依序分頁載入提交並用 persisted grading evidence 重建結果；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
 - 沒有 email delivery；Recovery Code 是 bearer secret，遺失密碼且沒有有效碼時無法自行恢復。

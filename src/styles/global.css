@@ -248,7 +248,8 @@
   .markdown .katex-display { overflow-x: auto; overflow-y: hidden; max-width: 100%; padding: 8px 2px; margin: 14px 0; }
   .markdown .katex { font-size: 1.1em; }
   .markdown p { max-width: 100%; }
-  .markdown p > .katex, .markdown-inline > .katex, .markdown-inline > span > .katex { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding-block: 3px; }
+  /* KaTeX ends a subscript with a 2px strut outside its box; the end padding keeps it from forcing a scrollbar. */
+  .markdown p > .katex, .markdown-inline > .katex, .markdown-inline > span > .katex { display: inline-block; max-width: 100%; overflow-x: auto; overflow-y: hidden; vertical-align: middle; padding-block: 3px; padding-inline-end: 2px; }
   .choice-list { display: flex; flex-direction: column; gap: 10px; }
   .choice-row { min-height: 54px; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border: 1px solid var(--line); border-radius: 7px; cursor: pointer; color: var(--option-ink); }
   .choice-row:hover { border-color: var(--option-hover-line); background: var(--option-hover-surface); }

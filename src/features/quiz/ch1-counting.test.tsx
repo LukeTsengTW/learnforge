@@ -94,17 +94,20 @@ describe('PDF-backed Chapter 1 counting practice', () => {
   })
 
   it('adds only 26 contexts/questions and preserves the immutable 51-question baseline', () => {
-    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
+    // Families bundled after this one are pinned by their own tests; they stay out of the 51-question baseline.
+    const later = new Set(['discrete-math-exercises-2026'])
+    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
+    const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
     expect(all).toHaveLength(7)
-    expect(quizCatalog.current).toHaveLength(5)
+    expect(quizCatalog.current.filter(({ quiz: current }) => !later.has(current.id))).toHaveLength(5)
     expect(all.flatMap((q) => q.questions)).toHaveLength(77)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(77)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id)).toHaveLength(26)
+    expect(contexts).toHaveLength(77)
+    expect(contexts.filter((c) => String(c.quizId) === id)).toHaveLength(26)
     const old = all.filter((q) => q.id !== id).sort((a, b) => `${a.id}/${a.revision}`.localeCompare(`${b.id}/${b.revision}`))
     expect(sha(old)).toBe('0608d5d8a6bd25240d31ddafbde05bcfc1aaebd9d833c4f388c104eba286317b')
     expect(sha(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions }))))
       .toBe('9845e9529140438658437b80710472f8369e2a5fa7f356232792e8a8fe5c0135')
-    expect(sha(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id)))
+    expect(sha(contexts.filter((c) => String(c.quizId) !== id)))
       .toBe('ed5c44fcfcbbd916fcce2df10c9e6728f3f2fefafc01c8cbbef304e3ba4f0c11')
     // Git may check out CRLF on Windows; pin the immutable content across checkout EOLs.
     const midtermSource = readFileSync('src/content/quizzes/discrete-math/v2.quiz.md', 'utf8').replace(/\r\n/g, '\n')

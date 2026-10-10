@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.9.0 — 離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8
+
+Release candidate preparation：2026-10-10（Asia/Taipei）。基準 immutable v1.8.0（tag object `331383ac77aa8492db0abc4d2c3ab7142b67148f`／peeled `e4ca50ec3668046cdc4430befc434799c89922bb`）。功能與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Edge／Pages／production smoke 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+
+- 新 bundled quiz family `discrete-math-exercises-2026/1`：依五份 2026 習題解答講義（Ch1、Ch3、Ch5、Ch7、Ch8，共 15 頁）收錄 13 個 exercises／36 個小題，13 calculation／drawing-capable、150 分、1200×900，支援打字與手寫。全庫 8 revisions／6 current／90 questions／90 canonical contexts。
+- 來源對應：Exercises 1.1–1.2 #21 僅有講義印出的 (a)(b)；Exercises 7.1 #5 僅有 (a)(c)(e)(f)，標號沿用原題，不補造小題；Ch8 未編號的 triplets 題列為補充題。Ch8 p.2／p.4 的條件依頁面影像採 ≥／≤（text extraction 會遺失底線）。講義中的 Venn 圖、對應圖與手繪有向圖未以圖片重現，改以文字或公式表達。
+- 答案：13 題 canonical answers 以獨立列舉與精確算術重算 57 項，全部與講義一致，未發現講義答案有誤；講義只給算式之處另補數值。Exercises 3.1 #12(c) 保留講義答案 63（2⁶ − 1，不計空集合）；rubric 另接受明確以空集合論證而得的 64。
+- 配分依工作量：q01–q13 為 8／8／6／20／10／12／16／10／15／16／8／12／9。每題 rubric 分數總和等於題目配分，並接受數學上等價且推理完整的解法。沒有提供 hint。
+- 共用樣式修正：行內數學式（`.markdown p > .katex` 等）以下標結尾時，KaTeX 會在 inline-block 外多出 2px 而出現水平捲軸；加入 `padding-inline-end: 2px`。新題庫 22 處與既有題庫 7 處（ch1 3、discrete-math/2 3、boolean-algebra 1）的捲軸消失，沒有其他版面變動。
+- 既有七個 revisions、77 questions、77 canonical contexts 與 current `discrete-math/2` 均保留；`ch1-counting.test.tsx` 原有的 51 題 baseline 雜湊未變，新測試另釘住 77 題 baseline。功能沒有 migration、Auth／RLS／secrets／provider configuration 或 dependency delta。
+- Generated canonical context 是 Edge-visible artifact；runtime import graph 確認僅 ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz 需要部署。Classifier：security-ai／Risk C／providerCanaryRequired=false。部署順序為 candidate CI → 六個 Edge → Pages → production smoke；Edge 同步之前，新題庫在 production 的草稿儲存不會運作。
+- Local gates：94 files／1,513 tests 全部 PASS、零 skipped；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。Browser 證據涵蓋 Author Student／Answer Preview 13/13、Library、本機隔離 Supabase stack 上的登入作答與草稿還原，以及 360／768／1440。新題庫的 submit 與 AI 評分沒有端到端驗證。
+- Package／lock root version 與 visible navigation label 準備為 1.9.0。來源對應、驗證證據與尚待驗收項目見 [v1.9.0 delivery](docs/v1.9.0-delivery.md)。
+
 ## 1.8.0 — 電子白板橡皮擦大小與範圍預覽
 
 Production acceptance：2026-10-10（Asia/Taipei）。已接受的 runtime candidate 為 `621fb86e1cf82ad9f976fd2bd99435c6002f1fc8`；production version 為 1.8.0。Documentation closure 的 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.8.0 delivery](docs/v1.8.0-delivery.md)。

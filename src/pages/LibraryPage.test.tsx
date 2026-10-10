@@ -38,6 +38,7 @@ const fixtures = [
 const allTitles = ['Logic Challenge', '數學進階', 'Logic Warmup']
 const midtermTitle = '2025 Discrete Mathematics 期中考'
 const countingTitle = '離散數學第一章：計數的基本原理－例題練習'
+const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -100,21 +101,48 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual([midtermTitle])
   })
 
-  it.each(['第一章', '計數的基本原理', 'stars-and-bars'])('finds the Chapter 1 quiz with %s', async (query) => {
+  it('shows the separate 2026 exercises quiz with its declared points, tags and quiz link', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: exercisesTitle, level: 2 }).closest('article')!
+    expect(within(card).getByText('離散數學')).toBeInTheDocument()
+    expect(within(card).getByText('13 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 150 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
+    expect(within(within(card).getByRole('list', { name: '題庫標籤' })).getAllByRole('listitem').map((tag) => tag.textContent))
+      .toEqual(['counting', 'permutations', 'combinations', 'stars-and-bars', 'inclusion-exclusion', 'sets', 'relations',
+        'equivalence-relations', 'functions', 'stirling-numbers'])
+    expect(within(card).getByRole('link', { name: /開始練習/ }))
+      .toHaveAttribute('href', '/quiz/discrete-math-exercises-2026')
+  })
+
+  it.each(['第一章', '計數的基本原理', 'binomial-theorem'])('finds the Chapter 1 quiz with %s', async (query) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
     expect(visibleTitles()).toEqual([countingTitle])
   })
 
+  it.each(['Ch7', '習題解答講義', 'stirling-numbers'])('finds the 2026 exercises quiz with %s', async (query) => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
+    expect(visibleTitles()).toEqual([exercisesTitle])
+  })
+
+  it('finds both stars-and-bars quizzes when the tag is searched', async () => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), 'stars-and-bars')
+    expect(visibleTitles()).toEqual(inCatalogOrder(countingTitle, exercisesTitle))
+  })
+
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, '離散數學：關係', countingTitle)],
-    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, '數位邏輯與基礎數學', countingTitle)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, '離散數學：關係', countingTitle, exercisesTitle)],
+    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, '數位邏輯與基礎數學', countingTitle, exercisesTitle)],
     ['標籤', 'combinatorics', [midtermTitle]],
-    ['標籤', 'inclusion-exclusion', [midtermTitle]],
-    ['標籤', 'relations', [midtermTitle, '離散數學：關係']],
-    ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle)],
-    ['標籤', 'stars-and-bars', [countingTitle]],
+    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle)],
+    ['標籤', 'relations', inCatalogOrder(midtermTitle, '離散數學：關係', exercisesTitle)],
+    ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
+    ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],
+    ['標籤', 'stirling-numbers', [exercisesTitle]],
   ])('filters the real bundle by %s=%s', async (label, value, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.selectOptions(screen.getByRole('combobox', { name: label }), value)

@@ -40,7 +40,7 @@ export function Layout() {
           try { await service?.logout(); await refresh() } catch (failure) { setLogoutError(authError(failure)) } finally { setLoggingOut(false) }
         }}>登出</button></> : !loading && <><Link to="/login">登入</Link><Link to="/register">註冊</Link></>}
         <ThemeToggle />
-        <span className="version-label">v1.8.0</span>
+        <span className="version-label">v1.9.0</span>
       </nav>
     </div></header>
     <main id="main-content" ref={main} tabIndex={-1} className={pathname === '/author' ? 'main-container author-main' : 'main-container'}>

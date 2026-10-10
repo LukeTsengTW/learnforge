@@ -1943,6 +1943,842 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Exercises 1.1 and 1.2 第 21 題：SOCIOLOGICAL 的排列（Ch1 講義第 1 頁）\n**21.** (a) How many arrangements are there of all the letters in SOCIOLOGICAL?\n\n(b) In how many of the arrangements in part (a) are A and G adjacent?\n\n請分別列式，並說明如何處理重複出現的字母。",
+    "hint": null,
+    "solution": "SOCIOLOGICAL 共有 $12$ 個字母：O 出現 $3$ 次，C、I、L 各出現 $2$ 次，S、G、A 各出現 $1$ 次。\n\n**(a)** 先把 $12$ 個字母都當成相異，有 $12!$ 種排法；相同的字母彼此交換位置不會產生新的排列，所以要除以每一組相同字母的排列數：\n\n$$\n\\frac{12!}{3!\\,2!\\,2!\\,2!}=\\frac{479{,}001{,}600}{48}=9{,}979{,}200.\n$$\n\n**(b)** 把相鄰的 A、G 黏成一個區塊。若區塊是 AG，連同其餘 $10$ 個字母共有 $11$ 個物件，其中 O 有 $3$ 個，C、I、L 各 $2$ 個，排列數為\n\n$$\n\\frac{11!}{3!\\,2!\\,2!\\,2!}=831{,}600.\n$$\n\n區塊是 GA 時排列數相同。兩種情況互斥，由和規則，\n\n$$\n\\begin{aligned}\n&\\frac{11!}{3!\\,2!\\,2!\\,2!}\\ (\\text{AG})+\\frac{11!}{3!\\,2!\\,2!\\,2!}\\ (\\text{GA})\\\\\n&\\quad=2\\cdot831{,}600=1{,}663{,}200.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確統計字母：共 $12$ 個，其中 O 有 $3$ 個，C、I、L 各 $2$ 個，S、G、A 各 $1$ 個。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 以含重複物件的排列列出 $12!/(3!\\,2!\\,2!\\,2!)$ 或等價式；不要求化簡成數值 $9{,}979{,}200$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 把相鄰的 A、G 視為一個區塊（或使用等價方法），得到 $11$ 個物件的排列數 $11!/(3!\\,2!\\,2!\\,2!)$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 同時計入 AG 與 GA 兩種順序，得到 $2\\cdot11!/(3!\\,2!\\,2!\\,2!)$；不要求化簡成數值 $1{,}663{,}200$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\dfrac{12!}{3!\\,2!\\,2!\\,2!}=9{,}979{,}200$ 種。\n\n(b) $\\dfrac{11!}{3!\\,2!\\,2!\\,2!}+\\dfrac{11!}{3!\\,2!\\,2!\\,2!}=1{,}663{,}200$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確統計字母：共 $12$ 個，其中 O 有 $3$ 個，C、I、L 各 $2$ 個，S、G、A 各 $1$ 個。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 以含重複物件的排列列出 $12!/(3!\\,2!\\,2!\\,2!)$ 或等價式；不要求化簡成數值 $9{,}979{,}200$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 把相鄰的 A、G 視為一個區塊（或使用等價方法），得到 $11$ 個物件的排列數 $11!/(3!\\,2!\\,2!\\,2!)$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 同時計入 AG 與 GA 兩種順序，得到 $2\\cdot11!/(3!\\,2!\\,2!\\,2!)$；不要求化簡成數值 $1{,}663{,}200$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### Exercises 1.3 第 12 題：12 本書分給四個小孩（Ch1 講義第 2 頁）\n**12.** In how many ways can 12 different books be distributed among four children so that (a) each child gets three books? (b) the two oldest children get four books each and the two youngest get two books each?\n\n請分別列式，並說明每一步選的是什麼。",
+    "hint": null,
+    "solution": "書本彼此相異，四個小孩也彼此不同，所以依序替每個小孩選書即可。\n\n**(a)** 第一個小孩的三本書有 $\\binom{12}{3}$ 種選法，接著第二個小孩從剩下的九本選三本，有 $\\binom{9}{3}$ 種；第三個小孩有 $\\binom{6}{3}$ 種，最後三本給第四個小孩，有 $\\binom{3}{3}$ 種。由積規則，\n\n$$\n\\begin{aligned}\n\\binom{12}{3}\\binom{9}{3}\\binom{6}{3}\\binom{3}{3}&=220\\cdot84\\cdot20\\cdot1\\\\\n&=\\frac{12!}{(3!)^4}=369{,}600.\n\\end{aligned}\n$$\n\n**(b)** 兩位年紀最大的小孩各拿四本，兩位年紀最小的小孩各拿兩本：\n\n$$\n\\begin{aligned}\n\\binom{12}{4}\\binom{8}{4}\\binom{4}{2}\\binom{2}{2}&=495\\cdot70\\cdot6\\cdot1\\\\\n&=\\frac{12!}{(4!)^2(2!)^2}=207{,}900.\n\\end{aligned}\n$$\n\n每個小孩都是可區分的，所以不需要再除以小孩之間的排列數。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 說明書本相異、小孩可區分，依序為每個小孩選三本（或使用等價的多項式係數模型）。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 列出 $\\binom{12}{3}\\binom{9}{3}\\binom{6}{3}\\binom{3}{3}$ 或 $12!/(3!)^4$；不要求化簡成數值 $369{,}600$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 依序為兩位年長的小孩各選四本、兩位年幼的小孩各選兩本，列出 $\\binom{12}{4}\\binom{8}{4}\\binom{4}{2}\\binom{2}{2}$ 或等價式。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 得到 $12!/[(4!)^2(2!)^2]$（即 $207{,}900$），且沒有因為拿到相同本數而多除以小孩的排列數。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $\\dbinom{12}{3}\\dbinom{9}{3}\\dbinom{6}{3}\\dbinom{3}{3}=\\dfrac{12!}{(3!)^4}=369{,}600$ 種。\n\n(b) $\\dbinom{12}{4}\\dbinom{8}{4}\\dbinom{4}{2}\\dbinom{2}{2}=\\dfrac{12!}{(4!)^2(2!)^2}=207{,}900$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 說明書本相異、小孩可區分，依序為每個小孩選三本（或使用等價的多項式係數模型）。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 列出 $\\binom{12}{3}\\binom{9}{3}\\binom{6}{3}\\binom{3}{3}$ 或 $12!/(3!)^4$；不要求化簡成數值 $369{,}600$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 依序為兩位年長的小孩各選四本、兩位年幼的小孩各選兩本，列出 $\\binom{12}{4}\\binom{8}{4}\\binom{4}{2}\\binom{2}{2}$ 或等價式。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 得到 $12!/[(4!)^2(2!)^2]$（即 $207{,}900$），且沒有因為拿到相同本數而多除以小孩的排列數。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Exercises 1.3 第 13 題：MISSISSIPPI 中 S 不相鄰（Ch1 講義第 3 頁）\n**13.** How many arrangements of the letters in MISSISSIPPI have no consecutive S's?\n\n請說明你的計數步驟。",
+    "hint": null,
+    "solution": "MISSISSIPPI 有 $11$ 個字母：S 有 $4$ 個，I 有 $4$ 個，P 有 $2$ 個，M 有 $1$ 個。\n\n先排不是 S 的七個字母 M、I、I、I、P、P、I，排列數為\n\n$$\n\\frac{7!}{4!\\,2!}=105.\n$$\n\n每一種排法都提供 $8$ 個可以放 S 的位置：最前面一個、最後面一個，以及字母之間的六個間隔。四個 S 互不相鄰，表示每個位置最多放一個 S，所以從 $8$ 個位置選 $4$ 個，有 $\\binom{8}{4}=70$ 種選法。\n\n由積規則，所求排列數為\n\n$$\n\\binom{8}{4}\\cdot\\frac{7!}{4!\\,2!}=70\\cdot105=7350.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "先排 S 以外的七個字母（M 一個、I 四個、P 兩個），得到 $7!/(4!\\,2!)=105$ 種。"
+      },
+      {
+        "score": 2,
+        "description": "指出七個字母形成 $8$ 個可放 S 的位置（兩端與六個間隔），且每個位置至多放一個 S，選法為 $\\binom{8}{4}=70$。"
+      },
+      {
+        "score": 2,
+        "description": "以積規則得到 $\\binom{8}{4}\\cdot7!/(4!\\,2!)=7350$；以其他完整方法（例如排容原理）得到相同結果亦可。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$\\dbinom{8}{4}\\cdot\\dfrac{7!}{4!\\,2!}=70\\cdot105=7350$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "先排 S 以外的七個字母（M 一個、I 四個、P 兩個），得到 $7!/(4!\\,2!)=105$ 種。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "指出七個字母形成 $8$ 個可放 S 的位置（兩端與六個間隔），且每個位置至多放一個 S，選法為 $\\binom{8}{4}=70$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "以積規則得到 $\\binom{8}{4}\\cdot7!/(4!\\,2!)=7350$；以其他完整方法（例如排容原理）得到相同結果亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Exercises 1.4 第 7 題：$x_1+x_2+x_3+x_4=32$ 的整數解（Ch1 講義第 4 頁）\n**7.** Determine the number of integer solutions of\n\n$$\nx_1+x_2+x_3+x_4=32,\n$$\n\nwhere\n\n(a) $x_i \\ge 0,\\quad 1 \\le i \\le 4$\n\n(b) $x_i > 0,\\quad 1 \\le i \\le 4$\n\n(c) $x_1, x_2 \\ge 5,\\quad x_3, x_4 \\ge 7$\n\n(d) $x_i \\ge 8,\\quad 1 \\le i \\le 4$\n\n(e) $x_i \\ge -2,\\quad 1 \\le i \\le 4$\n\n(f) $x_1, x_2, x_3 > 0,\\quad 0 < x_4 \\le 25$\n\n請逐小題列式，並說明如何把條件化成可以計數的模型。",
+    "hint": null,
+    "solution": "$n$ 個變數、總和為 $r$ 的非負整數解個數是 $\\binom{n+r-1}{r}$。其餘小題都先用代換把下界移到 $0$，再套用這個公式。\n\n**(a)** 直接套用 $n=4$、$r=32$：\n\n$$\n\\binom{4+32-1}{32}=\\binom{35}{32}=6545.\n$$\n\n**(b)** $x_i > 0$ 即 $x_i \\ge 1$。令 $y_i=x_i-1 \\ge 0$，則 $y_1+y_2+y_3+y_4=28$，\n\n$$\n\\binom{4+28-1}{28}=\\binom{31}{28}=4495.\n$$\n\n**(c)** 令 $y_1=x_1-5$、$y_2=x_2-5$、$y_3=x_3-7$、$y_4=x_4-7$，都是非負整數，且總和為 $32-24=8$：\n\n$$\n\\binom{4+8-1}{8}=\\binom{11}{8}=165.\n$$\n\n**(d)** 四個變數都至少是 $8$，下界總和已經是 $32$，所以唯一的解是 $x_1=x_2=x_3=x_4=8$，共 $1$ 組。\n\n**(e)** 令 $y_i=x_i+2 \\ge 0$，$1 \\le i \\le 4$。原方程式的解數等於 $y_1+y_2+y_3+y_4=40$、$y_i \\ge 0$ 的解數：\n\n$$\n\\binom{4+40-1}{40}=\\binom{43}{40}=12{,}341.\n$$\n\n**(f)** 先不管 $x_4 \\le 25$，四個變數都為正的解數是 (b) 的 $\\binom{31}{28}$。其中要扣掉 $x_4 \\ge 26$ 的解：令 $y_1=x_1-1$、$y_2=x_2-1$、$y_3=x_3-1$、$y_4=x_4-26$，總和為 $32-29=3$，有 $\\binom{4+3-1}{3}=\\binom{6}{3}$ 組。因此\n\n$$\n\\begin{aligned}\n\\binom{4+28-1}{28}-\\binom{4+3-1}{3}&=\\binom{31}{28}-\\binom{6}{3}\\\\\n&=4495-20=4475.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 以非負整數解模型（stars and bars）列出 $\\binom{4+32-1}{32}=\\binom{35}{32}$；不要求化簡成 $6545$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 把 $x_i > 0$ 化為 $y_i=x_i-1 \\ge 0$、總和 $28$，得到 $\\binom{31}{28}$（即 $4495$）。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 扣除下界 $5,5,7,7$ 後總和為 $8$，得到 $\\binom{11}{8}$（即 $165$）。"
+      },
+      {
+        "score": 2,
+        "description": "(d) 指出每個變數至少為 $8$ 且總和為 $32$，唯一解是全部等於 $8$，答案為 $1$。"
+      },
+      {
+        "score": 4,
+        "description": "(e) 以 $y_i=x_i+2 \\ge 0$ 平移負的下界，化為總和 $40$，得到 $\\binom{43}{40}$（即 $12{,}341$）。"
+      },
+      {
+        "score": 2,
+        "description": "(f) 先求四個變數皆為正的解數 $\\binom{31}{28}$，並辨認需要扣除 $x_4 \\ge 26$ 的解（或使用等價的分類方法）。"
+      },
+      {
+        "score": 3,
+        "description": "(f) 正確求出 $x_4 \\ge 26$ 的解數 $\\binom{6}{3}=20$，得到 $\\binom{31}{28}-\\binom{6}{3}$（即 $4475$）。"
+      }
+    ],
+    "points": 20,
+    "referenceAnswer": "(a) $\\dbinom{4+32-1}{32}=\\dbinom{35}{32}=6545$。\n\n(b) $\\dbinom{4+28-1}{28}=\\dbinom{31}{28}=4495$。\n\n(c) $\\dbinom{4+8-1}{8}=\\dbinom{11}{8}=165$。\n\n(d) $1$。\n\n(e) $\\dbinom{4+40-1}{40}=\\dbinom{43}{40}=12{,}341$。\n\n(f) $\\dbinom{31}{28}-\\dbinom{6}{3}=4495-20=4475$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 以非負整數解模型（stars and bars）列出 $\\binom{4+32-1}{32}=\\binom{35}{32}$；不要求化簡成 $6545$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(b) 把 $x_i > 0$ 化為 $y_i=x_i-1 \\ge 0$、總和 $28$，得到 $\\binom{31}{28}$（即 $4495$）。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(c) 扣除下界 $5,5,7,7$ 後總和為 $8$，得到 $\\binom{11}{8}$（即 $165$）。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) 指出每個變數至少為 $8$ 且總和為 $32$，唯一解是全部等於 $8$，答案為 $1$。"
+      },
+      {
+        "id": "r5",
+        "points": 4,
+        "description": "(e) 以 $y_i=x_i+2 \\ge 0$ 平移負的下界，化為總和 $40$，得到 $\\binom{43}{40}$（即 $12{,}341$）。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(f) 先求四個變數皆為正的解數 $\\binom{31}{28}$，並辨認需要扣除 $x_4 \\ge 26$ 的解（或使用等價的分類方法）。"
+      },
+      {
+        "id": "r7",
+        "points": 3,
+        "description": "(f) 正確求出 $x_4 \\ge 26$ 的解數 $\\binom{6}{3}=20$，得到 $\\binom{31}{28}-\\binom{6}{3}$（即 $4475$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Exercises 3.1 第 12 題：集合 $A$ 的子集（Ch3 講義第 1 頁）\n**12.** Let $A=\\{1, 2, 3, 4, 5, 7, 8, 10, 11, 14, 17, 18\\}$.\n\n(a) How many subsets of $A$ contain six elements?\n\n(b) How many six-element subsets of $A$ contain four even integers and two odd integers?\n\n(c) How many subsets of $A$ contain only odd integers?\n\n請分別列式並說明理由。",
+    "hint": null,
+    "solution": "$A$ 有 $12$ 個元素，其中偶數是 $2,4,8,10,14,18$ 共 $6$ 個，奇數是 $1,3,5,7,11,17$ 共 $6$ 個。\n\n**(a)** 從 $12$ 個元素中選 $6$ 個：\n\n$$\n\\binom{12}{6}=924.\n$$\n\n**(b)** 從 $6$ 個偶數中選 $4$ 個，再從 $6$ 個奇數中選 $2$ 個，由積規則，\n\n$$\n\\binom{6}{4}\\binom{6}{2}=15\\cdot15=225.\n$$\n\n**(c)** 只含奇數的子集，就是 $\\{1,3,5,7,11,17\\}$ 的非空子集。六個奇數各有「取」或「不取」兩種選擇，共 $2^6$ 個子集，扣掉一個元素都沒有的空集合：\n\n$$\n2^6-1=63.\n$$\n\n講義答案為 $63$（旁註 $2^6-1$），也就是不把空集合算進去，因為空集合裡沒有任何奇數。如果把題意讀成「所有元素都是奇數」而把空集合也算入，會得到 $2^6=64$；本題以講義答案 $63$ 為準。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 指出 $A$ 有 $12$ 個元素，六元素子集共有 $\\binom{12}{6}=924$ 個。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確把 $A$ 分成 $6$ 個偶數與 $6$ 個奇數。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 以積規則列出 $\\binom{6}{4}\\binom{6}{2}=225$。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 說明只含奇數的子集就是六個奇數所成集合的非空子集，得到 $2^6-1=63$；若作答者明確說明把空集合也視為符合條件並因此寫 $64$，且推理完整，亦給分。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $\\dbinom{12}{6}=924$。\n\n(b) $\\dbinom{6}{4}\\dbinom{6}{2}=225$。\n\n(c) $2^6-1=63$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 指出 $A$ 有 $12$ 個元素，六元素子集共有 $\\binom{12}{6}=924$ 個。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 正確把 $A$ 分成 $6$ 個偶數與 $6$ 個奇數。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 以積規則列出 $\\binom{6}{4}\\binom{6}{2}=225$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(c) 說明只含奇數的子集就是六個奇數所成集合的非空子集，得到 $2^6-1=63$；若作答者明確說明把空集合也視為符合條件並因此寫 $64$，且推理完整，亦給分。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### Exercises 3.3 第 7 題：26 個字母的排列與樣式（Ch3 講義第 2 頁）\n**7.** How many permutations of the 26 different letters of the alphabet contain (a) either the pattern \"OUT\" or the pattern \"DIG\"? (b) neither the pattern \"MAN\" nor the pattern \"ANT\"?\n\n請定義所用的集合或條件，並寫出每一項的計算理由。",
+    "hint": null,
+    "solution": "**(a)** 令 $A$ 為含有 OUT 樣式的排列所形成的集合，$B$ 為含有 DIG 樣式的排列所形成的集合。\n\n把 OUT 黏成一個區塊，連同其餘 $23$ 個字母共有 $24$ 個物件，所以 $|A|=24!$；同理 $|B|=24!$。OUT 與 DIG 沒有共同的字母，兩個樣式同時出現時各自成為一個區塊，再加上其餘 $20$ 個字母，共 $22$ 個物件，所以 $|A\\cap B|=22!$。因此\n\n$$\n|A\\cup B|=|A|+|B|-|A\\cap B|=2(24!)-22!.\n$$\n\n**(b)** 依排容原理的三個步驟：\n\nStep 1：令 $S$ 為全部 $26$ 個字母的排列所形成的集合，$N=|S|=26!$。\n\nStep 2：$S$ 中的排列若含有 MAN 樣式，則滿足條件 $c_1$；若含有 ANT 樣式，則滿足條件 $c_2$。和 (a) 一樣，$N(c_1)=N(c_2)=24!$。每個字母只出現一次，所以同時含有 MAN 與 ANT 時，兩者必須共用 A、N，也就是排列中出現 MANT；把 MANT 視為一個區塊，連同其餘 $22$ 個字母共 $23$ 個物件，$N(c_1c_2)=23!$。\n\nStep 3：兩個樣式都不含的排列數為\n\n$$\nN(\\overline{c}_1\\overline{c}_2)=N-[N(c_1)+N(c_2)]+N(c_1c_2)=26!-2(24!)+23!.\n$$\n\n換句話說，含有 MAN 或 ANT 的排列有 $2(24!)-23!$ 個，所以兩者都不含的有 $26!-[2(24!)-23!]$ 個。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 把 OUT（或 DIG）視為一個區塊，連同其餘 $23$ 個字母共 $24$ 個物件，各有 $24!$ 個排列。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 指出兩個樣式沒有共同字母，同時出現時為 $22$ 個物件，共 $22!$ 個排列。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 以 $|A\\cup B|=|A|+|B|-|A\\cap B|$（或等價方法）得到 $2(24!)-22!$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 指出含 MAN 與含 ANT 的排列各有 $24!$ 個。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明兩個樣式同時出現時必須形成 MANT，共 $23$ 個物件、$23!$ 個排列。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 以排容原理或補集得到 $26!-2(24!)+23!$（即 $26!-[2(24!)-23!]$）。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(a) $2(24!)-22!$ 個。\n\n(b) $26!-[2(24!)-23!]=26!-2(24!)+23!$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 把 OUT（或 DIG）視為一個區塊，連同其餘 $23$ 個字母共 $24$ 個物件，各有 $24!$ 個排列。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 指出兩個樣式沒有共同字母，同時出現時為 $22$ 個物件，共 $22!$ 個排列。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 以 $|A\\cup B|=|A|+|B|-|A\\cap B|$（或等價方法）得到 $2(24!)-22!$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 指出含 MAN 與含 ANT 的排列各有 $24!$ 個。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 說明兩個樣式同時出現時必須形成 MANT，共 $23$ 個物件、$23!$ 個排列。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(b) 以排容原理或補集得到 $26!-2(24!)+23!$（即 $26!-[2(24!)-23!]$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### Exercises 5.1 第 3 題：$A$ 到 $B$ 的關係個數（Ch5 講義第 1 頁）\n$A=\\{1, 2, 3\\}$, and $B=\\{2, 4, 5\\}$\n\n**3.** For $A$, $B$ as in Exercise 2, determine the following: (a) $|A \\times B|$; (b) the number of relations from $A$ to $B$; (c) the number of relations on $A$; (d) the number of relations from $A$ to $B$ that contain $(1, 2)$ and $(1, 5)$; (e) the number of relations from $A$ to $B$ that contain exactly five ordered pairs; and (f) the number of relations on $A$ that contain at least seven elements.\n\n（Exercise 2 的 $A$、$B$ 即上方所列的兩個集合。）請逐小題寫出理由。",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nA\\times B=\\{&(1,2),(1,4),(1,5),\\\\\n&(2,2),(2,4),(2,5),\\\\\n&(3,2),(3,4),(3,5)\\}.\n\\end{aligned}\n$$\n\n**(a)** $|A\\times B|=|A|\\,|B|=3\\cdot3=9$。\n\n**(b)** 從 $A$ 到 $B$ 的關係就是 $A\\times B$ 的子集。$A\\times B$ 有 $9$ 個元素，所以共有 $2^9=512$ 個關係。\n\n**(c)** $A$ 上的關係是 $A\\times A$ 的子集。因為 $|A\\times A|=9$，所以共有 $2^9=512$ 個關係。\n\n**(d)** $(1,2)$ 與 $(1,5)$ 必須在關係裡；其餘七個序對各有「放進關係」或「不放」兩種選擇。因此有 $2^7=128$ 個關係。\n\n**(e)** 從 $A\\times B$ 的九個序對中恰好選出五個：\n\n$$\n\\binom{9}{5}=126.\n$$\n\n**(f)** $A$ 上的關係是 $A\\times A$ 的子集，至少七個元素表示恰有七個、八個或九個序對，三種情況互斥：\n\n$$\n\\binom{9}{7}+\\binom{9}{8}+\\binom{9}{9}=36+9+1=46.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 由 $|A\\times B|=|A|\\,|B|$ 或列出全部序對得到 $9$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明從 $A$ 到 $B$ 的關係是 $A\\times B$ 的子集，共有 $2^9$（即 $512$）個。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 說明 $A$ 上的關係是 $A\\times A$ 的子集且 $|A\\times A|=9$，共有 $2^9$（即 $512$）個。"
+      },
+      {
+        "score": 3,
+        "description": "(d) 固定包含 $(1,2)$ 與 $(1,5)$，其餘七個序對各有兩種選擇，得到 $2^7$（即 $128$）。"
+      },
+      {
+        "score": 3,
+        "description": "(e) 從九個序對中恰選五個，得到 $\\binom{9}{5}$（即 $126$）。"
+      },
+      {
+        "score": 4,
+        "description": "(f) 把「至少七個元素」分成恰七、八、九個，得到 $\\binom{9}{7}+\\binom{9}{8}+\\binom{9}{9}$（即 $46$）；等價的補集算法亦可。"
+      }
+    ],
+    "points": 16,
+    "referenceAnswer": "(a) $|A\\times B|=9$。\n\n(b) $2^9=512$。\n\n(c) $2^9=512$。\n\n(d) $2^7=128$。\n\n(e) $\\dbinom{9}{5}=126$。\n\n(f) $\\dbinom{9}{7}+\\dbinom{9}{8}+\\dbinom{9}{9}=46$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 由 $|A\\times B|=|A|\\,|B|$ 或列出全部序對得到 $9$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 說明從 $A$ 到 $B$ 的關係是 $A\\times B$ 的子集，共有 $2^9$（即 $512$）個。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 說明 $A$ 上的關係是 $A\\times A$ 的子集且 $|A\\times A|=9$，共有 $2^9$（即 $512$）個。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(d) 固定包含 $(1,2)$ 與 $(1,5)$，其餘七個序對各有兩種選擇，得到 $2^7$（即 $128$）。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(e) 從九個序對中恰選五個，得到 $\\binom{9}{5}$（即 $126$）。"
+      },
+      {
+        "id": "r6",
+        "points": 4,
+        "description": "(f) 把「至少七個元素」分成恰七、八、九個，得到 $\\binom{9}{7}+\\binom{9}{8}+\\binom{9}{9}$（即 $46$）；等價的補集算法亦可。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Exercises 5.2 第 22 題：monotone increasing functions（Ch5 講義第 2 頁）\n**22.** For $n \\in \\mathbf{Z}^+$ define $X_n=\\{1, 2, 3, \\ldots, n\\}$. Given $m, n \\in \\mathbf{Z}^+$, $f\\colon X_m \\to X_n$ is called *monotone increasing* if for all $i, j \\in X_m$, $1 \\le i < j \\le m \\Rightarrow f(i) \\le f(j)$. (a) How many monotone increasing functions are there with domain $X_7$ and codomain $X_5$? (b) Answer part (a) for the domain $X_6$ and codomain $X_9$.\n\n請說明函數與你所用計數模型之間的對應。",
+    "hint": null,
+    "solution": "**(a)** 一個 monotone increasing function $f\\colon X_7\\to X_5$ 決定了一組從 $\\{1,2,3,4,5\\}$ 中「可重複、取 $7$ 個」的選取；反過來，把選到的 $7$ 個數由小到大排好，依序指定給 $f(1),\\ldots,f(7)$，也恰好得到一個這樣的函數。例如選取 $1,1,2,2,3,5,5$ 對應到\n\n$$\ng=\\{(1,1),(2,1),(3,2),(4,2),(5,3),(6,5),(7,5)\\},\n$$\n\n其中每個序對的第二個分量就是選到的數。所以函數個數等於可重複選取的個數：\n\n$$\n\\binom{5+7-1}{7}=\\binom{11}{7}=330.\n$$\n\n**解法 1**：條件相當於 $1 \\le f(1) \\le f(2) \\le \\cdots \\le f(7) \\le 5$。令\n\n$$\ny_1=f(1)-1,\\quad y_k=f(k)-f(k-1)\\ (2 \\le k \\le 7),\\quad y_8=5-f(7),\n$$\n\n則每個 $y_k \\ge 0$，且 $y_1+y_2+\\cdots+y_8=4$。這個方程式有 $\\binom{8+4-1}{4}=330$ 組非負整數解，每一組解對應一個 monotone increasing function，共 $330$ 個。\n\n**解法 2**：令 $y_k$ 為 codomain $X_5$ 中的 $k$ 被選到的次數（有幾個定義域的元素對應到 $k$），則 $y_1+y_2+\\cdots+y_5=7$，$y_1,\\ldots,y_5$ 為非負整數，共 $\\binom{5+7-1}{7}=330$ 組解。\n\n**(b)** 同樣的對應用在 $f\\colon X_6\\to X_9$：從 $9$ 個數中可重複地取 $6$ 個，\n\n$$\n\\binom{9+6-1}{6}=\\binom{14}{6}=3003.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 建立 monotone increasing function 與「從 $5$ 個數中可重複地取 $7$ 個」之間的一一對應並說明理由；改用等價的非負整數解模型（如 $y_1+\\cdots+y_5=7$ 或 $y_1+\\cdots+y_8=4$）亦可。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 得到 $\\binom{5+7-1}{7}=\\binom{11}{7}=330$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 以相同的模型列出 $\\binom{9+6-1}{6}=\\binom{14}{6}$ 或等價式。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 得到 $3003$。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $\\dbinom{5+7-1}{7}=\\dbinom{11}{7}=330$ 個。\n\n(b) $\\dbinom{9+6-1}{6}=\\dbinom{14}{6}=3003$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 建立 monotone increasing function 與「從 $5$ 個數中可重複地取 $7$ 個」之間的一一對應並說明理由；改用等價的非負整數解模型（如 $y_1+\\cdots+y_5=7$ 或 $y_1+\\cdots+y_8=4$）亦可。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 得到 $\\binom{5+7-1}{7}=\\binom{11}{7}=330$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 以相同的模型列出 $\\binom{9+6-1}{6}=\\binom{14}{6}$ 或等價式。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 得到 $3003$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Exercises 5.3 第 10 題：七顆不同顏色的球與四個容器（Ch5 講義第 3 頁）\n**10.** Suppose we have seven different colored balls and four containers numbered I, II, III, and IV. (a) In how many ways can we distribute the balls so that no container is left empty? (b) In this collection of seven colored balls, one of them is blue. In how many ways can we distribute the balls so that no container is empty and the blue ball is in container II? (c) If we remove the numbers from the containers so that we can no longer distinguish them, in how many ways can we distribute the seven colored balls among the four identical containers, with some container(s) possibly empty?\n\n請說明每一小題對應到哪一種計數模型。",
+    "hint": null,
+    "solution": "$S(m,n)$ 是第二類 Stirling 數：把 $m$ 個相異物件分成 $n$ 個非空、彼此不可區分的群的方法數。它和 onto 函數個數的關係是\n\n$$\nS(m,n)=\\frac{1}{n!}\\sum_{k=0}^{n}(-1)^k\\binom{n}{n-k}(n-k)^m=\\frac{1}{n!}\\cdot\\text{onto}(m,n),\n$$\n\n其中 $\\text{onto}(m,n)$ 是從 $m$ 元素集合映成 $n$ 元素集合的函數個數。\n\n**(a)** 球彼此相異，容器有編號，而且沒有空容器，所以就是從七顆球映成四個容器的 onto 函數個數：\n\n$$\n\\begin{aligned}\n4!\\,S(7,4)&=4^7-\\binom{4}{3}3^7+\\binom{4}{2}2^7-\\binom{4}{1}1^7\\\\\n&=16384-8748+768-4=8400,\n\\end{aligned}\n$$\n\n也就是 $S(7,4)=350$。\n\n**(b)** 藍球固定放在容器 II，依容器 II 裡還有沒有其他球分成兩種互斥的情況。\n\n容器 II 只有藍球：其餘六顆球要分到 I、III、IV 三個容器，而且都不能空，有 $3!\\,S(6,3)=6\\cdot90=540$ 種。\n\n容器 II 除了藍球還有其他球：其餘六顆球分到四個容器，而且四個容器都要拿到其中至少一顆，有 $4!\\,S(6,4)=24\\cdot65=1560$ 種。\n\n合計\n\n$$\n3!\\,S(6,3)+4!\\,S(6,4)=540+1560=2100.\n$$\n\n也可以用對稱性檢查：(a) 的 $8400$ 種分法中，藍球落在四個容器的機會相同，$8400/4=2100$。\n\n**(c)** 容器不再能區分，而且可以有空容器，所以是把七顆相異的球分成 $4$、$3$、$2$ 或 $1$ 個非空的群：\n\n$$\nS(7,4)+S(7,3)+S(7,2)+S(7,1)=350+301+63+1=715.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 辨認為七個相異物件分到四個有編號的容器且不留空，即 onto 函數個數。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 得到 $4!\\,S(7,4)$ 或等價的排容式 $\\sum_{k=0}^{4}(-1)^k\\binom{4}{k}(4-k)^7$；不要求化簡成 $8400$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 提出完整且正確的計數方法：例如依「容器 II 只有藍球」與「容器 II 還有其他球」分類，或以對稱性說明藍球落在四個容器的分法數相同。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 得到 $3!\\,S(6,3)+4!\\,S(6,4)$（即 $540+1560=2100$），或由對稱性得到 $8400/4=2100$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 指出容器相同且允許空容器，等同於把七顆相異的球分成 $1$ 到 $4$ 個非空的群。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 得到 $S(7,4)+S(7,3)+S(7,2)+S(7,1)$（即 $350+301+63+1=715$）。"
+      }
+    ],
+    "points": 15,
+    "referenceAnswer": "(a) $4!\\,S(7,4)=8400$ 種。\n\n(b) $3!\\,S(6,3)+4!\\,S(6,4)=540+1560=2100$ 種。\n\n(c) $S(7,4)+S(7,3)+S(7,2)+S(7,1)=715$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 辨認為七個相異物件分到四個有編號的容器且不留空，即 onto 函數個數。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 得到 $4!\\,S(7,4)$ 或等價的排容式 $\\sum_{k=0}^{4}(-1)^k\\binom{4}{k}(4-k)^7$；不要求化簡成 $8400$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 提出完整且正確的計數方法：例如依「容器 II 只有藍球」與「容器 II 還有其他球」分類，或以對稱性說明藍球落在四個容器的分法數相同。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(b) 得到 $3!\\,S(6,3)+4!\\,S(6,4)$（即 $540+1560=2100$），或由對稱性得到 $8400/4=2100$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(c) 指出容器相同且允許空容器，等同於把七顆相異的球分成 $1$ 到 $4$ 個非空的群。"
+      },
+      {
+        "id": "r6",
+        "points": 3,
+        "description": "(c) 得到 $S(7,4)+S(7,3)+S(7,2)+S(7,1)$（即 $350+301+63+1=715$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Exercises 7.1 第 5 題：關係的性質（Ch7 講義第 1 頁）\n**5.** For each of the following relations, determine whether the relation is reflexive, symmetric, antisymmetric, or transitive.\n\n(a) $\\mathscr{R} \\subseteq \\mathbf{Z}^+ \\times \\mathbf{Z}^+$ where $a\\,\\mathscr{R}\\,b$ if $a \\mid b$ (read \"$a$ divides $b$,\" as defined in Section 4.3).\n\n> 補充：$a$ 整除 $b$（$a \\ne 0$）是指存在整數 $n$ 使得 $b=an$，此時稱 $b$ 是 $a$ 的倍數。\n\n(c) For a given universe $\\mathscr{U}$ and a fixed subset $C$ of $\\mathscr{U}$, define $\\mathscr{R}$ on $\\mathcal{P}(\\mathscr{U})$ as follows: For $A, B \\subseteq \\mathscr{U}$ we have $A\\,\\mathscr{R}\\,B$ if $A \\cap C = B \\cap C$.\n\n(e) $\\mathscr{R}$ is the relation on $\\mathbf{Z}$ where $x\\,\\mathscr{R}\\,y$ if $x+y$ is odd.\n\n(f) $\\mathscr{R}$ is the relation on $\\mathbf{Z}$ where $x\\,\\mathscr{R}\\,y$ if $x-y$ is even.\n\n（講義只收錄原題的 (a)、(c)、(e)、(f) 四個小題，標號沿用原題。）請逐一判斷四種性質是否成立，成立時說明理由，不成立時舉出反例。",
+    "hint": null,
+    "solution": "**(a)** $a\\,\\mathscr{R}\\,b$ 表示正整數 $a$ 整除 $b$。\n\n- Reflexive：成立。$a=a\\cdot1$，所以 $a \\mid a$。\n- Symmetric：不成立。$1 \\mid 2$ 但 $2 \\nmid 1$。\n- Antisymmetric：成立。若 $a \\mid b$ 且 $b \\mid a$，則 $b=an$、$a=bm$，其中 $n,m$ 為正整數，於是 $a=a\\,nm$，$nm=1$，$n=m=1$，所以 $a=b$。\n- Transitive：成立。若 $b=an$、$c=bm$，則 $c=a(nm)$，所以 $a \\mid c$。\n\n因此 (a) 是 reflexive、antisymmetric、transitive。\n\n**(c)** $A\\,\\mathscr{R}\\,B$ 表示 $A \\cap C=B \\cap C$，三個性質都由「相等」的性質得到。\n\n- Reflexive：成立。$A \\cap C=A \\cap C$。\n- Symmetric：成立。$A \\cap C=B \\cap C$ 時也有 $B \\cap C=A \\cap C$。\n- Transitive：成立。$A \\cap C=B \\cap C$ 且 $B \\cap C=D \\cap C$ 時，$A \\cap C=D \\cap C$。\n- Antisymmetric：一般不成立。只要 $C \\ne \\mathscr{U}$，取 $x \\in \\mathscr{U}$ 但 $x \\notin C$，令 $A=\\emptyset$、$B=\\{x\\}$，則 $A \\cap C=\\emptyset=B \\cap C$，但 $A \\ne B$。只有在 $C=\\mathscr{U}$ 的特例中，$\\mathscr{R}$ 才變成相等關係。\n\n因此 (c) 是 reflexive、symmetric、transitive，也就是一個等價關係。\n\n**(e)** $x\\,\\mathscr{R}\\,y$ 表示 $x+y$ 是奇數。\n\n- Reflexive：不成立。$x+x=2x$ 永遠是偶數。\n- Symmetric：成立。$x+y=y+x$。\n- Antisymmetric：不成立。$1+2=3$ 是奇數，所以 $1\\,\\mathscr{R}\\,2$ 且 $2\\,\\mathscr{R}\\,1$，但 $1 \\ne 2$。\n- Transitive：不成立。$1\\,\\mathscr{R}\\,2$ 且 $2\\,\\mathscr{R}\\,3$，但 $1+3=4$ 是偶數。\n\n因此 (e) 只有 symmetric。\n\n**(f)** $x\\,\\mathscr{R}\\,y$ 表示 $x-y$ 是偶數，也就是 $x$ 與 $y$ 的奇偶性相同。\n\n- Reflexive：成立。$x-x=0$ 是偶數。\n- Symmetric：成立。$y-x=-(x-y)$ 也是偶數。\n- Transitive：成立。$x-z=(x-y)+(y-z)$ 是兩個偶數的和。\n- Antisymmetric：不成立。$0\\,\\mathscr{R}\\,2$ 且 $2\\,\\mathscr{R}\\,0$，但 $0 \\ne 2$。\n\n因此 (f) 是 reflexive、symmetric、transitive。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確判定 reflexive、antisymmetric、transitive 成立，而 symmetric 不成立。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 由整除的定義說明成立的性質，並舉出 symmetric 不成立的反例（如 $1 \\mid 2$ 但 $2 \\nmid 1$）。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 正確判定 reflexive、symmetric、transitive 成立。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 由 $A \\cap C=B \\cap C$ 是等式說明三個性質，並指出一般情形下不是 antisymmetric（或正確討論 $C=\\mathscr{U}$ 的特例）。"
+      },
+      {
+        "score": 2,
+        "description": "(e) 正確判定只有 symmetric 成立。"
+      },
+      {
+        "score": 2,
+        "description": "(e) 說明 $x+x$ 為偶數所以不是 reflexive，並以理由或反例說明不是 antisymmetric、不是 transitive。"
+      },
+      {
+        "score": 2,
+        "description": "(f) 正確判定 reflexive、symmetric、transitive 成立。"
+      },
+      {
+        "score": 2,
+        "description": "(f) 以偶數的加減說明三個性質，並指出不是 antisymmetric（如 $0$ 與 $2$）。"
+      }
+    ],
+    "points": 16,
+    "referenceAnswer": "(a) reflexive、antisymmetric、transitive。\n\n(c) reflexive、symmetric、transitive。\n\n(e) 只有 symmetric。\n\n(f) reflexive、symmetric、transitive。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確判定 reflexive、antisymmetric、transitive 成立，而 symmetric 不成立。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 由整除的定義說明成立的性質，並舉出 symmetric 不成立的反例（如 $1 \\mid 2$ 但 $2 \\nmid 1$）。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 正確判定 reflexive、symmetric、transitive 成立。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(c) 由 $A \\cap C=B \\cap C$ 是等式說明三個性質，並指出一般情形下不是 antisymmetric（或正確討論 $C=\\mathscr{U}$ 的特例）。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(e) 正確判定只有 symmetric 成立。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(e) 說明 $x+x$ 為偶數所以不是 reflexive，並以理由或反例說明不是 antisymmetric、不是 transitive。"
+      },
+      {
+        "id": "r7",
+        "points": 2,
+        "description": "(f) 正確判定 reflexive、symmetric、transitive 成立。"
+      },
+      {
+        "id": "r8",
+        "points": 2,
+        "description": "(f) 以偶數的加減說明三個性質，並指出不是 antisymmetric（如 $0$ 與 $2$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Exercises 7.4 第 4 題：等價類與分割（Ch7 講義第 2 頁）\n**4.** For $A=\\{1, 2, 3, 4, 5, 6\\}$,\n\n$$\n\\begin{aligned}\n\\mathscr{R}=\\{&(1, 1), (1, 2), (2, 1), (2, 2),\\\\\n&(3, 3), (4, 4), (4, 5),\\\\\n&(5, 4), (5, 5), (6, 6)\\}\n\\end{aligned}\n$$\n\nis an equivalence relation on $A$. (a) What are $[1]$, $[2]$, and $[3]$ under this equivalence relation? (b) What partition of $A$ does $\\mathscr{R}$ induce?\n\n請寫出等價類的定義，並說明如何由 $\\mathscr{R}$ 找出每一個等價類。",
+    "hint": null,
+    "solution": "元素 $x$ 的等價類是 $[x]=\\{y \\in A \\mid x\\,\\mathscr{R}\\,y\\}$，也就是所有和 $x$ 有關係的元素。\n\n**(a)** $\\mathscr{R}$ 中以 $1$ 開頭的序對是 $(1,1)$、$(1,2)$，所以 $[1]=\\{1,2\\}$。以 $2$ 開頭的序對是 $(2,1)$、$(2,2)$，所以 $[2]=\\{1,2\\}$，和 $[1]$ 是同一個等價類。以 $3$ 開頭的序對只有 $(3,3)$，所以 $[3]=\\{3\\}$。\n\n$$\n[1]=\\{1,2\\}=[2],\\qquad [3]=\\{3\\}.\n$$\n\n**(b)** 同樣的做法得到 $[4]=[5]=\\{4,5\\}$ 與 $[6]=\\{6\\}$。把 $\\mathscr{R}$ 畫成有向圖時，每個點都有一個自環，$1$ 與 $2$ 互相連接，$4$ 與 $5$ 互相連接，$3$ 與 $6$ 各自獨立；圖上的每一塊就是一個等價類。\n\n不同的等價類兩兩互斥，聯集是整個 $A$，所以 $\\mathscr{R}$ 誘導出的分割是\n\n$$\nA=\\{1,2\\}\\cup\\{3\\}\\cup\\{4,5\\}\\cup\\{6\\}.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 使用等價類的定義 $[x]=\\{y \\in A \\mid x\\,\\mathscr{R}\\,y\\}$，或以等價的方式（如有向圖的連通塊）找出等價類。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確得到 $[1]=[2]=\\{1,2\\}$ 與 $[3]=\\{3\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 找出其餘的等價類 $\\{4,5\\}$ 與 $\\{6\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 寫出分割 $A=\\{1,2\\}\\cup\\{3\\}\\cup\\{4,5\\}\\cup\\{6\\}$（或 $\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\}$），各區塊互斥且聯集為 $A$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $[1]=\\{1,2\\}=[2]$；$[3]=\\{3\\}$。\n\n(b) $A=\\{1,2\\}\\cup\\{3\\}\\cup\\{4,5\\}\\cup\\{6\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 使用等價類的定義 $[x]=\\{y \\in A \\mid x\\,\\mathscr{R}\\,y\\}$，或以等價的方式（如有向圖的連通塊）找出等價類。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確得到 $[1]=[2]=\\{1,2\\}$ 與 $[3]=\\{3\\}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 找出其餘的等價類 $\\{4,5\\}$ 與 $\\{6\\}$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 寫出分割 $A=\\{1,2\\}\\cup\\{3\\}\\cup\\{4,5\\}\\cup\\{6\\}$（或 $\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\}$），各區塊互斥且聯集為 $A$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### Exercises 8.1 第 6 題：$x_1+x_2+x_3+x_4=19$ 的整數解（Ch8 講義第 1–2 頁）\n**6.** Determine how many integer solutions there are to $x_1+x_2+x_3+x_4=19$, if\n\n(a) $0 \\le x_i$ for all $1 \\le i \\le 4$\n\n(b) $0 \\le x_i < 8$ for all $1 \\le i \\le 4$\n\n請定義所用的全集與條件，並寫出排容原理的每一項。",
+    "hint": null,
+    "solution": "**(a)** 四個變數、總和為 $19$ 的非負整數解個數為\n\n$$\n\\binom{4+19-1}{19}=\\binom{22}{19}=1540.\n$$\n\n**(b)** 令\n\n$$\n\\begin{aligned}\nS=\\{(x_1,x_2,x_3,x_4)\\mid{}&x_1+x_2+x_3+x_4=19,\\\\\n&x_1,x_2,x_3,x_4\\text{ 為整數},\\ 0 \\le x_i\\},\n\\end{aligned}\n$$\n\n則 $N=|S|=\\binom{4+19-1}{19}=\\binom{22}{19}$。\n\n對 $1 \\le i \\le 4$，若 $S$ 中的元素滿足 $x_i \\ge 8$，就說它符合條件 $c_i$。題目要求每個 $x_i < 8$，所以要找的是四個條件都不符合的元素個數 $N(\\overline{c}_1\\overline{c}_2\\overline{c}_3\\overline{c}_4)$。\n\n$N(c_i)$：先給 $x_i$ 八個單位，剩下的總和是 $11$，\n\n$$\nN(c_i)=\\binom{4+11-1}{11}=\\binom{14}{11},\\quad 1 \\le i \\le 4.\n$$\n\n$N(c_ic_j)$：先給 $x_i$、$x_j$ 各八個單位，剩下的總和是 $3$，\n\n$$\nN(c_ic_j)=\\binom{4+3-1}{3}=\\binom{6}{3},\\quad 1 \\le i < j \\le 4.\n$$\n\n三個以上的變數同時至少為 $8$ 時，總和至少是 $24 > 19$，所以這些項都是 $0$。記 $S_0=N$，$S_1=\\sum N(c_i)$，$S_2=\\sum N(c_ic_j)$，$S_3=\\sum N(c_ic_jc_k)$，$S_4=N(c_1c_2c_3c_4)$，則 $S_3=S_4=0$，由排容原理，\n\n$$\n\\begin{aligned}\nN(\\overline{c}_1\\overline{c}_2\\overline{c}_3\\overline{c}_4)&=S_0-S_1+S_2-S_3+S_4\\\\\n&=N-S_1+S_2\\\\\n&=\\binom{22}{19}-4\\binom{14}{11}+6\\binom{6}{3}.\n\\end{aligned}\n$$\n\n代入數值：$1540-4\\cdot364+6\\cdot20=1540-1456+120=204$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 以 stars and bars 得到 $\\binom{4+19-1}{19}=\\binom{22}{19}$（即 $1540$）。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 以 (a) 的解集合為全集，定義條件 $c_i$ 為 $x_i \\ge 8$，並指出所求為四個條件都不成立的個數；使用等價的補集或代換方法亦可。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 求出單一條件的解數 $N(c_i)=\\binom{14}{11}$（即 $364$），共 $4$ 項。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 求出兩個條件同時成立的解數 $N(c_ic_j)=\\binom{6}{3}$（即 $20$），共 $6$ 項，並說明三個以上條件同時成立時為 $0$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 由排容原理得到 $\\binom{22}{19}-4\\binom{14}{11}+6\\binom{6}{3}=204$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(a) $\\dbinom{4+19-1}{19}=\\dbinom{22}{19}=1540$。\n\n(b) $\\dbinom{22}{19}-4\\dbinom{14}{11}+6\\dbinom{6}{3}=1540-1456+120=204$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 以 stars and bars 得到 $\\binom{4+19-1}{19}=\\binom{22}{19}$（即 $1540$）。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 以 (a) 的解集合為全集，定義條件 $c_i$ 為 $x_i \\ge 8$，並指出所求為四個條件都不成立的個數；使用等價的補集或代換方法亦可。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 求出單一條件的解數 $N(c_i)=\\binom{14}{11}$（即 $364$），共 $4$ 項。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 求出兩個條件同時成立的解數 $N(c_ic_j)=\\binom{6}{3}$（即 $20$），共 $6$ 項，並說明三個以上條件同時成立時為 $0$。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(b) 由排容原理得到 $\\binom{22}{19}-4\\binom{14}{11}+6\\binom{6}{3}=204$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-exercises-2026",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Chapter 8 補充題：$x+y+z=10$ 的三元組（Ch8 講義第 3–4 頁）\nHow many triplets $(x, y, z)$ satisfy $x+y+z=10$ with $x, y, z \\in \\{1, 2, 3, 4, 5\\}$?\n\n也就是：$x+y+z=10$，$x, y, z$ 為整數且 $1 \\le x \\le 5$、$1 \\le y \\le 5$、$1 \\le z \\le 5$，共有多少組解？\n\n請寫出你的計數方法；使用排容原理時，請定義全集與各個條件。",
+    "hint": null,
+    "solution": "令\n\n$$\n\\begin{aligned}\nS=\\{(x,y,z)\\mid{}&x+y+z=10,\\ x,y,z\\text{ 為整數},\\\\\n&1 \\le x,\\ 1 \\le y,\\ 1 \\le z\\},\n\\end{aligned}\n$$\n\n並記 $N=|S|$。$S$ 中的元素若 $x \\ge 6$，則符合條件 $c_1$；若 $y \\ge 6$，則符合條件 $c_2$；若 $z \\ge 6$，則符合條件 $c_3$。題目要求三個變數都不超過 $5$，所以要找的是\n\n$$\n\\begin{aligned}\nN(\\overline{c}_1\\overline{c}_2\\overline{c}_3)&=S_0-S_1+S_2-S_3\\\\\n&=N-[N(c_1)+N(c_2)+N(c_3)]\\\\\n&\\quad+[N(c_1c_2)+N(c_1c_3)+N(c_2c_3)]\\\\\n&\\quad-N(c_1c_2c_3).\n\\end{aligned}\n$$\n\n各項如下：\n\n- $N=|S|$：每個變數先拿走 $1$，剩下的總和是 $7$，$N=\\binom{3+7-1}{7}=\\binom{9}{7}=\\binom{9}{2}=36$。\n- $N(c_1)$：$x$ 先拿走 $6$，$y$、$z$ 各拿走 $1$，剩下的總和是 $2$，$N(c_1)=\\binom{3+2-1}{2}=\\binom{4}{2}=6$；$N(c_2)$、$N(c_3)$ 也都是 $6$。\n- $N(c_1c_2)=0$：$x \\ge 6$ 且 $y \\ge 6$ 時總和至少是 $13$。其他兩兩的交集也一樣是 $0$。\n- $N(c_1c_2c_3)=0$。\n\n所以\n\n$$\nN(\\overline{c}_1\\overline{c}_2\\overline{c}_3)=36-3\\cdot6=18.\n$$\n\n**程式驗證**：講義另外用三層迴圈直接列舉，輸出 `counter =18`：\n\n~~~c\n#include \"stdio.h\"\n\nmain()\n{\nint x,y,z, counter=0;\n\n  for (x=1; x<=5; x++)\n    for (y=1; y<=5; y++)\n      for (z=1; z<=5; z++)\n       { if (x+y+z==10)\n          {  printf(\"%d %d %d \\n\", x,y,z);\n             counter++; }\n        }\n\n    printf(\"\\n counter =%d\", counter);\n}\n~~~\n\n程式列出的 $18$ 組解是\n\n$$\n\\begin{gathered}\n(1,4,5),\\ (1,5,4),\\ (2,3,5),\\\\\n(2,4,4),\\ (2,5,3),\\ (3,2,5),\\\\\n(3,3,4),\\ (3,4,3),\\ (3,5,2),\\\\\n(4,1,5),\\ (4,2,4),\\ (4,3,3),\\\\\n(4,4,2),\\ (4,5,1),\\ (5,1,4),\\\\\n(5,2,3),\\ (5,3,2),\\ (5,4,1).\n\\end{gathered}\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "提出完整的計數方法並正確設定模型：例如以 $x,y,z \\ge 1$、總和為 $10$ 的 $36$ 組解為全集，再以排容原理扣除某個變數 $\\ge 6$ 的解；或有系統地分類列舉全部的解。"
+      },
+      {
+        "score": 3,
+        "description": "推導正確：排容法中求出單一條件的解數 $\\binom{4}{2}=6$，並說明兩個以上條件同時成立時為 $0$；列舉法中列舉不重複也不遺漏。"
+      },
+      {
+        "score": 3,
+        "description": "得到 $18$ 組解。"
+      }
+    ],
+    "points": 9,
+    "referenceAnswer": "$36-3\\cdot6=18$ 組。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "提出完整的計數方法並正確設定模型：例如以 $x,y,z \\ge 1$、總和為 $10$ 的 $36$ 組解為全集，再以排容原理扣除某個變數 $\\ge 6$ 的解；或有系統地分類列舉全部的解。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "推導正確：排容法中求出單一條件的解數 $\\binom{4}{2}=6$，並說明兩個以上條件同時成立時為 $0$；列舉法中列舉不重複也不遺漏。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "得到 $18$ 組解。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math",
     "revision": "1",
     "questionId": "q1-i",
