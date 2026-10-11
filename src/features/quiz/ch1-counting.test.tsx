@@ -95,7 +95,7 @@ describe('PDF-backed Chapter 1 counting practice', () => {
 
   it('adds only 26 contexts/questions and preserves the immutable 51-question baseline', () => {
     // Families bundled after this one are pinned by their own tests; they stay out of the 51-question baseline.
-    const later = new Set(['discrete-math-exercises-2026'])
+    const later = new Set(['discrete-math-exercises-2026', 'discrete-math-ch3-set-theory-examples'])
     const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
     const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
     expect(all).toHaveLength(7)

@@ -1,5 +1,27 @@
 # Release checklist
 
+## v1.10.0 chapter 3 set theory examples candidate
+
+日期：2026-10-11（Asia/Taipei）。Immutable base v1.9.0：tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`；staged empty；v1.9.0 tag object 與 peeled commit 未變；local／remote v1.10.0 tag absent。
+- [x] 來源 PDF（2,964,329 bytes、SHA-256 `8b3839d1a0276751131e376c67472e9d4ad65fa7353610c757359d5354fa99a3`、24 頁）逐頁對照頁面影像：13 個 worked-example units 皆有對應題目，沒有漏題或新增題；canonical answers 獨立重算 67/67 相符，沒有 source answer 衝突；來源筆誤兩處（p7、p23 (c)）已記錄。
+- [x] 新題庫 13 calculation／13 drawing-capable，150 分，1200×900；9 revisions／7 current／103 questions／103 contexts；既有 90 題 baseline 雜湊保留。
+- [x] Local gates：95 files／1,551 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（零網路 isolation，原因與做法見 delivery）：Library 7 張卡片、新卡片與搜尋／篩選、Author Valid、13/13 Student Preview、13/13 Answer Preview、三個 viewport 共 39/39 次打字／手寫切換、代表題的輸入與筆跡保留；360/768/1440 無 document overflow，KaTeX errors 0，console／page errors 0，CSP violations 0，沒有 submit 或 provider 呼叫。
+- [x] Independent review（feature candidate，request `lf-2026-10-11-ch3-set-theory-examples`，cycle 1）：PASS，無 blocking finding。
+- [x] 以目前 source 重算 runtime import graph：六個受影響 Edge functions；save-quiz-draft verify_jwt=true，其餘五個維持 false。
+- [x] 相對 v1.9.0 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。Classifier：security-ai／Risk C／providerCanaryRequired=false。
+- [x] Release-prep browser smoke（同一 isolation 方式，1.10.0 working tree）：navigation 顯示 v1.10.0、Library 7 current、新卡片資訊、Author Valid、代表題 Student／Answer Preview、360／1440，console／page／CSP／KaTeX／overflow 全為 0。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] 每個 required Edge function 部署一次（需 backend production mutation 授權）；記錄 before/after id、version；全部 ACTIVE、source verification 通過；無 unrelated deployment。
+- [ ] 六個 Edge 確認後，一次 exact candidate deploy.yml dispatch（需 Pages deployment 授權）；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.10.0／candidate SHA；canonical public smoke、Library／search／new quiz、Student／Answer Preview、responsive、KaTeX／console／CSP 與保留性 PASS。
+- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分尚無端到端證據；是否以 production canary 或 provider canary 驗證由使用者決定並另行授權。
+- [ ] Closure 與 annotated v1.10.0 tag 需另行授權；沒有 GitHub Release。
+
+Candidate scope、來源對應、完整基準與部署程序：[v1.10.0 delivery](v1.10.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.9.0 discrete-math exercises 2026 production acceptance closure
 
 日期：2026-10-10（Asia/Taipei）。已接受的 production runtime candidate 為 `20940d942a402eaaa7f4e4de53cf40104c88303e`。本 section 在 documentation closure commit 前整理；**closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.8.0：tag object `331383ac77aa8492db0abc4d2c3ab7142b67148f`／peeled `e4ca50ec3668046cdc4430befc434799c89922bb`，保持不變。

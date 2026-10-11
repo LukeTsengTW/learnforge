@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.10.0 — 離散數學第三章：集合論－例題練習
+
+Release candidate preparation：2026-10-11（Asia/Taipei）。基準 immutable v1.9.0（tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`）。功能與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Edge／Pages／production smoke 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+
+- 新 bundled quiz family `discrete-math-ch3-set-theory-examples/1`：依 24 頁講義《03 集合論_2026》（2,964,329 bytes，SHA-256 `8b3839d1a0276751131e376c67472e9d4ad65fa7353610c757359d5354fa99a3`）收錄 13 個 worked-example units，13 calculation／drawing-capable、150 分、1200×900，支援打字與手寫。全庫 9 revisions／7 current／103 questions／103 canonical contexts。
+- 來源對應：24 頁逐頁對照頁面影像（text layer 每頁只有 5–162 個字元）。13 個 unit 位於 p2–3、4、6、7、8、10、15、16、17、20、21、22、23；例題 3.1 橫跨 p2–p3，仍是一個 unit。定義、集合論定律與示意用的 Venn 圖頁（p1、5、9、11–14、18、19、24）不成題。來源本身有小題標號的是例題 3.15 (a)–(g)、Exercise 3.2 #11 (a)–(d) 與 p23 的 (a)(b)(c)；q01–q03 的小題標號是題庫為組織作答所加。講義中的 Venn 圖沒有以圖片重現。
+- 答案：13 題以不讀題庫檔的獨立腳本重算 67 項（10! 全列舉、2¹⁸ 組三集合逐行驗證推導、對偶代換與恆等式、De Morgan 逐步等價），全部與講義一致，沒有 source answer 與數學結果衝突。來源有兩處筆誤，題庫採數學上正確的寫法：p7 的二項係數和最後一項前少一個加號；p23 (c) 的算式把 −|A∩C| 印成 −|A∪C|（代入值與最終答案 5542 正確，solution 有註明）。
+- 配分依工作量：q01–q13 為 10／6／16／10／8／16／16／12／6／8／10／18／14。每題 rubric 分數總和等於題目配分，並接受數學上等價且推理完整的解法。沒有提供 hint。
+- 既有八個 revisions、90 questions、90 canonical contexts 均保留，`discrete-math-ch1-counting-examples/1` 的 source 未變。`ch1-counting.test.tsx` 與 `discrete-math-exercises-2026.test.tsx` 只把之後新增的 family 排除在各自的 baseline 之外，原有雜湊未變；新測試另釘住 90 題 baseline。功能沒有 component／CSS／script、migration、Auth／RLS／secrets／provider configuration 或 dependency delta。
+- Generated canonical context 是 Edge-visible artifact（90 → 103，diff +845／−0）；以目前 source 重算的 runtime import graph 確認僅 ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz 可到達它。Classifier：security-ai／Risk C／providerCanaryRequired=false。部署順序為 candidate CI → 六個 Edge → Pages → production smoke；Edge 同步之前，新題庫在 production 的草稿儲存不會運作。
+- Local gates：95 files／1,551 tests 全部 PASS、零 skipped；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。Feature browser 證據涵蓋 Library、Author、Student／Answer Preview 13/13 與 360／768／1440。本機的 AdGuard 會改寫 localhost HTTP，所以 browser 證據不是用 dev server 取得，而是把 working tree build 到 repository 之外、由 Playwright 從磁碟回應每個 request 的零網路方式；這是相對既有做法的 deviation。登入後的作答、草稿儲存、submit 與 AI 評分沒有端到端驗證。
+- 已知且不在本次處理的版面行為：內容寬 345px（360px 視窗加傳統捲軸）時有 4 個 display 公式在自己的框內捲動 2–15px；360px 時部分 inline 公式換行後，後面的標點落到下一行。document／body overflow 為 0，既有題庫有相同的共用樣式行為。
+- Package／lock root version 與 visible navigation label 準備為 1.10.0。來源對應、驗證證據與尚待驗收項目見 [v1.10.0 delivery](docs/v1.10.0-delivery.md)。
+
 ## 1.9.0 — 離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8
 
 Production acceptance：2026-10-10（Asia/Taipei）。已接受的 runtime candidate 為 `20940d942a402eaaa7f4e4de53cf40104c88303e`；production version 為 1.9.0。基準 immutable v1.8.0（tag object `331383ac77aa8492db0abc4d2c3ab7142b67148f`／peeled `e4ca50ec3668046cdc4430befc434799c89922bb`）。Documentation closure 的 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.9.0 delivery](docs/v1.9.0-delivery.md)。

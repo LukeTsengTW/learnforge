@@ -39,6 +39,7 @@ const allTitles = ['Logic Challenge', '數學進階', 'Logic Warmup']
 const midtermTitle = '2025 Discrete Mathematics 期中考'
 const countingTitle = '離散數學第一章：計數的基本原理－例題練習'
 const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
+const setTheoryTitle = '離散數學第三章：集合論－例題練習'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -115,6 +116,25 @@ describe('Quiz Library search and filters', () => {
       .toHaveAttribute('href', '/quiz/discrete-math-exercises-2026')
   })
 
+  it('shows the separate Chapter 3 set theory quiz with its declared points, tags and quiz link', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: setTheoryTitle, level: 2 }).closest('article')!
+    expect(within(card).getByText('離散數學')).toBeInTheDocument()
+    expect(within(card).getByText('13 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 150 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
+    expect(within(within(card).getByRole('list', { name: '題庫標籤' })).getAllByRole('listitem').map((tag) => tag.textContent))
+      .toEqual(['sets', 'subsets', 'power-set', 'set-operations', 'set-laws', 'duality', 'de-morgan', 'venn-diagram', 'inclusion-exclusion'])
+    expect(within(card).getByRole('link', { name: /開始練習/ }))
+      .toHaveAttribute('href', '/quiz/discrete-math-ch3-set-theory-examples')
+  })
+
+  it.each(['第三章', '集合論', 'power-set'])('finds the Chapter 3 quiz with %s', async (query) => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
+    expect(visibleTitles()).toEqual([setTheoryTitle])
+  })
+
   it.each(['第一章', '計數的基本原理', 'binomial-theorem'])('finds the Chapter 1 quiz with %s', async (query) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
@@ -134,11 +154,13 @@ describe('Quiz Library search and filters', () => {
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, '離散數學：關係', countingTitle, exercisesTitle)],
-    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, '數位邏輯與基礎數學', countingTitle, exercisesTitle)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, '離散數學：關係', countingTitle, exercisesTitle, setTheoryTitle)],
+    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, '數位邏輯與基礎數學', countingTitle, exercisesTitle, setTheoryTitle)],
     ['標籤', 'combinatorics', [midtermTitle]],
-    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle)],
+    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle)],
+    ['標籤', 'sets', inCatalogOrder('離散數學：關係', exercisesTitle, setTheoryTitle)],
+    ['標籤', 'de-morgan', [setTheoryTitle]],
     ['標籤', 'relations', inCatalogOrder(midtermTitle, '離散數學：關係', exercisesTitle)],
     ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
     ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],

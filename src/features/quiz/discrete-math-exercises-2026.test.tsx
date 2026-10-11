@@ -181,20 +181,23 @@ describe('PDF-backed 2026 exercises for chapters 1, 3, 5, 7 and 8', () => {
   })
 
   it('adds exactly 13 questions and contexts and leaves the earlier 77-question inventory untouched', () => {
-    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
+    // Families bundled after this one are pinned by their own tests; they stay out of the 90-question baseline.
+    const later = new Set(['discrete-math-ch3-set-theory-examples'])
+    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
+    const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
     expect(all).toHaveLength(8)
-    expect(quizCatalog.current).toHaveLength(6)
+    expect(quizCatalog.current.filter(({ quiz: current }) => !later.has(current.id))).toHaveLength(6)
     expect(quizCatalog.errors).toEqual([])
     expect(all.flatMap((q) => q.questions)).toHaveLength(90)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(90)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id)).toHaveLength(13)
+    expect(contexts).toHaveLength(90)
+    expect(contexts.filter((c) => String(c.quizId) === id)).toHaveLength(13)
     const old = all.filter((q) => q.id !== id).sort((a, b) => `${a.id}/${a.revision}`.localeCompare(`${b.id}/${b.revision}`))
     expect(old.map((q) => `${q.id}/${q.revision}`)).toEqual(['boolean-algebra/1', 'demo/v1-7d7c900e', 'demo/v2-handwriting',
       'discrete-math-ch1-counting-examples/1', 'discrete-math/1', 'discrete-math/2', 'relations/1'])
     expect(sha(old)).toBe('8470e53365ae7b5176d920ec75adf65bc2350b5c07c6a7a3200eaad45d298863')
     expect(sha(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions }))))
       .toBe('2f2816a3059416d21f15ff0fd59d5674f823086c5486489350efe84dfd3dd753')
-    expect(sha(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id)))
+    expect(sha(contexts.filter((c) => String(c.quizId) !== id)))
       .toBe('f065e14da68821e9faf13e3f4529ae8c5d4fe3e02b56098d052bbbe33d5edfea')
   })
 })
