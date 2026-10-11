@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.10.0 chapter 3 set theory examples candidate
+## v1.10.0 chapter 3 set theory examples production acceptance closure
 
-日期：2026-10-11（Asia/Taipei）。Immutable base v1.9.0：tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+日期：2026-10-11（Asia/Taipei）。已接受的 production runtime candidate 為 `46543f7c2e2cf66a2bc3231eef6a055b6daf074f`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.9.0：tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`；staged empty；v1.9.0 tag object 與 peeled commit 未變；local／remote v1.10.0 tag absent。
 - [x] 來源 PDF（2,964,329 bytes、SHA-256 `8b3839d1a0276751131e376c67472e9d4ad65fa7353610c757359d5354fa99a3`、24 頁）逐頁對照頁面影像：13 個 worked-example units 皆有對應題目，沒有漏題或新增題；canonical answers 獨立重算 67/67 相符，沒有 source answer 衝突；來源筆誤兩處（p7、p23 (c)）已記錄。
@@ -13,14 +13,27 @@
 - [x] 以目前 source 重算 runtime import graph：六個受影響 Edge functions；save-quiz-draft verify_jwt=true，其餘五個維持 false。
 - [x] 相對 v1.9.0 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。Classifier：security-ai／Risk C／providerCanaryRequired=false。
 - [x] Release-prep browser smoke（同一 isolation 方式，1.10.0 working tree）：navigation 顯示 v1.10.0、Library 7 current、新卡片資訊、Author Valid、代表題 Student／Answer Preview、360／1440，console／page／CSP／KaTeX／overflow 全為 0。
-- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
-- [ ] 每個 required Edge function 部署一次（需 backend production mutation 授權）；記錄 before/after id、version；全部 ACTIVE、source verification 通過；無 unrelated deployment。
-- [ ] 六個 Edge 確認後，一次 exact candidate deploy.yml dispatch（需 Pages deployment 授權）；Pages workflow／deployment success。
-- [ ] Public release.json／navigation = 1.10.0／candidate SHA；canonical public smoke、Library／search／new quiz、Student／Answer Preview、responsive、KaTeX／console／CSP 與保留性 PASS。
-- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分尚無端到端證據；是否以 production canary 或 provider canary 驗證由使用者決定並另行授權。
-- [ ] Closure 與 annotated v1.10.0 tag 需另行授權；沒有 GitHub Release。
+- [x] Release-prep review（request `lf-2026-10-11-release-prep-v1.10.0`，cycle 1）PASS；單一 candidate commit `46543f7c2e2cf66a2bc3231eef6a055b6daf074f`（parent `61c4c40…`，13 files）、一次 normal push；local／master／origin parity。
+- [x] [Exact LearnForge CI 38133987396](https://github.com/LukeTsengTW/learnforge/actions/runs/38133987396)：push／master／exact candidate SHA／attempt 1／completed-success，checks job `114453959026`；lint、test、quizzes、AI context、Edge imports、build、production audit PASS。Source-bound `release:check` 10／10 PASS 與 strict `release:preflight` 7／7 PASS 是另外的 local evidence，非 CI steps。
+- [x] 明確的 backend production mutation 授權；部署前 gate（identity、clean tree、tag absence、exact CI、production 仍為 1.9.0、18／18 migrations、import graph、candidate context 103）PASS。
+- [x] 六個 required Edge functions 各部署一次／ACTIVE／identity 與 JWT parity：ai-tutor 19→20 false、ai-grade 20→21 false、ai-drawing 20→21 false、ai-responses 22→23 false、save-quiz-draft 6→7 true、submit-quiz 8→9 false；其餘五個 function 未變，無 unrelated deployment。
+- [x] Edge source／context verification（60 項）：deployed file set 等於 runtime import graph，內容與 candidate 相符（僅 CRLF 行尾差異）；canonical contexts 103，v1.9.0 的 90 筆保留、新增 13 筆；migration delta 0（18 = 18）。這個階段沒有對資料庫執行 SQL，也沒有 secrets list。
+- [x] Edge runtime health：六個 revisions 各一個不帶 credential 的 request；五個回 HTTP 401（function 內的 auth 層）、save-quiz-draft OPTIONS 回 204；platform logs 皆有 execution id 與 Boot event、無 error。Provider calls 0 與沒有 application mutation 的依據是 control flow，沒有資料庫前後比對。Independent review（request `lf-2026-10-11-edge-sync-runtime-v1.10.0`，cycle 1）PASS。
+- [x] Explicit exact-candidate Pages authorization；[Deploy LearnForge to GitHub Pages 38146242320](https://github.com/LukeTsengTW/learnforge/actions/runs/38146242320)／attempt 1／workflow_dispatch／master／exact candidate success；build job `114490096796`、deploy job `114490375862`、deployment `6996759743` 均 success。Exactly one dispatch。
+- [x] Production release.json／navigation：version 1.10.0／v1.10.0、gitSha `46543f7c2e2cf66a2bc3231eef6a055b6daf074f`。Root／manifest HTTP 200、由 HTML／JS／CSS 可達的 72 個 assets HTTP 200、base /learnforge/；canonical public smoke PASS，舊的 1.9.0 identity 被拒絕。Navigation 字樣在 desktop 寬度可見。
+- [x] Production public zero-write acceptance：Library 7 張卡片／7 current quizzes、`discrete-math-ch3-set-theory-examples` 可見（13 calculation questions／150 分／約 120 分鐘）；Author 為 Valid；Student Preview 13/13 打字＋手寫、Answer Preview 13/13；360／768／1440 無 document overflow；KaTeX errors 0、raw LaTeX 0、first-party console errors 0、page errors 0、CSP violations 0；沒有 Supabase request 或 non-GET。
+- [x] Production draft canary：既有專用 release-canary identity、`discrete-math-ch3-set-theory-examples`／revision 1／q01；typed persistence、drawing persistence、mode isolation PASS；save-quiz-draft 3 calls／all HTTP 200；submit calls 0、provider calls 0；其餘 12 題 untouched。
+- [x] Retained canary state：一份 draft attempt 與 q01 的 answer state，保留為 release canary evidence，沒有 cleanup。Mutation evidence 的範圍：未執行 SQL、未做 DB row count／hash 的前後比對；瀏覽器端觀察到的 intentional mutation 限於 canary draft／q01 answer，沒有觀察到其他明確的 application mutation；ai-quota 自動 GET 3 次，housekeeping 的 affected rows UNKNOWN；account-recovery-code 6 次 POST 依 client／source contract 判定為 status／read-style 呼叫。
+- [x] Production acceptance independent review（request `lf-2026-10-11-pages-acceptance-v1.10.0`，cycle 1）：PASS，無 blocking finding。
+- Provider canary：不需要（providerCanaryRequired=false），未執行。Submit／AI 評分／tutor 沒有 v1.10.0 的 end-to-end production 證據，列為已接受的 non-blocking 限制。
+- [ ] Documentation closure commit：本文件 commit 前尚未建立；scope 為 README.md、CHANGELOG.md、docs/release-checklist.md、docs/v1.10.0-delivery.md。
+- [ ] Closure commit exact CI：尚未取得；由 post-commit evidence 記錄 exact closure SHA、push／master 與結果。
+- [ ] Exact closure-SHA Pages deployment／parity：**尚未授權**；production 暫時保持已接受 runtime candidate `46543f7…`，不得沿用此 SHA 代替未來 closure SHA parity。
+- [ ] Annotated v1.10.0 tag：**尚未授權**、尚未建立。GitHub Release：**not used / not planned**。
 
-Candidate scope、來源對應、完整基準與部署程序：[v1.10.0 delivery](v1.10.0-delivery.md)。以下歷史 checklist 保留原樣。
+Production 已含 retained release canary draft（一份 draft attempt 與 q01 的 answer state）；任何 cleanup 需另行授權。後續順序僅為 documentation closure commit／exact CI → 明確授權 exact closure-SHA Pages deployment＋parity smoke → explicit annotated-tag authorization → annotated v1.10.0 tag。
+
+本 closure stage 只允許四份 docs、單一 normal commit／push。Candidate scope、來源對應、production evidence 與 release-process notes：[v1.10.0 delivery](v1.10.0-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.9.0 discrete-math exercises 2026 production acceptance closure
 
