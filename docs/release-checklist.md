@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.10.2 handwriting stroke sampling candidate
+## v1.10.2 handwriting stroke sampling production acceptance closure
 
-日期：2026-10-12（Asia/Taipei）。Immutable base v1.10.1：tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+日期：2026-10-12（Asia/Taipei）。已接受的 production runtime candidate 為 `d410196434907d1fb567d50e39aaba7a5048bdba`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.10.1：tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`；staged empty；v1.10.1 tag object 與 peeled commit 未變；local／remote v1.10.2 tag absent。
 - [x] 需求範圍：human 要求先精簡取樣點。只做這一項；容量提示、調整上限、drawing schema、server 與座標取整都不在範圍內。
@@ -16,13 +16,24 @@
 - [x] 以最終 diff 重算 Edge import graph：變更的路徑與 Edge function 可到達的檔案沒有交集；`supabase/` 之下沒有變更；相對 v1.10.1 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=false；沒有 provider canary。
 - [x] Release-prep browser smoke（同一 isolation 方式，1.10.2 working tree）：navigation 在 1440 顯示 v1.10.2、360 時依既有樣式隱藏；Author Student Preview 的密集筆畫以遠少於取樣數的點重畫，Answer Preview 重建的畫布與作答畫布相同；console／page／CSP／overflow 全為 0。
-- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
-- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
-- [ ] Public release.json／navigation = 1.10.2／candidate SHA；canonical public smoke、Library、Author、Student／Answer Preview、responsive、KaTeX／console／CSP PASS；六個 Edge revisions 未變（預期不部署任何 Edge function）。
-- [ ] Production 上的取樣精簡驗收：計畫以未登入的 Author Student Preview 畫密集筆畫，觀察重畫的折線點數遠少於送出的取樣數，並比對 Answer Preview 重建的畫布；不登入、不寫入、不呼叫 provider。預期不做 authenticated canary，由 release review 核定。
-- [ ] Closure 與 annotated v1.10.2 tag；沒有 GitHub Release。
+- [x] Release review（cycle 1 PASS）；單一 candidate commit `d410196434907d1fb567d50e39aaba7a5048bdba`（parent `e27ffda…`，12 files）、一次 normal push；local／master／origin parity。
+- [x] [Exact LearnForge CI 38257740645](https://github.com/LukeTsengTW/learnforge/actions/runs/38257740645)：push／master／exact candidate SHA／attempt 1／completed-success，checks job `114840075919`；lint、test（100 files／1,593 tests）、quizzes、AI context、Edge imports、build、production audit PASS。Source-bound `release:check` 10／10 PASS 與 strict `release:preflight` 7／7 PASS 是另外的 local evidence，非 CI steps。
+- [x] Backend：沒有部署任何 Edge function，也沒有 Edge runtime health（release review 核定略過；import graph 交集為空、`supabase/` 之下無差異）。11 個 function 的 revision 未變：ai-tutor 20、ai-grade 21、ai-drawing 21、ai-responses 23、save-quiz-draft 7、submit-quiz 9、password-hint 14、ai-quota 16、ai-usage 15、account-recovery-code 13、recover-account 13；依據是 Pages dispatch 前、Pages 部署後與 production review 時（最後一次由 independent reviewer 讀取）的 function metadata 讀取。沒有執行 SQL、沒有列出 secrets、沒有讀取 function log。
+- [x] [Deploy LearnForge to GitHub Pages 38258278947](https://github.com/LukeTsengTW/learnforge/actions/runs/38258278947)／attempt 1／workflow_dispatch／master／exact candidate success；build job `114841916798`、deploy job `114842555195`、deployment `7015664756` 均 success。Exactly one dispatch。
+- [x] Production release.json／navigation：version 1.10.2／v1.10.2、gitSha `d410196434907d1fb567d50e39aaba7a5048bdba`。Root／manifest HTTP 200、由 HTML／JS／CSS 可達的 72 個 assets HTTP 200、base /learnforge/；canonical public smoke PASS，舊的 1.10.1 identity 被拒絕。Navigation 字樣在 desktop 寬度可見。index.html 與 72 個 assets 的雜湊已記錄於 delivery，供 closure-SHA parity 比對。
+- [x] Production public zero-write acceptance（未登入，28 項檢查 PASS）：Library 7 張卡片；Author 為 Valid；Student Preview 13/13 打字＋手寫、Answer Preview 13/13；手寫 regression 情境在 1440（q03）與 360（q09）各一題（四筆、最後一筆後立刻切換作答方式、復原／重做、橡皮擦），Answer Preview 重建的畫布與作答畫布的雜湊相同；1440／360 無 document overflow；KaTeX errors 0、raw LaTeX 0、first-party console errors 0、page errors 0、CSP violations 0；16 個 request 全是對 Pages 的 GET，沒有 Supabase request 或 non-GET。
+- [x] Production 上的取樣精簡觀察（未登入，Author Student Preview，從頁面外部計數）：q07 於 1440 的三筆，畫布收到 379／302／4 個取樣，重畫的折線為 27／40／4 點；q12 於 360 的一筆 505 個取樣為 31 點；Answer Preview 的 PNG 與折線點數等於作答畫布；沒有提示。觀察數的是重畫的折線，不是保存的答案。
+- [x] Independent review（request `lf-2026-10-12-stroke-sampling`）：feature、release、candidate CI、public production acceptance 與 production review 均 cycle 1 PASS，無 blocking finding。
+- Authenticated canary：略過（release review 核定）。登入後的練習頁、草稿儲存與正式提交搭配精簡後的筆畫，在 production 的這個部署上沒有執行過，只有本機證據；canary 帳號沒有被使用。
+- Provider canary：classifier 不要求，未執行；沒有任何 provider 呼叫。
+- [ ] Documentation closure commit：本文件 commit 前尚未建立；scope 為 README.md、CHANGELOG.md、docs/release-checklist.md、docs/v1.10.2-delivery.md。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment／parity：尚未執行；production 目前部署的是已接受的 runtime candidate `d410196…`。
+- [ ] Annotated v1.10.2 tag：尚未建立。GitHub Release：**not used / not planned**。
 
-Candidate scope、演算法、量測、完整證據與已知限制：[v1.10.2 delivery](v1.10.2-delivery.md)。以下歷史 checklist 保留原樣。
+這個版本沒有使用 canary 帳號，沒有讀取、也沒有變更它的資料；v1.10.1 記錄的保留資料（兩份保留的草稿與兩筆已提交的作答）這次沒有再查核。任何 cleanup 需另行授權；兩份保留的草稿不得提交。
+
+Candidate scope、演算法、量測、production evidence 與已知限制：[v1.10.2 delivery](v1.10.2-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.10.1 handwriting submit synchronization production acceptance closure
 

@@ -2,7 +2,7 @@
 
 ## 1.10.2 — 手寫筆畫取樣點精簡
 
-Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v1.10.1（tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Pages／production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+Production acceptance：2026-10-12（Asia/Taipei）。已接受的 runtime candidate 為 `d410196434907d1fb567d50e39aaba7a5048bdba`；production version 為 1.10.2。基準 immutable v1.10.1（tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`）。Documentation closure 的 commit 與 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.10.2 delivery](docs/v1.10.2-delivery.md)。
 
 - 手寫筆畫在畫的當下精簡密集的指標取樣。先前每一個 pointer 事件都存成一個點，沒有任何篩選。現在一段連續的取樣若都落在「上一個保留點到最新取樣」這條線段的 0.5 個邏輯單位內、線段不超過 24 個邏輯單位，就只保留兩端；第一個不符合的取樣讓前一個取樣成為保留點。距離是到線段而不是到直線，所以折返的筆畫會保留折返點。
 - 保存的點都是實際收到的取樣，順序不變；筆畫起於落筆點、止於抬筆點；每一個沒有保存的取樣距保存的筆畫不超過 0.5 個邏輯單位，也就是顯示、儲存與 rasterize 所用的那張圖的半個像素。相距超過 24 個邏輯單位的取樣照原樣保存，所以用少數事件畫出的筆畫與先前相同。
@@ -12,8 +12,12 @@ Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v
 - 256 筆的上限沒有改變，在多數模型情況下會變成先碰到的限制；提高它需要 migration，不在本次範圍。
 - Local gates：100 files／1,593 tests 全部 PASS、零 skipped（新增 17 個）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。新增與修改的測試檔配上 v1.10.1 的畫布為 4 failed／24 passed。Browser 證據使用本機受控 fixture，以真實指標事件比對收到的取樣、保存的筆畫與畫布像素。
 - Classifier：security-ai／Risk C／providerCanaryRequired=false。沒有 provider canary，也沒有任何 provider 呼叫。
-- 已知限制：沒有 iPad／Apple Pencil 實機驗證；效益數字來自模型與滑鼠路徑；AI 評分所見的圖可能在邊緣像素上與未精簡時不同，沒有比較過評分結果；已保存的圖不會被重新精簡。完整清單見 delivery。
-- Package／lock root version 與 visible navigation label 準備為 1.10.2。調查、量測、驗證證據與尚待驗收項目見 [v1.10.2 delivery](docs/v1.10.2-delivery.md)。
+- Candidate CI [38257740645](https://github.com/LukeTsengTW/learnforge/actions/runs/38257740645)、Pages [38258278947](https://github.com/LukeTsengTW/learnforge/actions/runs/38258278947)／deployment 7015664756 全 PASS；production manifest 與 navigation 為 1.10.2／candidate SHA。沒有部署任何 Edge function：11 個 Edge function 的 revision 未變，依據是 Pages dispatch 前、部署後與 production review 時的 function metadata 讀取。正式站未登入的驗收（28 項檢查 PASS）：Library 7 current quizzes、Author 為 Valid、13/13 Student／Answer Preview、手寫 regression 情境在 1440 與 360 各一題且 Answer Preview 重建的畫布與作答畫布相同、無 document overflow；KaTeX errors、first-party console errors、page errors、CSP violations 皆為 0，16 個 request 全是對 Pages 的 GET。
+- 取樣精簡在 production 的觀察（未登入，Author 的 Student Preview，從頁面外部計數）：1440 寬的三筆，畫布收到 379／302／4 個取樣，重畫時的折線為 27／40／4 點；360 寬的一筆 505 個取樣為 31 點；Answer Preview 的 PNG 與折線點數都與作答畫布相同，沒有出現提示。Independent reviewer 另以不同的題目與筆畫觀察到 301／201／5／151 個取樣重畫為 77／35／5／11 點。這個觀察數的是 Author Preview 重畫的折線，不是保存的答案。
+- 略過的階段（release review 核定）：backend sync 與 Edge runtime health（沒有 backend delta）、authenticated canary。登入後的練習頁、草稿儲存與正式提交搭配精簡後的筆畫，在 production 的這個部署上沒有執行過，只有本機證據；canary 帳號沒有被使用。
+- Production 的變更只有一次 Pages 部署。所有 production request 都是未登入的 GET，加上 Edge function 清單的讀取；沒有登入、沒有寫入使用者資料、沒有執行 SQL、沒有列出 secrets、沒有讀取 function log。
+- 已知限制：沒有 iPad／Apple Pencil 實機驗證；效益數字來自模型與滑鼠路徑；登入後的路徑在 production 沒有搭配這個版本執行過；production 的觀察數的是重畫的折線；AI 評分所見的圖可能在邊緣像素上與未精簡時不同，沒有比較過評分結果；已保存的圖不會被重新精簡。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 為 1.10.2。調查、量測、production 證據與 release-process 記錄見 [v1.10.2 delivery](docs/v1.10.2-delivery.md)。
 
 ## 1.10.1 — 手寫作答提交與畫布同步修正
 
