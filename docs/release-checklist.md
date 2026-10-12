@@ -1,5 +1,29 @@
 # Release checklist
 
+## v1.10.2 handwriting stroke sampling candidate
+
+日期：2026-10-12（Asia/Taipei）。Immutable base v1.10.1：tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`；staged empty；v1.10.1 tag object 與 peeled commit 未變；local／remote v1.10.2 tag absent。
+- [x] 需求範圍：human 要求先精簡取樣點。只做這一項；容量提示、調整上限、drawing schema、server 與座標取整都不在範圍內。
+- [x] 調查：先前每個 pointer 事件存一個點，沒有篩選。除了 6000 個取樣點，每題另有 256 筆的上限；精簡取樣點只在取樣點先滿時有幫助。
+- [x] 實作只在 frontend：新模組 `src/lib/stroke-sampling.ts`（容許誤差 0.5、最長線段 24、run 上限 128）與 `DrawingCanvas.tsx` 的三個呼叫點。保存的點是收到的取樣；筆畫的最後一點永遠是最新的取樣，畫布顯示的就是會被保存的。上限、保存格式、提交流程與既有的圖不變。
+- [x] 量測（來源分開記錄，見 delivery）：合成手寫模型中 120 Hz 觸控筆一般速度每筆約 45 → 15 點；真實指標事件的密集曲線 863 → 77 點。0.5 與 24 是判斷，沒有實機資料。256 筆的上限成為多數模型情況下先碰到的限制。
+- [x] Regression：新增 17 個測試；既有測試只改了一個 helper 的輸入（讓每個取樣都不可精簡），斷言不變。新增與修改的測試檔配上 v1.10.1 的畫布為 4 failed／24 passed。
+- [x] Local gates：100 files／1,593 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation）：八個情境執行以真實指標事件比對收到的取樣、保存的筆畫、畫布像素與提交後的重建，55 項檢查 PASS；v1.10.1 的畫布在同一組為 50 PASS／5 不成立。console／page errors 0，沒有 provider 呼叫。
+- [x] Independent review（feature candidate，request `lf-2026-10-12-stroke-sampling`，cycle 1）：PASS，無 blocking finding。
+- [x] 以最終 diff 重算 Edge import graph：變更的路徑與 Edge function 可到達的檔案沒有交集；`supabase/` 之下沒有變更；相對 v1.10.1 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=false；沒有 provider canary。
+- [x] Release-prep browser smoke（同一 isolation 方式，1.10.2 working tree）：navigation 在 1440 顯示 v1.10.2、360 時依既有樣式隱藏；Author Student Preview 的密集筆畫以遠少於取樣數的點重畫，Answer Preview 重建的畫布與作答畫布相同；console／page／CSP／overflow 全為 0。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.10.2／candidate SHA；canonical public smoke、Library、Author、Student／Answer Preview、responsive、KaTeX／console／CSP PASS；六個 Edge revisions 未變（預期不部署任何 Edge function）。
+- [ ] Production 上的取樣精簡驗收：計畫以未登入的 Author Student Preview 畫密集筆畫，觀察重畫的折線點數遠少於送出的取樣數，並比對 Answer Preview 重建的畫布；不登入、不寫入、不呼叫 provider。預期不做 authenticated canary，由 release review 核定。
+- [ ] Closure 與 annotated v1.10.2 tag；沒有 GitHub Release。
+
+Candidate scope、演算法、量測、完整證據與已知限制：[v1.10.2 delivery](v1.10.2-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.10.1 handwriting submit synchronization production acceptance closure
 
 日期：2026-10-12（Asia/Taipei）。已接受的 production runtime candidate 為 `46e2e3ebe42f81519522d063d8facb63ef9dd6d3`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.10.0：tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`，保持不變。

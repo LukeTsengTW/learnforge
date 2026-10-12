@@ -1,9 +1,10 @@
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type PointerEvent, type Ref } from 'react'
 import { DRAWING_COLORS, DRAWING_ERASER_WIDTH_MIN, DRAWING_ERASER_WIDTH_MAX,
-  DRAWING_PEN_WIDTH_MIN, DRAWING_PEN_WIDTH_MAX, type DrawingColor, type DrawingStroke, type DrawingTool } from '../../models/drawing'
+  DRAWING_PEN_WIDTH_MIN, DRAWING_PEN_WIDTH_MAX, type DrawingColor, type DrawingPoint, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
 import { isIPadOS } from '../../lib/platform'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
+import { appendStrokeSample } from '../../lib/stroke-sampling'
 import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
 import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster.ts'
 import type { AnswerOutcome } from './attempt-context'
@@ -29,7 +30,8 @@ const COLOR_LABELS = ['黑色', '紅色', '藍色']
 export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
   const showPencilNotice = isIPadOS(navigator)
   const canvas = useRef<HTMLCanvasElement>(null)
-  const pending = useRef<{ pointerId: number; stroke: DrawingStroke } | null>(null)
+  // stroke.points is always what is painted and what a commit would store; run feeds the sampler.
+  const pending = useRef<{ pointerId: number; stroke: DrawingStroke; run: DrawingPoint[] } | null>(null)
   // Local commits must accumulate before a controlled parent acknowledges them.
   const committed = useRef(strokes)
   // refusal: the owner did not take the last change, so it is not part of the answer or the canvas.
@@ -112,7 +114,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (event.currentTarget.closest('fieldset[disabled]')) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
-    pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
+    pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] }, run: [] }
     paint([...committed.current, pending.current.stroke])
     if (tool === 'eraser') updatePreview(event, eraserWidth)
   }
@@ -121,14 +123,14 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (!active) { hover(event); return }
     if (active.pointerId !== event.pointerId) return
     event.preventDefault()
-    active.stroke.points.push(point(event))
+    appendStrokeSample(active.stroke.points, active.run, point(event))
     paint([...committed.current, active.stroke])
     if (active.stroke.tool === 'eraser') updatePreview(event, active.stroke.width)
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
-    active.stroke.points.push(point(event))
+    appendStrokeSample(active.stroke.points, active.run, point(event))
     commitPendingStroke()
     // Mouse release remains a hover, using the current size rather than the finished stroke's snapshot.
     if (event.pointerType === 'mouse') updatePreview(event)

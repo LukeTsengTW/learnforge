@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.10.2 — 手寫筆畫取樣點精簡
+
+Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v1.10.1（tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Pages／production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+
+- 手寫筆畫在畫的當下精簡密集的指標取樣。先前每一個 pointer 事件都存成一個點，沒有任何篩選。現在一段連續的取樣若都落在「上一個保留點到最新取樣」這條線段的 0.5 個邏輯單位內、線段不超過 24 個邏輯單位，就只保留兩端；第一個不符合的取樣讓前一個取樣成為保留點。距離是到線段而不是到直線，所以折返的筆畫會保留折返點。
+- 保存的點都是實際收到的取樣，順序不變；筆畫起於落筆點、止於抬筆點；每一個沒有保存的取樣距保存的筆畫不超過 0.5 個邏輯單位，也就是顯示、儲存與 rasterize 所用的那張圖的半個像素。相距超過 24 個邏輯單位的取樣照原樣保存，所以用少數事件畫出的筆畫與先前相同。
+- 筆畫的最後一點永遠是最新的取樣，畫布顯示的就是當下會被保存的筆畫；v1.10.1 的「正式提交等於畫布上已完成的筆跡」不變。橡皮擦筆畫同樣處理。
+- 沒有改變：每題 256 筆、6000 個取樣點的儲存上限與提示、drawing schema 與保存格式、正式提交與評分的流程、已經保存的圖。沒有題庫、generated canonical context、Edge function、migration、Auth／RLS／secrets／provider configuration 或 dependency delta；以 import graph 確認變更的路徑不在任何 Edge function 可到達的檔案內。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- 量測分兩種來源。合成的手寫模型（沒有實機錄製資料）：120 Hz 的觸控筆以一般速度寫 256 筆，取樣點由 11,565 降為 3,857（每筆約 45 → 15），原本 130 筆就到 6000 點，現在 256 筆都放得下；慢速書寫由 74 筆到 223 筆；以整數 CSS 像素回報的滑鼠為 1.3–1.8 倍。真實指標事件（Playwright 的滑鼠路徑，本機 fixture）：三條密集曲線 863 個取樣存成 77 點；單一 6,601 個取樣的筆畫存成 773 點，先前會被上限拒絕。0.5 與 24 這兩個數字是判斷，不是實機量測的結果。
+- 256 筆的上限沒有改變，在多數模型情況下會變成先碰到的限制；提高它需要 migration，不在本次範圍。
+- Local gates：100 files／1,593 tests 全部 PASS、零 skipped（新增 17 個）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。新增與修改的測試檔配上 v1.10.1 的畫布為 4 failed／24 passed。Browser 證據使用本機受控 fixture，以真實指標事件比對收到的取樣、保存的筆畫與畫布像素。
+- Classifier：security-ai／Risk C／providerCanaryRequired=false。沒有 provider canary，也沒有任何 provider 呼叫。
+- 已知限制：沒有 iPad／Apple Pencil 實機驗證；效益數字來自模型與滑鼠路徑；AI 評分所見的圖可能在邊緣像素上與未精簡時不同，沒有比較過評分結果；已保存的圖不會被重新精簡。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 準備為 1.10.2。調查、量測、驗證證據與尚待驗收項目見 [v1.10.2 delivery](docs/v1.10.2-delivery.md)。
+
 ## 1.10.1 — 手寫作答提交與畫布同步修正
 
 Production acceptance：2026-10-12（Asia/Taipei）。已接受的 runtime candidate 為 `46e2e3ebe42f81519522d063d8facb63ef9dd6d3`；production version 為 1.10.1。基準 immutable v1.10.0（tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`）。Documentation closure 的 commit 與 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.10.1 delivery](docs/v1.10.1-delivery.md)。

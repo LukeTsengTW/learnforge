@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import { gradeQuizV4 } from '../../lib/grading'
+import { STROKE_SAMPLE_MAX_SEGMENT } from '../../lib/stroke-sampling'
 import type { QuizAttempt, TrustedRubricJudgment } from '../../models/attempt'
 import type { DrawingStroke } from '../../models/drawing'
 import { ResultPage } from '../../pages/ResultPage'
@@ -62,12 +63,20 @@ function pointer(type: string, x: number, y: number) {
   fireEvent(handCanvas(), event)
 }
 const handCanvas = () => document.querySelector('canvas[aria-describedby="answer-q_hand-drawing-instructions"]')!
-/** One completed pen gesture on its own row; returns the stroke the canvas must hold for it. */
+/**
+ * One completed pen gesture on its own row; returns the stroke the canvas must hold for it.
+ * The moves zigzag by four units, so none of them is within the stroke sampler's tolerance of its
+ * neighbours and every sample is stored.
+ */
 function draw(row: number, moves = 0): DrawingStroke {
   const y = 10 + (row % 500)
   const points = [{ x: 10, y }]
   pointer('pointerdown', 10, y)
-  for (let step = 0; step < moves; step++) { const x = 20 + (step % 700); pointer('pointermove', x, y); points.push({ x, y }) }
+  for (let step = 0; step < moves; step++) {
+    const x = 20 + (step % 700), zigzag = y + (step % 2) * 4
+    pointer('pointermove', x, zigzag)
+    points.push({ x, y: zigzag })
+  }
   pointer('pointerup', 760, y)
   points.push({ x: 760, y })
   return { tool: 'pen', color: '#202b38', width: 4, points }
@@ -331,6 +340,33 @@ describe('the canvas never shows ink the answer did not accept', () => {
     const answer = handAnswer(serverRow(server).record.attempt)!
     expect(pointCount(answer.strokes)).toBe(6000)
     expect(answer.strokes).toEqual([...saved, last])
+  })
+
+  it('stores a long, densely sampled stroke within the point limit and submits it as shown', async () => {
+    const user = userEvent.setup()
+    const server = finalizing(createV4MemoryRepository('student'))
+    // 5900 points are already in the draft: only 100 more can be stored.
+    const saved = await seedHandwriting(server, Array.from({ length: 59 }, (_, index) => savedStroke(index, 100)))
+    renderApp(server)
+    await restoredHandwriting(59)
+    // One straight stroke with a sample every unit: 301 pointer samples, three times what is left.
+    pointer('pointerdown', 10, 150)
+    for (let x = 11; x < 310; x++) pointer('pointermove', x, 150)
+    pointer('pointerup', 310, 150)
+    expect(painted).toBe(60)
+    expect(screen.queryByText(/儲存上限/)).toBeNull()
+    await pressSubmit(user)
+    await submitted(server)
+    const answer = handAnswer(serverRow(server).record.attempt)!
+    expect(answer.strokes.slice(0, 59)).toEqual(saved)
+    const shown = answer.strokes[59].points
+    expect(shown[0]).toEqual({ x: 10, y: 150 })
+    expect(shown.at(-1)).toEqual({ x: 310, y: 150 })
+    expect(shown).toHaveLength(Math.ceil(300 / STROKE_SAMPLE_MAX_SEGMENT) + 1)
+    expect(shown.every((point) => point.y === 150)).toBe(true)
+    expect(pointCount(answer.strokes)).toBeLessThanOrEqual(6000)
+    // The save that the submission was bound to carried the same strokes.
+    expect(handAnswer(server.v4Saves.at(-1)!.attempt)!.strokes).toEqual(answer.strokes)
   })
 
   it('takes no ink while a submission is in flight; after that submission fails the canvas and the next submission agree', async () => {
