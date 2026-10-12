@@ -1,5 +1,27 @@
 # Release checklist
 
+## v1.10.1 handwriting submit synchronization candidate
+
+日期：2026-10-12（Asia/Taipei）。Immutable base v1.10.0：tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`；staged empty；v1.10.0 tag object 與 peeled commit 未變；local／remote v1.10.1 tag absent。
+- [x] 調查：在 v1.10.0 重現出四種「畫面有、提交沒有」的情況（超過手寫儲存上限、提交進行中的筆畫、儲存回應遺失、其他 client 改寫草稿）；一般的 debounce／in-flight race 在 v1.10.0 已正確。Root cause 與 submit-boundary contract 見 delivery。
+- [x] 修正只在 frontend：答案更新的同步結果、畫布只保留被接受的筆跡、提交邊界檢查、辨認自己已套用的儲存。手寫儲存上限、drawing schema、正式提交與評分語意不變；沒有 timeout／固定等待／輪詢。
+- [x] Regression：新增 25 個測試；三個新測試檔在 v1.10.0 的 source 上為 16 failed／8 passed（通過的 8 個是 v1.10.0 已正確的情境）。
+- [x] Local gates：98 files／1,576 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation，原因與做法見 delivery）：八個情境（立刻提交、較舊的儲存進行中、作答方式切換、橡皮擦、儲存回應遺失、第 257 筆、提交進行中、其他 client 改寫）以筆數、點數、序列化雜湊與畫布像素比對提交前後，21 項檢查 PASS；v1.10.0 的 source 在後四個情境不成立。console／page errors 0，沒有 provider 呼叫。
+- [x] Independent review（feature candidate，request `lf-2026-10-12-handwriting-submit-sync`，cycle 1）：PASS，無 blocking finding。
+- [x] 以最終 diff 重算 Edge import graph：本次變更的路徑與 Edge function 可到達的檔案沒有交集；`supabase/` 之下沒有變更；相對 v1.10.0 無 migration、DB／Auth／RLS／secrets／provider configuration／dependency change。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=true。觸發 provider 規則的只有 `AttemptProvider.tsx` 與 `CloudAttemptProvider.tsx`（檔名含 provider 的舊 React context 元件，沒有任何檔 import）；實際變更沒有 provider／grading／raster／prompt／model／evidence 行為的改變。Human supervisor 於 2026-10-12 決定豁免，不做付費 provider canary；本次沒有任何 provider 呼叫的授權。
+- [x] Release-prep browser smoke（同一 isolation 方式，1.10.1 working tree）：navigation 在 1440 顯示 v1.10.1、360 時依既有樣式隱藏；Library 7 張卡片；Author Student Preview 手寫筆畫正常累積；fixture 的八個情境 21 項檢查 PASS；console／page／CSP／overflow 全為 0。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.10.1／candidate SHA；canonical public smoke、Library、Author、Student／Answer Preview、responsive、KaTeX／console／CSP PASS；六個 Edge revisions 未變（預期不部署任何 Edge function）。
+- [ ] 正式提交路徑的 production 驗收：計畫以既有專用 release-canary identity、只含橡皮擦筆畫的手寫作答提交一次（不呼叫 provider），比對提交前後的筆數、點數與序列化雜湊；這與「容易辨認的筆畫圖樣」的原始要求有出入，見 delivery。
+- [ ] Closure 與 annotated v1.10.1 tag；沒有 GitHub Release。
+
+Candidate scope、調查、contract、完整證據與已知限制：[v1.10.1 delivery](v1.10.1-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.10.0 chapter 3 set theory examples production acceptance closure
 
 日期：2026-10-11（Asia/Taipei）。已接受的 production runtime candidate 為 `46543f7c2e2cf66a2bc3231eef6a055b6daf074f`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.9.0：tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`，保持不變。

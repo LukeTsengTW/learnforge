@@ -1,8 +1,9 @@
 import { attemptKey, decodeAttempt } from '../../lib/attempt-storage'
 import { reduceAttempt } from '../../lib/attempt'
-import { answerQuizDraftV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
+import { answerQuizDraftV4, draftAnswerProblemV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
+import type { AnswerOutcome } from './attempt-context'
 import type { PracticeRepository } from './practice-context'
 import { LocalPracticeCache } from './practice-cache'
 import { expectedGradingVersion, SubmissionError, type PracticeRecord } from './practice-repository'
@@ -18,6 +19,8 @@ function nextClientTime(startedAt: string, updatedAt: string): string {
 export const SCHEMA_CHANGED_NOTICE = '此草稿已由新版頁面更新為新的作答格式；本機內容已保留。請重新整理頁面後繼續。'
 export const INVALID_SUBMISSION_NOTICE = '作答內容不符合正式提交限制，請檢查答案後再試。'
 export const STALE_DRAFT_NOTICE = '雲端草稿已由其他分頁或裝置更新，已改用雲端版本；你在此頁的未同步變更已保留於本機練習備份。'
+export const DRAFT_CHANGED_NOTICE = '雲端草稿已更新，請確認目前答案後再提交。'
+export const STALE_NOT_SUBMITTED_NOTICE = `${STALE_DRAFT_NOTICE}作答尚未提交，請確認目前答案後再提交。`
 
 /**
  * Draft schema is decided once from the EXACT revision and the server marker. A server schema-2
@@ -96,6 +99,9 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   let submissionRequestId: string | null = null
   let active = true
   let schemaChanged = false
+  // Drafts this store sent whose result it never saw (the response was lost or the store was inactive).
+  // The server may hold exactly one of them under a generation this store does not know yet.
+  let unconfirmedSaves: PracticeAttempt[] = []
   const emit = () => { snapshot = { ...snapshot, attempt: value.attempt,
     pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
     listeners.forEach((listener) => listener()) }
@@ -134,20 +140,34 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           value = reconcile(incoming); dirty = false; emit(); return
         }
         if (value.version.updatedAt !== incoming.version.updatedAt) {
-          const staleLocalWork = dirty
-          if (schema === 2) {
-            // Make sure the stale draft is in the v4 cache; its reconcile archives it once and keeps the
-            // newer server draft active (never rebound to the new CAS, never auto-saved over it).
-            if (staleLocalWork) persist()
-          } else if (staleLocalWork) archiveCache(value, '同步時發現另一個草稿版本')
-          value = reconcile(incoming)
-          dirty = !sameAttempt(value.attempt, remote)
-          if (schema === 2 && staleLocalWork) snapshot = { ...snapshot, notice: STALE_DRAFT_NOTICE }
-          emit()
+          if (unconfirmedSaves.some((sent) => sameAttempt(remote, sent))) {
+            // The new server generation is this store's own earlier save, applied without the store
+            // seeing the result. It is an ancestor of the local draft, not another client's work:
+            // adopt the generation and keep the newer local answers, which are saved below.
+            value = { ...value, version: incoming.version }
+            dirty = !sameAttempt(value.attempt, remote)
+            persist(); emit()
+          } else {
+            const staleLocalWork = dirty
+            if (schema === 2) {
+              // Make sure the stale draft is in the v4 cache; its reconcile archives it once and keeps the
+              // newer server draft active (never rebound to the new CAS, never auto-saved over it).
+              if (staleLocalWork) persist()
+            } else if (staleLocalWork) archiveCache(value, '同步時發現另一個草稿版本')
+            value = reconcile(incoming)
+            dirty = !sameAttempt(value.attempt, remote)
+            if (schema === 2 && staleLocalWork) snapshot = { ...snapshot, notice: STALE_DRAFT_NOTICE }
+            emit()
+          }
+          // The server moved to a new generation: every earlier send expects an older one and fails its CAS.
+          unconfirmedSaves = []
         }
         while (active && dirty) {
           const saving = value.attempt
+          // Kept until a save is confirmed: an unanswered request may still reach the server later.
+          unconfirmedSaves = [...unconfirmedSaves.slice(-4), saving]
           const saved = await repo.saveDraft({ ...remoteRecord, version: value.version }, saving)
+          unconfirmedSaves = []
           if (!active) return
           if (!saved.version) throw new PersistenceError('invalid')
           value = { id: value.id, attempt: value.attempt, version: saved.version }
@@ -182,20 +202,32 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
     start: () => { active = true; if (dirty) { clearTimeout(timer); timer = setTimeout(() => { void flush() }, delay) } },
     stop: () => { active = false; clearTimeout(timer) },
     retry: flush,
-    answer(questionId: string, answer: PracticeAnswer) {
-      if (!active || submitting || schemaChanged || value.attempt.status !== 'in-progress') return
+    /**
+     * Synchronous: the result says whether the draft now holds this answer. An editor must not keep
+     * showing input that was not accepted, because formal submission serializes this draft only.
+     */
+    answer(questionId: string, answer: PracticeAnswer): AnswerOutcome {
+      if (!active || submitting || schemaChanged || value.attempt.status !== 'in-progress') return 'rejected'
+      const current = value.attempt
       const next = nextAttempt(questionId, answer)
-      if (next === value.attempt) return
+      if (next === current) {
+        return current.schemaVersion === 2 && current.status === 'in-progress'
+          && draftAnswerProblemV4(quiz, current, questionId, answer) === 'oversized' ? 'limit' : 'rejected'
+      }
       value = { ...value, attempt: next }; dirty = true; persist(); emit()
       submissionRequestId = null
       clearTimeout(timer); timer = setTimeout(() => { void flush() }, delay)
+      return 'accepted'
     },
     /**
      * Formal submission. Callers flush pending editor input into answer() synchronously first; the
      * latest draft is then saved, CAS-checked and submitted with only requestId/attemptId/CAS.
+     * Submit boundary: only the draft held at this call is ever submitted. If synchronization replaces
+     * it with a different server draft, nothing is submitted and the user is asked to confirm.
      */
     async submit(): Promise<string | null> {
       if (submitting) return null
+      const intended = value.attempt
       submitting = true; snapshot = { ...snapshot, submitting: true, notice: null }; emit()
       clearTimeout(timer)
       try {
@@ -215,6 +247,11 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           throw new SubmissionError('conflict')
         }
         if (dirty) throw new SubmissionError('unavailable')
+        if (!sameAttempt(value.attempt, intended)) {
+          submissionRequestId = null
+          snapshot = { ...snapshot, notice: snapshot.notice === STALE_DRAFT_NOTICE ? STALE_NOT_SUBMITTED_NOTICE : DRAFT_CHANGED_NOTICE }
+          emit(); return null
+        }
         const incoming = await repo.loadAttempt(initial.id)
         if (incoming?.row.status === 'submitted' && incoming.row.submission_request_id === submissionRequestId) {
           if (incoming.attempt?.status !== 'submitted') throw new SubmissionError('unavailable')
@@ -228,7 +265,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           value = reconcile(incoming)
           dirty = !sameAttempt(value.attempt, remoteAttempt(incoming))
           submissionRequestId = null
-          snapshot = { ...snapshot, notice: '雲端草稿已更新，請確認目前答案後再提交。' }; emit(); return null
+          snapshot = { ...snapshot, notice: DRAFT_CHANGED_NOTICE }; emit(); return null
         }
         // A promoted-but-unsaved schema-1 draft is never submitted as v4: the v4 save must land first.
         if (value.attempt.schemaVersion !== incoming.schemaVersion) throw new SubmissionError('unavailable')

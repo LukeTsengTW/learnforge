@@ -5,17 +5,24 @@ import type { DrawingConfig } from '../../models/quiz'
 import { isIPadOS } from '../../lib/platform'
 import { downloadDrawingPng, drawingReducer, replayDrawing, toLogicalPoint, type DrawingAction } from '../../lib/drawing'
 import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster.ts'
+import type { AnswerOutcome } from './attempt-context'
 
 interface DrawingCanvasProps {
   id: string
   config: DrawingConfig
   strokes: DrawingStroke[]
-  onChange: (strokes: DrawingStroke[]) => void
+  /** Synchronous: a result other than 'accepted' (or no result) means the owner did not take the change. */
+  onChange: (strokes: DrawingStroke[]) => AnswerOutcome | void
   ref?: Ref<DrawingCanvasHandle>
 }
+export const DRAWING_LIMIT_NOTICE = `這一筆超過手寫內容的儲存上限（最多 ${DRAWING_LIMITS.maxStrokes} 筆、${DRAWING_LIMITS.maxPoints} 個取樣點），沒有加入作答。請先復原或清除部分筆畫再繼續。`
+export const DRAWING_REJECTED_NOTICE = '目前無法變更這題的作答（例如正在提交），這次變更沒有套用。'
 export interface DrawingCanvasHandle {
   /** Commit visible pending ink and return the strokes for a combined controlled update. */
   flushPendingStroke: () => DrawingStroke[]
+  /** Commit visible pending ink and report whether the owner took it; 'accepted' when nothing was pending. */
+  flushPendingInput: () => AnswerOutcome
 }
 const COLOR_LABELS = ['黑色', '紅色', '藍色']
 
@@ -25,8 +32,11 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const pending = useRef<{ pointerId: number; stroke: DrawingStroke } | null>(null)
   // Local commits must accumulate before a controlled parent acknowledges them.
   const committed = useRef(strokes)
-  const [ink, setInk] = useState({ controlled: strokes, strokes })
-  if (ink.controlled !== strokes) setInk({ controlled: strokes, strokes })
+  // refusal: the owner did not take the last change, so it is not part of the answer or the canvas.
+  const [ink, setInk] = useState<{ controlled: DrawingStroke[]; strokes: DrawingStroke[]; refusal: 'limit' | 'rejected' | null }>(
+    { controlled: strokes, strokes, refusal: null })
+  if (ink.controlled !== strokes) setInk({ controlled: strokes, strokes, refusal: null })
+  const lastOutcome = useRef<AnswerOutcome>('accepted')
   const [undone, setUndone] = useState<DrawingStroke[]>([])
   const history = { strokes: ink.strokes, undone }
   const [tool, setTool] = useState<DrawingTool>('pen')
@@ -58,12 +68,20 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
 
   function changeDrawing(action: DrawingAction) {
     const next = drawingReducer({ strokes: committed.current, undone }, action)
+    // The owner answers synchronously. Formal submission serializes the owner's answer, so ink it
+    // did not accept must not stay on the canvas: visible strokes never run ahead of the answer.
+    const outcome = onChange(next.strokes) ?? 'accepted'
+    lastOutcome.current = outcome
+    setConfirmClear(false)
+    if (outcome !== 'accepted') {
+      setInk({ controlled: strokes, strokes: committed.current, refusal: outcome })
+      paint(committed.current)
+      return committed.current
+    }
     committed.current = next.strokes
-    setInk({ controlled: strokes, strokes: next.strokes })
+    setInk({ controlled: strokes, strokes: next.strokes, refusal: null })
     setUndone(next.undone)
     paint(next.strokes)
-    onChange(next.strokes)
-    setConfirmClear(false)
     if (action.type !== 'add') setStatus(action.type === 'clear' ? '畫布已清除。' : action.type === 'undo' ? '已復原上一筆。' : '已重做一筆。')
     return next.strokes
   }
@@ -90,6 +108,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     // Reject touch before it can own pending ink or capture, including primary palms.
     if (inputMode === 'stylus' && event.pointerType === 'touch') return
     if (event.button !== 0 || !event.isPrimary || pending.current) return
+    // A canvas is not a form control: honour a disabled form section (e.g. while submitting) ourselves.
+    if (event.currentTarget.closest('fieldset[disabled]')) return
     event.preventDefault()
     event.currentTarget.setPointerCapture(event.pointerId)
     pending.current = { pointerId: event.pointerId, stroke: { tool, color, width, points: [point(event)] } }
@@ -137,7 +157,12 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (active && element?.hasPointerCapture(active.pointerId)) element.releasePointerCapture(active.pointerId)
     return next
   }
-  useImperativeHandle(ref, () => ({ flushPendingStroke }))
+  function flushPendingInput(): AnswerOutcome {
+    if (!pending.current) return 'accepted'
+    flushPendingStroke()
+    return lastOutcome.current
+  }
+  useImperativeHandle(ref, () => ({ flushPendingStroke, flushPendingInput }))
   async function exportPng() {
     try { await downloadDrawingPng(config, history.strokes, `${id}.png`); setStatus('PNG 已匯出。') }
     catch { setStatus('PNG 匯出失敗，請重試。') }
@@ -210,6 +235,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
       <p>若使用 Apple Pencil 時出現快速抬筆後下一筆無法立即書寫的情況，請前往「設定」→「Apple Pencil」關閉「隨手寫」。</p>
       <a href="https://support.apple.com/zh-tw/guide/ipad/ipad355ab2a7/ipados" target="_blank" rel="noopener noreferrer">查看 Apple 官方設定說明</a>
     </aside>}
+    {ink.refusal && <div className="notice warning" role="alert">
+      <p>{ink.refusal === 'limit' ? DRAWING_LIMIT_NOTICE : DRAWING_REJECTED_NOTICE}</p></div>}
     {confirmClear && <div className="notice warning" role="alert"><p>清除所有筆畫後無法復原。</p>
       <div className="inline-actions"><button type="button" onClick={() => changeDrawing({ type: 'clear' })}>確認清除</button>
         <button type="button" onClick={() => setConfirmClear(false)}>保留畫布</button></div></div>}

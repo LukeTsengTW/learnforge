@@ -17,7 +17,10 @@ export function CloudAttemptProvider({ quiz, userId, repository, children }: { q
     retry: store.retry, importLegacy: state.legacy ? store.importLegacy : undefined,
     answerQuestion: (questionId, answer) => {
       // Legacy v0.2 provider: schema 1 only.
-      if (isLegacyQuestionAnswer(answer)) store.dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() })
+      if (!isLegacyQuestionAnswer(answer)) return 'rejected'
+      const before = store.getSnapshot().attempt
+      store.dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() })
+      return store.getSnapshot().attempt === before ? 'rejected' : 'accepted'
     },
     submit: () => store.dispatch({ type: 'submit', now: new Date().toISOString() }), restart: store.restart,
   }}>{children}</AttemptContext.Provider>

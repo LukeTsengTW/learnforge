@@ -15,7 +15,7 @@ describe('current rubric-scored answer inputs', () => {
   it('labels calculation and drawing points as AI scored on current practice cards', () => {
     const questions = quiz.questions.filter((item) => item.type === QUESTION_TYPE.calculation || item.type === QUESTION_TYPE.drawing)
     for (const question of questions) {
-      render(<QuestionCard question={question} index={0} answer={undefined} onChange={() => undefined} />)
+      render(<QuestionCard question={question} index={0} answer={undefined} onChange={() => 'accepted'} />)
       expect(screen.getByText(`${question.points} 分・AI 自動評分`)).toBeInTheDocument()
       expect(screen.queryByText(/自行對照/)).toBeNull()
       cleanup()
@@ -24,14 +24,14 @@ describe('current rubric-scored answer inputs', () => {
 
   it('explains that calculation grading contributes to the practice score', () => {
     const question = quiz.questions.find((item) => item.type === QUESTION_TYPE.calculation)!
-    render(<QuestionInput question={question} answer={undefined} onChange={() => undefined} />)
+    render(<QuestionInput question={question} answer={undefined} onChange={() => 'accepted'} />)
     expect(screen.getByText(notice)).toBeInTheDocument()
     expect(screen.queryByText(/不納入自動分數|自行對照/)).toBeNull()
   })
 
   it('explains that drawing grading contributes to the practice score', () => {
     const question = quiz.questions.find((item) => item.type === QUESTION_TYPE.drawing)!
-    render(<QuestionInput question={question} answer={undefined} onChange={() => undefined} />)
+    render(<QuestionInput question={question} answer={undefined} onChange={() => 'accepted'} />)
     expect(screen.getByText(notice)).toBeInTheDocument()
     expect(screen.queryByText(/不納入自動分數|自行對照/)).toBeNull()
   })

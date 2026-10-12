@@ -9,6 +9,9 @@ import { LocalPracticeCache } from './practice-cache'
 import { AttemptContext, type PendingInputFlush } from './attempt-context'
 import { createPracticeStore, draftSchemaFor, effectiveRemoteAttempt } from './practice-store'
 import type { PracticeRecord } from './practice-repository'
+import type { PracticeAttempt } from '../../models/draft-v4'
+
+export const PENDING_INPUT_REFUSED_NOTICE = '提交時尚未完成的那一筆手寫沒有加入作答（原因請見該題畫布下方的說明），作答尚未提交。請確認答案後再提交。'
 
 function PracticeAttemptProvider({ record, onReplace, children }: {
   record: PracticeRecord; onReplace: (record: PracticeRecord) => void; children: ReactNode
@@ -24,9 +27,15 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
     pendingFlushes.add(flush)
     return () => { pendingFlushes.delete(flush) }
   }, [pendingFlushes])
+  // Set when a submission stopped because pending input was refused; shown until the answers change again.
+  const [refusedAt, setRefusedAt] = useState<PracticeAttempt | null>(null)
   const submit = useCallback(() => {
-    for (const flush of pendingFlushes) flush()
-    return store.submit()
+    // Submit boundary: the gesture in progress is completed first. If the answer did not take it, what
+    // the user saw when pressing submit is not what would be submitted, so nothing is submitted.
+    let refused = false
+    for (const flush of pendingFlushes) if ((flush() ?? 'accepted') !== 'accepted') refused = true
+    setRefusedAt(refused ? store.getSnapshot().attempt : null)
+    return refused ? Promise.resolve(null) : store.submit()
   }, [pendingFlushes, store])
   useEffect(() => {
     store.start()
@@ -37,7 +46,8 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
   if (!record.quiz) return null
   return <AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
     draftSchema: state.draftSchema, registerPendingFlush,
-    storageNotice: state.notice, syncing: state.syncing, submitting: state.submitting,
+    storageNotice: refusedAt === state.attempt ? PENDING_INPUT_REFUSED_NOTICE : state.notice,
+    syncing: state.syncing, submitting: state.submitting,
     pendingSubmission: state.pendingSubmission, retry: store.retry,
     importLegacy: state.legacy ? store.importLegacy : undefined,
     answerQuestion: store.answer, submit,

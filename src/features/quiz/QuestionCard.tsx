@@ -4,12 +4,12 @@ import { hasAnswer } from '../../lib/grading'
 import { isObjectiveQuestion, QUESTION_LABEL, type Question } from '../../models/quiz'
 import type { DraftSchemaVersion, PracticeAnswer } from '../../models/draft-v4'
 import { QuestionInput } from './QuestionInput'
-import type { PendingInputFlush } from './attempt-context'
+import type { AnswerOutcome, PendingInputFlush } from './attempt-context'
 import { AiTutorControls } from '../ai/AiTutorControls'
 import type { AiTutorState } from '../ai/use-ai-tutor'
 
 export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint, draftSchema = 1, registerPendingFlush }: {
-  question: Question; index: number; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => void
+  question: Question; index: number; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => AnswerOutcome
   aiTutor?: AiTutorState; beforeAiHint?: () => Promise<void>
   draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {

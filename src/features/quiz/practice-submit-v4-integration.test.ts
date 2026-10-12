@@ -72,6 +72,37 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     store.stop()
   })
 
+  it('handwriting that rasterizes blank (eraser strokes only) is finalized as system unanswered without any provider call, and its strokes are kept', async () => {
+    const { server, edge, requests } = integratedEnvironment()
+    const initial = await server.repo.getOrCreateDraft(v4Quiz)
+    const store = createPracticeStore(initial, server.repo, new LocalPracticeCache('student', memoryStorage), 60_000)
+    const eraser = (y: number) => ({ tool: 'eraser' as const, color: '#202b38' as const, width: 24,
+      points: [{ x: 40, y }, { x: 300, y: y + 20 }, { x: 560, y }] })
+    const strokes = [eraser(100), eraser(250), eraser(400)]
+    store.answer('q_hand', handDraw('', strokes))
+    expect(await store.submit()).toBe(initial.id)
+    // The formal request carried only ids and the CAS; the server finalized its own persisted strokes.
+    expect(requests).toHaveLength(1)
+    expect(requests[0].answers).toEqual({ q_hand: handDraw('', strokes) })
+    // No provider of any kind was called: the claim made before rasterizing was released as raster_blank.
+    expect(edge.calculationV4.generateDrawing).not.toHaveBeenCalled()
+    expect(edge.calculationV4.generateText).not.toHaveBeenCalled()
+    expect(edge.drawingProvider.generate).not.toHaveBeenCalled()
+    expect(edge.fillProvider.judge).not.toHaveBeenCalled()
+    expect(edge.v3CalculationProvider.generate).not.toHaveBeenCalled()
+    expect(edge.state.failures).toContain('q_hand:raster_blank')
+    expect(edge.state.cache.size).toBe(0)
+    // Every rubric judgment is system evidence for an unanswered question.
+    expect(edge.state.finalRubric.map((row) => `${row.question_id}:${row.source}:${row.status}:${row.score}`).sort())
+      .toEqual(['q_draw:system:unanswered:0', 'q_hand:system:unanswered:0', 'q_text:system:unanswered:0'])
+    expect(edge.state.attempt).toMatchObject({ status: 'submitted', grading_version: 'ai-grading-v4' })
+    // The submitted answer still holds exactly the strokes the client held.
+    const submitted = server.rows.get(initial.id)!.record.attempt!
+    expect(submitted.status).toBe('submitted')
+    expect(submitted.answers.q_hand).toEqual(handDraw('', strokes))
+    store.stop()
+  })
+
   it('an active stroke change after a failed finalization requires a new provider call', async () => {
     const { server, edge } = integratedEnvironment()
     const initial = await server.repo.getOrCreateDraft(v4Quiz)

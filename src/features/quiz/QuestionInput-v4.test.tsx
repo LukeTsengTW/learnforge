@@ -39,7 +39,7 @@ function Harness({ question, schema, initial, onChange, register }: {
 }) {
   const [answer, setAnswer] = useState<PracticeAnswer | undefined>(initial)
   return <QuestionInput question={question} answer={answer} draftSchema={schema} registerPendingFlush={register}
-    onChange={(next) => { setAnswer(next); onChange(next) }} />
+    onChange={(next) => { setAnswer(next); onChange(next); return 'accepted' }} />
 }
 
 describe('M5 schema-aware calculation input', () => {

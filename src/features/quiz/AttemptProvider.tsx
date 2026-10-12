@@ -11,7 +11,10 @@ export function AttemptProvider({ quiz, children }: { quiz: Quiz; children: Reac
   return <AttemptContext.Provider value={{ quiz, attempt, storageNotice: notice,
     answerQuestion: (questionId, answer) => {
       // Legacy local-only provider: schema 1 only.
-      if (isLegacyQuestionAnswer(answer)) dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() })
+      if (!isLegacyQuestionAnswer(answer)) return 'rejected'
+      const before = store.getSnapshot().attempt
+      dispatch({ type: 'answer', questionId, answer, now: new Date().toISOString() })
+      return store.getSnapshot().attempt === before ? 'rejected' : 'accepted'
     },
     submit: () => { dispatch({ type: 'submit', now: new Date().toISOString() }); return quiz.id },
     restart: async () => { dispatch({ type: 'restart', now: new Date().toISOString() }); return true },

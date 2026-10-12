@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.10.1 — 手寫作答提交與畫布同步修正
+
+Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v1.10.0（tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`）。修正與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Pages／production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+
+- 修正：正式提交的手寫內容可能少於畫布上所見。在 v1.10.0 重現出四種情況——筆畫超過手寫儲存上限（每題 256 筆／6000 個取樣點）後的筆畫只留在畫布上、不在答案內；提交進行中畫的筆畫在該次提交失敗後仍留在畫布上；草稿儲存已被 server 套用但回應遺失時，提交的是較舊的那一版；其他分頁或裝置改寫草稿時，提交的是對方的草稿。
+- 一般的 debounce 與儲存進行中的 race（最後一筆後立刻提交、autosave 尚未執行、較舊的儲存仍在進行、連續快速多筆、作答方式來回切換）在 v1.10.0 已經正確，這次沒有改變它們的行為，另加 regression 測試固定下來。
+- 答案更新現在有同步的結果（接受、被上限拒絕、其他原因未收下）。畫布只保留被接受的變更；沒有被接受時還原並顯示原因，已接受的筆畫不會消失。提交進行中畫布不接受新筆畫。
+- 提交邊界：提交時仍在進行的那一筆會先完成並納入，若被拒絕則不提交並顯示原因；提交只會送出按下提交時持有的草稿，同步後若被不同的 server 草稿取代則不提交，請使用者確認。
+- 較舊的儲存不再把較新的本地內容換掉：server 的新版本若等於本頁自己送出但尚未確認的內容，只採用新版本並保留本地較新的答案。其他 client 的內容仍由 server 版本優先。
+- 手寫儲存上限、drawing schema、正式提交與評分的語意都沒有改變。提高上限需要 migration，不在本次範圍。沒有加入任何 timeout、固定等待或輪詢。
+- 沒有題庫、generated canonical context、Edge function、migration、Auth／RLS／secrets／provider configuration 或 dependency delta；以 import graph 確認本次變更的路徑不在任何 Edge function 可到達的檔案內。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- Local gates：98 files／1,576 tests 全部 PASS、零 skipped（新增 25 個）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。新增的測試檔在 v1.10.0 的 source 上為 16 failed／8 passed。Browser 證據使用本機受控 fixture（真正的 application shell 與頁面內的記憶體 server，由 Playwright 從磁碟回應每個 request），八個情境以筆數、點數、序列化雜湊與畫布像素比對提交前後。
+- Classifier：security-ai／Risk C／providerCanaryRequired=true。觸發 provider 規則的是兩個檔名含 provider 的舊 React context 元件（沒有任何檔 import），實際變更沒有 provider 或評分行為的改變；human supervisor 決定豁免，不做付費 provider canary。
+- 已知限制：達到上限後無法再加筆畫，只會看到提示；畫圖題沒有提交前的完成步驟；沒有 iPad／Apple Pencil 實機驗證；非空白手寫作答的 AI 評分路徑沒有這個版本的 end-to-end 證據。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 準備為 1.10.1。調查、contract、驗證證據與尚待驗收項目見 [v1.10.1 delivery](docs/v1.10.1-delivery.md)。
+
 ## 1.10.0 — 離散數學第三章：集合論－例題練習
 
 Production acceptance：2026-10-11（Asia/Taipei）。已接受的 runtime candidate 為 `46543f7c2e2cf66a2bc3231eef6a055b6daf074f`；production version 為 1.10.0。基準 immutable v1.9.0（tag object `03e71a6523f1f5b60511004d7ce6c8f713384b65`／peeled `61c4c40105af2f8d643f6b7d264c9f17fdfa3dea`）。Documentation closure 的 commit 與 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.10.0 delivery](docs/v1.10.0-delivery.md)。

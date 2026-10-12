@@ -2,8 +2,18 @@ import { createContext, useContext } from 'react'
 import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
 
-/** Synchronously commits uncommitted editor input (e.g. an in-progress handwriting stroke). */
-export type PendingInputFlush = () => void
+/**
+ * Synchronous result of an answer update. An editor may only keep showing input its owner accepted:
+ * 'limit' means the stored-answer limits refused it, 'rejected' means it was not taken for another
+ * reason (for example the attempt is locked while it is being submitted). Every answer owner reports it.
+ */
+export type AnswerOutcome = 'accepted' | 'limit' | 'rejected'
+
+/**
+ * Synchronously commits uncommitted editor input (e.g. an in-progress handwriting stroke) and reports
+ * whether the owner took it; 'accepted' when nothing was pending.
+ */
+export type PendingInputFlush = () => AnswerOutcome
 
 export interface AttemptContextValue {
   quiz: Quiz
@@ -12,7 +22,7 @@ export interface AttemptContextValue {
   /** Active draft schema; schema 2 renders the multimodal calculation editor. */
   draftSchema?: DraftSchemaVersion
   storageNotice: string | null
-  answerQuestion: (questionId: string, answer: PracticeAnswer) => void
+  answerQuestion: (questionId: string, answer: PracticeAnswer) => AnswerOutcome
   submit: () => Promise<string | null> | string | null | void
   restart: () => Promise<boolean>
   /** Registers a pending-input flush that runs before formal submission; returns an unregister function. */

@@ -73,7 +73,7 @@ export function QuizPage() {
       {submitting && <p role="status" className="notice">正在檢查填空題答案語意…</p>}
       <fieldset disabled={submitting} className="submission-lock">
       {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
-        answer={attempt.answers[question.id]} onChange={(answer) => { answerQuestion(question.id, answer); setConfirmIncomplete(false) }}
+        answer={attempt.answers[question.id]} onChange={(answer) => { const outcome = answerQuestion(question.id, answer); if (outcome === 'accepted') setConfirmIncomplete(false); return outcome }}
         aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} draftSchema={draftSchema}
         registerPendingFlush={registerPendingFlush} />)}
       <section className="submit-panel"><div><h2>準備好對照答案了嗎？</h2><p>提交後會保留這次作答，並顯示完整解答。</p></div>

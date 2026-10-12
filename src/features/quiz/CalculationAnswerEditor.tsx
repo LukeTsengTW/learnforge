@@ -1,18 +1,23 @@
 import { useImperativeHandle, useRef, type Ref } from 'react'
 import type { CalculationAnswerMode, CalculationAnswerV4 } from '../../models/attempt'
 import type { CalculationQuestion } from '../../models/quiz'
+import type { AnswerOutcome } from './attempt-context'
 import { DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
 
 export interface CalculationAnswerEditorHandle {
-  /** Commit visible pending ink through onChange (synchronously); a no-op when nothing is pending. */
-  flushPendingInput: () => void
+  /**
+   * Commit visible pending ink through onChange (synchronously) and report whether the owner took it;
+   * 'accepted' when nothing is pending.
+   */
+  flushPendingInput: () => AnswerOutcome
 }
 
 interface CalculationAnswerEditorProps {
   id: string
   question: CalculationQuestion
   value: CalculationAnswerV4
-  onChange: (value: CalculationAnswerV4) => void
+  /** The owner's synchronous result is passed back to the canvas, which keeps only accepted ink. */
+  onChange: (value: CalculationAnswerV4) => AnswerOutcome | void
   ref?: Ref<CalculationAnswerEditorHandle>
 }
 
@@ -21,9 +26,11 @@ export function CalculationAnswerEditor({ id, question, value, onChange, ref }: 
   const drawing = useRef<DrawingCanvasHandle>(null)
   const drawingMode = question.drawing !== undefined && value.mode === 'drawing'
   // DrawingCanvas commits a pending stroke through its own onChange, which updates this value.
-  useImperativeHandle(ref, () => ({ flushPendingInput: () => { drawing.current?.flushPendingStroke() } }))
+  useImperativeHandle(ref, () => ({ flushPendingInput: () => drawing.current?.flushPendingInput() ?? 'accepted' }))
 
   function changeMode(mode: CalculationAnswerMode) {
+    // A pending stroke the owner refuses is not part of the answer: stay in this mode so its notice remains visible.
+    if (drawing.current && drawing.current.flushPendingInput() !== 'accepted') return
     // Use the returned strokes: a second update based on stale props could otherwise lose the flush.
     const strokes = drawing.current?.flushPendingStroke() ?? value.strokes
     onChange({ ...value, mode, strokes })

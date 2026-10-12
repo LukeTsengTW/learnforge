@@ -1,5 +1,5 @@
 import { isLegacyCalculationAnswer } from './calculation-answer.ts'
-import { DRAFT_V4_LIMITS, draftExactKeys, draftRecord, normalizeDraftAnswersV4, requiresV4DraftContext,
+import { DRAFT_V4_LIMITS, DraftValidationError, draftExactKeys, draftRecord, normalizeDraftAnswersV4, requiresV4DraftContext,
   validDraftTimestamp, type DraftQuestionContext } from '../../supabase/functions/_shared/draft-v4.ts'
 import type { CalculationAnswerV4, QuestionAnswer, QuizAttempt } from '../models/attempt.ts'
 import type { DraftAnswerMapV4, PracticeAnswer, QuizDraftV4 } from '../models/draft-v4.ts'
@@ -38,6 +38,18 @@ export function answerQuizDraftV4(quiz: Quiz, draft: QuizDraftV4, questionId: st
   const normalized = decodeDraftAnswersV4(quiz, { [questionId]: answer })
   if (!normalized) return draft
   return { ...draft, status: 'in-progress', updatedAt: now, answers: { ...draft.answers, [questionId]: normalized[questionId] } }
+}
+
+/**
+ * Why answerQuizDraftV4 keeps the draft unchanged for this answer: 'oversized' when a stored-answer
+ * limit refuses it, 'invalid' for any other refusal, null when the answer would be stored.
+ */
+export function draftAnswerProblemV4(quiz: Quiz, draft: QuizDraftV4, questionId: string,
+  answer: PracticeAnswer): 'oversized' | 'invalid' | null {
+  const question = quiz.questions.find((item) => item.id === questionId)
+  if (!question || question.type !== answer.type || draft.quizId !== quiz.id || draft.quizRevision !== quiz.revision) return 'invalid'
+  try { normalizeDraftAnswersV4(contexts(quiz), { [questionId]: answer }, false); return null }
+  catch (error) { return error instanceof DraftValidationError && error.kind === 'oversized' ? 'oversized' : 'invalid' }
 }
 
 function contexts(quiz: Quiz): DraftQuestionContext[] {

@@ -9,7 +9,7 @@ import { isV4BlankText } from '../../lib/v4-blank'
 import { GRADING_ANSWER_MAX_BYTES } from '../../../supabase/functions/_shared/calculation-grading.ts'
 import { CalculationAnswerEditor, type CalculationAnswerEditorHandle } from './CalculationAnswerEditor'
 import { DrawingCanvas } from './DrawingCanvas'
-import type { PendingInputFlush } from './attempt-context'
+import type { AnswerOutcome, PendingInputFlush } from './attempt-context'
 
 export const MANUAL_NOTICE = '畫圖題不納入自動分數；提交後可自行對照評分規準，符合條件時可使用 AI 圖像參考分析。'
 const V3_RUBRIC_NOTICE = '提交後會依評分規準由 AI 自動評分並納入本次練習得分。AI 自動評分僅供學習參考，可能存在誤判。'
@@ -25,10 +25,10 @@ function calculationValueV4(answer: PracticeAnswer | undefined): CalculationAnsw
 
 function CalculationV4Input({ id, question, answer, onChange, registerPendingFlush }: {
   id: string; question: CalculationQuestion; answer: PracticeAnswer | undefined
-  onChange: (answer: PracticeAnswer) => void; registerPendingFlush?: (flush: PendingInputFlush) => () => void
+  onChange: (answer: PracticeAnswer) => AnswerOutcome; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
   const editor = useRef<CalculationAnswerEditorHandle>(null)
-  useEffect(() => registerPendingFlush?.(() => { editor.current?.flushPendingInput() }), [registerPendingFlush])
+  useEffect(() => registerPendingFlush?.(() => editor.current?.flushPendingInput() ?? 'accepted'), [registerPendingFlush])
   const value = calculationValueV4(answer)
   // Non-authoritative hint only: the server enforces the formal limit (HTTP 422) and the text is never truncated.
   const overLimit = value.mode === 'text' && !isV4BlankText(value.text)
@@ -40,7 +40,7 @@ function CalculationV4Input({ id, question, answer, onChange, registerPendingFlu
 }
 
 export function QuestionInput({ question, answer, onChange, draftSchema = 1, registerPendingFlush }: {
-  question: Question; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => void
+  question: Question; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => AnswerOutcome
   draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
   const id = `answer-${question.id}`
