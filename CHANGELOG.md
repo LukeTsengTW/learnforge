@@ -2,7 +2,7 @@
 
 ## 1.10.1 — 手寫作答提交與畫布同步修正
 
-Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v1.10.0（tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`）。修正與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI，以及之後 Pages／production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production。
+Production acceptance：2026-10-12（Asia/Taipei）。已接受的 runtime candidate 為 `46e2e3ebe42f81519522d063d8facb63ef9dd6d3`；production version 為 1.10.1。基準 immutable v1.10.0（tag object `af0d71171bf15884c798abaea091ccfeae29c50a`／peeled `b5a1b3f7da750d6aaa225b519a41fda7a1a22499`）。Documentation closure 的 commit 與 exact CI、closure-SHA Pages parity 與 annotated tag 仍須完成各自的後續 gate，詳見 [v1.10.1 delivery](docs/v1.10.1-delivery.md)。
 
 - 修正：正式提交的手寫內容可能少於畫布上所見。在 v1.10.0 重現出四種情況——筆畫超過手寫儲存上限（每題 256 筆／6000 個取樣點）後的筆畫只留在畫布上、不在答案內；提交進行中畫的筆畫在該次提交失敗後仍留在畫布上；草稿儲存已被 server 套用但回應遺失時，提交的是較舊的那一版；其他分頁或裝置改寫草稿時，提交的是對方的草稿。
 - 一般的 debounce 與儲存進行中的 race（最後一筆後立刻提交、autosave 尚未執行、較舊的儲存仍在進行、連續快速多筆、作答方式來回切換）在 v1.10.0 已經正確，這次沒有改變它們的行為，另加 regression 測試固定下來。
@@ -13,8 +13,12 @@ Release candidate preparation：2026-10-12（Asia/Taipei）。基準 immutable v
 - 沒有題庫、generated canonical context、Edge function、migration、Auth／RLS／secrets／provider configuration 或 dependency delta；以 import graph 確認本次變更的路徑不在任何 Edge function 可到達的檔案內。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
 - Local gates：98 files／1,576 tests 全部 PASS、零 skipped（新增 25 個）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。新增的測試檔在 v1.10.0 的 source 上為 16 failed／8 passed。Browser 證據使用本機受控 fixture（真正的 application shell 與頁面內的記憶體 server，由 Playwright 從磁碟回應每個 request），八個情境以筆數、點數、序列化雜湊與畫布像素比對提交前後。
 - Classifier：security-ai／Risk C／providerCanaryRequired=true。觸發 provider 規則的是兩個檔名含 provider 的舊 React context 元件（沒有任何檔 import），實際變更沒有 provider 或評分行為的改變；human supervisor 決定豁免，不做付費 provider canary。
-- 已知限制：達到上限後無法再加筆畫，只會看到提示；畫圖題沒有提交前的完成步驟；沒有 iPad／Apple Pencil 實機驗證；非空白手寫作答的 AI 評分路徑沒有這個版本的 end-to-end 證據。完整清單見 delivery。
-- Package／lock root version 與 visible navigation label 準備為 1.10.1。調查、contract、驗證證據與尚待驗收項目見 [v1.10.1 delivery](docs/v1.10.1-delivery.md)。
+- Candidate CI [38192246973](https://github.com/LukeTsengTW/learnforge/actions/runs/38192246973)、Pages [38192838517](https://github.com/LukeTsengTW/learnforge/actions/runs/38192838517)／deployment 7004704317 全 PASS；production manifest 與 navigation 為 1.10.1／candidate SHA。沒有部署任何 Edge function：六個 Edge revisions 仍為 20／21／21／23／7／9，依據是 Pages dispatch 前、部署後與 canary 後的 function metadata 讀取。正式站未登入的驗收：Library 7 current quizzes、Author 為 Valid、13/13 Student／Answer Preview、手寫情境在 1440 與 360 各一題且 Answer Preview 重建的畫布與作答畫布相同、無 document overflow；KaTeX errors、first-party console errors、page errors、CSP violations 皆為 0，16 個 request 全是對 Pages 的 GET。
+- Production submit canary（既有專用 release-canary identity，`discrete-math` revision 2 的 q2）的做法是 human 的決定。正式提交看得見的手寫筆跡一定會觸發付費 AI 評分，而這個版本沒有 provider 呼叫的授權；human 在只用橡皮擦（不呼叫 provider、看不到筆跡）、看得見的筆跡（一次付費 AI 評分）與不做三個方案中選了第一個。結果：橡皮擦 4 筆／32 點，最後一筆放開後 74 ms 完成提交的兩次點擊，點擊之前沒有任何儲存送出過這些筆畫；`save-quiz-draft` 1 次、`submit-quiz` 1 次皆 HTTP 200；提交當下的本機狀態、最後一次儲存與 server 保存的答案列，筆數、點數、工具序列與序列化 SHA-256 相同。Provider calls 0，由回應（五題計算題全是 system／unanswered、cached 為 false）與 source 推得；沒有讀取 function log、SQL 或 provider 用量紀錄。
+- 與原始驗收要求的出入：畫面上看不到筆跡；結果頁把這筆作答顯示為未作答，沒有重建的圖可以目視比對；一致性只有結構比對；提交是兩次點擊；human 登入了兩次。第一次嘗試在開啟題庫那一步因點擊 timeout 停止（停止後頁面為 hidden，推論是 Chrome 視窗被遮住），對 production 的寫入為 0；本機演練重現同樣的失敗後，第二次嘗試只多加四個 Chrome 啟動參數。
+- Production mutation evidence 的範圍：這次驗收沒有執行 SQL，也沒有資料庫 row count／hash 的前後比對。觀察到的寫入是 `get_or_create_quiz_draft` 1 次、`save-quiz-draft` 1 次、`submit-quiz` 1 次，與 application 自動送出的 account-recovery-code status 查詢；ai-quota 自動 GET 3 次，其 housekeeping 的 affected rows UNKNOWN；rubric 的 cache／呼叫紀錄與最終 judgment 依 source 推得，沒有觀察。Canary 帳號之後有兩筆已提交的作答與兩份保留的草稿，沒有 cleanup，沒有登出。
+- 已知限制：達到上限後無法再加筆畫，只會看到提示，上限本身未改（提高上限需要 migration 與 human 的決定）；畫圖題沒有提交前的完成步驟；沒有 iPad／Apple Pencil 實機驗證；看得見的手寫筆跡的正式提交與 AI 評分在 production 沒有這個版本的 end-to-end 證據。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 為 1.10.1。調查、contract、production 證據與 release-process 記錄見 [v1.10.1 delivery](docs/v1.10.1-delivery.md)。
 
 ## 1.10.0 — 離散數學第三章：集合論－例題練習
 
