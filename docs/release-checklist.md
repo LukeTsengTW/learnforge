@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.11.0 handwriting capacity budget candidate
+## v1.11.0 handwriting capacity budget production acceptance closure
 
-日期：2026-10-14（Asia/Taipei）。Immutable base v1.10.2：tag object `ed2ca5fc6f4b64287f3328dbaa51b4a37e173fec`／peeled `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+日期：2026-10-14（Asia/Taipei）。已接受的 production runtime candidate 為 `3eddd2e3613062099174ee0d2169a72854185442`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.10.2：tag object `ed2ca5fc6f4b64287f3328dbaa51b4a37e173fec`／peeled `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`；staged empty；v1.10.2 tag object 與 peeled commit 未變；local／remote v1.11.0 tag absent。
 - [x] 需求範圍：human 回報在 iPad 上被 256 筆的上限擋下，要求做剩下的三步（容量提示、提高上限、座標取整），並要求先做設計分析，把筆數上限由主要的容量限制改為只防濫用。另納入四項（整份草稿在接受時檢查、拒絕訊息分開、進行中的畫法、被接受的一筆重畫一次），由 independent reviewer 逐項裁定。同步的時機與協定、整份草稿 4 MiB 的上限與 geometry 預算不在範圍內。
@@ -16,16 +16,21 @@
 - [x] Independent review（feature candidate，request `lf-2026-10-13-handwriting-capacity`，cycle 1）：PASS，無 blocking finding。
 - [x] 以最終 diff 重算 Edge import graph：`drawing-raster.ts` 可由 ai-drawing、ai-grade、ai-responses、save-quiz-draft、submit-quiz 到達，`draft-v4.ts` 可由 save-quiz-draft、submit-quiz 到達；其餘變更的 runtime 路徑只在前端。需要部署的是這五個 function。相對 v1.10.2：migration ＋1；無 DB 表、Auth、RLS、secrets、provider configuration 或 dependency change。
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=true。
-- [ ] Human 對 production migration 與五個 Edge function 部署的授權：尚未取得。
-- [ ] Human 對 provider canary 的決定（執行一次付費的 AI 評分，或以不呼叫 AI 的方式驗證）：尚未取得。
+- [x] Human 對 production migration 與五個 Edge function 部署的授權：2026-10-14 取得；32,000 points／16,000 strokes 不再調整。
+- [x] Human 對 provider canary 的決定：2026-10-14 選擇 3A（專用的 release-canary 帳號、看得見容易辨識的 3～4 筆、一次正式提交、允許一次付費 AI 評分）。同一則訊息決定整份草稿 4 MiB 本版不擴大、之後另開 capacity／sync follow-up。
 - [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.10.2` 10／10 PASS（1,654 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean` 的形式）PASS。
 - [x] Release-prep browser smoke（同一 isolation 方式，1.11.0 working tree 的正式 build；Chromium，24 項檢查 PASS）：navigation 在 1440 顯示 v1.11.0、360 時依既有樣式隱藏；Library 7 張卡片；Author Student Preview 的筆畫放開前後畫面相同、座標是 0.1 的倍數、密集筆畫以遠少於取樣數的點重畫；容量提示在 24,000 點出現、31,750 點變成警示；Answer Preview 重建的畫布與作答畫布相同；console／page／CSP／overflow 全為 0；bundle 內的上限為 16000／32000，沒有舊上限的字樣。
-- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
-- [ ] Backend 同步：套用 migration 一次（前後各讀一次 migration 清單）；部署五個 Edge function，其餘六個不變；Edge runtime health。
-- [ ] Backend 完成後，一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
-- [ ] Public release.json／navigation = 1.11.0／candidate SHA；canonical public smoke、Library、Author、Student／Answer Preview、responsive、KaTeX／console／CSP PASS。
-- [ ] 登入後的 canary（需要 human 登入一次）：一題寫入超過舊上限的手寫，草稿儲存被接受並在重新載入後仍在；正式提交並記錄所花的時間。資料庫的形狀檢查只在正式提交時執行，所以提交是 migration 生效的唯一端對端證據。
-- [ ] Closure 與 annotated v1.11.0 tag；沒有 GitHub Release。
+- [x] Release review PASS（cycle 2；cycle 1 退回，更正兩個錯誤敘述與三處措辭）；candidate commit `3eddd2e3613062099174ee0d2169a72854185442`（38 個路徑，內容與 review 時相同）、一次 normal push；commit 後 `release:check --base v1.10.2 --require-clean` 10／10 與 strict preflight 7／7 PASS；exact candidate CI 38488009950 PASS；local／master／origin parity。
+- [x] Backend 同步：migration 以 CLI dry-run 後套用一次，migration 清單 18 → 19（前後各讀一次）；五個 Edge function 依序部署（ai-drawing 22、ai-grade 22、ai-responses 24、submit-quiz 10、save-quiz-draft 8），其餘六個不變；部署內容與 candidate 逐檔相同（35 項）；Edge runtime health 5／5（四個 401 MISSING_CREDENTIALS、一個 204，log 以 execution id 確認）。
+- [x] Backend 完成後，一次 exact candidate deploy.yml dispatch：run 38549398847／deployment 7062829973 success。
+- [x] Public release.json／navigation = 1.11.0／`3eddd2e…`；canonical public smoke PASS 並拒絕 1.10.2；72 個 asset HTTP 200；bundle 內上限 16,000／32,000；瀏覽器 smoke 25 項 PASS（Library、Author、Student／Answer Preview、1440／360、KaTeX／console／CSP，沒有 functions/v1/ 的請求）。
+- [x] 登入後的 canary（human 登入一次）：`discrete-math-ch1-counting-examples` 的 q01 畫 4 筆、7,511 點；5 次草稿儲存被接受；正式提交一次（9,010 ms）；按下提交時的本機答案、最後一次被接受的儲存與伺服器讀回的筆數、點數與筆畫 SHA-256 相同；結果頁與練習紀錄重建的畫面與提交前的畫布 0 個像素不同；只有 q01 由 AI 評分；兩份保留草稿未動。依 3A 調整：不是「多於 256 筆」，也沒有做重新載入的檢查（改以提交後伺服器讀回的答案比對）；只驗到取樣點上限。
+- [x] Production review（含 canary）的 independent review PASS。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.11.0 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
 
 Candidate scope、設計分析、量測、完整證據、rollout 順序與已知限制：[v1.11.0 delivery](v1.11.0-delivery.md)。以下歷史 checklist 保留原樣。
 
