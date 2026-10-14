@@ -1,3 +1,4 @@
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { describe, expect, it } from 'vitest'
 import type { PracticeAnswer } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
@@ -13,6 +14,7 @@ import { createV4MemoryRepository, memoryStorage, v4Quiz } from './practice-v4.t
 const strokes = (count: number, points = 2): DrawingStroke[] => Array.from({ length: count }, (_, row) => ({
   tool: 'pen', color: '#202b38', width: 4,
   points: Array.from({ length: points }, (_, step) => ({ x: 10 + (step % 700), y: 10 + (row % 500) })) }))
+const MAX_STROKES = DRAWING_LIMITS.maxStrokes, MAX_POINTS = DRAWING_LIMITS.maxPoints
 const hand = (drawn: DrawingStroke[], text = ''): PracticeAnswer => ({ type: 'calculation', mode: 'drawing', text, strokes: drawn })
 const handStrokes = (attempt: { answers: Record<string, unknown> } | null | undefined) =>
   (attempt?.answers.q_hand as { strokes: DrawingStroke[] } | undefined)?.strokes ?? []
@@ -30,19 +32,19 @@ async function environment() {
 describe('answer updates have a synchronous outcome', () => {
   it('reports accepted, limit and rejected, and a refusal leaves the draft exactly as it was', async () => {
     const { store } = await environment()
-    expect(store.answer('q_hand', hand(strokes(256)))).toBe('accepted')
+    expect(store.answer('q_hand', hand(strokes(MAX_STROKES, 1)))).toBe('accepted')
     const held = store.getSnapshot().attempt
-    // One stroke more than the stored-drawing limit, and one point more than the point limit.
-    expect(store.answer('q_hand', hand(strokes(257)))).toBe('limit')
-    expect(store.answer('q_hand', hand([...strokes(60, 100), ...strokes(1, 1)]))).toBe('limit')
+    // One stroke more than the stroke ceiling, and one point more than the point budget.
+    expect(store.answer('q_hand', hand(strokes(MAX_STROKES + 1, 1)))).toBe('limit')
+    expect(store.answer('q_hand', hand([...strokes(MAX_POINTS / 100, 100), ...strokes(1, 1)]))).toBe('limit')
     expect(store.getSnapshot().attempt).toBe(held)
-    expect(handStrokes(held)).toHaveLength(256)
+    expect(handStrokes(held)).toHaveLength(MAX_STROKES)
     // Refused for other reasons: unknown question, answer of another type.
     expect(store.answer('q_missing', hand([]))).toBe('rejected')
     expect(store.answer('q_hand', { type: 'fill', text: 'x' })).toBe('rejected')
     expect(store.getSnapshot().attempt).toBe(held)
     // Still editable: a drawing that fits is accepted again.
-    expect(store.answer('q_hand', hand(strokes(60, 100)))).toBe('accepted')
+    expect(store.answer('q_hand', hand(strokes(MAX_POINTS / 100, 100)))).toBe('accepted')
     store.stop()
     expect(store.answer('q_hand', hand(strokes(1)))).toBe('rejected')
   })

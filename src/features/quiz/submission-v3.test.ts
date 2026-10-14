@@ -1,3 +1,4 @@
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { describe, expect, it, vi } from 'vitest'
 import { quizCatalog } from './quiz-loader'
 import { tutorContext, type TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
@@ -330,7 +331,7 @@ describe('ai-grading-v3 submission pipeline', () => {
     expect(badDrawing.state.attempt.status).toBe('draft')
     expect(badDrawing.drawingProvider.generate).not.toHaveBeenCalled()
 
-    const oversizedDrawing = fixture(rows([qid(drawing), { type: 'drawing', strokes: Array.from({ length: 257 }, () =>
+    const oversizedDrawing = fixture(rows([qid(drawing), { type: 'drawing', strokes: Array.from({ length: DRAWING_LIMITS.maxStrokes + 1 }, () =>
       ({ tool: 'pen', color: '#202b38', width: 4, points: [{ x: 120, y: 240 }] })) }]))
     const oversizedResponse = await oversizedDrawing.submit(submissionRequest())
     expect(oversizedResponse.status).toBe(503)

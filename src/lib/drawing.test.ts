@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { drawingReducer, exportDrawingPng, replayDrawing, toLogicalPoint } from './drawing'
+import { DRAWING_COORDINATE_STEPS_PER_UNIT, drawingReducer, exportDrawingPng, replayDrawing, toLogicalPoint } from './drawing'
 import type { DrawingHistory, DrawingStroke } from '../models/drawing'
 
 const config = { width: 800, height: 600 }
@@ -16,6 +16,25 @@ describe('logical drawing coordinates', () => {
   })
   it('rejects zero-sized canvases', () => {
     expect(() => toLogicalPoint(1, 1, { left: 0, top: 0, width: 0, height: 0 }, config)).toThrow(RangeError)
+  })
+  it('keeps one decimal of a logical unit, at most 0.05 away from the pointer on each axis', () => {
+    // A 564 px wide display of the 800-unit canvas: every client pixel is a fractional logical position.
+    const rect = { left: 12.5, top: 30.25, width: 564, height: 423 }
+    for (const [clientX, clientY] of [[13, 31], [101.3, 77.7], [333.333, 222.222], [576.49, 453.24]]) {
+      const exactX = (clientX - rect.left) * 800 / 564, exactY = (clientY - rect.top) * 600 / 423
+      const point = toLogicalPoint(clientX, clientY, rect, config)
+      expect(Math.abs(point.x - exactX)).toBeLessThanOrEqual(0.05 + 1e-9)
+      expect(Math.abs(point.y - exactY)).toBeLessThanOrEqual(0.05 + 1e-9)
+      expect(Math.round(point.x * DRAWING_COORDINATE_STEPS_PER_UNIT) / DRAWING_COORDINATE_STEPS_PER_UNIT).toBe(point.x)
+      expect(Math.round(point.y * DRAWING_COORDINATE_STEPS_PER_UNIT) / DRAWING_COORDINATE_STEPS_PER_UNIT).toBe(point.y)
+      expect(JSON.stringify(point)).toMatch(/^\{"x":\d+(\.\d)?,"y":\d+(\.\d)?\}$/)
+    }
+  })
+  it('never leaves the canvas when a position next to an edge is rounded', () => {
+    const rect = { left: 0, top: 0, width: 564, height: 423 }
+    expect(toLogicalPoint(563.99, 422.99, rect, config)).toEqual({ x: 800, y: 600 })
+    expect(toLogicalPoint(0.01, 0.01, rect, config)).toEqual({ x: 0, y: 0 })
+    expect(toLogicalPoint(9999, -9999, rect, config)).toEqual({ x: 800, y: 0 })
   })
 })
 

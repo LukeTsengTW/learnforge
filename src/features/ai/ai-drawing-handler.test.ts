@@ -1,3 +1,4 @@
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { describe, expect, it, vi } from 'vitest'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
@@ -69,7 +70,7 @@ describe('drawing analysis endpoint', () => {
       [{ quizId: objective.quizId, revision: objective.revision }, input(objective.questionId), 409],
       [{ answer: { type: 'drawing', strokes: [] } }, input(), 409],
       [{ answer: { type: 'drawing', strokes: erased } }, input(), 409],
-      [{ answer: { type: 'drawing', strokes: Array.from({ length: 257 }, () => pen()) } }, input(), 413],
+      [{ answer: { type: 'drawing', strokes: Array.from({ length: DRAWING_LIMITS.maxStrokes + 1 }, () => pen()) } }, input(), 413],
     ] as const
     for (const [options, request, expected] of cases) {
       const { backend, provider } = fakeBackend(options)

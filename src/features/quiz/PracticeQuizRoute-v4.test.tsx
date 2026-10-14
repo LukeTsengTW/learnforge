@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
@@ -99,8 +100,8 @@ describe('M5 synthetic v4-capable quiz route', () => {
   it('surfaces a compatibility error (never repairs or downgrades) when a schema-1 draft cannot be promoted', async () => {
     const server = createV4MemoryRepository('student')
     const draft = await server.repo.getOrCreateDraft(v4Quiz)
-    // Valid under the historical schema-1 decoder, but beyond the v4 drawing limits (max 256 strokes).
-    const strokes = Array.from({ length: 300 }, () => ({ tool: 'pen' as const, color: '#202b38' as const, width: 2,
+    // Valid under the historical schema-1 decoder, but beyond the v4 drawing limits (one stroke too many).
+    const strokes = Array.from({ length: DRAWING_LIMITS.maxStrokes + 1 }, () => ({ tool: 'pen' as const, color: '#202b38' as const, width: 2,
       points: [{ x: 10, y: 10 }] }))
     server.serverEdit(draft.id, { ...(draft.attempt as Extract<typeof draft.attempt, { schemaVersion: 1 }>),
       answers: { q_draw: { type: 'drawing', strokes } } })

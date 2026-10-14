@@ -6,16 +6,17 @@ import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { DrawingStroke } from '../../models/drawing'
 import type { PracticeAnswerMap } from '../../models/draft-v4'
 import { AuthorPreview } from '../author/AuthorPreview'
-import { DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
+import type { AnswerOutcome } from './attempt-context'
+import { DRAWING_LIMIT_NOTICES, DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
 import { v4Quiz } from './practice-v4.test-helper'
 
 /**
  * The canvas keeps only ink its owner accepted. The owner answers every change synchronously with
- * 'accepted', 'limit' or 'rejected'; anything else than 'accepted' must leave the canvas, its undo
- * history and the answer untouched and must tell the user why.
+ * 'accepted', 'limit', 'draft-limit' or 'rejected'; anything else than 'accepted' must leave the
+ * canvas, its undo history and the answer untouched and must tell the user why.
  */
 const config = { width: 800, height: 600 }
-type Outcome = 'accepted' | 'limit' | 'rejected'
+type Outcome = AnswerOutcome
 let painted = 0
 beforeEach(() => {
   localStorage.clear()
@@ -58,7 +59,9 @@ describe('DrawingCanvas keeps only accepted ink', () => {
     draw(300)
     expect(painted).toBe(2)
     expect(seen.at(-1)).toHaveLength(2)
-    expect(screen.getByRole('alert')).toHaveTextContent('儲存上限（最多 256 筆、6000 個取樣點）')
+    // This owner's limit is its own (two strokes), so no limit of the stored answer is named.
+    expect(screen.getByRole('alert')).toHaveTextContent(DRAWING_LIMIT_NOTICES.other)
+    expect(screen.getByRole('alert')).toHaveTextContent('儲存上限')
     expect(screen.getByRole('alert')).toHaveTextContent('沒有加入作答')
     // The refused stroke is not in the undo history either: one undo removes the second accepted stroke.
     fireEvent.click(screen.getByRole('button', { name: '復原' }))

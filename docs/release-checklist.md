@@ -1,5 +1,34 @@
 # Release checklist
 
+## v1.11.0 handwriting capacity budget candidate
+
+日期：2026-10-14（Asia/Taipei）。Immutable base v1.10.2：tag object `ed2ca5fc6f4b64287f3328dbaa51b4a37e173fec`／peeled `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`；staged empty；v1.10.2 tag object 與 peeled commit 未變；local／remote v1.11.0 tag absent。
+- [x] 需求範圍：human 回報在 iPad 上被 256 筆的上限擋下，要求做剩下的三步（容量提示、提高上限、座標取整），並要求先做設計分析，把筆數上限由主要的容量限制改為只防濫用。另納入四項（整份草稿在接受時檢查、拒絕訊息分開、進行中的畫法、被接受的一筆重畫一次），由 independent reviewer 逐項裁定。同步的時機與協定、整份草稿 4 MiB 的上限與 geometry 預算不在範圍內。
+- [x] 設計分析的結論：必須 migration，只改一個資料庫函式的兩個數字；不需要重新設計 schema。預算：每題取樣點 32,000；筆數 16,000 只防濫用（正常落筆到抬筆的一筆至少兩個點，所以正常書寫下取樣點預算先到；並且小於 65,536）；geometry 25,000,000、PNG 2,000,000 bytes、畫布邊長 1200、整份草稿 4 MiB／100 題不變。
+- [x] 實作：座標取整到 0.1；容量提示（任何一項達到 75% 或沒有一筆一般筆畫的餘裕時出現）與依上限分開的拒絕訊息；整份草稿的大小在接受變更時檢查，量法與 save-quiz-draft 相同；進行中的筆畫畫在已完成筆畫的離屏圖上，無法使用時退回完整重畫；被接受的一筆完整重畫一次。取樣與提交的程式沒有改；drawing schema、保存格式與已保存的圖不變。
+- [x] Migration `20261013142522_drawing_point_budget.sql`：與前一次定義 `private.v4_strokes_shape_valid` 的 migration 只差兩行。本機資料庫：18 個 migration 套用後新的 security.sql 如預期失敗；套用第 19 個後函式的屬性與套用前相同、定義只差兩行，完整的 security.sql 通過並 rollback；邊界為 16,000／16,001 筆與 32,000／32,001 點。
+- [x] 量測（合成筆畫、本機、桌面 headless 瀏覽器，見 delivery）：256／512／1,024／2,048 筆的序列化大小、解析與驗證、server rasterize、資料庫檢查、瀏覽器互動、同步時主執行緒的工作與 localStorage 配額。沒有實機資料。
+- [x] Regression：新增 8 個測試檔、61 個測試；既有測試的修改只有上限數字改讀共用常數、訊息文字、多一種作答結果與取整的 helper。沒有既有測試因為進行中的畫法或一次重畫而修改。
+- [x] Local gates：108 files／1,654 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation；Chromium 與 WebKit，device pixel ratio 1 與 2）：680 項情境檢查 PASS，包含進行中的畫面與完整重畫逐位元相同、擁有者接受但不重畫、被拒絕的一筆不留在畫布、離屏圖無法建立、四種上限的拒絕與提示、1440／768／360 的版面、Author Preview、localStorage 已滿。v1.10.2 取樣情境的回歸：Chromium 62 PASS；WebKit 61 PASS、1 項未通過（針對小數座標的縮減量期望；WebKit 的滑鼠只回報整數像素，v1.10.2 的 build 結果相同）。console／page errors 0，沒有 provider 呼叫。
+- [x] Independent review（feature candidate，request `lf-2026-10-13-handwriting-capacity`，cycle 1）：PASS，無 blocking finding。
+- [x] 以最終 diff 重算 Edge import graph：`drawing-raster.ts` 可由 ai-drawing、ai-grade、ai-responses、save-quiz-draft、submit-quiz 到達，`draft-v4.ts` 可由 save-quiz-draft、submit-quiz 到達；其餘變更的 runtime 路徑只在前端。需要部署的是這五個 function。相對 v1.10.2：migration ＋1；無 DB 表、Auth、RLS、secrets、provider configuration 或 dependency change。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=true。
+- [ ] Human 對 production migration 與五個 Edge function 部署的授權：尚未取得。
+- [ ] Human 對 provider canary 的決定（執行一次付費的 AI 評分，或以不呼叫 AI 的方式驗證）：尚未取得。
+- [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.10.2` 10／10 PASS（1,654 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean` 的形式）PASS。
+- [x] Release-prep browser smoke（同一 isolation 方式，1.11.0 working tree 的正式 build；Chromium，24 項檢查 PASS）：navigation 在 1440 顯示 v1.11.0、360 時依既有樣式隱藏；Library 7 張卡片；Author Student Preview 的筆畫放開前後畫面相同、座標是 0.1 的倍數、密集筆畫以遠少於取樣數的點重畫；容量提示在 24,000 點出現、31,750 點變成警示；Answer Preview 重建的畫布與作答畫布相同；console／page／CSP／overflow 全為 0；bundle 內的上限為 16000／32000，沒有舊上限的字樣。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] Backend 同步：套用 migration 一次（前後各讀一次 migration 清單）；部署五個 Edge function，其餘六個不變；Edge runtime health。
+- [ ] Backend 完成後，一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.11.0／candidate SHA；canonical public smoke、Library、Author、Student／Answer Preview、responsive、KaTeX／console／CSP PASS。
+- [ ] 登入後的 canary（需要 human 登入一次）：一題寫入超過舊上限的手寫，草稿儲存被接受並在重新載入後仍在；正式提交並記錄所花的時間。資料庫的形狀檢查只在正式提交時執行，所以提交是 migration 生效的唯一端對端證據。
+- [ ] Closure 與 annotated v1.11.0 tag；沒有 GitHub Release。
+
+Candidate scope、設計分析、量測、完整證據、rollout 順序與已知限制：[v1.11.0 delivery](v1.11.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.10.2 handwriting stroke sampling production acceptance closure
 
 日期：2026-10-12（Asia/Taipei）。已接受的 production runtime candidate 為 `d410196434907d1fb567d50e39aaba7a5048bdba`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.10.1：tag object `e382d9f5455b6f155582c8ea7de6649d1cee94ca`／peeled `e27ffdae2d0ce3d46c40143474bfcdd7e9bb38bb`，保持不變。

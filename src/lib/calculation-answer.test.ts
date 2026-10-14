@@ -164,9 +164,9 @@ describe('server-equivalent geometry validation without rasterization', () => {
   })
 
   it('enforces stroke and aggregate point ceilings', () => {
-    expect(isCalculationAnswerV4(future({ strokes: Array.from({ length: 256 }, () => stroke()) }), capable)).toBe(true)
-    expect(isCalculationAnswerV4(future({ strokes: Array.from({ length: 257 }, () => stroke()) }), capable)).toBe(false)
-    const points = Array.from({ length: 6000 }, () => ({ x: 10, y: 20 }))
+    expect(isCalculationAnswerV4(future({ strokes: Array.from({ length: DRAWING_LIMITS.maxStrokes }, () => stroke()) }), capable)).toBe(true)
+    expect(isCalculationAnswerV4(future({ strokes: Array.from({ length: DRAWING_LIMITS.maxStrokes + 1 }, () => stroke()) }), capable)).toBe(false)
+    const points = Array.from({ length: DRAWING_LIMITS.maxPoints }, () => ({ x: 10, y: 20 }))
     expect(isCalculationAnswerV4(future({ strokes: [stroke({ points })] }), capable)).toBe(true)
     expect(isCalculationAnswerV4(future({ strokes: [stroke({ points }), stroke()] }), capable)).toBe(false)
     expect(isCalculationAnswerV4(future({ strokes: [stroke({ points: [...points, { x: 10, y: 20 }] })] }), capable)).toBe(false)

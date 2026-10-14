@@ -4,10 +4,15 @@ import type { Quiz } from '../../models/quiz'
 
 /**
  * Synchronous result of an answer update. An editor may only keep showing input its owner accepted:
- * 'limit' means the stored-answer limits refused it, 'rejected' means it was not taken for another
- * reason (for example the attempt is locked while it is being submitted). Every answer owner reports it.
+ * 'limit' means the limits of this one stored answer refused it, 'draft-limit' means the whole draft
+ * would exceed the size that can be saved, 'rejected' means it was not taken for another reason (for
+ * example the attempt is locked while it is being submitted). Every answer owner reports it.
  */
-export type AnswerOutcome = 'accepted' | 'limit' | 'rejected'
+export type AnswerOutcome = 'accepted' | 'limit' | 'draft-limit' | 'rejected'
+
+/** Size of the whole draft against the size that can be saved; absent where answers are not a draft. */
+export interface DraftCapacity { usedBytes: number; maxBytes: number }
+export const DraftCapacityContext = createContext<DraftCapacity | null>(null)
 
 /**
  * Synchronously commits uncommitted editor input (e.g. an in-progress handwriting stroke) and reports

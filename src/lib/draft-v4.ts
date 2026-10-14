@@ -27,29 +27,63 @@ export function decodeDraftAnswersV4(quiz: Quiz, raw: unknown): DraftAnswerMapV4
   try { return normalizeDraftAnswersV4(contexts(quiz), raw, false) } catch { return null }
 }
 
+const encoder = new TextEncoder()
+// Answers are replaced, never mutated, so the serialized size of an answer object does not change.
+const answerBytes = new WeakMap<object, number>()
+
 /**
- * Pure schema-2 answer update. Validates the question/type and the complete answer (including the
- * inactive calculation buffer), keeps it intact, advances client time and never grades.
+ * Exactly draftAnswersBytes(answers), the size the save path checks against maxAnswerBytes, computed
+ * from one cached size per answer so that an update serializes only the answer it changes.
+ */
+export function draftAnswerMapBytes(answers: DraftAnswerMapV4): number {
+  let total = 2
+  let members = 0
+  for (const [id, answer] of Object.entries(answers)) {
+    let size = answerBytes.get(answer)
+    if (size === undefined) { size = encoder.encode(JSON.stringify(answer)).length; answerBytes.set(answer, size) }
+    total += encoder.encode(JSON.stringify(id)).length + 1 + size
+    members++
+  }
+  return total + Math.max(0, members - 1)
+}
+
+type DraftAnswerProblem = 'oversized' | 'draft-oversized' | 'invalid'
+
+/** The answer map after this update, or why the update is not taken. */
+function updatedAnswersV4(quiz: Quiz, draft: QuizDraftV4, questionId: string,
+  answer: PracticeAnswer): DraftAnswerMapV4 | DraftAnswerProblem {
+  const question = quiz.questions.find((item) => item.id === questionId)
+  if (!question || question.type !== answer.type || draft.quizId !== quiz.id || draft.quizRevision !== quiz.revision) return 'invalid'
+  let normalized: DraftAnswerMapV4
+  try { normalized = normalizeDraftAnswersV4(contexts(quiz), { [questionId]: answer }, false) }
+  catch (error) { return error instanceof DraftValidationError && error.kind === 'oversized' ? 'oversized' : 'invalid' }
+  const answers = { ...draft.answers, [questionId]: normalized[questionId] }
+  // Saving refuses a draft above the aggregate cap, so an update that would grow the draft past it is
+  // not taken. One that does not grow it (undo, clear) always is.
+  const size = draftAnswerMapBytes(answers)
+  if (size > DRAFT_V4_LIMITS.maxAnswerBytes && size > draftAnswerMapBytes(draft.answers)) return 'draft-oversized'
+  return answers
+}
+
+/**
+ * Pure schema-2 answer update. Validates the question/type, the complete answer (including the
+ * inactive calculation buffer) and the size of the whole draft, advances client time and never grades.
  */
 export function answerQuizDraftV4(quiz: Quiz, draft: QuizDraftV4, questionId: string,
   answer: PracticeAnswer, now: string): QuizDraftV4 {
-  const question = quiz.questions.find((item) => item.id === questionId)
-  if (!question || question.type !== answer.type || draft.quizId !== quiz.id || draft.quizRevision !== quiz.revision) return draft
-  const normalized = decodeDraftAnswersV4(quiz, { [questionId]: answer })
-  if (!normalized) return draft
-  return { ...draft, status: 'in-progress', updatedAt: now, answers: { ...draft.answers, [questionId]: normalized[questionId] } }
+  const answers = updatedAnswersV4(quiz, draft, questionId, answer)
+  return typeof answers === 'string' ? draft : { ...draft, status: 'in-progress', updatedAt: now, answers }
 }
 
 /**
  * Why answerQuizDraftV4 keeps the draft unchanged for this answer: 'oversized' when a stored-answer
- * limit refuses it, 'invalid' for any other refusal, null when the answer would be stored.
+ * limit refuses it, 'draft-oversized' when the whole draft would exceed the size that can be saved,
+ * 'invalid' for any other refusal, null when the answer would be stored.
  */
 export function draftAnswerProblemV4(quiz: Quiz, draft: QuizDraftV4, questionId: string,
-  answer: PracticeAnswer): 'oversized' | 'invalid' | null {
-  const question = quiz.questions.find((item) => item.id === questionId)
-  if (!question || question.type !== answer.type || draft.quizId !== quiz.id || draft.quizRevision !== quiz.revision) return 'invalid'
-  try { normalizeDraftAnswersV4(contexts(quiz), { [questionId]: answer }, false); return null }
-  catch (error) { return error instanceof DraftValidationError && error.kind === 'oversized' ? 'oversized' : 'invalid' }
+  answer: PracticeAnswer): DraftAnswerProblem | null {
+  const answers = updatedAnswersV4(quiz, draft, questionId, answer)
+  return typeof answers === 'string' ? answers : null
 }
 
 function contexts(quiz: Quiz): DraftQuestionContext[] {

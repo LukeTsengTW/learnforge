@@ -40,6 +40,29 @@ describe('Edge drawing rasterization and PNG', () => {
     const bounds = definitions.at(-1)?.match(/\(v_stroke->>'width'\)::numeric < (\d+) or \(v_stroke->>'width'\)::numeric > (\d+)/)
     expect(bounds?.slice(1).map(Number)).toEqual([DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX])
   })
+  it('keeps the latest SQL stroke and point ceilings aligned with the canonical drawing limits', () => {
+    const directory = new URL('../../../supabase/migrations/', import.meta.url)
+    const definitions = readdirSync(directory).filter(name => name.endsWith('.sql')).sort().flatMap(name => {
+      const source = readFileSync(new URL(name, directory), 'utf8')
+      return source.match(/create(?: or replace)? function private\.v4_strokes_shape_valid\([\s\S]*?end \$\$;/gi) ?? []
+    })
+    const latest = definitions.at(-1) ?? ''
+    expect(latest.match(/jsonb_array_length\(p_strokes\) > (\d+)/)?.slice(1).map(Number)).toEqual([DRAWING_LIMITS.maxStrokes])
+    expect(latest.match(/if v_points > (\d+) then return false/)?.slice(1).map(Number)).toEqual([DRAWING_LIMITS.maxPoints])
+    // Each ceiling appears once: no second, stricter check is left behind (the only other bound is the width, 100).
+    expect(latest.match(/> \d{4,}/g)).toHaveLength(2)
+    // The rasterizer stamps strokes with 16-bit numbers, and a drawn stroke stores at least two points.
+    expect(DRAWING_LIMITS.maxStrokes).toBeLessThan(65536)
+    expect(DRAWING_LIMITS.maxStrokes * 2).toBeLessThanOrEqual(DRAWING_LIMITS.maxPoints)
+  })
+  it('accepts every drawing the previous limits accepted: 256 strokes and 6000 unrounded points', () => {
+    const large = { width: 1200, height: 900 }
+    const unrounded = (index: number) => ({ x: 100.12345678901234 + (index % 900), y: 50.98765432109876 + (index % 700) })
+    const strokes = Array.from({ length: 256 }, (_, row) => stroke('#202b38', 4,
+      Array.from({ length: row < 112 ? 24 : 23 }, (_, step) => unrounded(row * 31 + step))))
+    expect(strokes.reduce((sum, item) => sum + item.points.length, 0)).toBe(6000)
+    expect(parseStoredDrawing(answer(strokes), large)).toEqual(strokes)
+  })
   it('encodes an opaque white blank canvas', async () => {
     const pixels = rasterDrawingPixels(config, [])
     expect(pixel(pixels, 10, 10)).toEqual([255, 255, 255, 255])
@@ -116,13 +139,16 @@ describe('Edge drawing rasterization and PNG', () => {
   })
   it('renders the maximum number of short strokes across a large canvas', () => {
     const large = { width: 1200, height: 1200 }
-    const dots = Array.from({ length: DRAWING_LIMITS.maxStrokes }, (_, index) => stroke('#202b38', 4,
-      [{ x: 20 + (index % 16) * 70, y: 20 + Math.floor(index / 16) * 70 }]))
+    // A grid of dots seven units apart, 160 to a row; the last stroke must be rendered like the first.
+    const at = (index: number) => ({ x: 20 + (index % 160) * 7, y: 20 + Math.floor(index / 160) * 7 })
+    const dots = Array.from({ length: DRAWING_LIMITS.maxStrokes }, (_, index) => stroke('#202b38', 4, [at(index)]))
+    const last = at(DRAWING_LIMITS.maxStrokes - 1)
+    expect(last.y).toBeLessThan(1190)
     const pixels = rasterDrawingPixels(large, parseStoredDrawing(answer(dots), large))
     const red = (x: number, y: number) => pixels[(y * large.width + x) * 4]
     expect(red(20, 20)).toBe(32)
-    expect(red(1070, 1070)).toBe(32)
-    expect(red(50, 50)).toBe(255)
+    expect(red(last.x, last.y)).toBe(32)
+    expect(red(1195, 1195)).toBe(255)
   })
   it('keeps the AND-gate fixture topology distinct from one missing output connection', () => {
     const gate = [

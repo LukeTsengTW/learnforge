@@ -11,6 +11,8 @@ import type { QuizAttempt, TrustedRubricJudgment } from '../../models/attempt'
 import type { DrawingStroke } from '../../models/drawing'
 import { ResultPage } from '../../pages/ResultPage'
 import { PracticeContext } from './practice-context'
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
+import { DRAWING_LIMIT_NOTICES } from './DrawingCanvas'
 import { PracticeQuizRoute } from './PracticeQuizRoute'
 import { SubmissionError } from './practice-repository'
 import { createV4MemoryRepository, v4Catalog, v4Quiz } from './practice-v4.test-helper'
@@ -33,6 +35,8 @@ vi.mock('../ai/use-ai-tutor', () => ({ useAiTutor: () => ({}) }))
 vi.mock('../ai/AiTutorControls', () => ({ AiTutorControls: () => null, AiQuotaStatus: () => null }))
 
 type Server = ReturnType<typeof createV4MemoryRepository>
+// The stored-answer limits under test; the scenarios start one stroke, or one hundred points, below them.
+const MAX_STROKES = DRAWING_LIMITS.maxStrokes, MAX_POINTS = DRAWING_LIMITS.maxPoints
 // Strokes drawn by the most recent canvas replay: beginPath calls since the last clearRect.
 let painted = 0
 // The same count kept per canvas, for reading one canvas while another (q_draw) has replayed since.
@@ -294,77 +298,81 @@ describe('submit boundary: the submitted drawing is the completed drawing on the
 })
 
 describe('the canvas never shows ink the answer did not accept', () => {
-  it('refuses the 257th stroke visibly, keeps the 256 accepted ones, and submits exactly what is shown', async () => {
+  it('refuses the stroke past the stroke limit visibly, keeps the accepted ones, and submits exactly what is shown', async () => {
     const user = userEvent.setup()
     const server = finalizing(createV4MemoryRepository('student'))
-    // 255 strokes are already in the draft; the strokes at the limit are drawn on the page.
-    const saved = await seedHandwriting(server, Array.from({ length: 255 }, (_, index) => savedStroke(index)))
+    // One stroke below the limit is already in the draft; the strokes at the limit are drawn on the page.
+    const saved = await seedHandwriting(server, Array.from({ length: MAX_STROKES - 1 }, (_, index) => savedStroke(index)))
     renderApp(server)
-    await restoredHandwriting(255)
+    await restoredHandwriting(MAX_STROKES - 1)
     draw(300)
-    expect(painted).toBe(256)
+    expect(painted).toBe(MAX_STROKES)
     expect(screen.queryByText(/儲存上限/)).toBeNull()
     draw(310)
     // Only the new stroke is refused; nothing that was accepted disappears.
-    expect(painted).toBe(256)
-    expect(screen.getByRole('alert')).toHaveTextContent('儲存上限（最多 256 筆、6000 個取樣點）')
+    expect(painted).toBe(MAX_STROKES)
+    expect(screen.getByRole('alert')).toHaveTextContent(DRAWING_LIMIT_NOTICES.strokes)
+    expect(screen.getByRole('alert')).toHaveTextContent(`筆數的儲存上限（最多 ${MAX_STROKES.toLocaleString('en-US')} 筆）`)
     // Undo frees one stroke: the notice goes away and a new stroke is accepted again.
     await user.click(handTools().getByRole('button', { name: '復原' }))
     expect(screen.queryByText(/儲存上限/)).toBeNull()
-    expect(painted).toBe(255)
+    expect(painted).toBe(MAX_STROKES - 1)
     const replacement = draw(400)
-    expect(painted).toBe(256)
+    expect(painted).toBe(MAX_STROKES)
     await pressSubmit(user)
     await submitted(server)
     expect(handAnswer(serverRow(server).record.attempt)!.strokes).toEqual([...saved, replacement])
   })
 
-  it('refuses the stroke that would pass 6000 points, and submits the 60 strokes that are shown', async () => {
+  it('refuses the stroke that would pass the point limit, and submits the strokes that are shown', async () => {
     const user = userEvent.setup()
     const server = finalizing(createV4MemoryRepository('student'))
-    // 59 strokes of 100 points are already in the draft (5900 points).
-    const saved = await seedHandwriting(server, Array.from({ length: 59 }, (_, index) => savedStroke(index, 100)))
+    // Strokes of 100 points are already in the draft, 100 points below the limit.
+    const seeded = MAX_POINTS / 100 - 1
+    const saved = await seedHandwriting(server, Array.from({ length: seeded }, (_, index) => savedStroke(index, 100)))
     renderApp(server)
-    await restoredHandwriting(59)
-    const last = draw(150, 98) // 100 more points: exactly 6000
-    expect(painted).toBe(60)
+    await restoredHandwriting(seeded)
+    const last = draw(150, 98) // 100 more points: exactly the limit
+    expect(painted).toBe(seeded + 1)
     expect(screen.queryByText(/儲存上限/)).toBeNull()
     draw(200, 98)
-    expect(painted).toBe(60)
-    expect(screen.getByRole('alert')).toHaveTextContent('儲存上限')
-    // A short stroke is not possible either: the draft already holds exactly 6000 points.
+    expect(painted).toBe(seeded + 1)
+    expect(screen.getByRole('alert')).toHaveTextContent(DRAWING_LIMIT_NOTICES.points)
+    expect(screen.getByRole('alert')).toHaveTextContent(`取樣點的儲存上限（最多 ${MAX_POINTS.toLocaleString('en-US')} 個取樣點）`)
+    // A short stroke is not possible either: the draft already holds exactly the limit.
     draw(210)
-    expect(painted).toBe(60)
+    expect(painted).toBe(seeded + 1)
     await pressSubmit(user)
     await submitted(server)
     const answer = handAnswer(serverRow(server).record.attempt)!
-    expect(pointCount(answer.strokes)).toBe(6000)
+    expect(pointCount(answer.strokes)).toBe(MAX_POINTS)
     expect(answer.strokes).toEqual([...saved, last])
   })
 
   it('stores a long, densely sampled stroke within the point limit and submits it as shown', async () => {
     const user = userEvent.setup()
     const server = finalizing(createV4MemoryRepository('student'))
-    // 5900 points are already in the draft: only 100 more can be stored.
-    const saved = await seedHandwriting(server, Array.from({ length: 59 }, (_, index) => savedStroke(index, 100)))
+    // The draft is 100 points below the limit: only 100 more can be stored.
+    const seeded = MAX_POINTS / 100 - 1
+    const saved = await seedHandwriting(server, Array.from({ length: seeded }, (_, index) => savedStroke(index, 100)))
     renderApp(server)
-    await restoredHandwriting(59)
+    await restoredHandwriting(seeded)
     // One straight stroke with a sample every unit: 301 pointer samples, three times what is left.
     pointer('pointerdown', 10, 150)
     for (let x = 11; x < 310; x++) pointer('pointermove', x, 150)
     pointer('pointerup', 310, 150)
-    expect(painted).toBe(60)
+    expect(painted).toBe(seeded + 1)
     expect(screen.queryByText(/儲存上限/)).toBeNull()
     await pressSubmit(user)
     await submitted(server)
     const answer = handAnswer(serverRow(server).record.attempt)!
-    expect(answer.strokes.slice(0, 59)).toEqual(saved)
-    const shown = answer.strokes[59].points
+    expect(answer.strokes.slice(0, seeded)).toEqual(saved)
+    const shown = answer.strokes[seeded].points
     expect(shown[0]).toEqual({ x: 10, y: 150 })
     expect(shown.at(-1)).toEqual({ x: 310, y: 150 })
     expect(shown).toHaveLength(Math.ceil(300 / STROKE_SAMPLE_MAX_SEGMENT) + 1)
     expect(shown.every((point) => point.y === 150)).toBe(true)
-    expect(pointCount(answer.strokes)).toBeLessThanOrEqual(6000)
+    expect(pointCount(answer.strokes)).toBeLessThanOrEqual(MAX_POINTS)
     // The save that the submission was bound to carried the same strokes.
     expect(handAnswer(server.v4Saves.at(-1)!.attempt)!.strokes).toEqual(answer.strokes)
   })
@@ -398,18 +406,18 @@ describe('the canvas never shows ink the answer did not accept', () => {
   it('stops the submission when the gesture in progress is refused, and says why', async () => {
     const user = userEvent.setup()
     const server = finalizing(createV4MemoryRepository('student'))
-    await seedHandwriting(server, Array.from({ length: 255 }, (_, index) => savedStroke(index)))
+    await seedHandwriting(server, Array.from({ length: MAX_STROKES - 1 }, (_, index) => savedStroke(index)))
     renderApp(server)
-    await restoredHandwriting(255)
-    draw(300) // the 256th stroke is accepted
-    expect(painted).toBe(256)
-    pointer('pointerdown', 100, 550); pointer('pointermove', 400, 560) // a 257th stroke, not released
-    expect(painted).toBe(257)
+    await restoredHandwriting(MAX_STROKES - 1)
+    draw(300) // the last stroke the limit allows is accepted
+    expect(painted).toBe(MAX_STROKES)
+    pointer('pointerdown', 100, 550); pointer('pointermove', 400, 560) // one stroke too many, not released
+    expect(painted).toBe(MAX_STROKES + 1)
     await pressSubmit(user)
     // The pending stroke was completed at the boundary and refused: nothing was saved for submission or submitted.
     expect(await screen.findByText(/尚未完成的那一筆手寫沒有加入作答/)).toBeInTheDocument()
     expect(screen.getByText(/儲存上限/)).toBeInTheDocument()
-    expect(painted).toBe(256)
+    expect(painted).toBe(MAX_STROKES)
     await new Promise((resolve) => setTimeout(resolve, 50))
     expect(server.submits).toHaveLength(0)
     expect(serverRow(server).record.row.status).toBe('draft')
@@ -418,6 +426,6 @@ describe('the canvas never shows ink the answer did not accept', () => {
     expect(screen.queryByText(/尚未完成的那一筆手寫沒有加入作答/)).toBeNull()
     await pressSubmit(user)
     await submitted(server)
-    expect(handAnswer(serverRow(server).record.attempt)!.strokes).toHaveLength(255)
+    expect(handAnswer(serverRow(server).record.attempt)!.strokes).toHaveLength(MAX_STROKES - 1)
   })
 })

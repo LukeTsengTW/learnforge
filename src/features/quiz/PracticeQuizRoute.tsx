@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/auth-context'
 import { NotFoundPage } from '../../components/ErrorPage'
@@ -6,7 +6,8 @@ import { QuizPage } from '../../pages/QuizPage'
 import { quizCatalog } from './quiz-loader'
 import { usePracticeRepository } from './practice-context'
 import { LocalPracticeCache } from './practice-cache'
-import { AttemptContext, type PendingInputFlush } from './attempt-context'
+import { AttemptContext, DraftCapacityContext, type PendingInputFlush } from './attempt-context'
+import { DRAFT_V4_LIMITS } from '../../../supabase/functions/_shared/draft-v4.ts'
 import { createPracticeStore, draftSchemaFor, effectiveRemoteAttempt } from './practice-store'
 import type { PracticeRecord } from './practice-repository'
 import type { PracticeAttempt } from '../../models/draft-v4'
@@ -43,8 +44,11 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
     window.addEventListener('online', online)
     return () => { store.stop(); window.removeEventListener('online', online) }
   }, [store])
+  // Only schema-2 drafts have an aggregate size cap; handwriting editors show how much of it is used.
+  const capacity = useMemo(() => state.draftSchema === 2
+    ? { usedBytes: state.draftBytes, maxBytes: DRAFT_V4_LIMITS.maxAnswerBytes } : null, [state.draftSchema, state.draftBytes])
   if (!record.quiz) return null
-  return <AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
+  return <DraftCapacityContext.Provider value={capacity}><AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
     draftSchema: state.draftSchema, registerPendingFlush,
     storageNotice: refusedAt === state.attempt ? PENDING_INPUT_REFUSED_NOTICE : state.notice,
     syncing: state.syncing, submitting: state.submitting,
@@ -59,7 +63,7 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
         onReplace(await repo.getOrCreateDraft(current)); return true
       } catch { return false }
     },
-  }}>{children}</AttemptContext.Provider>
+  }}>{children}</AttemptContext.Provider></DraftCapacityContext.Provider>
 }
 
 /** A schema-1 draft of a v4-capable revision must promote cleanly in memory; it is never repaired. */

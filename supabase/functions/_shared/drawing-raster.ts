@@ -3,10 +3,16 @@ import type { DrawingConfig } from '../../../src/models/quiz.ts'
 
 // The browser canvas and this Edge rasterizer use the same logical coordinates,
 // round caps/joins, source-over pen, and destination-out eraser semantics.
+//
+// How much one drawing may hold is set by its sample points and by its geometry, the pixels the
+// rasterizer visits; the whole draft has a byte cap of its own (draft-v4.ts). The stroke count is
+// only a ceiling against abuse: a drawn stroke stores at least two points, so half the point budget
+// is never reached first, and it must stay below 65,536 for the rasterizer's 16-bit stroke stamps.
+// private.v4_strokes_shape_valid repeats maxStrokes and maxPoints; a regression test compares them.
 export const DRAWING_LIMITS = {
   maxDimension: 1200,
-  maxStrokes: 256,
-  maxPoints: 6000,
+  maxStrokes: 16_000,
+  maxPoints: 32_000,
   maxGeometryPixels: 25_000_000,
   maxPngBytes: 2_000_000,
 } as const
@@ -20,6 +26,26 @@ const record = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === 'object' && !Array.isArray(value)
 const finite = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value)
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
+
+/**
+ * What one stroke counts against maxGeometryPixels: for every point, the bounding box of the segment
+ * that ends there, grown by the brush radius. It bounds the pixels the rasterizer visits.
+ */
+export function strokeGeometryPixels(points: readonly DrawingStroke['points'][number][], width: number,
+  config: DrawingConfig): number {
+  const radius = width / 2 + 1
+  let pixels = 0
+  for (let i = 0; i < points.length; i++) {
+    const a = points[Math.max(0, i - 1)]
+    const b = points[i]
+    const x0 = clamp(Math.floor(Math.min(a.x, b.x) - radius), 0, config.width)
+    const x1 = clamp(Math.ceil(Math.max(a.x, b.x) + radius), 0, config.width)
+    const y0 = clamp(Math.floor(Math.min(a.y, b.y) - radius), 0, config.height)
+    const y1 = clamp(Math.ceil(Math.max(a.y, b.y) + radius), 0, config.height)
+    pixels += (x1 - x0) * (y1 - y0)
+  }
+  return pixels
+}
 
 export function parseStoredDrawing(raw: unknown, config: DrawingConfig): DrawingStroke[] {
   if (!Number.isInteger(config.width) || !Number.isInteger(config.height)
@@ -48,17 +74,9 @@ export function parseStoredDrawing(raw: unknown, config: DrawingConfig): Drawing
       }
       return { x: clamp(point.x, 0, config.width), y: clamp(point.y, 0, config.height) }
     })
-    const radius = value.width / 2 + 1
-    for (let i = 0; i < points.length; i++) {
-      const a = points[Math.max(0, i - 1)]
-      const b = points[i]
-      const x0 = clamp(Math.floor(Math.min(a.x, b.x) - radius), 0, config.width)
-      const x1 = clamp(Math.ceil(Math.max(a.x, b.x) + radius), 0, config.width)
-      const y0 = clamp(Math.floor(Math.min(a.y, b.y) - radius), 0, config.height)
-      const y1 = clamp(Math.ceil(Math.max(a.y, b.y) + radius), 0, config.height)
-      geometryPixels += (x1 - x0) * (y1 - y0)
-      if (geometryPixels > DRAWING_LIMITS.maxGeometryPixels) throw new DrawingRasterError('oversized')
-    }
+    // Box areas are never negative, so checking once per stroke refuses exactly the same drawings.
+    geometryPixels += strokeGeometryPixels(points, value.width, config)
+    if (geometryPixels > DRAWING_LIMITS.maxGeometryPixels) throw new DrawingRasterError('oversized')
     strokes.push({ tool: value.tool, color: value.color as DrawingStroke['color'], width: value.width, points })
   }
   return strokes

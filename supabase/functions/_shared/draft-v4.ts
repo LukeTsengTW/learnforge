@@ -3,9 +3,10 @@ import type { DraftAnswerMapV4, DraftQuestionAnswerV4 } from '../../../src/model
 import type { CalculationQuestion, DrawingConfig, Question } from '../../../src/models/quiz.ts'
 import { DrawingRasterError, parseStoredDrawing } from './drawing-raster.ts'
 
-// A full 6000-point drawing is below 0.5 MiB of compact JSON; even worst-case escaped
-// 100000-character text adds at most 0.6 MiB. The aggregate cap permits several such
-// answers while bounding memory; all 100 entries cannot simultaneously use every maximum.
+// A drawing at its point budget is about 1 MiB of compact JSON as the canvas stores it (one decimal
+// per coordinate) and at most about 2.5 MiB with unrounded coordinates and the most strokes; worst-case
+// escaped 100000-character text adds at most 0.6 MiB. The aggregate cap bounds the memory and the work
+// of every request whatever the per-answer limits are; all 100 entries cannot simultaneously use every maximum.
 export const DRAFT_V4_LIMITS = { maxAnswers: 100, maxAnswerBytes: 4 * 1024 * 1024,
   maxRequestBytes: 4 * 1024 * 1024 + 1024, maxTextLength: 100000, maxOptionIds: 12 } as const
 export const DRAFT_QUESTION_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,99}$/
@@ -19,6 +20,8 @@ export class DraftValidationError extends Error {
 }
 const invalid = (): never => { throw new DraftValidationError('invalid') }
 const oversized = (): never => { throw new DraftValidationError('oversized') }
+/** What maxAnswerBytes measures: the UTF-8 size of the compact JSON of a draft's answer map. */
+export const draftAnswersBytes = (answers: unknown): number => new TextEncoder().encode(JSON.stringify(answers)).length
 
 export interface DraftQuestionContext {
   questionId: string
@@ -101,7 +104,7 @@ export function normalizeDraftAnswersV4(questions: readonly DraftQuestionContext
   if (!draftRecord(raw)) return invalid()
   const entries = Object.entries(raw)
   if (entries.length > DRAFT_V4_LIMITS.maxAnswers) return oversized()
-  if (new TextEncoder().encode(JSON.stringify(raw)).length > DRAFT_V4_LIMITS.maxAnswerBytes) return oversized()
+  if (draftAnswersBytes(raw) > DRAFT_V4_LIMITS.maxAnswerBytes) return oversized()
   const lookup = new Map(questions.map((question) => [question.questionId, question]))
   if (lookup.size !== questions.length) return invalid()
   return Object.fromEntries(entries.map(([id, answer]) => {

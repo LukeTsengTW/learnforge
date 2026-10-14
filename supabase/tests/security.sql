@@ -1256,13 +1256,32 @@ begin
       end if;
     end loop;
   end loop;
+  -- Stroke ceiling and point budget: both are inclusive, and one past either is refused.
   v_stroke := jsonb_set(v_stroke,'{width}','100');
-  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,257);
+  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,16000);
+  if not private.v4_strokes_shape_valid(v_strokes,v_drawing) then raise exception 'FAIL stroke ceiling is inclusive'; end if;
+  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,16001);
   if private.v4_strokes_shape_valid(v_strokes,v_drawing) then raise exception 'FAIL expanded width stroke ceiling'; end if;
-  select jsonb_agg(jsonb_build_object('x',200,'y',150)) into v_strokes from generate_series(1,6001);
+  select jsonb_agg(jsonb_build_object('x',200,'y',150)) into v_strokes from generate_series(1,32000);
+  if not private.v4_strokes_shape_valid(jsonb_build_array(jsonb_set(v_stroke,'{points}',v_strokes)),v_drawing) then
+    raise exception 'FAIL point budget is inclusive';
+  end if;
+  -- The same points spread over several strokes are counted together.
+  if private.v4_strokes_shape_valid(jsonb_build_array(jsonb_set(v_stroke,'{points}',v_strokes), v_stroke),v_drawing) then
+    raise exception 'FAIL point budget is counted across strokes';
+  end if;
+  select jsonb_agg(jsonb_build_object('x',200,'y',150)) into v_strokes from generate_series(1,32001);
   v_stroke := jsonb_set(v_stroke,'{points}',v_strokes);
   if private.v4_strokes_shape_valid(jsonb_build_array(v_stroke),v_drawing) then
     raise exception 'FAIL expanded width point ceiling';
+  end if;
+  -- Everything the previous ceilings (256 strokes, 6000 points) accepted is still accepted.
+  select jsonb_agg(jsonb_build_object('tool','pen','color','#255bbb','width',4,'points',
+    (select jsonb_agg(jsonb_build_object('x',10.123456789012345 + j,'y',20.987654321098765 + j)) from generate_series(1, case when i <= 112 then 24 else 23 end) j)))
+    into v_strokes from generate_series(1,256) i;
+  if (select sum(jsonb_array_length(s->'points')) from jsonb_array_elements(v_strokes) s) <> 6000
+    or not private.v4_strokes_shape_valid(v_strokes,v_drawing) then
+    raise exception 'FAIL drawings valid under the previous ceilings stay valid';
   end if;
 end $$;
 

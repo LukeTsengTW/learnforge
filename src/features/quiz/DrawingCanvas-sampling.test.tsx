@@ -57,12 +57,12 @@ function distanceToSegment(point: DrawingPoint, from: DrawingPoint, to: DrawingP
 const deviation = (raw: DrawingPoint[], stored: DrawingPoint[]) =>
   Math.max(...raw.map((point) => Math.min(...stored.slice(1).map((to, index) => distanceToSegment(point, stored[index], to)))))
 /**
- * A handwriting-sized loop sampled about one unit apart. Coordinates are multiples of 1/8 so that the
- * conversion from client to logical coordinates is exact and samples can be compared by value.
+ * A handwriting-sized loop sampled about one unit apart. Coordinates are tenths of a unit, the
+ * precision the canvas keeps, so samples can be compared by value with what is stored and painted.
  */
-const eighth = (value: number) => Math.round(value * 8) / 8
+const tenth = (value: number) => Math.round(value * 10) / 10
 const loop = (cx: number, cy: number) => Array.from({ length: 140 }, (_, index) =>
-  ({ x: eighth(cx + 22 * Math.cos(index / 22)), y: eighth(cy + 30 * Math.sin(index / 22)) }))
+  ({ x: tenth(cx + 22 * Math.cos(index / 22)), y: tenth(cy + 30 * Math.sin(index / 22)) }))
 
 describe('DrawingCanvas reduces dense pointer samples without changing what is shown', () => {
   it('stores a densely sampled curve with a fraction of its samples, within the tolerance, ending where the pen lifted', () => {
@@ -120,5 +120,22 @@ describe('DrawingCanvas reduces dense pointer samples without changing what is s
     render(<Owner seen={seen} />)
     gesture([{ x: 50, y: 60 }, { x: 50, y: 60 }])
     expect(seen[0][0].points).toEqual([{ x: 50, y: 60 }, { x: 50, y: 60 }])
+  })
+
+  it('rounds pointer positions to a tenth of a unit before they are painted or stored', () => {
+    const seen: DrawingStroke[][] = []
+    render(<Owner seen={seen} />)
+    // Far enough apart that every sample is kept; none is a multiple of a tenth.
+    const raw = [{ x: 100.3333, y: 50.0499 }, { x: 140.6666, y: 80.951 }, { x: 181.049, y: 50.25 }, { x: 222.2222, y: 81.1111 }]
+    pointer('pointerdown', raw[0].x, raw[0].y)
+    pointer('pointermove', raw[1].x, raw[1].y)
+    // While the pen is down the canvas already shows the rounded positions.
+    expect(paintedPaths).toEqual([[{ x: 100.3, y: 50 }, { x: 140.7, y: 81 }]])
+    pointer('pointermove', raw[2].x, raw[2].y)
+    pointer('pointerup', raw[3].x, raw[3].y)
+    const stored = seen[0][0].points
+    expect(stored).toEqual([{ x: 100.3, y: 50 }, { x: 140.7, y: 81 }, { x: 181, y: 50.3 }, { x: 222.2, y: 81.1 }])
+    expect(paintedPaths).toEqual([stored])
+    expect(JSON.stringify(stored)).toBe('[{"x":100.3,"y":50},{"x":140.7,"y":81},{"x":181,"y":50.3},{"x":222.2,"y":81.1}]')
   })
 })

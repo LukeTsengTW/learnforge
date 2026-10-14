@@ -1,6 +1,6 @@
 import { attemptKey, decodeAttempt } from '../../lib/attempt-storage'
 import { reduceAttempt } from '../../lib/attempt'
-import { answerQuizDraftV4, draftAnswerProblemV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
+import { answerQuizDraftV4, draftAnswerMapBytes, draftAnswerProblemV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
 import type { AnswerOutcome } from './attempt-context'
@@ -21,6 +21,7 @@ export const INVALID_SUBMISSION_NOTICE = '作答內容不符合正式提交限�
 export const STALE_DRAFT_NOTICE = '雲端草稿已由其他分頁或裝置更新，已改用雲端版本；你在此頁的未同步變更已保留於本機練習備份。'
 export const DRAFT_CHANGED_NOTICE = '雲端草稿已更新，請確認目前答案後再提交。'
 export const STALE_NOT_SUBMITTED_NOTICE = `${STALE_DRAFT_NOTICE}作答尚未提交，請確認目前答案後再提交。`
+export const DRAFT_FULL_NOTICE = '整份作答已達雲端草稿的大小上限，剛才的變更沒有套用。請先復原或清除部分手寫筆畫（任何一題皆可）再繼續。'
 
 /**
  * Draft schema is decided once from the EXACT revision and the server marker. A server schema-2
@@ -90,8 +91,11 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   catch { notice = '無法讀取本機進度；雲端草稿仍可使用。請檢查瀏覽器儲存空間。' }
   let remoteRecord = initial
   let dirty = !sameAttempt(value.attempt, remoteAttempt(initial))
+  // Size of the answers as the save path measures it; schema-1 drafts have no aggregate cap.
+  const draftBytes = (attempt: PracticeAttempt) => attempt.schemaVersion === 2 ? draftAnswerMapBytes(attempt.answers) : 0
   let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, submitting: false, legacy: false,
-    draftSchema: schema, pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
+    draftSchema: schema, pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted',
+    draftBytes: draftBytes(value.attempt) }
   const listeners = new Set<() => void>()
   let timer: ReturnType<typeof setTimeout> | undefined
   let running: Promise<void> | null = null
@@ -102,7 +106,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   // Drafts this store sent whose result it never saw (the response was lost or the store was inactive).
   // The server may hold exactly one of them under a generation this store does not know yet.
   let unconfirmedSaves: PracticeAttempt[] = []
-  const emit = () => { snapshot = { ...snapshot, attempt: value.attempt,
+  const emit = () => { snapshot = { ...snapshot, attempt: value.attempt, draftBytes: draftBytes(value.attempt),
     pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted' }
     listeners.forEach((listener) => listener()) }
   const persist = () => { try { writeCache(value) } catch {
@@ -211,9 +215,14 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
       const current = value.attempt
       const next = nextAttempt(questionId, answer)
       if (next === current) {
-        return current.schemaVersion === 2 && current.status === 'in-progress'
-          && draftAnswerProblemV4(quiz, current, questionId, answer) === 'oversized' ? 'limit' : 'rejected'
+        const problem = current.schemaVersion === 2 && current.status === 'in-progress'
+          ? draftAnswerProblemV4(quiz, current, questionId, answer) : 'invalid'
+        if (problem !== 'draft-oversized') return problem === 'oversized' ? 'limit' : 'rejected'
+        // Typed and choice answers have no notice of their own, so the page says it as well.
+        snapshot = { ...snapshot, notice: DRAFT_FULL_NOTICE }; emit()
+        return 'draft-limit'
       }
+      if (snapshot.notice === DRAFT_FULL_NOTICE) snapshot = { ...snapshot, notice: null }
       value = { ...value, attempt: next }; dirty = true; persist(); emit()
       submissionRequestId = null
       clearTimeout(timer); timer = setTimeout(() => { void flush() }, delay)

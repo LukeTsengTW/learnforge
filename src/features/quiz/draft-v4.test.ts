@@ -1,3 +1,4 @@
+import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { describe, expect, it, vi } from 'vitest'
 import { DRAFT_V4_LIMITS, DraftValidationError, normalizeDraftAnswersV4, sameDraftTimestamp,
   validDraftTimestamp, type DraftQuestionContext } from '../../../supabase/functions/_shared/draft-v4'
@@ -212,8 +213,8 @@ describe('authenticated Edge draft save', () => {
   it.each([
     [{ unknown: calc }, 400], [{ calc: { ...calc, type: 'fill' } }, 400],
     [{ calc: { ...calc, mode: 'both' } }, 400], [{ textonly: { ...calc, mode: 'drawing' } }, 400],
-    [{ calc: { ...calc, strokes: Array.from({ length: 257 }, () => stroke) } }, 413],
-    [{ calc: { ...calc, strokes: [{ ...stroke, points: Array.from({ length: 6001 }, () => stroke.points[0]) }] } }, 413],
+    [{ calc: { ...calc, strokes: Array.from({ length: DRAWING_LIMITS.maxStrokes + 1 }, () => stroke) } }, 413],
+    [{ calc: { ...calc, strokes: [{ ...stroke, points: Array.from({ length: DRAWING_LIMITS.maxPoints + 1 }, () => stroke.points[0]) }] } }, 413],
     [{ calc: { ...calc, strokes: [{ ...stroke, points: [{ x: 801, y: 100 }] }] } }, 400],
     [{ calc: { ...calc, strokes: [{ ...stroke, tool: 'brush' }] } }, 400],
     [{ calc: { ...calc, strokes: [{ ...stroke, color: '#ffffff' }] } }, 400],
