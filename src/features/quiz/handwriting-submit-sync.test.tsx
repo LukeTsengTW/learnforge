@@ -415,7 +415,9 @@ describe('the canvas never shows ink the answer did not accept', () => {
     expect(painted).toBe(MAX_STROKES + 1)
     await pressSubmit(user)
     // The pending stroke was completed at the boundary and refused: nothing was saved for submission or submitted.
-    expect(await screen.findByText(/尚未完成的那一筆手寫沒有加入作答/)).toBeInTheDocument()
+    // The reason is in the page notice and repeated in the submit panel's 提交未完成 card.
+    expect(await screen.findAllByText(/尚未完成的那一筆手寫沒有加入作答/)).toHaveLength(2)
+    expect(screen.getByRole('region', { name: '提交未完成' })).toHaveTextContent(/尚未完成的那一筆手寫沒有加入作答/)
     expect(screen.getByText(/儲存上限/)).toBeInTheDocument()
     expect(painted).toBe(MAX_STROKES)
     await new Promise((resolve) => setTimeout(resolve, 50))

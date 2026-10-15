@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.12.0 — 提交測驗的進度顯示
+
+Release candidate preparation：2026-10-15（Asia/Taipei）。基準 immutable v1.11.0（tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段對 production 的存取只有一次登入後的 canary（見下），沒有部署任何東西。
+
+- 按下「提交測驗」（或在填空題輸入框按 Enter 直接提交）後，畫面底部固定顯示「正在提交測驗」卡片，不論頁面捲到哪裡都看得到：進度條、每秒更新的「已經過 m:ss」，以及四個步驟「儲存最新作答到雲端」（附已作答題數）、「確認雲端草稿為最新版本」、「評分作答」、「讀取評分結果」，各標示完成／進行中／等待。評分步驟列出這份題庫中可能需要 AI 評分的題型（依實際含有的填空題、計算題、畫圖題）；沒有這些題型的題庫顯示「由系統自動評分。」。伺服器回覆這份作答已有評分正在進行時，顯示「這份作答已有評分正在進行，正在等待結果。」。完成後照舊前往結果頁。
+- 提交沒有完成時，提交區顯示「提交未完成」並重複頁面上方的原因；鍵盤焦點移到這段說明，「知道了」把焦點交回「提交測驗」；答案被接受或再按一次提交時自動消失。按下提交後，「仍然提交」的確認框隨即關閉。
+- 移除提交時出現在表單上方的「正在檢查填空題答案語意…」：它只描述填空題，而且在按下提交的位置看不到。
+- 步驟是瀏覽器端實際經過的階段，不是逐題的評分進度。伺服器在同一個 submit-quiz 請求內依序評分各題，而 `fill_judgments`／`rubric_judgments` 的 RLS 只在作答已提交後才允許讀取，評分途中前端無從得知逐題結果；逐題進度需要後端變更，不在本版範圍。
+- 輔助技術：只有步驟那一行是 live region（等待進行中的評分時加上「（等待進行中的評分）」），每秒更新的時間不在其中；進度條有 `aria-valuetext`；目前的步驟標記 `aria-current="step"`；「提交未完成」以原因作為 accessible description。減少動態效果的設定會停用轉圈動畫。
+- 沒有改變：提交的流程、CAS 與 request id、對 repository 的呼叫（不多一個 request）、Edge function、migration、題庫、generated canonical context、Auth／RLS／secrets／provider configuration 或 dependency。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- Local gates：109 files／1,662 tests 全部 PASS、零 skipped（新增 1 個測試檔、8 個測試；既有測試只改一個斷言：拒絕提交時的原因現在出現兩次）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。Browser 證據使用本機受控 fixture（真正的 application 與 practice store，記憶體內的假 server，零網路）：四個步驟依序推進、計時前進、等待中的評分、提交失敗後的卡片與焦點、在填空題按 Enter 由頁面中段提交、1440／768／360 與深色主題、減少動態效果；console／page errors 0。
+- 登入後的 canary（提交前，human 登入一次）：以本機提供的 candidate build（production 的 client 設定、base `/`，連到 production backend）登入專用的 release-canary 帳號，在「數位邏輯與基礎數學」（`demo`／v2-handwriting）只作答 q1–q4 並正式提交一次。卡片在 production backend 上依序走完四個步驟（評分約 0.76 秒），結果頁 8 / 20；q6、q7 為 system/unanswered，沒有 AI 評分、沒有 provider 呼叫；被 guard 阻擋的 request 0。Canary 帳號多了一筆已提交的作答，兩份保留草稿未動。
+- Classifier：security-ai／Risk C／providerCanaryRequired=false；Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path，所有 source 路徑都是 frontend。
+- Release-process 要求的部署後登入唯讀 smoke，本版以上述部署前的 canary 加上部署後的 release.json identity 與 bundle 內容檢查替代，不再請 human 登入（release-prep review 核定）；沒有涵蓋 Pages origin 與 `/learnforge/` base 下的登入 session。
+- 已知限制：步驟不是逐題進度，AI 評分較久時會停在「評分作答」一段時間（以計時與說明表示仍在進行）；沒有離開頁面的提醒；「提交未完成」顯示的是頁面當下的通知；canary 在本機提供的 candidate 上執行，不是在 Pages 部署上，也只走了不需要 AI 的評分。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 為 1.12.0。設計、證據與 canary 紀錄見 [v1.12.0 delivery](docs/v1.12.0-delivery.md)。
+
 ## 1.11.0 — 手寫容量預算、容量提示與座標取整
 
 Production acceptance：2026-10-14（Asia/Taipei）。Accepted runtime candidate `3eddd2e3613062099174ee0d2169a72854185442`（exact candidate CI 38488009950）；基準 immutable v1.10.2（tag object `ed2ca5fc6f4b64287f3328dbaa51b4a37e173fec`／peeled `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`）。Production migration、五個 Edge function、exact candidate Pages（run 38549398847／deployment 7062829973）、未登入的 public acceptance 與登入後的 canary 均已完成並經 independent review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

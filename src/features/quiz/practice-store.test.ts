@@ -98,6 +98,50 @@ describe('attempt identity and live draft synchronization', () => {
     store.stop()
   })
 
+  it('reports each formal submission step, including a wait on an earlier request, and clears it at the end', async () => {
+    vi.useFakeTimers()
+    try {
+      const repo = createMemoryPracticeRepository('student')
+      const initial = await repo.getOrCreateDraft(quiz)
+      const submitDraft = vi.fn(async (...args: Parameters<typeof repo.submitDraft>) =>
+        submitDraft.mock.calls.length <= 2 ? { state: 'pending' as const } : repo.submitDraft(...args))
+      const store = createPracticeStore(initial, { ...repo, submitDraft }, new LocalPracticeCache('student', storage), 60_000)
+      store.answer('q1', { type: 'single', optionId: 'b' })
+      const steps: string[] = [], starts = new Set<number>(), published = new Set<object>()
+      store.subscribe(() => {
+        const progress = store.getSnapshot().submitProgress
+        if (progress) { starts.add(progress.startedAt); published.add(progress) }
+        const step = progress ? `${progress.stage}${progress.waiting ? ' (waiting)' : ''}` : 'none'
+        if (steps.at(-1) !== step) steps.push(step)
+      })
+      const submitting = store.submit()
+      await vi.advanceTimersByTimeAsync(3000)
+      expect(await submitting).toBe(initial.id)
+      expect(steps).toEqual(['save', 'verify', 'grade', 'grade (waiting)', 'result', 'none'])
+      // One published step per change: the second pending reply does not publish the wait again.
+      expect(published.size).toBe(5)
+      expect(starts.size).toBe(1)
+      expect(submitDraft).toHaveBeenCalledTimes(3)
+      store.stop()
+    } finally { vi.useRealTimers() }
+  })
+
+  it('clears the submission progress when a submission stops without submitting', async () => {
+    const repo = createMemoryPracticeRepository('student')
+    const initial = await repo.getOrCreateDraft(quiz)
+    const submitDraft = vi.fn(async () => { throw new SubmissionError('unavailable') })
+    const store = createPracticeStore(initial, { ...repo, submitDraft }, new LocalPracticeCache('student', storage), 60_000)
+    const steps: string[] = []
+    store.subscribe(() => {
+      const step = store.getSnapshot().submitProgress?.stage ?? 'none'
+      if (steps.at(-1) !== step) steps.push(step)
+    })
+    expect(await store.submit()).toBeNull()
+    expect(steps).toEqual(['save', 'verify', 'grade', 'none'])
+    expect(store.getSnapshot()).toMatchObject({ submitting: false, submitProgress: null })
+    store.stop()
+  })
+
   it('shows the generic retryable AI grading message and leaves the attempt as a draft', async () => {
     const repo = createMemoryPracticeRepository('student')
     const initial = await repo.getOrCreateDraft(quiz)

@@ -51,7 +51,7 @@ function PracticeAttemptProvider({ record, onReplace, children }: {
   return <DraftCapacityContext.Provider value={capacity}><AttemptContext.Provider value={{ quiz: record.quiz, attempt: state.attempt, attemptId: state.attemptId,
     draftSchema: state.draftSchema, registerPendingFlush,
     storageNotice: refusedAt === state.attempt ? PENDING_INPUT_REFUSED_NOTICE : state.notice,
-    syncing: state.syncing, submitting: state.submitting,
+    syncing: state.syncing, submitting: state.submitting, submitProgress: state.submitProgress,
     pendingSubmission: state.pendingSubmission, retry: store.retry,
     importLegacy: state.legacy ? store.importLegacy : undefined,
     answerQuestion: store.answer, submit,

@@ -20,6 +20,16 @@ export const DraftCapacityContext = createContext<DraftCapacity | null>(null)
  */
 export type PendingInputFlush = () => AnswerOutcome
 
+/** Steps of a formal submission, in the order it passes them. */
+export const SUBMIT_STAGES = ['save', 'verify', 'grade', 'result'] as const
+export type SubmitStage = typeof SUBMIT_STAGES[number]
+/**
+ * Where a running formal submission is. `startedAt` is the client clock (ms) when it began; `waiting`
+ * means the server answered that grading of this draft is already in progress (an earlier request, or
+ * another tab or device) and this submission polls for the result.
+ */
+export interface SubmitProgress { stage: SubmitStage; startedAt: number; waiting: boolean }
+
 export interface AttemptContextValue {
   quiz: Quiz
   attempt: PracticeAttempt
@@ -35,6 +45,8 @@ export interface AttemptContextValue {
   loading?: boolean
   syncing?: boolean
   submitting?: boolean
+  /** Present while a formal submission runs, where the provider reports its steps. */
+  submitProgress?: SubmitProgress | null
   pendingSubmission?: boolean
   retry?: () => Promise<void>
   importLegacy?: () => Promise<void>

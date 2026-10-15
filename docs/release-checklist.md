@@ -1,5 +1,26 @@
 # Release checklist
 
+## v1.12.0 submit progress candidate
+
+日期：2026-10-15（Asia/Taipei）。Immutable base v1.11.0：tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段對 production 的存取只有登入後的 canary，沒有部署。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`；session 開始時 working tree clean，release prep 開始時 staged empty、working tree 只有本 feature 的變更；v1.11.0 tag object 與 peeled commit 未變；local／remote v1.12.0 tag absent。
+- [x] 需求範圍：human 要求按下「提交測驗」時顯示提交的進度條與已完成的項目，讓使用者不會因為等很久以為當掉而離開；完成後以 sub-agent review，並以 Playwright 測試，需要登入時通知 human。逐題的評分進度需要後端變更（評分在單一 submit-quiz 請求內進行，評分紀錄的 RLS 只在提交後可讀），不在範圍內；本版只改 frontend。
+- [x] 實作：practice store 在正式提交時發布目前的步驟（save／verify／grade／result 與 waiting）；提交中的卡片固定在畫面底部；提交沒有完成時「提交未完成」在提交區顯示原因並取得焦點；移除表單上方的「正在檢查填空題答案語意…」。提交流程、CAS、request id 與 repository 呼叫不變。
+- [x] Regression：新增 1 個測試檔、8 個測試（store 2、route 2、component 4）；既有測試只改 `handwriting-submit-sync.test.tsx` 的一個斷言（拒絕提交時的原因現在出現在頁面通知與提交區兩處）。
+- [x] Local gates：109 files／1,662 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation，Chromium headless shell）：四個步驟依序推進、計時前進、等待中的評分、提交失敗的卡片與焦點、在填空題按 Enter 由頁面中段提交、1440／768／360 與深色主題無 overflow、減少動態效果停用動畫；console／page errors 0，request 只有對本機的 GET。
+- [x] Sub-agent review（本 session 內的 code reviewer）：cycle 1 無 blocking、8 項發現，修正 7 項，第 8 項（「提交未完成」顯示頁面當下的通知）同意低優先、列入已知限制；cycle 2 確認 7 項皆已解決，另提 3 個 nit 亦已修正（修正後重跑 gates 與 browser；nit 的修正由 release-prep review 確認）。
+- [x] 登入後的 canary（提交前；human 在一般 Chrome 的全新暫存 profile 手動登入一次）：本機提供的 candidate build（production 的 client 設定、base `/`、production backend），`demo`／v2-handwriting 只作答 q1–q4，save-quiz-draft 1 次、submit-quiz 1 次（200，ai-grading-v4）；卡片依序走完四個步驟；結果頁 8 / 20；q6／q7 為 system/unanswered，AI 評分 0；guard 阻擋 0；console／page errors 0。練習紀錄 3 → 4 筆，兩份保留草稿未動。Chrome 已關閉、profile 已刪除。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=false（Risk C 來自 ignored `.env.local` 與 package files 的 unrecognized path）。
+- [ ] Release tools：`release:check --base v1.11.0` 與 `release:preflight`。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] Backend：不需要（沒有 migration 或 Edge 變更）。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.12.0／candidate SHA；canonical public smoke；部署的主要 JS 含「正在提交測驗」、「提交未完成」與 `submit-stopped-reason`。
+- [x] 登入後 smoke 的替代：release-process 要求 frontend 行為在部署後另做登入後的唯讀 smoke；本版改以部署前的登入後 canary（candidate 程式碼對 production backend 的一次草稿建立、儲存與正式提交）加上部署後的 release.json identity 與 bundle 內容檢查替代，不再請 human 登入。沒有涵蓋 Pages origin 與 `/learnforge/` base 下的登入 session、CI 建置的 artifact 在登入後的行為。Release-prep review 核定可以接受。
+- [ ] Closure 與 annotated v1.12.0 tag；沒有 GitHub Release。
+
 ## v1.11.0 handwriting capacity budget production acceptance closure
 
 日期：2026-10-14（Asia/Taipei）。已接受的 production runtime candidate 為 `3eddd2e3613062099174ee0d2169a72854185442`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.10.2：tag object `ed2ca5fc6f4b64287f3328dbaa51b4a37e173fec`／peeled `e516cc4e2abdad09f6c9e15a23ec8175f6f8284f`，保持不變。

@@ -2,13 +2,14 @@
 import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { gradeQuizV4 } from '../../lib/grading'
 import type { TrustedRubricJudgment } from '../../models/attempt'
 import { ResultPage } from '../../pages/ResultPage'
 import { PracticeContext } from './practice-context'
+import { SubmissionError } from './practice-repository'
 import { PracticeQuizRoute } from './PracticeQuizRoute'
 import { createV4MemoryRepository, v4Catalog, v4Quiz } from './practice-v4.test-helper'
 
@@ -136,5 +137,71 @@ describe('M5 synthetic v4-capable quiz route', () => {
     expect(await screen.findByRole('heading', { name: '本次練習得分' })).toBeInTheDocument()
     expect(screen.getByRole('img', { name: '已提交的繪圖答案' })).toBeInTheDocument()
     expect(v4Catalog.getQuizRevision(v4Quiz.id, v4Quiz.revision)).toBe(v4Quiz)
+  })
+})
+
+describe('formal submission progress', () => {
+  async function pressSubmit(user: ReturnType<typeof userEvent.setup>) {
+    await screen.findByText('本題作答方式')
+    await user.click(screen.getByRole('button', { name: '提交測驗' }))
+    await user.click(await screen.findByRole('button', { name: '仍然提交' }))
+  }
+
+  it('lists the finished and current steps while grading runs, then opens the result', async () => {
+    const user = userEvent.setup()
+    const server = createV4MemoryRepository('student')
+    v4Submission(server)
+    const finish = server.submitBehavior.getMockImplementation()!
+    let release!: () => void
+    const gate = new Promise<void>((resolve) => { release = resolve })
+    server.submitBehavior.mockImplementation(async (row, requestId) => { await gate; return finish(row, requestId) })
+    renderApp(server.repo)
+    await pressSubmit(user)
+    const card = await screen.findByRole('region', { name: '正在提交測驗' })
+    await waitFor(() => expect(within(card).getByRole('status')).toHaveTextContent('步驟 3 / 4：評分作答'))
+    const steps = within(card).getAllByRole('listitem')
+    expect(steps).toHaveLength(4)
+    expect(steps[0]).toHaveTextContent('儲存最新作答到雲端完成')
+    expect(steps[1]).toHaveTextContent('確認雲端草稿為最新版本完成')
+    expect(steps[2]).toHaveTextContent(/評分作答.*AI 逐題評分.*進行中$/)
+    expect(steps[2]).toHaveAttribute('aria-current', 'step')
+    expect(steps[3]).toHaveTextContent('讀取評分結果等待')
+    expect(within(card).getByRole('progressbar', { name: '提交進度' })).toHaveAttribute('aria-valuetext', '第 3 步，共 4 步')
+    expect(card).toHaveTextContent(/已經過 0:\d\d/)
+    // The incomplete-answer confirmation closes once submission starts; the form stays locked.
+    expect(screen.queryByRole('button', { name: '仍然提交' })).toBeNull()
+    expect(screen.getByRole('button', { name: '提交測驗' })).toBeDisabled()
+    release()
+    expect(await screen.findByRole('heading', { name: '本次練習得分' })).toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: '正在提交測驗' })).toBeNull()
+  })
+
+  it('repeats why a submission stopped in the submit panel and focuses it, until dismissed, answered or retried', async () => {
+    const user = userEvent.setup()
+    const server = createV4MemoryRepository('student')
+    server.submitBehavior.mockRejectedValue(new SubmissionError('unavailable'))
+    renderApp(server.repo)
+    await pressSubmit(user)
+    const card = await screen.findByRole('region', { name: '提交未完成' })
+    expect(card).toHaveTextContent('AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。')
+    expect(card).toHaveAccessibleDescription('AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。')
+    expect(card).toHaveFocus()
+    expect(screen.queryByRole('region', { name: '正在提交測驗' })).toBeNull()
+    expect(screen.getByRole('button', { name: '提交測驗' })).toBeEnabled()
+    expect([...server.rows.values()][0].record.row.status).toBe('draft')
+    await user.click(within(card).getByRole('button', { name: '知道了' }))
+    expect(screen.queryByRole('region', { name: '提交未完成' })).toBeNull()
+    expect(screen.getByRole('button', { name: '提交測驗' })).toHaveFocus()
+    // An accepted answer clears it.
+    await pressSubmit(user)
+    await screen.findByRole('region', { name: '提交未完成' })
+    await user.click(screen.getByRole('radio', { name: '手寫' }))
+    expect(screen.queryByRole('region', { name: '提交未完成' })).toBeNull()
+    // Pressing submit again clears it before the incomplete-answer confirmation shows.
+    await pressSubmit(user)
+    await screen.findByRole('region', { name: '提交未完成' })
+    await user.click(screen.getByRole('button', { name: '提交測驗' }))
+    expect(screen.queryByRole('region', { name: '提交未完成' })).toBeNull()
+    expect(screen.getByRole('button', { name: '仍然提交' })).toBeInTheDocument()
   })
 })

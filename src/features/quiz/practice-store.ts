@@ -3,7 +3,7 @@ import { reduceAttempt } from '../../lib/attempt'
 import { answerQuizDraftV4, draftAnswerMapBytes, draftAnswerProblemV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
-import type { AnswerOutcome } from './attempt-context'
+import type { AnswerOutcome, SubmitProgress, SubmitStage } from './attempt-context'
 import type { PracticeRepository } from './practice-context'
 import { LocalPracticeCache } from './practice-cache'
 import { expectedGradingVersion, SubmissionError, type PracticeRecord } from './practice-repository'
@@ -93,7 +93,8 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   let dirty = !sameAttempt(value.attempt, remoteAttempt(initial))
   // Size of the answers as the save path measures it; schema-1 drafts have no aggregate cap.
   const draftBytes = (attempt: PracticeAttempt) => attempt.schemaVersion === 2 ? draftAnswerMapBytes(attempt.answers) : 0
-  let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, submitting: false, legacy: false,
+  let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, submitting: false,
+    submitProgress: null as SubmitProgress | null, legacy: false,
     draftSchema: schema, pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted',
     draftBytes: draftBytes(value.attempt) }
   const listeners = new Set<() => void>()
@@ -237,7 +238,12 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
     async submit(): Promise<string | null> {
       if (submitting) return null
       const intended = value.attempt
-      submitting = true; snapshot = { ...snapshot, submitting: true, notice: null }; emit()
+      const startedAt = Date.now()
+      const reach = (stage: SubmitStage, waiting = false) => {
+        snapshot = { ...snapshot, submitProgress: { stage, startedAt, waiting } }; emit()
+      }
+      submitting = true
+      snapshot = { ...snapshot, submitting: true, notice: null, submitProgress: { stage: 'save', startedAt, waiting: false } }; emit()
       clearTimeout(timer)
       try {
         if (running) await running
@@ -261,6 +267,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           snapshot = { ...snapshot, notice: snapshot.notice === STALE_DRAFT_NOTICE ? STALE_NOT_SUBMITTED_NOTICE : DRAFT_CHANGED_NOTICE }
           emit(); return null
         }
+        reach('verify')
         const incoming = await repo.loadAttempt(initial.id)
         if (incoming?.row.status === 'submitted' && incoming.row.submission_request_id === submissionRequestId) {
           if (incoming.attempt?.status !== 'submitted') throw new SubmissionError('unavailable')
@@ -281,9 +288,11 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         const requestId = submissionRequestId ?? crypto.randomUUID()
         submissionRequestId = requestId
         const gradingVersion = expectedGradingVersion(incoming.schemaVersion)
+        reach('grade')
         for (let poll = 0; poll < 40; poll++) {
           const result = await repo.submitDraft(initial.id, value.version.updatedAt, requestId, gradingVersion)
           if (result.state === 'submitted') {
+            reach('result')
             const final = await repo.loadAttempt(initial.id).catch(() => null)
             if (final?.attempt?.status === 'submitted' && final.schemaVersion === incoming.schemaVersion) {
               value = reconcile(final)
@@ -291,6 +300,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
             }
             return initial.id
           }
+          if (!snapshot.submitProgress?.waiting) reach('grade', true)
           await new Promise((resolve) => setTimeout(resolve, 1500))
         }
         throw new SubmissionError('unavailable')
@@ -302,7 +312,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
             : error instanceof SubmissionError && error.kind === 'invalid' ? INVALID_SUBMISSION_NOTICE
               : 'AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。' }
         emit(); return null
-      } finally { submitting = false; snapshot = { ...snapshot, submitting: false }; emit() }
+      } finally { submitting = false; snapshot = { ...snapshot, submitting: false, submitProgress: null }; emit() }
     },
     async deleteDraft(): Promise<boolean> {
       if (submitting) return false

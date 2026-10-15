@@ -1,23 +1,30 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { Markdown } from '../components/Markdown'
 import { QuestionCard } from '../features/quiz/QuestionCard'
 import { useAttempt } from '../features/quiz/attempt-context'
+import { SubmitProgressCard, SubmitStoppedCard } from '../features/quiz/SubmitProgress'
 import { gradeQuiz, hasAnswer } from '../lib/grading'
 import type { QuestionAnswer } from '../models/attempt'
+import { QUESTION_LABEL } from '../models/quiz'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { usePracticeRepository } from '../features/quiz/practice-context'
 import { AiQuotaStatus } from '../features/ai/AiTutorControls'
 import { useAiTutor } from '../features/ai/use-ai-tutor'
 
 export function QuizPage() {
-  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, pendingSubmission, retry,
+  const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, submitProgress, pendingSubmission, retry,
     importLegacy, draftSchema = 1, registerPendingFlush } = useAttempt()
   const [confirmIncomplete, setConfirmIncomplete] = useState(false)
   const [confirmRestart, setConfirmRestart] = useState(false)
+  // Set when the last submission ended without submitting; its notice is repeated in the submit panel.
+  const [submitStopped, setSubmitStopped] = useState(false)
+  const submitButton = useRef<HTMLButtonElement>(null)
   const navigate = useNavigate()
   const repo = usePracticeRepository()
   const tutor = useAiTutor(attemptId)
+  // A stop whose notice is gone is over: a later, unrelated notice must not bring the card (and its focus) back.
+  if (submitStopped && !storageNotice && !submitting) setSubmitStopped(false)
   if (attempt.status === 'submitted') {
     if (pendingSubmission) return <div className="empty-state" role="status"><h1>正在完成舊版作答同步</h1>
       <p>此裝置保留了一份已提交的作答，正在將它寫入雲端。請保持連線。</p>
@@ -29,7 +36,15 @@ export function QuizPage() {
   // Objective-only count: calculation answers (either schema) are never passed to deterministic grading.
   const unanswered = gradeQuiz(quiz, Object.fromEntries(Object.entries(attempt.answers)
     .filter((entry): entry is [string, QuestionAnswer] => entry[1].type !== 'calculation'))).unansweredCount
-  async function submitQuiz() { if (submitting) return; const savedId = await submit(); if (savedId) navigate(`/result/${savedId}`) }
+  const aiGradedLabels = (['fill', 'calculation', 'drawing'] as const)
+    .filter((type) => quiz.questions.some((question) => question.type === type)).map((type) => QUESTION_LABEL[type])
+  async function submitQuiz() {
+    if (submitting) return
+    setConfirmIncomplete(false); setSubmitStopped(false)
+    const savedId = await submit()
+    if (savedId) navigate(`/result/${savedId}`)
+    else setSubmitStopped(true)
+  }
   function goToQuestion(id: string) {
     const heading = document.getElementById(`heading-${id}`)
     heading?.scrollIntoView({ block: 'start' })
@@ -69,15 +84,22 @@ export function QuizPage() {
       <div className="sidebar-tip"><h3>練習小提醒</h3><p>不確定時可以先跳過。提交前，記得回來檢查尚未作答的題目。</p></div>
       <button type="button" className="text-button restart-draft" onClick={() => { setConfirmRestart(true); window.scrollTo(0, 0) }}>{quizCatalog.getCurrentQuiz(quiz.id)?.revision !== quiz.revision ? '捨棄舊草稿並使用最新版重新開始' : '重新開始測驗'}</button>
     </aside>
-    <form className="question-stack" onSubmit={(event) => { event.preventDefault(); if (submitting) return; if (unanswered) setConfirmIncomplete(true); else submitQuiz() }}>
-      {submitting && <p role="status" className="notice">正在檢查填空題答案語意…</p>}
+    <form className="question-stack" onSubmit={(event) => {
+      event.preventDefault(); if (submitting) return
+      setSubmitStopped(false)
+      if (unanswered) setConfirmIncomplete(true); else submitQuiz()
+    }}>
       <fieldset disabled={submitting} className="submission-lock">
       {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
-        answer={attempt.answers[question.id]} onChange={(answer) => { const outcome = answerQuestion(question.id, answer); if (outcome === 'accepted') setConfirmIncomplete(false); return outcome }}
+        answer={attempt.answers[question.id]} onChange={(answer) => {
+          const outcome = answerQuestion(question.id, answer)
+          if (outcome === 'accepted') { setConfirmIncomplete(false); setSubmitStopped(false) }
+          return outcome
+        }}
         aiTutor={tutor} beforeAiHint={() => ensureDraftSynced(question.id)} draftSchema={draftSchema}
         registerPendingFlush={registerPendingFlush} />)}
       <section className="submit-panel"><div><h2>準備好對照答案了嗎？</h2><p>提交後會保留這次作答，並顯示完整解答。</p></div>
-        <button className="button primary" type="submit" disabled={submitting}>提交測驗</button>
+        <button ref={submitButton} className="button primary" type="submit" disabled={submitting}>提交測驗</button>
         {confirmIncomplete && <div className="notice warning submit-warning" role="alert"><strong>還有 {unanswered} 題自動評分題未作答。</strong><p>未作答題會以 0 分計算，仍要提交嗎？</p>
           <div className="inline-actions"><button type="button" className="button primary" disabled={submitting} onClick={submitQuiz}>仍然提交</button>
             <button type="button" className="button secondary" onClick={() => {
@@ -85,7 +107,11 @@ export function QuizPage() {
               if (missing) goToQuestion(missing.id)
             }}>繼續作答</button></div>
         </div>}
+        {!submitting && submitStopped && storageNotice && <SubmitStoppedCard notice={storageNotice}
+          onDismiss={() => { setSubmitStopped(false); submitButton.current?.focus() }} />}
       </section></fieldset>
     </form></div>
+    {submitting && <SubmitProgressCard progress={submitProgress} answeredCount={answeredCount} questionCount={quiz.questions.length}
+      aiGradedLabels={aiGradedLabels} />}
   </>
 }
