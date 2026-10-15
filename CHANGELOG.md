@@ -2,7 +2,7 @@
 
 ## 1.12.0 — 提交測驗的進度顯示
 
-Release candidate preparation：2026-10-15（Asia/Taipei）。基準 immutable v1.11.0（tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段對 production 的存取只有一次登入後的 canary（見下），沒有部署任何東西。
+Production acceptance：2026-10-15（Asia/Taipei）。Accepted runtime candidate `8deebbeb467dee60ddd0a8a37221eba7f12ef11b`（exact candidate CI 38757888867）；基準 immutable v1.11.0（tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`）。Exact candidate Pages（run 38758178628／deployment 7096505218）、未登入的 public acceptance 與部署前登入後的 canary 均已完成，release-prep review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。
 
 - 按下「提交測驗」（或在填空題輸入框按 Enter 直接提交）後，畫面底部固定顯示「正在提交測驗」卡片，不論頁面捲到哪裡都看得到：進度條、每秒更新的「已經過 m:ss」，以及四個步驟「儲存最新作答到雲端」（附已作答題數）、「確認雲端草稿為最新版本」、「評分作答」、「讀取評分結果」，各標示完成／進行中／等待。評分步驟列出這份題庫中可能需要 AI 評分的題型（依實際含有的填空題、計算題、畫圖題）；沒有這些題型的題庫顯示「由系統自動評分。」。伺服器回覆這份作答已有評分正在進行時，顯示「這份作答已有評分正在進行，正在等待結果。」。完成後照舊前往結果頁。
 - 提交沒有完成時，提交區顯示「提交未完成」並重複頁面上方的原因；鍵盤焦點移到這段說明，「知道了」把焦點交回「提交測驗」；答案被接受或再按一次提交時自動消失。按下提交後，「仍然提交」的確認框隨即關閉。
@@ -14,6 +14,9 @@ Release candidate preparation：2026-10-15（Asia/Taipei）。基準 immutable v
 - 登入後的 canary（提交前，human 登入一次）：以本機提供的 candidate build（production 的 client 設定、base `/`，連到 production backend）登入專用的 release-canary 帳號，在「數位邏輯與基礎數學」（`demo`／v2-handwriting）只作答 q1–q4 並正式提交一次。卡片在 production backend 上依序走完四個步驟（評分約 0.76 秒），結果頁 8 / 20；q6、q7 為 system/unanswered，沒有 AI 評分、沒有 provider 呼叫；被 guard 阻擋的 request 0。Canary 帳號多了一筆已提交的作答，兩份保留草稿未動。
 - Classifier：security-ai／Risk C／providerCanaryRequired=false；Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path，所有 source 路徑都是 frontend。
 - Release-process 要求的部署後登入唯讀 smoke，本版以上述部署前的 canary 加上部署後的 release.json identity 與 bundle 內容檢查替代，不再請 human 登入（release-prep review 核定）；沒有涵蓋 Pages origin 與 `/learnforge/` base 下的登入 session。
+- Release-prep review：cycle 1 REWORK（兩項都在文件：canary 推定的伺服器寫入、登入後 smoke 的替代沒有明說），cycle 2 PASS。Candidate commit 17 個路徑；commit 後 `release:check --base v1.11.0 --require-clean` 10／10、strict preflight 7／7 PASS；[candidate CI 38757888867](https://github.com/LukeTsengTW/learnforge/actions/runs/38757888867) PASS。
+- 沒有 backend 同步：沒有部署 Edge function，也沒有 migration。一次 exact candidate dispatch：[Pages 38758178628](https://github.com/LukeTsengTW/learnforge/actions/runs/38758178628)／deployment 7096505218 success。Production release.json 與 navigation 為 1.12.0／candidate SHA；canonical public smoke PASS，舊的 1.11.0 identity 被拒絕；部署的主要 JS 含「正在提交測驗」、「提交未完成」與 `submit-stopped-reason`，不再有舊的提交文字；74 個路徑 HTTP 200。未登入的瀏覽器 smoke：Home、Library 7 張卡片、Author、沒有 session 時練習頁轉到登入、1440／360 無 overflow；console／page／CSP／rejection 皆為 0，只有 GET。
+- Production 的變更：一次 Pages 部署與部署前 canary 的寫入。沒有執行 SQL、沒有列出 secrets、沒有讀取 Edge function 的 metadata 或 log。
 - 已知限制：步驟不是逐題進度，AI 評分較久時會停在「評分作答」一段時間（以計時與說明表示仍在進行）；沒有離開頁面的提醒；「提交未完成」顯示的是頁面當下的通知；canary 在本機提供的 candidate 上執行，不是在 Pages 部署上，也只走了不需要 AI 的評分。完整清單見 delivery。
 - Package／lock root version 與 visible navigation label 為 1.12.0。設計、證據與 canary 紀錄見 [v1.12.0 delivery](docs/v1.12.0-delivery.md)。
 
