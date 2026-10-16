@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.13.0 — 計算題評分放寬與習題解答用詞
+
+Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.12.0（tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Edge 與 Pages 部署、provider canary 與 production acceptance 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取 production。
+
+- 計算題的正式評分放寬（human 的需求與決定）：每一小題的最終答案正確（等價寫法、未化簡也算），就給該小題全部分數，不要求寫出過程；答案錯時仍依 rubric 從寬給部分分數。分小題的依據是 criterion 開頭的 (a)、(b) 標號；不標小題的 criterion 在所有小題都正確時給滿分。求解、計算、計數或求公式的小題以結果為最終答案，即使題目也要求完整推導；證明題目給定敘述的小題，證明本身才是答案，只重寫敘述不算。互相矛盾的多個答案、空白都不算正確；手寫看不清楚的答案不算。打字與手寫都適用，所有題庫的計算題共用；各題 rubric 文字不改。
+- 沒有改變：畫圖題的評分、舊版已提交作答的 advisory 重新評分、已提交作答的分數（不重新評分）、各題的配分與答案。
+- 「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」（`discrete-math-exercises-2026` revision 1，直接修改現有版本）：19 處「講義」：18 處改為「習題解答」，例如題目標題的「（Ch1 習題解答第 1 頁）」；說明中的「習題解答講義」刪去「講義」，避免重複。題號、配分、答案、rubric 不變；已提交的紀錄重開時顯示新的用詞。第一章與第三章例題題庫仍寫「講義」，不在本次範圍。
+- 需要重新部署六個 Edge function（ai-drawing、ai-grade、ai-responses、ai-tutor、save-quiz-draft、submit-quiz），先於 Pages。沒有 migration、RLS、Auth、secrets、provider 或模型設定、dependency 的變更。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- 測試：新增評分規則的測試（新規則存在、舊的嚴格規則消失、證明題與求解題的區分、舊版 advisory 不受影響）；修改三個測試以配合新用詞，其中 v1.10.0 釘住的既有題庫雜湊保持不變：把本次的用詞變更反向套用後必須重現原本的雜湊，證明題庫只有用詞改變。Browser 證據使用本機受控 fixture：Library 與練習頁沒有「講義」、13 個題目標題都改為「習題解答」、1440／360。
+- Classifier：security-ai／Risk C／providerCanaryRequired=true。Human 已授權一次付費的 AI 評分驗證：在「數位邏輯與基礎數學」q6 只寫最終答案並正式提交，預期滿分。
+- 已知限制：模型是否依新規則給分只有一次 canary 的證據（打字、單一小題）；分小題、手寫、證明題在 production 沒有驗證；只寫最終答案就能得分，這是自主練習而非防作弊的考試；習題題庫的說明仍寫「請寫出完整推導」。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 為 1.13.0。調查、設計與證據見 [v1.13.0 delivery](docs/v1.13.0-delivery.md)。
+
 ## 1.12.0 — 提交測驗的進度顯示
 
 Production acceptance：2026-10-15（Asia/Taipei）。Accepted runtime candidate `8deebbeb467dee60ddd0a8a37221eba7f12ef11b`（exact candidate CI 38757888867）；基準 immutable v1.11.0（tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`）。Exact candidate Pages（run 38758178628／deployment 7096505218）、未登入的 public acceptance 與部署前登入後的 canary 均已完成，release-prep review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

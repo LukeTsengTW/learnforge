@@ -1,5 +1,25 @@
 # Release checklist
 
+## v1.13.0 lenient calculation grading candidate
+
+日期：2026-10-16（Asia/Taipei）。Immutable base v1.12.0：tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `1e00babe720fedde556e56548d614f27f902a01a`；session 開始時 working tree clean，release prep 開始時 staged empty、working tree 只有本次的變更；v1.12.0 tag object 與 peeled commit 未變；local／remote v1.13.0 tag absent。
+- [x] 需求範圍：human 要求放寬所有計算題的評分標準（寫出答案就直接給分），並把「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」中的「講義」改為「習題解答」。Human 的決定（2026-10-16，結構化提問，三項都選建議選項）：逐小題，答案正確即給該小題滿分、改共用的正式評分規則而不改 rubric 文字；直接修改 revision 1；發版前做一次付費的 AI 評分驗證。
+- [x] 實作：`calculation-grading.ts` 的 `LENIENT_CALCULATION_SCORING` 嵌入打字與手寫的正式評分 instructions；習題題庫 19 處「講義」：18 處改為「習題解答」，說明中的「習題解答講義」刪去「講義」（scripted，數量逐項驗證）；重新產生 generated context（只有該題庫的 13 筆改變）。畫圖題、舊版 advisory、rubric 文字與配分、已提交的分數不變。
+- [x] Regression：新增評分規則的測試；修改 `discrete-math-exercises-2026.test.tsx`、`LibraryPage.test.tsx`、`ch3-set-theory.test.tsx`（既有題庫的 v1.10.0 雜湊在反向套用本次用詞變更後必須重現）。
+- [x] Local gates：109 files／1,665 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation，Chromium headless shell，1440／360）：Library 卡片與搜尋、練習頁 0 處「講義」、13 個題目標題、KaTeX errors 0、無 overflow；console／page errors 0，request 只有對本機的 GET。
+- [x] Sub-agent feature review：沒有 blocking；證明題的 should-fix 已採納（兩次確認，第二次把「derive」移除並明寫求解類以結果為答案）；舊版 advisory 的測試已加入；其餘兩項 nit 依 delivery 所述保留。
+- [x] Edge impact（import graph）：ai-drawing、ai-grade、ai-responses、ai-tutor、save-quiz-draft、submit-quiz 需要重新部署；其餘五個不變。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=true；human 已授權一次付費的 AI 評分（demo q6 只寫最終答案）。Canary script 已在本機 harness 排練：正常情境完成，兩個反向情境在身分檢查停止且沒有寫入。
+- [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.12.0` 10／10 PASS；`release:preflight`（沒有 `--sha`、`--require-clean` 與 `--require-tag-absent` 的形式）5／5 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
+- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] Edge：六個 function 各部署一次；部署前後的 function 清單；部署內容與 candidate 相同；runtime health。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success；public release.json／navigation = 1.13.0／candidate SHA；canonical public smoke；bundle 內容。
+- [ ] Provider canary（human 登入一次）：demo q6 只寫「x=3 或 x=1/2」並正式提交，q6 預期 6 / 6；只有 q6 呼叫 provider。
+- [ ] Closure 與 annotated v1.13.0 tag；沒有 GitHub Release。
+
 ## v1.12.0 submit progress production acceptance closure
 
 日期：2026-10-15（Asia/Taipei）。已接受的 production runtime candidate 為 `8deebbeb467dee60ddd0a8a37221eba7f12ef11b`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.11.0：tag object `857ce080e8e5e950b1b3cd77c282afffadfbd466`／peeled `b66ae763b86fd3e0a97efe4445b47f6fc9c24ec6`，保持不變。

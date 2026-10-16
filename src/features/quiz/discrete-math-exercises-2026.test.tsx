@@ -154,9 +154,11 @@ describe('PDF-backed 2026 exercises for chapters 1, 3, 5, 7 and 8', () => {
   it('covers every exercise of the five handouts once, in source order', () => {
     const headings = quiz().questions.map((q) => q.prompt.split('\n')[0])
     expect(headings.map((heading) => heading.replace(/^### /, '').replace(/：.*$/, ''))).toEqual(exercises.map((exercise) => exercise.source))
-    const fromChapter = (chapter: number) => headings.filter((heading) => heading.includes(`Ch${chapter} 講義`)).length
+    const fromChapter = (chapter: number) => headings.filter((heading) => heading.includes(`Ch${chapter} 習題解答`)).length
     expect([1, 3, 5, 7, 8].map(fromChapter)).toEqual([4, 2, 3, 2, 2])
     const source = Object.values(bundledQuizSources).find((candidate) => candidate.includes(`id="${id}"`))!
+    // The source documents are the exercise solutions (習題解答), never called handouts (講義) in this quiz.
+    expect(source).not.toContain('講義')
     for (const directive of ['question', 'drawing', 'answer', 'solution', 'rubric', 'end']) {
       expect(source.match(new RegExp(`^:::${directive}\\b`, 'gm'))).toHaveLength(13)
     }

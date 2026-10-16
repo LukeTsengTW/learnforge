@@ -141,7 +141,7 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual([countingTitle])
   })
 
-  it.each(['Ch7', '習題解答講義', 'stirling-numbers'])('finds the 2026 exercises quiz with %s', async (query) => {
+  it.each(['Ch7', '五份習題解答', 'stirling-numbers'])('finds the 2026 exercises quiz with %s', async (query) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
     expect(visibleTitles()).toEqual([exercisesTitle])

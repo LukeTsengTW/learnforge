@@ -14,6 +14,18 @@ import { bundledQuizSources, quizCatalog } from './quiz-loader'
 const id = 'discrete-math-ch3-set-theory-examples'
 const title = '離散數學第三章：集合論－例題練習'
 const sha = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
+/**
+ * v1.13.0 edited discrete-math-exercises-2026/1 in place: every 講義 became 習題解答 and nothing else changed. Reversing
+ * exactly that wording must reproduce the fingerprints this file pinned for the earlier inventory in v1.10.0.
+ */
+const beforeExercisesWordingEdit = (value: unknown) => JSON.parse(JSON.stringify(value)
+  .replace('依據 2026 年度五份習題解答（Chapter 1、3、5、7、8）整理全部 13 道習題，題號與小題標號沿用原習題解答，',
+    () => '依據 2026 年度五份習題解答講義（Chapter 1、3、5、7、8）整理全部 13 道習題，題號與小題標號沿用原講義，')
+  .replaceAll('習題解答的答案為 $63$', () => '講義答案為 $63$')
+  .replaceAll('本題以習題解答的答案 $63$ 為準', () => '本題以講義答案 $63$ 為準')
+  .replaceAll('（習題解答只收錄原題的', () => '（講義只收錄原題的')
+  .replaceAll('習題解答另外用三層迴圈', () => '講義另外用三層迴圈')
+  .replace(/（(Ch\d) 習題解答第 ([\d–]+) 頁）/g, (_, chapter: string, pages: string) => `（${chapter} 講義第 ${pages} 頁）`))
 const quiz = () => {
   const value = quizCatalog.getQuizRevision(id, '1')
   expect(value, 'the Chapter 3 family must be bundled').not.toBeNull()
@@ -323,11 +335,13 @@ describe('PDF-backed Chapter 3 set theory practice', () => {
     const old = all.filter((q) => q.id !== id).sort((a, b) => `${a.id}/${a.revision}`.localeCompare(`${b.id}/${b.revision}`))
     expect(old.map((q) => `${q.id}/${q.revision}`)).toEqual(['boolean-algebra/1', 'demo/v1-7d7c900e', 'demo/v2-handwriting',
       'discrete-math-ch1-counting-examples/1', 'discrete-math-exercises-2026/1', 'discrete-math/1', 'discrete-math/2', 'relations/1'])
-    expect(sha(old)).toBe('b6f3d2016b2e98716c3da0ce6639058dbe9769b99d4da2984dd0cfc81e630926')
-    expect(sha(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions }))))
+    expect(sha(beforeExercisesWordingEdit(old))).toBe('b6f3d2016b2e98716c3da0ce6639058dbe9769b99d4da2984dd0cfc81e630926')
+    expect(sha(beforeExercisesWordingEdit(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions })))))
       .toBe('c3f8005c886a46135fc018783cc1a937f5e695a27ea77e1166d70b9970857df7')
-    expect(sha(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id)))
+    expect(sha(beforeExercisesWordingEdit(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id))))
       .toBe('d3c2b4151fc216ec514a145067395cd8b048202483d3351db7441246039dd278')
+    // The edit is real: without the reversal the exercises revision differs from v1.10.0.
+    expect(sha(old)).not.toBe('b6f3d2016b2e98716c3da0ce6639058dbe9769b99d4da2984dd0cfc81e630926')
     // The Chapter 1 family is the template for this one and must stay byte-identical (Git may check out CRLF on Windows).
     const template = readFileSync('src/content/quizzes/discrete-math-ch1-counting-examples/v1.quiz.md', 'utf8').replace(/\r\n/g, '\n')
     expect(createHash('sha256').update(template).digest('hex')).toBe('d51cd5ce048d0b467a07992d434ce18c666c09332f5cfa03122dece7fad39665')
