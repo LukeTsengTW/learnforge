@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.14.0 — 手寫畫布的放大書寫
+
+Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段沒有存取 production，也沒有部署任何東西。
+
+- 手寫畫布的工具列最後多了「放大書寫」：畫布編輯區鋪滿整個視窗，1× 時整張畫布剛好放進視窗（1440×900 的視窗中由頁面上的 814 px 寬變為 961 px），可再切換 1.5×、2×；放大到 1× 以上時畫布在編輯區內捲動，並多一個「移動畫面」工具，用任何指標拖曳畫面而不留下筆跡（也可以直接捲動）。按 Esc 或「結束放大」回到頁面原來的捲動位置，筆跡都保留；再次放大時從 1× 開始。工具列（畫筆、橡皮擦、顏色、筆寬、復原、重做、輸入方式）與「清除畫布」、「匯出 PNG」在放大時照常使用。
+- 目的：一題有多個小題時，原本固定寬度的畫布（手機上只有 280 px 寬）寫不下。畫布的邏輯大小（例如 1200 × 900）與保存的格式都不變：筆跡仍以畫布的邏輯座標保存，放大只改變畫布在螢幕上的大小，所以已保存的作答、評分與 AI 評分的影像都不受影響。
+- 放大時編輯區是 modal：頁面其他部分設為 `inert`（不能點、不能以 Tab 進入），頁面不會捲動；編輯區為 `role="dialog"`、`aria-modal="true"`、名稱「放大書寫」；狀態行朗讀「已放大書寫。按 Esc 或「結束放大」返回。」、「書寫縮放 2×。」與「已結束放大書寫。」。放大期間頁面才加入的內容（例如同步失敗的通知）若取得焦點，焦點回到「結束放大」。筆畫進行中放大、按 Esc 或切換縮放時，先保存已畫的部分，不會讓筆畫在畫布改變大小時跳動。
+- 沒有改變：保存的筆跡格式與座標、資料庫的畫布設定（邏輯寬高 100..1200）、server 端的點陣化上限、評分、Edge function、migration、題庫、generated canonical context、Auth／RLS／secrets／provider configuration 或 dependency。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- Local gates：110 files／1,678 tests 全部 PASS、零 skipped（新增 1 個測試檔、13 個測試；既有測試未修改）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。Browser 證據使用本機受控 fixture（真正的 application 與 practice store，記憶體內的假 server，零網路）：1440／1180／820／360 的視窗中放大、2×、移動畫面後畫的筆跡保存在指標下的邏輯座標（誤差 ≤ 1 邏輯單位）；modal 與焦點、Esc 中斷筆畫、傳統捲軸下 1× 沒有捲軸且 2× 的大小穩定、在最後一題的頁面底部放大後回到原來的捲動位置；題庫編寫頁的 Student Preview；console／page errors 0。
+- Sub-agent review（本 session 內的 code reviewer）：cycle 1 一項 blocking（1× 的大小以 client 寬高量測，傳統捲軸出現時可能互相觸發）、兩項 should-fix（modal 行為：焦點可離開放大的編輯區、兩個編輯區時捲動鎖定的還原順序、一次 Esc 關閉全部、提交進度卡片被蓋住；Esc 或切換縮放時進行中的筆畫跳動）與數個 nit，已修正；cycle 2 APPROVE，另提一項 should-fix（筆畫進行中放大）與四個 nit（放大後才加入頁面的內容、結束放大後的捲動位置、小數高度、ResizeObserver 的 box），全部修正；cycle 3 APPROVE、沒有新發現。「觸控筆優先」時手指不拖曳畫面是刻意保留，列入已知限制。Release-prep review PASS（兩項文件的 should-fix 與 nit 已修正）；commit 前 `release:check --base v1.13.0` 10／10、`release:preflight` 7／7 PASS。
+- Classifier：security-ai／Risk C／providerCanaryRequired=false；Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path，所有 source 路徑都是 frontend。不需要 Edge 部署與 provider canary。
+- Release-process 要求的部署後登入唯讀 smoke，本版以 Pages 部署上未登入可用的題庫編寫頁 Student Preview 實際操作放大書寫、release.json identity 與 bundle 內容檢查替代，不請 human 登入（release-prep review 核定）；與 v1.12.0 不同，本版沒有任何登入後的執行，沒有涵蓋登入後的練習頁與雲端儲存（見 delivery）。
+- 已知限制：「觸控筆優先」時手指不會拖曳畫面，需要用「移動畫面」或捲軸；放大時頁面上的其他內容（題目文字）看不到，需要結束放大才能再看題目；沒有雙指縮放；邏輯畫布的大小不變，所以放大是讓書寫更細，不是增加畫布的空間。完整清單見 delivery。
+- Package／lock root version 與 visible navigation label 為 1.14.0。設計與證據見 [v1.14.0 delivery](docs/v1.14.0-delivery.md)。
+
 ## 1.13.0 — 計算題評分放寬與習題解答用詞
 
 Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `25ac8e927d2a6256b8a6738973e75e0e286fb099`（exact candidate CI 38857531012）；基準 immutable v1.12.0（tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`）。六個 Edge function 的部署、exact candidate Pages（run 38857865149／deployment 7112026893）、未登入的 public acceptance 與 provider canary 均已完成，review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

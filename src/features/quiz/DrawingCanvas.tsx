@@ -1,4 +1,4 @@
-import { useContext, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type Ref } from 'react'
+import { useContext, useEffect, useEffectEvent, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type Ref } from 'react'
 import { DRAWING_COLORS, DRAWING_ERASER_WIDTH_MIN, DRAWING_ERASER_WIDTH_MAX,
   DRAWING_PEN_WIDTH_MIN, DRAWING_PEN_WIDTH_MAX, type DrawingColor, type DrawingPoint, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
@@ -47,6 +47,37 @@ export interface DrawingCanvasHandle {
   flushPendingInput: () => AnswerOutcome
 }
 const COLOR_LABELS = ['黑色', '紅色', '藍色']
+/**
+ * Enlarged writing magnifies the same logical canvas on screen; the stored answer keeps its size. The
+ * largest level is 2×, so writing at a comfortable size still reads clearly in the canvas-sized image
+ * that grading receives.
+ */
+export const DRAWING_ZOOM_LEVELS = [1, 1.5, 2] as const
+export type DrawingZoom = typeof DRAWING_ZOOM_LEVELS[number]
+export const DRAWING_EXPANDED_STATUS = '已放大書寫。按 Esc 或「結束放大」返回。'
+export const DRAWING_COLLAPSED_STATUS = '已結束放大書寫。'
+// The enlarged frame's 1px border on each side.
+const FRAME_BORDER = 2
+// Page-scroll lock shared by every enlarged editor: the first lock saves the page's overflow, the last unlock restores it.
+let pageScrollLocks = 0
+let savedPageOverflow = ''
+function lockPageScroll() {
+  const root = document.documentElement
+  if (pageScrollLocks++ === 0) { savedPageOverflow = root.style.overflow; root.style.overflow = 'hidden' }
+}
+function unlockPageScroll() {
+  if (pageScrollLocks > 0 && --pageScrollLocks === 0) document.documentElement.style.overflow = savedPageOverflow
+}
+/** Makes everything outside `element` inert (the siblings of each ancestor up to body); returns the undo. */
+function makeOutsideInert(element: HTMLElement): () => void {
+  const changed: Element[] = []
+  for (let node: HTMLElement | null = element; node && node !== document.body; node = node.parentElement) {
+    for (const sibling of node.parentElement?.children ?? []) {
+      if (sibling !== node && !sibling.hasAttribute('inert')) { sibling.setAttribute('inert', ''); changed.push(sibling) }
+    }
+  }
+  return () => { for (const node of changed) node.removeAttribute('inert') }
+}
 
 export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
   const showPencilNotice = isIPadOS(navigator)
@@ -75,6 +106,20 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const [confirmClear, setConfirmClear] = useState(false)
   const [inputMode, setInputMode] = useState<DrawingInputMode>(getDrawingInputMode)
   const draft = useContext(DraftCapacityContext)
+  // Enlarged writing: the same editor fills the window and the canvas can be magnified inside a scrolling
+  // viewport. Only the on-screen size changes; pointer positions map through the canvas's rect as always.
+  const [expanded, setExpanded] = useState(false)
+  const [zoom, setZoom] = useState<DrawingZoom>(1)
+  const [panning, setPanning] = useState(false)
+  const viewport = useRef<HTMLDivElement>(null)
+  const editor = useRef<HTMLDivElement>(null)
+  const toggle = useRef<HTMLButtonElement>(null)
+  // The page's scroll position when enlarged writing began, restored when it ends.
+  const pageScroll = useRef<{ x: number; y: number } | null>(null)
+  const [fitWidth, setFitWidth] = useState<number | null>(null)
+  const panDrag = useRef<{ pointerId: number; x: number; y: number; left: number; top: number } | null>(null)
+  // The point of the canvas at the middle of the viewport, kept in place when the zoom changes.
+  const zoomAnchor = useRef<{ x: number; y: number } | null>(null)
   const usage = useMemo(() => drawingUsage(ink.strokes, config), [ink.strokes, config])
   // The room kept for an ordinary stroke depends on the brush that would draw it.
   const capacity = drawingCapacity(usage, width, draft)
@@ -104,6 +149,92 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     // written on refreshes the shared copy; mounting other canvases leaves it alone.
     if (!active && holdsInkOf(element)) rememberInk(element, config, committed.current)
   }, [config, strokes])
+
+  const onEscape = useEffectEvent(() => collapse())
+  // Before paint, so the enlarged frame never shows at a stale size.
+  useLayoutEffect(() => {
+    if (!expanded) return
+    // The enlarged editor is modal: the page behind it neither scrolls nor takes focus. Escape returns to the page.
+    lockPageScroll()
+    const restoreBackground = editor.current ? makeOutsideInert(editor.current) : () => {}
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onEscape() }
+    document.addEventListener('keydown', onKey)
+    // Content the page adds while enlarged (e.g. a sync notice) is not inert; focus reaching it returns to the editor.
+    const onFocus = (event: FocusEvent) => {
+      if (event.target instanceof Node && editor.current && !editor.current.contains(event.target)) toggle.current?.focus()
+    }
+    document.addEventListener('focusin', onFocus)
+    // At 1× the whole canvas fits the viewport; the zoom levels multiply that width. The border box includes any
+    // scrollbars, so a scrollbar appearing at a higher zoom never changes the fit (and cannot start a resize loop);
+    // flooring it keeps a fractional viewport from overflowing by a fraction of a pixel at 1×.
+    const measure = () => {
+      const element = viewport.current
+      if (!element) return
+      const box = element.getBoundingClientRect()
+      const outerWidth = Math.floor(box.width), outerHeight = Math.floor(box.height)
+      if (outerWidth <= 0 || outerHeight <= 0) return
+      setFitWidth(Math.max(1, Math.floor(Math.min(outerWidth - FRAME_BORDER,
+        (outerHeight - FRAME_BORDER) * config.width / config.height))))
+    }
+    measure()
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
+    if (observer && viewport.current) observer.observe(viewport.current, { box: 'border-box' })
+    else window.addEventListener('resize', measure)
+    return () => {
+      unlockPageScroll()
+      restoreBackground()
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('focusin', onFocus)
+      observer?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [expanded, config])
+  // While enlarged the editor is out of the page's flow, so the page is shorter and its scroll position may have been
+  // clamped; once the editor is back in the page, the page returns to where it was.
+  useLayoutEffect(() => {
+    const saved = pageScroll.current
+    if (expanded || !saved) return
+    pageScroll.current = null
+    window.scrollTo(saved.x, saved.y)
+  }, [expanded])
+  useLayoutEffect(() => {
+    const element = viewport.current
+    const anchor = zoomAnchor.current
+    zoomAnchor.current = null
+    if (!element || !anchor) return
+    element.scrollLeft = anchor.x * element.scrollWidth - element.clientWidth / 2
+    element.scrollTop = anchor.y * element.scrollHeight - element.clientHeight / 2
+  }, [zoom])
+
+  // A stroke in progress is committed before the canvas changes size, so its remaining samples cannot jump.
+  function expand() {
+    flushPendingStroke()
+    pageScroll.current = { x: window.scrollX, y: window.scrollY }
+    setExpanded(true)
+    setEraserPreview(null)
+    setStatus(DRAWING_EXPANDED_STATUS)
+  }
+  function collapse() {
+    flushPendingStroke()
+    setExpanded(false)
+    setZoom(1)
+    setPanning(false)
+    panDrag.current = null
+    setEraserPreview(null)
+    setStatus(DRAWING_COLLAPSED_STATUS)
+  }
+  function changeZoom(level: DrawingZoom) {
+    flushPendingStroke()
+    const element = viewport.current
+    if (element && element.scrollWidth > 0 && element.scrollHeight > 0) {
+      zoomAnchor.current = { x: (element.scrollLeft + element.clientWidth / 2) / element.scrollWidth,
+        y: (element.scrollTop + element.clientHeight / 2) / element.scrollHeight }
+    }
+    setZoom(level)
+    if (level === 1) setPanning(false)
+    setStatus(`書寫縮放 ${level}×。`)
+  }
+  const panTool = expanded && zoom > 1 && panning
 
   function changeDrawing(action: DrawingAction) {
     const next = drawingReducer({ strokes: committed.current, undone }, action)
@@ -148,9 +279,30 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     setEraserPreview({ pointerId: event.pointerId, ...toLogicalPoint(event.clientX, event.clientY, rect, config), width: strokeWidth })
   }
   function hover(event: PointerEvent<HTMLCanvasElement>) {
+    if (panTool) return
     if (!pending.current && (event.pointerType === 'mouse' || event.pointerType === 'pen')) updatePreview(event)
   }
+  // The pan tool moves the enlarged view with any pointer and never writes ink.
+  function startPan(event: PointerEvent<HTMLCanvasElement>) {
+    const element = viewport.current
+    if (!element || event.button !== 0 || !event.isPrimary || panDrag.current || pending.current) return
+    event.preventDefault()
+    event.currentTarget.setPointerCapture(event.pointerId)
+    panDrag.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY, left: element.scrollLeft, top: element.scrollTop }
+  }
+  function movePan(event: PointerEvent<HTMLCanvasElement>) {
+    const drag = panDrag.current
+    const element = viewport.current
+    if (!drag || drag.pointerId !== event.pointerId || !element) return
+    event.preventDefault()
+    element.scrollLeft = drag.left - (event.clientX - drag.x)
+    element.scrollTop = drag.top - (event.clientY - drag.y)
+  }
+  function endPan(event: PointerEvent<HTMLCanvasElement>) {
+    if (panDrag.current?.pointerId === event.pointerId) panDrag.current = null
+  }
   function start(event: PointerEvent<HTMLCanvasElement>) {
+    if (panTool) { startPan(event); return }
     // Reject touch before it can own pending ink or capture, including primary palms.
     if (inputMode === 'stylus' && event.pointerType === 'touch') return
     if (event.button !== 0 || !event.isPrimary || pending.current) return
@@ -163,6 +315,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (tool === 'eraser') updatePreview(event, eraserWidth)
   }
   function move(event: PointerEvent<HTMLCanvasElement>) {
+    if (panDrag.current) { movePan(event); return }
     const active = pending.current
     if (!active) { hover(event); return }
     if (active.pointerId !== event.pointerId) return
@@ -172,6 +325,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (active.stroke.tool === 'eraser') updatePreview(event, active.stroke.width)
   }
   function finish(event: PointerEvent<HTMLCanvasElement>) {
+    if (panDrag.current) { endPan(event); return }
     const active = pending.current
     if (!active || active.pointerId !== event.pointerId) return
     appendStrokeSample(active.stroke.points, active.run, point(event))
@@ -182,6 +336,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (event.pointerType === 'mouse') updatePreview(event)
   }
   function cancel(event: PointerEvent<HTMLCanvasElement>) {
+    endPan(event)
     if (pending.current?.pointerId === event.pointerId) commitPendingStroke()
   }
   function lostCapture(event: PointerEvent<HTMLCanvasElement>) {
@@ -216,7 +371,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     catch { setStatus('PNG 匯出失敗，請重試。') }
   }
 
-  return <div className="drawing-editor">
+  return <div ref={editor} className={`drawing-editor${expanded ? ' is-expanded' : ''}`}
+    {...(expanded ? { role: 'dialog', 'aria-modal': true, 'aria-label': '放大書寫' } : {})}>
     <div className="drawing-toolbar" role="group" aria-label="畫布工具">
       <div className="tool-group">
         <button type="button" aria-pressed={tool === 'pen'} onClick={() => { setTool('pen'); setEraserPreview(null) }}>畫筆</button>
@@ -253,8 +409,17 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
           <option value="stylus">觸控筆優先</option>
         </select>
       </label>
+      <div className="tool-group drawing-zoom" role="group" aria-label="放大書寫">
+        <button ref={toggle} type="button" aria-pressed={expanded} onClick={expanded ? collapse : expand}>{expanded ? '結束放大' : '放大書寫'}</button>
+        {expanded && DRAWING_ZOOM_LEVELS.map((level) => <button key={level} type="button" aria-pressed={zoom === level}
+          aria-label={`縮放 ${level} 倍`} onClick={() => changeZoom(level)}>{level}×</button>)}
+        {expanded && zoom > 1 && <button type="button" aria-pressed={panning}
+          onClick={() => { setPanning(!panning); setEraserPreview(null) }}>移動畫面</button>}
+      </div>
     </div>
-    <div className="canvas-frame">
+    <div ref={viewport} className="canvas-viewport">
+    <div className={`canvas-frame${panTool ? ' is-panning' : ''}`}
+      style={expanded && fitWidth !== null ? { width: `${fitWidth * zoom + FRAME_BORDER}px` } : undefined}>
       <canvas ref={canvas} width={config.width} height={config.height} className="drawing-canvas"
         aria-label="繪圖作答區" aria-describedby={`${id}-instructions`} role="img"
         onContextMenu={(event) => event.preventDefault()}
@@ -268,6 +433,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
         left: `${eraserPreview.x / config.width * 100}%`, top: `${eraserPreview.y / config.height * 100}%`,
         width: `${previewWidth / config.width * 100}%`, height: `${previewWidth / config.height * 100}%`,
       }} />}
+    </div>
     </div>
     <div className="drawing-bottom"><p id={`${id}-instructions`}>
       <span>{inputMode === 'stylus' ? '已忽略手指與手掌觸控；請使用觸控筆或滑鼠繪圖。' : '滑鼠、手指與觸控筆皆可繪圖'}</span>

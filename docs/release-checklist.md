@@ -1,5 +1,26 @@
 # Release checklist
 
+## v1.14.0 enlarged handwriting candidate
+
+日期：2026-10-16（Asia/Taipei）。Immutable base v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production，也沒有部署。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `249857ce86d572a8493aede27d831dbabb8d0dfc`；release prep 開始時 staged empty、working tree 只有本 feature 的變更；v1.13.0 tag object 與 peeled commit 未變；local／remote v1.14.0 tag absent。
+- [x] 需求範圍：human 要求手寫畫布可以放大，解決一題有三小題時寫不下的問題，完成後交由 sub-agent reviewer 審查並以 Playwright 實際測試。Human 決定（選項）：「全螢幕＋縮放」，只改 frontend；不採用加大邏輯畫布（需要 migration、Edge 與付費的 provider canary）。
+- [x] 實作：`DrawingCanvas.tsx` 的「放大書寫」（全視窗編輯區、1×／1.5×／2×、移動畫面、Esc 返回、modal 與 inert、焦點留在編輯區、頁面捲動計數鎖定與位置還原、筆畫進行中先保存）；`global.css` 的放大版面。保存格式、座標換算與 repository 呼叫不變。
+- [x] Regression：新增 `DrawingCanvas-enlarged.test.tsx`（13 個測試）；既有測試未修改。
+- [x] Local gates：110 files／1,678 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Feature browser evidence（本機受控 fixture，零網路 isolation）：1440／1180／820／360 放大、2×、移動畫面、保存座標、Esc 還原；modal、焦點、Esc 中斷筆畫、傳統捲軸（headed Chromium）下 1× 沒有捲軸且 2× 大小穩定、頁面底部的最後一題放大後捲動位置還原；題庫編寫頁 Student Preview；console／page errors 0。
+- [x] Sub-agent review（本 session 內的 code reviewer）：cycle 1 一項 blocking、兩項 should-fix 與數個 nit，已修正；cycle 2 APPROVE 並另提一項 should-fix 與四個 nit，全部修正（修正後重跑 gates 與 browser）；cycle 3 APPROVE、沒有新發現。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=false（Risk C 來自 ignored `.env.local` 與 package files 的 unrecognized path）。
+- [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.13.0` 10／10 PASS（110 files／1,678 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
+- [x] Release-prep review（同一個 sub-agent）：PASS，沒有 blocking；兩項文件的 should-fix（2× 寬度的推導、登入後 smoke 替代的先例）與 nit 已修正。
+- [ ] 一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
+- [ ] Backend：不需要（沒有 migration 或 Edge 變更）。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.14.0／candidate SHA；canonical public smoke；部署的 bundle 含「放大書寫」、「移動畫面」與 `canvas-viewport`；在部署上的題庫編寫頁 Student Preview 實際操作放大書寫。
+- [x] 登入後 smoke 的替代：release-process 要求 frontend 行為在部署後另做登入後的唯讀 smoke；本版改以部署上未登入可用的 Student Preview 實際操作（同一個 `DrawingCanvas`）、release.json identity 與 bundle 內容檢查替代，不請 human 登入。沒有涵蓋登入後的練習頁與雲端儲存；這兩者的程式路徑本版沒有改變，並已在本機 fixture 以真正的 practice store 驗證保存的座標。與 v1.12.0（部署前的登入 canary）不同，本版沒有任何登入後的執行；較接近的先例是 v1.10.2。Release-prep review 核定可以接受。
+- [ ] Closure 與 annotated v1.14.0 tag；沒有 GitHub Release。
+
 ## v1.13.0 lenient calculation grading production acceptance closure
 
 日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `25ac8e927d2a6256b8a6738973e75e0e286fb099`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.12.0：tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`，保持不變。
