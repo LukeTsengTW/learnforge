@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.13.0 lenient calculation grading candidate
+## v1.13.0 lenient calculation grading production acceptance closure
 
-日期：2026-10-16（Asia/Taipei）。Immutable base v1.12.0：tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production。
+日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `25ac8e927d2a6256b8a6738973e75e0e286fb099`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.12.0：tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `1e00babe720fedde556e56548d614f27f902a01a`；session 開始時 working tree clean，release prep 開始時 staged empty、working tree 只有本次的變更；v1.12.0 tag object 與 peeled commit 未變；local／remote v1.13.0 tag absent。
 - [x] 需求範圍：human 要求放寬所有計算題的評分標準（寫出答案就直接給分），並把「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」中的「講義」改為「習題解答」。Human 的決定（2026-10-16，結構化提問，三項都選建議選項）：逐小題，答案正確即給該小題滿分、改共用的正式評分規則而不改 rubric 文字；直接修改 revision 1；發版前做一次付費的 AI 評分驗證。
@@ -14,11 +14,20 @@
 - [x] Edge impact（import graph）：ai-drawing、ai-grade、ai-responses、ai-tutor、save-quiz-draft、submit-quiz 需要重新部署；其餘五個不變。
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=true；human 已授權一次付費的 AI 評分（demo q6 只寫最終答案）。Canary script 已在本機 harness 排練：正常情境完成，兩個反向情境在身分檢查停止且沒有寫入。
 - [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.12.0` 10／10 PASS；`release:preflight`（沒有 `--sha`、`--require-clean` 與 `--require-tag-absent` 的形式）5／5 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
-- [ ] Release-prep review PASS；一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
-- [ ] Edge：六個 function 各部署一次；部署前後的 function 清單；部署內容與 candidate 相同；runtime health。
-- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success；public release.json／navigation = 1.13.0／candidate SHA；canonical public smoke；bundle 內容。
-- [ ] Provider canary（human 登入一次）：demo q6 只寫「x=3 或 x=1/2」並正式提交，q6 預期 6 / 6；只有 q6 呼叫 provider。
-- [ ] Closure 與 annotated v1.13.0 tag；沒有 GitHub Release。
+- [x] Release-prep review：cycle 1 REWORK（文件中三處事實錯誤：分小題題數、ai-grade 的分組、「19 處全部改為」的寫法；canary 的重複提交與排練讀取），cycle 2 PASS；單一 candidate commit `25ac8e927d2a6256b8a6738973e75e0e286fb099`（parent `1e00babe…`，14 個路徑，staged 與 HEAD 的 blob 與 review 時相同）；commit 後 `release:check --base v1.12.0 --require-clean` 10／10 與 strict preflight 7／7 PASS；一次 normal push；local／master／origin parity。
+- [x] [Exact LearnForge CI 38857531012](https://github.com/LukeTsengTW/learnforge/actions/runs/38857531012)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 116832238798。
+- [x] Edge：部署前清單 ai-tutor 20、ai-drawing 22、ai-grade 22、ai-responses 24、submit-quiz 10、save-quiz-draft 8；各部署一次（05:48:40Z–05:49:04Z，全部 exit 0）後為 21／23／23／25／11／9，verify_jwt 與 id 不變，其餘五個 function 不變；讀回的部署內容與 candidate 逐檔相同，相對先前部署只改了 generated context（六個）與 calculation-grading（ai-grade、ai-responses、submit-quiz），檢查 0 項失敗；runtime health 6／6（五個 401 `MISSING_CREDENTIALS`、save-quiz-draft OPTIONS 204，皆有 execution id）。沒有列出 secrets、沒有 SQL、沒有讀取 log。
+- [x] [Deploy LearnForge to GitHub Pages 38857865149](https://github.com/LukeTsengTW/learnforge/actions/runs/38857865149)／attempt 1／workflow_dispatch／master／exact candidate success；build job 116833289016、deploy job 116833686224、deployment 7112026893 均 success。Exactly one dispatch，在六個 Edge 部署之後。
+- [x] Production release.json／navigation：version 1.13.0／v1.13.0、gitSha `25ac8e927d2a6256b8a6738973e75e0e286fb099`，一般與 cache-busted 相同；canonical public smoke PASS，舊的 1.12.0 identity 被拒絕；部署的 bundle 中習題題庫的 13 個題目標題為「習題解答」、新的說明、「習題解答講義」0 處；74 個路徑 HTTP 200，sha256 已保存供 closure-SHA parity 比對；未登入的瀏覽器 smoke（Home、Library 7 張卡片、Author、練習頁轉到登入、1440／360 無 overflow；console／page／CSP／rejection 0，只有 GET）PASS。
+- [x] Provider canary（human 登入一次，一次付費的 AI 評分（依結果來源與程式路徑推定））：身分檢查 4 筆紀錄與兩份保留草稿相符；`demo`／v2-handwriting 只於 q6 打字「x=3 或 x=1/2」，save-quiz-draft 1 次、submit-quiz 1 次（200，ai-grading-v4，guard 8 項檢查成立）；**q6 AI 評分 6 / 6，三項 criterion 各 2 / 2**；總分 6 / 20，只有 q6 由 AI 評分；AI 評分約 7.5 秒；練習紀錄 4 → 5 筆，兩份保留草稿未動；guard 阻擋 0、錯誤 0。Chrome 已關閉、profile 已刪除。
+- [x] Production 的存取：六個 Edge 部署、一次 Pages 部署、canary 的寫入與一次付費的 AI 評分（依結果來源與程式路徑推定）；讀取為 function 清單 2 次、`get_edge_function` 6 次、health 6 個 request、canary 登入後的 GET 與公開 GET。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.13.0 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
+
+Candidate scope、調查、設計、完整證據、canary 與已知限制：[v1.13.0 delivery](v1.13.0-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.12.0 submit progress production acceptance closure
 

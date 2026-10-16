@@ -2,15 +2,20 @@
 
 ## 1.13.0 — 計算題評分放寬與習題解答用詞
 
-Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.12.0（tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Edge 與 Pages 部署、provider canary 與 production acceptance 由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取 production。
+Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `25ac8e927d2a6256b8a6738973e75e0e286fb099`（exact candidate CI 38857531012）；基準 immutable v1.12.0（tag object `a54cd424f8cb051c9df92462249df8115ad82fa9`／peeled `1e00babe720fedde556e56548d614f27f902a01a`）。六個 Edge function 的部署、exact candidate Pages（run 38857865149／deployment 7112026893）、未登入的 public acceptance 與 provider canary 均已完成，review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。
 
 - 計算題的正式評分放寬（human 的需求與決定）：每一小題的最終答案正確（等價寫法、未化簡也算），就給該小題全部分數，不要求寫出過程；答案錯時仍依 rubric 從寬給部分分數。分小題的依據是 criterion 開頭的 (a)、(b) 標號；不標小題的 criterion 在所有小題都正確時給滿分。求解、計算、計數或求公式的小題以結果為最終答案，即使題目也要求完整推導；證明題目給定敘述的小題，證明本身才是答案，只重寫敘述不算。互相矛盾的多個答案、空白都不算正確；手寫看不清楚的答案不算。打字與手寫都適用，所有題庫的計算題共用；各題 rubric 文字不改。
 - 沒有改變：畫圖題的評分、舊版已提交作答的 advisory 重新評分、已提交作答的分數（不重新評分）、各題的配分與答案。
 - 「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」（`discrete-math-exercises-2026` revision 1，直接修改現有版本）：19 處「講義」：18 處改為「習題解答」，例如題目標題的「（Ch1 習題解答第 1 頁）」；說明中的「習題解答講義」刪去「講義」，避免重複。題號、配分、答案、rubric 不變；已提交的紀錄重開時顯示新的用詞。第一章與第三章例題題庫仍寫「講義」，不在本次範圍。
 - 需要重新部署六個 Edge function（ai-drawing、ai-grade、ai-responses、ai-tutor、save-quiz-draft、submit-quiz），先於 Pages。沒有 migration、RLS、Auth、secrets、provider 或模型設定、dependency 的變更。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
 - 測試：新增評分規則的測試（新規則存在、舊的嚴格規則消失、證明題與求解題的區分、舊版 advisory 不受影響）；修改三個測試以配合新用詞，其中 v1.10.0 釘住的既有題庫雜湊保持不變：把本次的用詞變更反向套用後必須重現原本的雜湊，證明題庫只有用詞改變。Browser 證據使用本機受控 fixture：Library 與練習頁沒有「講義」、13 個題目標題都改為「習題解答」、1440／360。
-- Classifier：security-ai／Risk C／providerCanaryRequired=true。Human 已授權一次付費的 AI 評分驗證：在「數位邏輯與基礎數學」q6 只寫最終答案並正式提交，預期滿分。
-- 已知限制：模型是否依新規則給分只有一次 canary 的證據（打字、單一小題）；分小題、手寫、證明題在 production 沒有驗證；只寫最終答案就能得分，這是自主練習而非防作弊的考試；習題題庫的說明仍寫「請寫出完整推導」。完整清單見 delivery。
+- Classifier：security-ai／Risk C／providerCanaryRequired=true。Human 已授權一次付費的 AI 評分驗證。
+- Release-prep review：cycle 1 REWORK（文件中三處事實錯誤與 canary script 的兩個問題，見 delivery），cycle 2 PASS。Candidate commit 14 個路徑；commit 後 `release:check --base v1.12.0 --require-clean` 10／10、strict preflight 7／7 PASS；[candidate CI 38857531012](https://github.com/LukeTsengTW/learnforge/actions/runs/38857531012) PASS。
+- Edge：六個 function 各部署一次（ai-tutor 21、ai-drawing 23、ai-grade 23、ai-responses 25、submit-quiz 11、save-quiz-draft 9），其餘五個不變；讀回的部署內容與 candidate 逐檔相同，改變的只有 generated context 與（三個評分 function 的）calculation-grading；runtime health 6／6（五個 401 `MISSING_CREDENTIALS`、一個 204）。
+- Pages：一次 exact candidate dispatch，[run 38857865149](https://github.com/LukeTsengTW/learnforge/actions/runs/38857865149)／deployment 7112026893 success。Production release.json 與 navigation 為 1.13.0／candidate SHA；canonical public smoke PASS，舊的 1.12.0 identity 被拒絕；部署的 bundle 中習題題庫的 13 個題目標題為「習題解答」、「習題解答講義」0 處；74 個路徑 HTTP 200；未登入的瀏覽器 smoke 全部通過。
+- Provider canary（human 登入一次，一次付費的 AI 評分（依結果來源與程式路徑推定））：專用的 release-canary 帳號在「數位邏輯與基礎數學」只於 q6 打字「x=3 或 x=1/2」並正式提交一次。**q6 得到 6 / 6**，三項 criterion（因式分解、寫出兩個根、代回檢查）各 2 / 2，雖然只寫了最終答案；總分 6 / 20，只有 q6 由 AI 評分。AI 評分約 7.5 秒，v1.12.0 的提交進度卡片停在「評分作答」並持續計時。Request guard 阻擋 0、錯誤 0；兩份保留草稿未動。
+- Production 的變更：六個 Edge 部署、一次 Pages 部署、canary 的寫入與一次付費的 AI 評分（依結果來源與程式路徑推定）。沒有執行 SQL、沒有列出 secrets、沒有讀取 function log。
+- 已知限制：模型依新規則給分只有一次 canary 的證據（打字、單一小題）；分小題、手寫、證明題在 production 沒有驗證；只寫最終答案就能得分，這是自主練習而非防作弊的考試；習題題庫的說明仍寫「請寫出完整推導」。完整清單見 delivery。
 - Package／lock root version 與 visible navigation label 為 1.13.0。調查、設計與證據見 [v1.13.0 delivery](docs/v1.13.0-delivery.md)。
 
 ## 1.12.0 — 提交測驗的進度顯示
