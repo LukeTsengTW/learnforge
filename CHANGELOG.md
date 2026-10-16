@@ -2,7 +2,7 @@
 
 ## 1.14.1 — 畫布工具列圖示
 
-Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段沒有存取 production，也沒有部署任何東西。
+Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`（exact candidate CI 38926266625）；基準 immutable v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。Exact candidate Pages（run 38926525130／deployment 7123281622）與未登入的 public acceptance 均已完成，review PASS。不需要 Edge 部署與 provider canary。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。
 
 - 手寫畫布工具列的六個按鈕改以 SVG 圖示顯示：畫筆、橡皮擦、復原、重做、放大書寫／結束放大（放大時圖示切換為縮小）與移動畫面。按鈕上沒有文字；滑鼠停留時顯示名稱（`title`，結束放大為「結束放大（Esc）」），螢幕閱讀器讀到的名稱（`aria-label`）與原本的文字相同；畫筆、橡皮擦與移動畫面的按下狀態、復原與重做的停用狀態與鍵盤操作不變；放大的切換按鈕以名稱表示動作，不再標示按下狀態，放大時加上 `aria-keyshortcuts="Escape"`。放大時的狀態行改為「已放大書寫。按 Esc 或工具列的縮小按鈕返回。」，因為「結束放大」不再是看得到的文字。按鈕為 44 × 44 px，圖示 20 × 20 px，以按鈕的文字顏色繪製，淺色與深色主題都沿用既有的顏色 token。顏色色塊、1×／1.5×／2×、「輸入方式」選單與畫布下方的「清除畫布」、「匯出 PNG」維持原樣（human 決定）。
 - 沒有改變：畫布的行為、保存的筆跡、Edge function、migration、題庫、generated canonical context、Auth／RLS／secrets／provider configuration 或 dependency。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
@@ -11,6 +11,10 @@ Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v
 - Classifier：security-ai／Risk C／providerCanaryRequired=false（Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path）。不需要 Edge 部署與 provider canary；部署後以未登入的檢查驗收，同 v1.14.0（release-prep review 核定）。
 - Release-prep review PASS（should-fix 與兩個 nit 都在文件，已修正）；commit 前 `release:check --base v1.14.0` 10／10 PASS（111 files／1,681 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。
 - 已知限制：觸控裝置沒有滑鼠停留，看不到名稱提示，只能從圖示辨認；部分瀏覽器在停用的按鈕（例如尚未畫任何筆畫時的復原、重做）上不顯示提示。
+- Candidate：單一 commit 12 個路徑；commit 後 `release:check --base v1.14.0 --require-clean` 10／10、strict preflight 8／8 PASS；[candidate CI 38926266625](https://github.com/LukeTsengTW/learnforge/actions/runs/38926266625) PASS。
+- Pages：一次 exact candidate dispatch，[run 38926525130](https://github.com/LukeTsengTW/learnforge/actions/runs/38926525130)／deployment 7123281622 success。Production release.json 與 navigation 為 1.14.1／candidate SHA；canonical public smoke PASS，舊的 1.14.0 identity 被拒絕；主要 JS 含 `icon-button`、`drawing-tool-icon`、`aria-keyshortcuts`、「結束放大（Esc）」與新的狀態文字，不含舊的「按 Esc 或「結束放大」返回」，navigation 字樣只有 v1.14.1；主要 CSS 含 `.drawing-toolbar .icon-button`（44 px 寬）；74 個路徑 HTTP 200；未登入的瀏覽器 smoke 全部通過。
+- 部署上的題庫編寫頁 Student Preview（demo q7，未登入，1440 與 360）：頁面上 5 個、放大後 6 個圖示按鈕，全部 44 × 44、圖示 20 × 20、沒有文字、有 `title`，結束放大沒有 `aria-pressed`；狀態行為「已放大書寫。按 Esc 或工具列的縮小按鈕返回。」；v1.14.0 的放大書寫照常（1× 961／326 px、2× 1932／652 px、dialog 與 `inert`、2× 畫的筆跡與 Answer Preview 的 PNG 相同、回到按下時的捲動位置）；連續 2 次執行都通過，只有對 Pages 的 GET 24 個，console／page／CSP／unhandled rejection 0。
+- Production 的變更：一次 Pages 部署。沒有存取 Supabase，沒有登入，canary 帳號未動。
 - Package／lock root version 與 visible navigation label 為 1.14.1。見 [v1.14.1 delivery](docs/v1.14.1-delivery.md)。
 
 ## 1.14.0 — 手寫畫布的放大書寫

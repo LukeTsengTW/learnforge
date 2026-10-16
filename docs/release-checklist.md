@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.14.1 drawing toolbar icons candidate
+## v1.14.1 drawing toolbar icons production acceptance closure
 
-日期：2026-10-16（Asia/Taipei）。Immutable base v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production，也沒有部署。
+日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.14.0：tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `b2f770402f0b06ee632896ecaf539cb59d867302`；release prep 開始時 working tree 只有本次的變更；v1.14.0 tag object 與 peeled commit 未變；local／remote v1.14.1 tag absent。
 - [x] 需求範圍：human 問工具列按鈕能否以 SVG 圖示取代文字。Human 決定（選項）：範圍為整個畫布工具列；只顯示圖示＋停留提示。
@@ -14,11 +14,21 @@
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=false。
 - [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.14.0` 10／10 PASS（111 files／1,681 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
 - [x] Release-prep review（同一個 sub-agent）：PASS，沒有 blocking；should-fix（記錄 release tools 的結果與本 review 的結論）與兩個 nit（CHANGELOG 對測試修改的描述、bundle 檢查的具體字樣）已修正。
-- [ ] 一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS。
-- [ ] Backend：不需要。
-- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
-- [ ] Public release.json／navigation = 1.14.1／candidate SHA；canonical public smoke；主要 JS 含 `icon-button`、`drawing-tool-icon`、`aria-keyshortcuts` 與新的狀態文字「工具列的縮小按鈕」、不含舊的「按 Esc 或「結束放大」返回」，主要 CSS 含 `.drawing-toolbar .icon-button`（44 px 寬）；在部署上的 Student Preview 確認圖示按鈕並操作放大書寫。登入後 smoke 以未登入的檢查替代（release-prep review 核定，同 v1.14.0）：只改按鈕的呈現，練習頁的儲存與提交程式路徑沒有改變，部署上的 Student Preview 使用同一個 `DrawingCanvas`。
-- [ ] Closure 與 annotated v1.14.1 tag；沒有 GitHub Release。
+- [x] 單一 candidate commit `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`（parent `b2f77040…`，12 個路徑，五個 feature 檔案的 staged 與 HEAD blob 與 review 時相同）；commit 後 `release:check --base v1.14.0 --require-clean` 10／10 PASS（report 為 1.14.1／candidate SHA／Risk C）；strict `release:preflight --sha <candidate> --branch master --require-clean --require-tag-absent` 8／8 PASS；一次 normal push（remote master `b2f7704 → 0abb09a`）。
+- [x] [LearnForge CI 38926266625](https://github.com/LukeTsengTW/learnforge/actions/runs/38926266625)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 117058473279。
+- [x] Backend：不需要；沒有存取 Supabase。
+- [x] [Deploy LearnForge to GitHub Pages 38926525130](https://github.com/LukeTsengTW/learnforge/actions/runs/38926525130)／attempt 1／workflow_dispatch／master／exact candidate success；build job 117059362089、deploy job 117060131899、deployment 7123281622 均 success；build log 的 RELEASE_SHA／RELEASE_VERSION 為 candidate／1.14.1。Exactly one dispatch。
+- [x] Production release.json／navigation：version 1.14.1／v1.14.1、gitSha `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`，一般與 cache-busted 相同；canonical public smoke PASS，舊的 1.14.0 identity 被拒絕；主要 JS 含 `icon-button`、`drawing-tool-icon`、`aria-keyshortcuts`、「結束放大（Esc）」與新的狀態文字，不含舊的「按 Esc 或「結束放大」返回」，navigation 字樣只有 v1.14.1；主要 CSS 含 `.drawing-toolbar .icon-button`（44 px 寬）；74 個路徑 HTTP 200，sha256 已保存供 closure-SHA parity；未登入的瀏覽器 smoke PASS（Pages GET 21、Turnstile GET 2）。
+- [x] 部署上的題庫編寫頁 Student Preview（demo q7，未登入，1440 與 360）：頁面上 5 個、放大後 6 個圖示按鈕，全部 44 × 44、圖示 20 × 20、沒有文字、有 `title`，結束放大沒有 `aria-pressed`；狀態行為「已放大書寫。按 Esc 或工具列的縮小按鈕返回。」；v1.14.0 的放大書寫照常（1× 961／326 px、2× 1932／652 px、dialog 與 `inert`、2× 畫的筆跡與 Answer Preview 的 PNG 相同、回到按下時的捲動位置）；連續 2 次執行都通過，只有對 Pages 的 GET 24 個，console／page／CSP／unhandled rejection 0。
+- [x] 驗收時的計畫要求（原文）：Public release.json／navigation = 1.14.1／candidate SHA；canonical public smoke；主要 JS 含 `icon-button`、`drawing-tool-icon`、`aria-keyshortcuts` 與新的狀態文字「工具列的縮小按鈕」、不含舊的「按 Esc 或「結束放大」返回」，主要 CSS 含 `.drawing-toolbar .icon-button`（44 px 寬）；在部署上的 Student Preview 確認圖示按鈕並操作放大書寫。登入後 smoke 以未登入的檢查替代（release-prep review 核定，同 v1.14.0）：只改按鈕的呈現，練習頁的儲存與提交程式路徑沒有改變，部署上的 Student Preview 使用同一個 `DrawingCanvas`。
+- [x] Production 的存取：一次 Pages 部署；未登入的公開 GET；GitHub 的唯讀 API。沒有 Supabase 的任何存取、沒有登入。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.14.1 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
+
+Candidate scope、設計、完整證據與已知限制：[v1.14.1 delivery](v1.14.1-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.14.0 enlarged handwriting production acceptance closure
 
