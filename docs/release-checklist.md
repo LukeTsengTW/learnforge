@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.14.0 enlarged handwriting candidate
+## v1.14.0 enlarged handwriting production acceptance closure
 
-日期：2026-10-16（Asia/Taipei）。Immutable base v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production，也沒有部署。
+日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.13.0：tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `249857ce86d572a8493aede27d831dbabb8d0dfc`；release prep 開始時 staged empty、working tree 只有本 feature 的變更；v1.13.0 tag object 與 peeled commit 未變；local／remote v1.14.0 tag absent。
 - [x] 需求範圍：human 要求手寫畫布可以放大，解決一題有三小題時寫不下的問題，完成後交由 sub-agent reviewer 審查並以 Playwright 實際測試。Human 決定（選項）：「全螢幕＋縮放」，只改 frontend；不採用加大邏輯畫布（需要 migration、Edge 與付費的 provider canary）。
@@ -14,12 +14,21 @@
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=false（Risk C 來自 ignored `.env.local` 與 package files 的 unrecognized path）。
 - [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.13.0` 10／10 PASS（110 files／1,678 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
 - [x] Release-prep review（同一個 sub-agent）：PASS，沒有 blocking；兩項文件的 should-fix（2× 寬度的推導、登入後 smoke 替代的先例）與 nit 已修正。
-- [ ] 一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS；local／master／origin parity。
-- [ ] Backend：不需要（沒有 migration 或 Edge 變更）。
-- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
-- [ ] Public release.json／navigation = 1.14.0／candidate SHA；canonical public smoke；部署的 bundle 含「放大書寫」、「移動畫面」與 `canvas-viewport`；在部署上的題庫編寫頁 Student Preview 實際操作放大書寫。
+- [x] 單一 candidate commit `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`（parent `249857ce…`，10 個路徑，三個 feature 檔案的 staged 與 HEAD blob 與 review 時相同）；commit 後 `release:check --base v1.13.0 --require-clean` 10／10 PASS（report 為 1.14.0／candidate SHA／Risk C）；strict `release:preflight --sha <candidate> --branch master --require-clean --require-tag-absent` 8／8 PASS；一次 normal push（remote master `249857c → b9e2d49`）。
+- [x] [LearnForge CI 38916766079](https://github.com/LukeTsengTW/learnforge/actions/runs/38916766079)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 117026113645。
+- [x] Backend：不需要（沒有 migration 或 Edge 變更）；沒有存取 Supabase。
+- [x] [Deploy LearnForge to GitHub Pages 38917018937](https://github.com/LukeTsengTW/learnforge/actions/runs/38917018937)／attempt 1／workflow_dispatch／master／exact candidate success；build job 117026991260、deploy job 117027828141、deployment 7121715145 均 success。Exactly one dispatch。
+- [x] Production release.json／navigation：version 1.14.0／v1.14.0、gitSha `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`，一般與 cache-busted 相同；canonical public smoke PASS，舊的 1.13.0 identity 被拒絕；主要 JS 含「放大書寫」、「結束放大」、「移動畫面」、`canvas-viewport` 與放大時的狀態文字，主要 CSS 含 `.drawing-editor.is-expanded`（fixed）與 `.canvas-viewport`（overflow auto）；74 個路徑 HTTP 200，sha256 已保存供 closure-SHA parity；未登入的瀏覽器 smoke PASS。
+- [x] 部署上的放大書寫：Student Preview（demo q7，800 × 600）：1440 寬由 564 px 放大為 961 px（2× 為 1932 px），360 寬由 256 px 放大為 326 px（2× 為 652 px）；編輯區鋪滿視窗、dialog／`aria-modal`、header 為 `inert`；2× 畫的一筆在 Esc 後，編輯畫布與 Answer Preview 畫布的 PNG 雜湊相同（筆跡進入作答狀態，零寫入）；頁面回到按下「放大書寫」時的捲動位置；連續 3 次執行都通過，只有對 Pages 的 GET，console／page／CSP／unhandled rejection 0。
 - [x] 登入後 smoke 的替代：release-process 要求 frontend 行為在部署後另做登入後的唯讀 smoke；本版改以部署上未登入可用的 Student Preview 實際操作（同一個 `DrawingCanvas`）、release.json identity 與 bundle 內容檢查替代，不請 human 登入。沒有涵蓋登入後的練習頁與雲端儲存；這兩者的程式路徑本版沒有改變，並已在本機 fixture 以真正的 practice store 驗證保存的座標。與 v1.12.0（部署前的登入 canary）不同，本版沒有任何登入後的執行；較接近的先例是 v1.10.2。Release-prep review 核定可以接受。
-- [ ] Closure 與 annotated v1.14.0 tag；沒有 GitHub Release。
+- [x] Production 的存取：一次 Pages 部署；未登入的公開 GET；GitHub 的唯讀 API。沒有 Supabase 的任何存取、沒有登入。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.14.0 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
+
+Candidate scope、調查、設計、完整證據與已知限制：[v1.14.0 delivery](v1.14.0-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.13.0 lenient calculation grading production acceptance closure
 

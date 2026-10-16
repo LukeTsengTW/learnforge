@@ -2,7 +2,7 @@
 
 ## 1.14.0 — 手寫畫布的放大書寫
 
-Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段沒有存取 production，也沒有部署任何東西。
+Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`（exact candidate CI 38916766079）；基準 immutable v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。Exact candidate Pages（run 38917018937／deployment 7121715145）與未登入的 public acceptance（含部署上的放大書寫操作）均已完成，review PASS。不需要 Edge 部署與 provider canary。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。
 
 - 手寫畫布的工具列最後多了「放大書寫」：畫布編輯區鋪滿整個視窗，1× 時整張畫布剛好放進視窗（1440×900 的視窗中由頁面上的 814 px 寬變為 961 px），可再切換 1.5×、2×；放大到 1× 以上時畫布在編輯區內捲動，並多一個「移動畫面」工具，用任何指標拖曳畫面而不留下筆跡（也可以直接捲動）。按 Esc 或「結束放大」回到頁面原來的捲動位置，筆跡都保留；再次放大時從 1× 開始。工具列（畫筆、橡皮擦、顏色、筆寬、復原、重做、輸入方式）與「清除畫布」、「匯出 PNG」在放大時照常使用。
 - 目的：一題有多個小題時，原本固定寬度的畫布（手機上只有 280 px 寬）寫不下。畫布的邏輯大小（例如 1200 × 900）與保存的格式都不變：筆跡仍以畫布的邏輯座標保存，放大只改變畫布在螢幕上的大小，所以已保存的作答、評分與 AI 評分的影像都不受影響。
@@ -13,6 +13,10 @@ Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v
 - Classifier：security-ai／Risk C／providerCanaryRequired=false；Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path，所有 source 路徑都是 frontend。不需要 Edge 部署與 provider canary。
 - Release-process 要求的部署後登入唯讀 smoke，本版以 Pages 部署上未登入可用的題庫編寫頁 Student Preview 實際操作放大書寫、release.json identity 與 bundle 內容檢查替代，不請 human 登入（release-prep review 核定）；與 v1.12.0 不同，本版沒有任何登入後的執行，沒有涵蓋登入後的練習頁與雲端儲存（見 delivery）。
 - 已知限制：「觸控筆優先」時手指不會拖曳畫面，需要用「移動畫面」或捲軸；放大時頁面上的其他內容（題目文字）看不到，需要結束放大才能再看題目；沒有雙指縮放；邏輯畫布的大小不變，所以放大是讓書寫更細，不是增加畫布的空間。完整清單見 delivery。
+- Candidate：單一 commit 10 個路徑；commit 後 `release:check --base v1.13.0 --require-clean` 10／10、strict preflight 8／8 PASS；[candidate CI 38916766079](https://github.com/LukeTsengTW/learnforge/actions/runs/38916766079) PASS。
+- Pages：一次 exact candidate dispatch，[run 38917018937](https://github.com/LukeTsengTW/learnforge/actions/runs/38917018937)／deployment 7121715145 success。Production release.json 與 navigation 為 1.14.0／candidate SHA；canonical public smoke PASS，舊的 1.13.0 identity 被拒絕；部署的主要 JS 含「放大書寫」、「結束放大」、「移動畫面」與 `canvas-viewport`，CSS 含放大版面的規則；74 個路徑 HTTP 200；未登入的瀏覽器 smoke 全部通過。
+- 部署上的放大書寫（未登入的題庫編寫頁）：Student Preview（demo q7，800 × 600）：1440 寬由 564 px 放大為 961 px（2× 為 1932 px），360 寬由 256 px 放大為 326 px（2× 為 652 px）；編輯區鋪滿視窗、dialog／`aria-modal`、header 為 `inert`；2× 畫的一筆在 Esc 後，編輯畫布與 Answer Preview 畫布的 PNG 雜湊相同（筆跡進入作答狀態，零寫入）；頁面回到按下「放大書寫」時的捲動位置；連續 3 次執行都通過，只有對 Pages 的 GET，console／page／CSP／unhandled rejection 0。
+- Production 的變更：一次 Pages 部署。沒有存取 Supabase（沒有 Edge、SQL、secrets、log），沒有登入，canary 帳號未動。
 - Package／lock root version 與 visible navigation label 為 1.14.0。設計與證據見 [v1.14.0 delivery](docs/v1.14.0-delivery.md)。
 
 ## 1.13.0 — 計算題評分放寬與習題解答用詞
