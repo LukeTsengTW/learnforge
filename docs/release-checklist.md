@@ -1,5 +1,25 @@
 # Release checklist
 
+## v1.14.1 drawing toolbar icons candidate
+
+日期：2026-10-16（Asia/Taipei）。Immutable base v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。以下勾選記錄 preparation 時已取得的證據；commit 之後的執行結果另記於 post-commit report。本階段沒有存取 production，也沒有部署。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `b2f770402f0b06ee632896ecaf539cb59d867302`；release prep 開始時 working tree 只有本次的變更；v1.14.0 tag object 與 peeled commit 未變；local／remote v1.14.1 tag absent。
+- [x] 需求範圍：human 問工具列按鈕能否以 SVG 圖示取代文字。Human 決定（選項）：範圍為整個畫布工具列；只顯示圖示＋停留提示。
+- [x] 實作：新的 `DrawingToolIcons.tsx`；`DrawingCanvas.tsx` 六個按鈕改為圖示（`aria-label`、`title`），切換按鈕不再標示按下狀態、放大時加上 `aria-keyshortcuts`，狀態行不再提到看不到的「結束放大」；`global.css` 的 44 × 44 圖示按鈕。
+- [x] Regression：新增 `DrawingCanvas-icons.test.tsx`（3 個測試）；既有測試只改 `DrawingCanvas-enlarged.test.tsx` 的一個斷言（切換按鈕沒有 `aria-pressed`、有 `aria-keyshortcuts`）。
+- [x] Local gates：111 files／1,681 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、production audit、diff-check PASS。
+- [x] Browser evidence（本機受控 fixture，零網路 isolation）：1440／360、淺色與深色的圖示按鈕尺寸、名稱、沒有 overflow；v1.14.0 的放大書寫情境重跑 PASS；console／page errors 0。
+- [x] Sub-agent review（本 session 內的 code reviewer）：cycle 1 APPROVE，一項 should-fix（狀態行提到看不到的「結束放大」）與五個 nit，修正後重跑 gates 與 browser；cycle 2 APPROVE、沒有新發現。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=false。
+- [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.14.0` 10／10 PASS（111 files／1,681 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
+- [x] Release-prep review（同一個 sub-agent）：PASS，沒有 blocking；should-fix（記錄 release tools 的結果與本 review 的結論）與兩個 nit（CHANGELOG 對測試修改的描述、bundle 檢查的具體字樣）已修正。
+- [ ] 一個 candidate commit、一次 normal push；exact candidate push CI 全 PASS。
+- [ ] Backend：不需要。
+- [ ] 一次 exact candidate deploy.yml dispatch；Pages workflow／deployment success。
+- [ ] Public release.json／navigation = 1.14.1／candidate SHA；canonical public smoke；主要 JS 含 `icon-button`、`drawing-tool-icon`、`aria-keyshortcuts` 與新的狀態文字「工具列的縮小按鈕」、不含舊的「按 Esc 或「結束放大」返回」，主要 CSS 含 `.drawing-toolbar .icon-button`（44 px 寬）；在部署上的 Student Preview 確認圖示按鈕並操作放大書寫。登入後 smoke 以未登入的檢查替代（release-prep review 核定，同 v1.14.0）：只改按鈕的呈現，練習頁的儲存與提交程式路徑沒有改變，部署上的 Student Preview 使用同一個 `DrawingCanvas`。
+- [ ] Closure 與 annotated v1.14.1 tag；沒有 GitHub Release。
+
 ## v1.14.0 enlarged handwriting production acceptance closure
 
 日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.13.0：tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`，保持不變。

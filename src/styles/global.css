@@ -318,6 +318,8 @@
   .drawing-toolbar button { font-size: 12px; padding: 6px 10px; }
   .drawing-toolbar button[aria-pressed='true'] { border-color: var(--teal); background: var(--control-active); color: var(--teal-dark); }
   .drawing-toolbar .color-button { width: 44px; padding: 0; position: relative; display: grid; place-items: center; }
+  .drawing-toolbar .icon-button { width: 44px; padding: 0; display: inline-grid; place-items: center; }
+  .drawing-tool-icon { display: block; }
   .color-button > span:first-child { width: 20px; height: 20px; border-radius: 50%; }
   .color-check { position: absolute; color: var(--on-swatch); font-size: 12px; }
   .brush-label { display: grid; grid-template-columns: auto 24px; align-items: center; column-gap: 8px; font-size: 12px; }

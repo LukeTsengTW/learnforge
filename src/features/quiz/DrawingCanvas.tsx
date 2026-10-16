@@ -11,6 +11,7 @@ import { appendStrokeSample } from '../../lib/stroke-sampling'
 import { getDrawingInputMode, saveDrawingInputMode, type DrawingInputMode } from '../../lib/drawing-input-mode'
 import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster.ts'
 import { DraftCapacityContext, type AnswerOutcome } from './attempt-context'
+import { DrawingToolIcon } from './DrawingToolIcons'
 
 interface DrawingCanvasProps {
   id: string
@@ -54,7 +55,7 @@ const COLOR_LABELS = ['黑色', '紅色', '藍色']
  */
 export const DRAWING_ZOOM_LEVELS = [1, 1.5, 2] as const
 export type DrawingZoom = typeof DRAWING_ZOOM_LEVELS[number]
-export const DRAWING_EXPANDED_STATUS = '已放大書寫。按 Esc 或「結束放大」返回。'
+export const DRAWING_EXPANDED_STATUS = '已放大書寫。按 Esc 或工具列的縮小按鈕返回。'
 export const DRAWING_COLLAPSED_STATUS = '已結束放大書寫。'
 // The enlarged frame's 1px border on each side.
 const FRAME_BORDER = 2
@@ -375,8 +376,10 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     {...(expanded ? { role: 'dialog', 'aria-modal': true, 'aria-label': '放大書寫' } : {})}>
     <div className="drawing-toolbar" role="group" aria-label="畫布工具">
       <div className="tool-group">
-        <button type="button" aria-pressed={tool === 'pen'} onClick={() => { setTool('pen'); setEraserPreview(null) }}>畫筆</button>
-        <button type="button" aria-pressed={tool === 'eraser'} onClick={() => { setTool('eraser'); setEraserPreview(null) }}>橡皮擦</button>
+        <button type="button" className="icon-button" aria-label="畫筆" title="畫筆" aria-pressed={tool === 'pen'}
+          onClick={() => { setTool('pen'); setEraserPreview(null) }}><DrawingToolIcon name="pen" /></button>
+        <button type="button" className="icon-button" aria-label="橡皮擦" title="橡皮擦" aria-pressed={tool === 'eraser'}
+          onClick={() => { setTool('eraser'); setEraserPreview(null) }}><DrawingToolIcon name="eraser" /></button>
       </div>
       <div className="tool-group" role="group" aria-label="畫筆顏色">
         {DRAWING_COLORS.map((item, index) => <button key={item} type="button" className="color-button"
@@ -394,8 +397,10 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
           onChange={(event) => (tool === 'eraser' ? setEraserWidth : setPenWidth)(Number(event.target.value))} />
       </label>
       <div className="tool-group">
-        <button type="button" disabled={!history.strokes.length} onClick={() => changeDrawing({ type: 'undo' })}>復原</button>
-        <button type="button" disabled={!history.undone.length} onClick={() => changeDrawing({ type: 'redo' })}>重做</button>
+        <button type="button" className="icon-button" aria-label="復原" title="復原" disabled={!history.strokes.length}
+          onClick={() => changeDrawing({ type: 'undo' })}><DrawingToolIcon name="undo" /></button>
+        <button type="button" className="icon-button" aria-label="重做" title="重做" disabled={!history.undone.length}
+          onClick={() => changeDrawing({ type: 'redo' })}><DrawingToolIcon name="redo" /></button>
       </div>
       <label className="drawing-input-label" htmlFor={`${id}-input-mode`}>輸入方式
         <select id={`${id}-input-mode`} value={inputMode} aria-describedby={`${id}-instructions`}
@@ -410,11 +415,15 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
         </select>
       </label>
       <div className="tool-group drawing-zoom" role="group" aria-label="放大書寫">
-        <button ref={toggle} type="button" aria-pressed={expanded} onClick={expanded ? collapse : expand}>{expanded ? '結束放大' : '放大書寫'}</button>
+        {/* The label names the action, so the toggle has no pressed state. */}
+        <button ref={toggle} type="button" className="icon-button" aria-label={expanded ? '結束放大' : '放大書寫'}
+          title={expanded ? '結束放大（Esc）' : '放大書寫'} aria-keyshortcuts={expanded ? 'Escape' : undefined}
+          onClick={expanded ? collapse : expand}>
+          <DrawingToolIcon name={expanded ? 'collapse' : 'expand'} /></button>
         {expanded && DRAWING_ZOOM_LEVELS.map((level) => <button key={level} type="button" aria-pressed={zoom === level}
           aria-label={`縮放 ${level} 倍`} onClick={() => changeZoom(level)}>{level}×</button>)}
-        {expanded && zoom > 1 && <button type="button" aria-pressed={panning}
-          onClick={() => { setPanning(!panning); setEraserPreview(null) }}>移動畫面</button>}
+        {expanded && zoom > 1 && <button type="button" className="icon-button" aria-label="移動畫面" title="移動畫面" aria-pressed={panning}
+          onClick={() => { setPanning(!panning); setEraserPreview(null) }}><DrawingToolIcon name="move" /></button>}
       </div>
     </div>
     <div ref={viewport} className="canvas-viewport">

@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.14.1 — 畫布工具列圖示
+
+Release candidate preparation：2026-10-16（Asia/Taipei）。基準 immutable v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。變更與 release metadata 合併為單一 candidate commit；該 commit 的 SHA、push CI、Pages 部署與 production acceptance 的 exact identities 由 post-commit report 記錄。這不是 closure 或 tag。本階段沒有存取 production，也沒有部署任何東西。
+
+- 手寫畫布工具列的六個按鈕改以 SVG 圖示顯示：畫筆、橡皮擦、復原、重做、放大書寫／結束放大（放大時圖示切換為縮小）與移動畫面。按鈕上沒有文字；滑鼠停留時顯示名稱（`title`，結束放大為「結束放大（Esc）」），螢幕閱讀器讀到的名稱（`aria-label`）與原本的文字相同；畫筆、橡皮擦與移動畫面的按下狀態、復原與重做的停用狀態與鍵盤操作不變；放大的切換按鈕以名稱表示動作，不再標示按下狀態，放大時加上 `aria-keyshortcuts="Escape"`。放大時的狀態行改為「已放大書寫。按 Esc 或工具列的縮小按鈕返回。」，因為「結束放大」不再是看得到的文字。按鈕為 44 × 44 px，圖示 20 × 20 px，以按鈕的文字顏色繪製，淺色與深色主題都沿用既有的顏色 token。顏色色塊、1×／1.5×／2×、「輸入方式」選單與畫布下方的「清除畫布」、「匯出 PNG」維持原樣（human 決定）。
+- 沒有改變：畫布的行為、保存的筆跡、Edge function、migration、題庫、generated canonical context、Auth／RLS／secrets／provider configuration 或 dependency。全庫維持 9 revisions／7 current／103 questions／103 canonical contexts。
+- Local gates：111 files／1,681 tests 全部 PASS、零 skipped（新增 1 個測試檔、3 個測試；既有測試以按鈕的名稱尋找按鈕，名稱不變，`DrawingCanvas-enlarged.test.tsx` 的一個斷言改為切換按鈕沒有 `aria-pressed`，另加 `aria-keyshortcuts` 的斷言）；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check 通過。Browser 證據使用本機受控 fixture（零網路）：1440／360、淺色與深色，六個圖示按鈕都是 44 × 44、圖示 20 × 20、沒有文字、有 title，工具列與頁面沒有水平 overflow；v1.14.0 的放大書寫情境（座標、modal、捲動位置、Student Preview）重跑全部通過；console／page errors 0。
+- Sub-agent review（本 session 內的 code reviewer）：cycle 1 APPROVE，沒有 blocking；一項 should-fix（放大時的狀態行要使用者按「結束放大」，但這已不是看得到的文字；觸控裝置也看不到提示）與五個 nit（名稱會改變的切換按鈕不應標示按下狀態、結束放大的 Esc 快捷鍵、停用按鈕的提示、README 的用詞、測試缺口），除了列為已知限制的停用按鈕提示之外全部修正；cycle 2 APPROVE、沒有新發現。
+- Classifier：security-ai／Risk C／providerCanaryRequired=false（Risk C 來自本機 ignored 的 `.env.local` 與 package files 的 unrecognized path）。不需要 Edge 部署與 provider canary；部署後以未登入的檢查驗收，同 v1.14.0（release-prep review 核定）。
+- Release-prep review PASS（should-fix 與兩個 nit 都在文件，已修正）；commit 前 `release:check --base v1.14.0` 10／10 PASS（111 files／1,681 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）7／7 PASS。
+- 已知限制：觸控裝置沒有滑鼠停留，看不到名稱提示，只能從圖示辨認；部分瀏覽器在停用的按鈕（例如尚未畫任何筆畫時的復原、重做）上不顯示提示。
+- Package／lock root version 與 visible navigation label 為 1.14.1。見 [v1.14.1 delivery](docs/v1.14.1-delivery.md)。
+
 ## 1.14.0 — 手寫畫布的放大書寫
 
 Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10`（exact candidate CI 38916766079）；基準 immutable v1.13.0（tag object `43cf42ec9e23c7a6bf6394b382a2e41385848c1d`／peeled `249857ce86d572a8493aede27d831dbabb8d0dfc`）。Exact candidate Pages（run 38917018937／deployment 7121715145）與未登入的 public acceptance（含部署上的放大書寫操作）均已完成，review PASS。不需要 Edge 部署與 provider canary。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。
