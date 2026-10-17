@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.15.0 remove three quiz banks release preparation
+## v1.15.0 remove three quiz banks production acceptance closure
 
-日期：2026-10-17（Asia/Taipei）。本 section 是 release preparation snapshot：**candidate commit、candidate CI、六個 Edge function 的部署、runtime health、exact-SHA Pages 部署、production 驗收、documentation closure、closure CI、closure-SHA parity 與 annotated tag 都還沒有發生**，不預先宣稱完成。Immutable base v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`，保持不變。
+日期：2026-10-17（Asia/Taipei）。已接受的 production runtime candidate 為 `e7eb6187caf5d3aabb8f3136d6b0030707e2f85e`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`，保持不變。
 
 - [x] Pre-preparation HEAD／master／origin/master／live remote master = `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`；release prep 開始時 working tree 只有本次的變更；v1.14.1 tag object 與 peeled commit 未變；local／remote v1.15.0 tag absent。
 - [x] 需求範圍：human 要求移除「數位邏輯與基礎數學」（demo）、「布林代數基礎」（boolean-algebra）、「離散數學：關係」（relations），其餘題庫不變；交由 reviewer 審查並以 Playwright 測試；之後下達 release。
@@ -12,11 +12,21 @@
 - [x] Sub-agent review：cycle 1 REWORK、cycle 2 PASS、cycle 3 PASS。
 - [x] Classifier：security-ai／Risk C／providerCanaryRequired=false。需要六個 Edge function 的重新部署（generated context 改變）；不需要 provider canary；不需要 migration。
 - [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.14.1` 10／10 PASS（111 files／1,683 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
-- [ ] Release-prep review。
-- [ ] Candidate commit、push、exact candidate CI。
-- [ ] Edge：ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz 依序部署並核對來源；runtime health。
-- [ ] Exact candidate Pages 部署與 production public acceptance。
-- [ ] Documentation closure commit、closure CI、closure-SHA Pages parity、annotated v1.15.0 tag。
+- [x] Release-prep review（sub-agent）：cycle 1 REWORK（五處文件錯誤，已修正）、cycle 2 PASS。
+- [x] 單一 candidate commit `e7eb6187caf5d3aabb8f3136d6b0030707e2f85e`（parent `6e98fc7c…`，64 個路徑：58 M、4 R、2 A）；commit 後 `release:check --base v1.14.1 --require-clean` 10／10 PASS（report 為 1.15.0／candidate SHA／Risk C）、strict `release:preflight --sha <candidate> --branch master --require-clean --require-tag-absent` 8／8 PASS；一次 normal push（remote master `6e98fc7 → e7eb618`）。
+- [x] [LearnForge CI 39015563847](https://github.com/LukeTsengTW/learnforge/actions/runs/39015563847)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 117346862629。
+- [x] Edge：部署前以 `functions list` 取得 11 個 function 的 baseline（只讀 metadata）；六個 function 依序部署，每個一次嘗試、每個 exit 0：ai-tutor 22、ai-grade 24、ai-drawing 24、ai-responses 26、save-quiz-draft 10、submit-quiz 12（部署前依序為 21、23、23、25、9、11）；其餘五個 function（account-recovery-code、ai-quota、ai-usage、password-hint、recover-account）的版本、雜湊與 updated_at 都沒有變。
+- [x] Edge 來源核對：partial: ai-tutor full; ai-responses incl. generated context; the other four entry files only, plus gated exact-candidate deployment；方法：CLI `functions download` 在隔離的 scratch workdir（不是 `get_edge_function`；該 MCP 在這個 session 沒有 authenticate）。沒有宣稱六個 function 都逐檔相同。
+- [x] Runtime health（零憑證、不帶 body、不重試、一個 function 一個 request、不讀 log）：5 個 GET（ai-tutor、ai-grade、ai-drawing、ai-responses、submit-quiz）回 401 `MISSING_CREDENTIALS`（平台的回應），save-quiz-draft 的 OPTIONS 回 204，六個回應都有 `x-deno-execution-id`；沒有讀任何 log。這只證明函式已部署、被路由並由 Edge runtime 回應，不單獨證明新的 handler 或 generated context 已被載入。
+- [x] [Deploy LearnForge to GitHub Pages 39016013054](https://github.com/LukeTsengTW/learnforge/actions/runs/39016013054)／attempt 1／workflow_dispatch／master／exact candidate success；build job 117348158992、deploy job 117348451533、deployment 7136815881 均 success；exactly one dispatch。Edge 與 Pages 之間的空窗：約 6 分鐘（Asia/Taipei 16:00:36 第一個 Edge 部署 → 16:06:39 Pages 部署成功）。這段期間舊的 Pages 仍列出三份被移除的題庫：它們的提交與 AI 請求會被拒絕、`demo/v2-handwriting` 的 v4 草稿無法儲存，v3 草稿仍可儲存。
+- [x] Production public acceptance：canonical public smoke PASS（release identity 1.15.0／candidate SHA，root 與 manifest 200，5 個 asset），反向對照舊的 1.14.1 identity 被拒絕；74 個路徑全部 HTTP 200；瀏覽器 smoke：Home 精選為「離散數學第一章：計數的基本原理－例題練習」（26 道題目、總分 150 分、卡片沒有未渲染的 LaTeX）、「4 份題庫，依自己的步調探索」、meta description 為「…離散數學…」、navigation 為 v1.15.0；Library 恰好 4 張卡片，搜尋「布林」、「數位邏輯」、「關係」、`logic-gates`、`boolean-algebra`、`demo` 都沒有結果；未登入的 `#/quiz/demo` 與 `#/quiz/boolean-algebra` 都轉到登入頁；題庫編寫頁的 bundled revision 只有留下的四份題庫（五個 revision）；768 與 360 沒有水平 overflow；主要 JS 不含三份被移除題庫的標題，也不含 `boolean-algebra`、`v2-handwriting`、`v1-7d7c900e`。
+- [x] 登入後的 canary：not run (justified)：沒有 draft、提交、評分或 provider 的程式變更；留下的 74 個 canonical context 與 v1.14.1 逐位元相同；`discrete-math/1`、`discrete-math/2` 有預設查詢的單元測試；加上部分來源核對與有 gate 的 exact-candidate 部署。沒有登入，canary 帳號未動；登入後的路徑與舊紀錄的降級顯示沒有在 production 驗證（只在本機 harness 驗證）。
+- [x] Environment deviation：瀏覽器 smoke 的第一次執行記到 7 個 console error，全都在轉到登入頁的 Cloudflare Turnstile frame：AdGuard 的 script 被注入該第三方 frame 並被它的 CSP 擋下，以及我們自己中止的 Cloudflare POST（`ERR_FAILED`）；沒有 page error、沒有第一方的 error、沒有任何對 Supabase 的 request。Home、Library、Author（1440 與 360）另外重跑一次，0 個 console／page error，但該次由瀏覽器的 HTTP cache 提供，router 看到 0 個 request，所以它證明沒有錯誤，不是新的網路紀錄。第一方頁面沒有出現 AdGuard 相關的 error。
+- [x] Production 的存取：`functions list` 2 次；`functions download` 6 次（1 次完成、5 次在寫入部分檔案後失敗，都在 scratch）；6 個 health request；public smoke 與反向對照；74 個路徑的 crawl；瀏覽器 smoke（只有 GET；3 個 Cloudflare Turnstile 的 POST 在送出前中止）；GitHub 的唯讀 API。沒有 SQL、沒有 secrets list、沒有 log（沒有列出 secrets，所以 Edge 部署對平台管理的 `SUPABASE_*` secrets 時間戳的已知影響（v1.9.0 觀察到）沒有檢查）。Production 的變更：六次 Edge 部署與一次 Pages 部署。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.15.0 tag：尚未建立。
 - GitHub Release：**not used / not planned**。
 
 已知未改的項目：`scripts/release-browser-e2e.mjs`、`scripts/release-real-turnstile-e2e.mjs`、`scripts/release-final-gate.mjs` 與下方較舊的 checklist 段落仍以 `/quiz/demo` 為目標；`release-browser-e2e.mjs` 與 `release-real-turnstile-e2e.mjs` 是需要後端與專用註冊帳號的選用 script（`release-browser-e2e` 使用已連結的開發後端），它們的 `/quiz/demo` 步驟會失敗，使用前必須改用保留的題庫；`release-final-gate.mjs` 是只允許 127.0.0.1／localhost 的唯讀 smoke，不使用憑證或帳號，它的 `/quiz/demo` 步驟只檢查未登入會轉到登入頁，仍會通過（`RequireAuth` 包住題庫路由），只是不再對應一份存在的題庫。三者都不在 `release:check` 或 CI 中，本版沒有改它們。
