@@ -13,13 +13,13 @@
 - [x] Mutation probe（只改新題庫、每次重新產生 context、跑新測試、還原）：7/7 被對應的測試抓到。
 - [x] Classifier（`--base v1.15.0 --include-working-tree`）：security-ai／Risk C／providerCanaryRequired=false。需要六個 Edge function 重新部署；不需要 migration 或 provider canary。
 - [x] Sub-agent review：cycle 1 REWORK（公式在 360／345 px 寬會溢出，以及文件與測試的小問題，全部修正）、cycle 2 PASS。
-- [ ] 一個 candidate commit、推到 `claude/awesome-carson-b7doyu`。
-- [ ] 合併到 master（deploy.yml 只接受 master 上的 exact SHA；需另行授權）與 exact candidate CI。
-- [ ] `release:check`、strict `release:preflight`：本階段沒有執行（human 指定的 gate 為 lint、test、build、check:edge-imports、diff-check）。
-- [ ] Browser evidence（Library、Student／Answer Preview、360／768／1440 的公式寬度）：本階段沒有執行。
-- [ ] 每個 required Edge function 部署一次（需 backend production mutation 授權）；之後一次 exact-SHA Pages dispatch（需 Pages 授權）；public smoke。
-- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分沒有端到端證據；是否以 canary 驗證由 human 決定並另行授權。
-- [ ] Closure 與 annotated v1.16.0 tag 需另行授權；沒有 GitHub Release。
+- [ ] Candidate 為 branch 上的兩個 commit：`c9a0111`（題庫與 release 準備，已推送）與修正 q17 rubric、記錄 browser gate 的 follow-up commit；推送與合併的結果記於 closure 文件。
+- [ ] 合併到 master（deploy.yml 只接受 master 上的 exact SHA；human 已於 2026-10-17 授權）與 exact candidate CI。
+- [ ] `release:check --require-clean`、strict `release:preflight`：preflight 預設 branch 為 master，所以在合併到 local master 之後、push 之前執行；結果記於 closure 文件。
+- [x] Browser gate（scratch build 由 Playwright 從磁碟提供，沒有後端、零網路）：Home（5 份題庫、v1.16.0）、Library（5 張卡片、新卡片、搜尋「第五章」、`stirling-numbers` 篩選）、Author 載入第五章的 Student／Answer Preview、q01 打字與 q02 手寫（Answer Preview 的畫布與編輯畫布 PNG 雜湊相同）、第三章仍可載入；1440／768／360 48/48、345 px 18/18 PASS；Answer Preview 全部 1,119 個公式與 Student Preview 的 271 個公式溢出 0、KaTeX error 0、console／page error 0、非 GET request 0。過程中發現並修正 q17 rubric 在 360 px 溢出 10 px。
+- [ ] 每個 required Edge function 部署一次；之後一次 exact-SHA Pages dispatch；public smoke（human 已授權）。
+- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分沒有端到端證據；是否需要登入的 canary 由 production review 決定（需要 human 登入）。
+- [ ] Closure 與 annotated v1.16.0 tag（human 已授權）；沒有 GitHub Release。
 
 Candidate scope、來源對應與部署程序：[v1.16.0 delivery](v1.16.0-delivery.md)。以下歷史 checklist 保留原樣。
 
