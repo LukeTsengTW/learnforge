@@ -1,5 +1,22 @@
 # Release checklist
 
+## v1.16.1 chapter 5 revision 2 candidate
+
+日期：2026-10-17（Asia/Taipei）。Immutable base v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。以下勾選記錄 preparation 時已取得的證據；commit 之後的結果另記於 closure 文件。本階段沒有存取 production。
+
+- [x] Pre-preparation：master＝origin/master＝branch `claude/awesome-carson-b7doyu`＝`bea17ee`；local／remote v1.16.1 tag absent。
+- [x] 需求與 human 決定：刪除例題 5.5 與定理 5.1；只需計算的題目只要求計算過程與答案；新 revision 2、題號重排、各題配分不變（136 分）、100 分鐘；8 題的分類經 human 確認。
+- [x] Revision 2：18 calculation／18 drawing-capable、136 分；10 題與 revision 1 相同（題號除外）；revision 1 封存，內容與 20 個 context 與 v1.16.0 相同。
+- [x] Generated context 94 → 112（+1,053／−0）。
+- [x] Local gates：113 files／1,775 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、diff-check 的結果見 delivery。Mutation probe 6/6。
+- [x] Browser gate：1440／768／360 48/48、345 px 18/18 PASS；986＋236 個公式沒有溢出；console／page error 0、非 GET request 0。
+- [x] Classifier（`--base v1.16.0 --include-working-tree`）：security-ai／Risk C／providerCanaryRequired=false；需要六個 Edge function 重新部署，不需要 migration 或 provider canary。
+- [ ] Sub-agent review、candidate commit、合併到 master、`release:check --require-clean`、strict preflight、exact candidate CI。
+- [ ] 六個 Edge function 部署、runtime health、exact-SHA Pages、public smoke、production review（是否需要登入的 canary 由 review 決定）。
+- [ ] Closure、closure CI、closure-SHA Pages parity、annotated v1.16.1 tag；沒有 GitHub Release。
+
+Candidate scope 與驗證：[v1.16.1 delivery](v1.16.1-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.16.0 chapter 5 relations and functions examples production acceptance closure
 
 日期：2026-10-17（Asia/Taipei）。Immutable base v1.15.0：tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`。已接受的 production runtime candidate 為 `3c7d8d458d14595753b88b47899ea62fdce1d8a0`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。

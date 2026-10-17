@@ -167,9 +167,9 @@ const pagesOf = ([first, last]: [number, number]) => Array.from({ length: last -
 afterEach(cleanup)
 
 describe('PDF-backed Chapter 5 relations and functions practice', () => {
-  it('bundles a separate current family of 20 handwriting-capable calculations worth 150 points', () => {
+  it('bundles revision 1 (archived by revision 2) with 20 handwriting-capable calculations worth 150 points', () => {
     const value = quiz()
-    expect(value).toMatchObject({ id, revision: '1', current: true, title, subject: '離散數學', estimatedMinutes: 120 })
+    expect(value).toMatchObject({ id, revision: '1', current: false, title, subject: '離散數學', estimatedMinutes: 120 })
     expect(value.tags).toEqual(['cartesian-product', 'relations', 'functions', 'one-to-one', 'onto', 'stirling-numbers', 'pigeonhole-principle'])
     expect(value.questions.map((q) => q.id)).toEqual(examples.map((example) => example.id))
     expect(new Set(value.questions.map((q) => q.id)).size).toBe(20)
@@ -182,8 +182,9 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     expect(publicationErrors(value)).toEqual([])
     expect(inspectQuiz(value)).toMatchObject({ questionCount: 20, totalDeclaredPoints: 150, deterministicMax: 0,
       calculationDrawingPoints: 150, questionTypes: { single: 0, multiple: 0, 'true-false': 0, fill: 0, calculation: 20, drawing: 0 } })
-    expect(quizCatalog.getCurrentQuiz(id)).toBe(value)
-    expect(quizCatalog.getQuizRevision(id, '2')).toBeNull()
+    // Revision 2 (v1.16.1) removed two questions and is the current one; revision 1 stays bundled for its drafts and history.
+    expect(quizCatalog.getCurrentQuiz(id)?.revision).toBe('2')
+    expect(quizCatalog.getQuizRevision(id, '3')).toBeNull()
   })
 
   it.each(examples)('$id keeps the source statement, subparts and an answer-free prompt', (example) => {
@@ -219,12 +220,12 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     const prose = container.cloneNode(true) as HTMLElement
     prose.querySelectorAll('.katex').forEach((math) => math.remove())
     expect(prose.textContent).not.toMatch(/\$|\\[a-zA-Z]|[{}_^]/)
-    const context = AI_QUIZ_CONTEXT.find((c) => String(c.quizId) === id && String(c.questionId) === example.id)
+    const context = AI_QUIZ_CONTEXT.find((c) => String(c.quizId) === id && String(c.revision) === '1' && String(c.questionId) === example.id)
     expect(context).toEqual(toTutorContext(value, q))
   })
 
   it('renders every formula with KaTeX and keeps the source free of Markdown tables and HTML', () => {
-    const source = Object.values(bundledQuizSources).find((candidate) => candidate.includes(`id="${id}"`))!
+    const source = Object.values(bundledQuizSources).find((candidate) => candidate.includes(`id="${id}" revision="1"`))!
     const formulas = [...source.matchAll(/\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g)].map((match) => match[0])
     expect(formulas.length).toBeGreaterThan(500)
     // One paragraph per formula: every one must become exactly one KaTeX node and none may fail to parse.
@@ -248,7 +249,7 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     expect(headings).toHaveLength(examples.length)
     expect(headings.map((heading) => heading.replace(/^### /, '').replace(/：.*$/, ''))).toEqual(examples.map((example) => example.source))
     expect(headings.map((heading) => /（講義第 ([\d–]+) 頁）$/.exec(heading)?.[1])).toEqual(examples.map((example) => pageRange(example.pages)))
-    const source = Object.values(bundledQuizSources).find((candidate) => candidate.includes(`id="${id}"`))!
+    const source = Object.values(bundledQuizSources).find((candidate) => candidate.includes(`id="${id}" revision="1"`))!
     for (const directive of ['question', 'drawing', 'answer', 'solution', 'rubric', 'end']) {
       expect(source.match(new RegExp(`^:::${directive}\\b`, 'gm'))).toHaveLength(20)
     }
@@ -425,12 +426,14 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     // The inventory deliberately includes the retired demo, boolean-algebra and relations fixtures (see the quiz-loader mock above),
     // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
     const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
-    expect(all).toHaveLength(10)
+    // Revision 2 of this family (18 questions) was added in v1.16.1 and is pinned by its own test.
+    expect(all).toHaveLength(11)
     expect(quizCatalog.current).toHaveLength(8)
     expect(quizCatalog.errors).toEqual([])
-    expect(all.flatMap((q) => q.questions)).toHaveLength(123)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(123)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id)).toHaveLength(20)
+    expect(all.flatMap((q) => q.questions)).toHaveLength(141)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(141)
+    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id && String(c.revision) === '1')).toHaveLength(20)
+    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id && String(c.revision) === '2')).toHaveLength(18)
     const old = all.filter((q) => q.id !== id).sort((a, b) => `${a.id}/${a.revision}`.localeCompare(`${b.id}/${b.revision}`))
     expect(old.map((q) => `${q.id}/${q.revision}`)).toEqual(['boolean-algebra/1', 'demo/v1-7d7c900e', 'demo/v2-handwriting',
       'discrete-math-ch1-counting-examples/1', 'discrete-math-ch3-set-theory-examples/1', 'discrete-math-exercises-2026/1', 'discrete-math/1',

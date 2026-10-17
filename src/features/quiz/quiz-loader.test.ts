@@ -16,7 +16,8 @@ describe('bundled quiz catalog', () => {
     expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['discrete-math',
       'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-ch5-relations-functions-examples',
       'discrete-math-exercises-2026'])
-    expect(Object.keys(bundledQuizSources)).toHaveLength(6)
+    // discrete-math and the Chapter 5 family each keep an archived revision 1 next to the current one.
+    expect(Object.keys(bundledQuizSources)).toHaveLength(7)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()

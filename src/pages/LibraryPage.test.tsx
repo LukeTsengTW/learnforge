@@ -131,13 +131,13 @@ describe('Quiz Library search and filters', () => {
       .toHaveAttribute('href', '/quiz/discrete-math-ch3-set-theory-examples')
   })
 
-  it('shows the separate Chapter 5 relations and functions quiz with its declared points, tags and quiz link', () => {
+  it('shows the separate Chapter 5 relations and functions quiz (current revision 2) with its declared points, tags and quiz link', () => {
     renderLibrary(originalCatalog)
     const card = screen.getByRole('heading', { name: relationsFunctionsTitle, level: 2 }).closest('article')!
     expect(within(card).getByText('離散數學')).toBeInTheDocument()
-    expect(within(card).getByText('20 題')).toBeInTheDocument()
-    expect(within(card).getByText('總分 150 分')).toBeInTheDocument()
-    expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
+    expect(within(card).getByText('18 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 136 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 100 分鐘')).toBeInTheDocument()
     expect(within(within(card).getByRole('list', { name: '題庫標籤' })).getAllByRole('listitem').map((tag) => tag.textContent))
       .toEqual(['cartesian-product', 'relations', 'functions', 'one-to-one', 'onto', 'stirling-numbers', 'pigeonhole-principle'])
     expect(within(card).getByRole('link', { name: /開始練習/ }))

@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.16.1 — 第五章題庫 revision 2：刪除兩題並簡化計算題的要求
+
+Release candidate preparation：2026-10-17（Asia/Taipei）。基準 immutable v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。Candidate commit、CI、Edge／Pages 部署與 production 驗收的結果由 closure 文件記錄，不在此預先宣稱。
+
+- Human 要求：刪除「例題 5.5：由 A 到 B 的關係（講義第 3 頁）」與「定理 5.1：叉積對交集與聯集的分配律（講義第 6 頁）」；只需算出答案、不是證明的題目，只要求寫出計算過程與答案，不再要求說明原理。Human 確認的做法：新 revision 2（revision 1 改為封存）、題號重排為 q01–q18、各題配分不變（總分 150 → 136）、estimatedMinutes 120 → 100。
+- `discrete-math-ch5-relations-functions-examples` revision 2：18 題計算題（皆可打字或 1200×900 手寫），136 分，100 分鐘。改為只要求計算過程與答案的 8 題（revision 1 → 2 的題號）：q01 → q01（叉積例）、q03 → q02（關係個數例）、q07 → q05（定義 5.4 例）、q10 → q08（例題 5.21）、q11 → q09（例題 5.24：刪去兩個「為什麼」與上限 $n-1$ 的敘述，保留例子對應的分配）、q12 → q10（分配例）、q13 → q11（例題 5.26 (b)）、q20 → q18（表 5.13）。這 8 題的題幹不再出現「說明／理由／為什麼」，rubric 原本給說明的分數移到計算步驟與答案，每題配分不變；參考答案只在 q08、q09 刪去對應的說明句；所有 solution 與 revision 1 相同（保留完整推導）。判斷、推導與證明題（q04、q06、q08、q09、q14–q19 → q03、q04、q06、q07、q12–q17）與 revision 1 逐位元相同（題號除外）。描述改為「計算題請寫出計算過程與答案；判斷、推導與證明題請寫出完整的推理」。
+- Revision 1 保留在 bundle（`current="false"`），既有的草稿與練習紀錄仍對應原題；它的 20 個題目與 20 個 canonical context 與 v1.16.0 發布時相同（測試釘住由 v1.16.0 的 blob 推得的雜湊）。
+- Generated canonical context 94 → 112（+1,053／−0；revision 1 的 20 個保留，新增 revision 2 的 18 個）。Classifier：security-ai／Risk C／providerCanaryRequired=false。部署順序：candidate CI → 六個 Edge function → exact-SHA Pages → production smoke；Edge 同步之前，revision 2 在 production 無法儲存草稿、提交或使用 AI。
+- 測試：新增 `ch5-relations-functions-revision-2.test.tsx`（40 個：metadata 與 136 分、只刪去兩題且順序不變、10 題與 revision 1 相同、8 題不再要求說明且題幹不洩漏答案、每題 KaTeX 與 context、整份來源 986 個公式、revision 1 與其 context 的雜湊）。`ch5-relations-functions.test.tsx` 改為檢查封存的 revision 1（`current: false`、依 revision 取 context 與來源、inventory 11 revisions／141 questions）；`quiz-loader.test.ts` 的 bundled 來源 6 → 7；`LibraryPage.test.tsx` 的第五章卡片為 18 題、總分 136 分、約 100 分鐘。沒有刪除或放寬斷言。Local gates：113 files／1,775 tests 全部 PASS、零 skipped。Mutation probe 6/6 被對應的測試抓到。
+- Browser gate（scratch build 由 Playwright 從磁碟提供，零網路）：1440／768／360 48/48、345 px 18/18 PASS；題庫編寫頁選取 revision 2，Answer Preview 全部 986 個公式與 Student Preview 的 236 個公式沒有溢出、KaTeX error 0；console／page error 0、非 GET request 0。
+- Package／lock root version 與 navigation label 準備為 1.16.1。見 [v1.16.1 delivery](docs/v1.16.1-delivery.md)。
+
 ## 1.16.0 — 離散數學第五章：關係和函數－例題練習
 
 Production acceptance：2026-10-17（Asia/Taipei）。Accepted runtime candidate `3c7d8d458d14595753b88b47899ea62fdce1d8a0`（exact candidate CI 39025646607）；基準 immutable v1.15.0：tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`。Candidate 是 branch `claude/awesome-carson-b7doyu` 上的兩個 commit，經 fast-forward 合併到 master。六個 Edge function 已部署、health 6／6、exact candidate Pages（run 39026583818／deployment 7138514435）、未登入的 public acceptance 與登入後的 draft canary 均已完成，production review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

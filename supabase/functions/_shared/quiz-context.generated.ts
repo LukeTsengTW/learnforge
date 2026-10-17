@@ -3359,6 +3359,1059 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 叉積例：兩個有限集合的叉積（講義第 2 頁）\n依定義 5.1，對集合 $A$、$B$，$A$ 和 $B$ 的笛卡兒積（Cartesian product）或叉積（cross product）為\n\n$$\n\\begin{aligned}\n&A\\times B\\\\\n&=\\{(a,b)\\mid a\\in A,\\ b\\in B\\},\n\\end{aligned}\n$$\n\n它的元素是序對（ordered pairs）。令 $A=\\{2,3,4\\}$，$B=\\{4,5\\}$。\n\na) 列出 $A\\times B$ 的所有元素。\n\nb) 列出 $B\\times A$ 的所有元素。\n\nc) 列出 $B^2=B\\times B$ 的所有元素。\n\n最後寫出 $A\\times B$ 與 $B\\times A$ 是否相等。",
+    "hint": null,
+    "solution": "叉積的元素是序對 $(a,b)$：第一個分量取自前一個集合，第二個分量取自後一個集合，而且順序有差別。\n\n**a)** 第一個分量取自 $A=\\{2,3,4\\}$，第二個分量取自 $B=\\{4,5\\}$，依序列出：\n\n$$\n\\begin{aligned}\nA\\times B=\\{&(2,4),(2,5),\\\\\n&(3,4),(3,5),\\\\\n&(4,4),(4,5)\\}.\n\\end{aligned}\n$$\n\n共 $3\\cdot2=6$ 個序對。\n\n**b)** 改成第一個分量取自 $B$，第二個分量取自 $A$：\n\n$$\n\\begin{aligned}\nB\\times A=\\{&(4,2),(4,3),\\\\\n&(4,4),(5,2),\\\\\n&(5,3),(5,4)\\}.\n\\end{aligned}\n$$\n\n**c)** 兩個分量都取自 $B$：\n\n$$\n\\begin{aligned}\nB^2=\\{&(4,4),(4,5),\\\\\n&(5,4),(5,5)\\}.\n\\end{aligned}\n$$\n\n**比較。** 序對 $(2,4)$ 在 $A\\times B$ 中，但 $B\\times A$ 的序對第一個分量只能是 $4$ 或 $5$，所以 $(2,4)\\notin B\\times A$。因此 $A\\times B\\ne B\\times A$；兩者只有共同的 $(4,4)$，而元素個數同為 $6$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "a) 正確列出 $A\\times B$ 的 6 個序對，第一個分量取自 $A$、第二個分量取自 $B$。"
+      },
+      {
+        "score": 2,
+        "description": "b) 正確列出 $B\\times A$ 的 6 個序對，沒有與 $A\\times B$ 混淆。"
+      },
+      {
+        "score": 1,
+        "description": "c) 正確列出 $B^2$ 的 4 個序對。"
+      },
+      {
+        "score": 1,
+        "description": "正確判斷 $A\\times B\\ne B\\times A$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "a)\n\n$$\n\\begin{aligned}\nA\\times B=\\{&(2,4),(2,5),\\\\\n&(3,4),(3,5),\\\\\n&(4,4),(4,5)\\}\n\\end{aligned}\n$$\n\nb)\n\n$$\n\\begin{aligned}\nB\\times A=\\{&(4,2),(4,3),\\\\\n&(4,4),(5,2),\\\\\n&(5,3),(5,4)\\}\n\\end{aligned}\n$$\n\nc) $B^2=\\{(4,4),(4,5),(5,4),(5,5)\\}$\n\n$A\\times B$ 與 $B\\times A$ 不相等，例如 $(2,4)\\in A\\times B$ 但 $(2,4)\\notin B\\times A$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "a) 正確列出 $A\\times B$ 的 6 個序對，第一個分量取自 $A$、第二個分量取自 $B$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "b) 正確列出 $B\\times A$ 的 6 個序對，沒有與 $A\\times B$ 混淆。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "c) 正確列出 $B^2$ 的 4 個序對。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確判斷 $A\\times B\\ne B\\times A$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### 關係個數例：由 A 到 B 的關係有幾個（講義第 4 頁）\n由定義 5.2，由 $A$ 到 $B$ 的關係就是 $A\\times B$ 的子集合。令 $A=\\{2,3,4\\}$，$B=\\{4,5\\}$。\n\n求 $|A\\times B|$，以及由 $A$ 到 $B$ 的關係共有幾個（包括空關係及關係 $A\\times B$ 本身）。再推廣到一般的有限集合：若 $|A|=m$ 且 $|B|=n$，共有幾個由 $A$ 到 $B$ 的關係？請寫出計算過程與答案。",
+    "hint": null,
+    "solution": "$A\\times B$ 的序對由「第一個分量取自 $A$」與「第二個分量取自 $B$」兩步決定，由乘積規則\n\n$$\n\\begin{aligned}\n|A\\times B|&=|A|\\cdot|B|\\\\\n&=3\\cdot2=6.\n\\end{aligned}\n$$\n\n由 $A$ 到 $B$ 的關係就是 $A\\times B$ 的子集合，所以關係的個數等於 $A\\times B$ 的子集合個數。一個 $6$ 元素集合的每個元素都可以選擇「放進子集合」或「不放」，共有\n\n$$\n2^6=64\n$$\n\n個子集合，其中包括空關係 $\\emptyset$（每個都不放）與 $A\\times B$ 本身（每個都放）。\n\n一般地，$|A|=m$、$|B|=n$ 時 $|A\\times B|=mn$，所以由 $A$ 到 $B$ 的關係共有 $2^{mn}$ 個。\n\n講義寫到「共有 $2^6$ 個由 $A$ 到 $B$ 的關係」，沒有寫出數值；$2^6=64$ 是直接計算的結果。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "算出 $|A\\times B|=3\\cdot2=6$。"
+      },
+      {
+        "score": 2,
+        "description": "以 $A\\times B$ 的子集合個數算出 $2^6=64$ 個（保留 $2^6$ 亦可）。"
+      },
+      {
+        "score": 1,
+        "description": "一般情形得到 $2^{mn}$ 個。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$|A\\times B|=3\\cdot2=6$；由 $A$ 到 $B$ 的關係共有 $2^6=64$ 個。\n\n一般地，$|A\\times B|=mn$，共有 $2^{mn}$ 個由 $A$ 到 $B$ 的關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "算出 $|A\\times B|=3\\cdot2=6$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "以 $A\\times B$ 的子集合個數算出 $2^6=64$ 個（保留 $2^6$ 亦可）。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "一般情形得到 $2^{mn}$ 個。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### 例題 5.8：遞迴定義的關係（講義第 5 頁）\n令 $\\mathscr{R}$ 為 $\\mathbf{N}\\times\\mathbf{N}$ 的子集合，其中 $\\mathbf{N}=\\{0,1,2,\\ldots\\}$，且\n\n$$\n\\mathscr{R}=\\{(m,n)\\mid n=7m\\}.\n$$\n\n(a) 驗證 $(0,0)$、$(1,7)$、$(11,77)$ 及 $(15,105)$ 都是 $\\mathscr{R}$ 的序對。\n\n(b) $\\mathbf{N}$ 上的這個關係 $\\mathscr{R}$ 亦可被遞迴給為\n\n- (1) $(0,0)\\in\\mathscr{R}$；且\n- (2) 若 $(s,t)\\in\\mathscr{R}$，則 $(s+1,t+7)\\in\\mathscr{R}$。\n\n使用這個遞迴定義（而不是 $n=7m$）證明序對 $(3,21)$ 在 $\\mathscr{R}$ 上，寫出每一步並註明用到定義的哪一條。",
+    "hint": null,
+    "solution": "**(a)** 序對 $(m,n)\\in\\mathscr{R}$ 的條件是 $n=7m$。逐一檢查：\n\n$$\n\\begin{aligned}\n&7\\cdot0=0,\\quad 7\\cdot1=7,\\\\\n&7\\cdot11=77,\\quad 7\\cdot15=105.\n\\end{aligned}\n$$\n\n所以 $(0,0)$、$(1,7)$、$(11,77)$、$(15,105)$ 都在 $\\mathscr{R}$ 中。\n\n**(b)** 由遞迴定義的 (1)，我們以 $(0,0)\\in\\mathscr{R}$ 開始。接著反覆使用定義的 (2)，每用一次第一個分量加 $1$、第二個分量加 $7$：\n\ni) $(0,0)\\in\\mathscr{R}\\Rightarrow(0+1,0+7)=(1,7)\\in\\mathscr{R}$；\n\nii) $(1,7)\\in\\mathscr{R}\\Rightarrow(1+1,7+7)=(2,14)\\in\\mathscr{R}$；\n\niii) $(2,14)\\in\\mathscr{R}\\Rightarrow(2+1,14+7)=(3,21)\\in\\mathscr{R}$。\n\n因此 $(3,21)\\in\\mathscr{R}$。這個證明只用了遞迴定義的 (1) 一次與 (2) 三次，沒有用到 $n=7m$；而 $21=7\\cdot3$ 也與 (a) 的條件一致。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 以 $n=7m$ 驗證四個序對都在 $\\mathscr{R}$ 中。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 由遞迴定義的 (1) 以 $(0,0)\\in\\mathscr{R}$ 開始。"
+      },
+      {
+        "score": 1,
+        "description": "(b) i) 由 (2) 得到 $(1,7)\\in\\mathscr{R}$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) ii) 由 (2) 得到 $(2,14)\\in\\mathscr{R}$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) iii) 由 (2) 得到 $(3,21)\\in\\mathscr{R}$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 每一步都註明使用的是定義的 (2)，且只依遞迴定義推得結論，沒有改用 $n=7m$ 代替證明。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $7\\cdot0=0$、$7\\cdot1=7$、$7\\cdot11=77$、$7\\cdot15=105$，四個序對都滿足 $n=7m$，所以都在 $\\mathscr{R}$ 中。\n\n(b) 由 (1)，$(0,0)\\in\\mathscr{R}$。再由 (2)：\n\ni) $(0,0)\\in\\mathscr{R}\\Rightarrow(0+1,0+7)=(1,7)\\in\\mathscr{R}$\n\nii) $(1,7)\\in\\mathscr{R}\\Rightarrow(1+1,7+7)=(2,14)\\in\\mathscr{R}$\n\niii) $(2,14)\\in\\mathscr{R}\\Rightarrow(2+1,14+7)=(3,21)\\in\\mathscr{R}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 以 $n=7m$ 驗證四個序對都在 $\\mathscr{R}$ 中。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 由遞迴定義的 (1) 以 $(0,0)\\in\\mathscr{R}$ 開始。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(b) i) 由 (2) 得到 $(1,7)\\in\\mathscr{R}$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "(b) ii) 由 (2) 得到 $(2,14)\\in\\mathscr{R}$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "(b) iii) 由 (2) 得到 $(3,21)\\in\\mathscr{R}$。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(b) 每一步都註明使用的是定義的 (2)，且只依遞迴定義推得結論，沒有改用 $n=7m$ 代替證明。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### 例題 5.9：哪些關係是函數（講義第 7–8 頁）\n依定義 5.3，對非空集合 $A$、$B$，一個函數（function）或映射（mapping）$f$ 由 $A$ 到 $B$，被表為 $f\\colon A\\to B$，是一個由 $A$ 到 $B$ 的關係，其中 $A$ 的每個元素恰出現一次做為關係中序對的第一個分量。\n\n令 $A=\\{1,2,3\\}$，$B=\\{w,x,y,z\\}$，\n\n$$\n\\begin{aligned}\nf&=\\{(1,w),(2,x),(3,x)\\},\\\\\n\\mathscr{R}_1&=\\{(1,w),(2,x)\\},\\\\\n\\mathscr{R}_2&=\\{(1,w),(2,w),\\\\\n&\\qquad(2,x),(3,z)\\}.\n\\end{aligned}\n$$\n\n判斷 $f$、$\\mathscr{R}_1$、$\\mathscr{R}_2$ 是否都是由 $A$ 到 $B$ 的關係，以及各自是否為函數。對不是函數的，請依定義 5.3 說明理由。",
+    "hint": null,
+    "solution": "三個集合中每個序對的第一個分量都在 $A$ 中、第二個分量都在 $B$ 中，所以它們都是 $A\\times B$ 的子集合，由定義 5.2 都是由 $A$ 到 $B$ 的關係。接著依定義 5.3，檢查 $A$ 的每個元素是否恰出現一次做為第一個分量。\n\n**$f$。** 第一個分量依序是 $1,2,3$，$A$ 的每個元素恰出現一次，所以 $f$ 是函數。$2$ 與 $3$ 對應到同一個 $x$、$y$ 和 $z$ 沒有被對應，都不違反定義 5.3，因為定義只限制 $A$ 的元素。\n\n**$\\mathscr{R}_1$。** 第一個分量只有 $1,2$；$3\\in A$ 沒有出現為任何序對的第一個分量，不滿足「每個元素都出現」，所以 $\\mathscr{R}_1$ 不是函數。\n\n**$\\mathscr{R}_2$。** $(2,w)$ 與 $(2,x)$ 的第一個分量都是 $2$，$2$ 出現了兩次，不滿足「恰出現一次」，所以 $\\mathscr{R}_2$ 不是函數。\n\n講義只問「為什麼？」，沒有寫出理由；以上理由依定義 5.3 推得。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "說明 $f$、$\\mathscr{R}_1$、$\\mathscr{R}_2$ 都是 $A\\times B$ 的子集合，因此都是由 $A$ 到 $B$ 的關係。"
+      },
+      {
+        "score": 2,
+        "description": "判定 $f$ 是函數：$1,2,3$ 各恰出現一次做為第一個分量（兩個元素對應到同一個 $x$ 不影響）。"
+      },
+      {
+        "score": 2,
+        "description": "判定 $\\mathscr{R}_1$ 不是函數，理由是 $3$ 沒有出現為第一個分量。"
+      },
+      {
+        "score": 2,
+        "description": "判定 $\\mathscr{R}_2$ 不是函數，理由是 $2$ 出現兩次做為第一個分量（$(2,w)$ 與 $(2,x)$）。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "三者都是 $A\\times B$ 的子集合，所以都是由 $A$ 到 $B$ 的關係。\n\n$f$ 是函數：$1,2,3$ 各恰出現一次做為第一個分量。\n\n$\\mathscr{R}_1$ 不是函數：$3$ 沒有出現為任何序對的第一個分量。\n\n$\\mathscr{R}_2$ 不是函數：$2$ 出現兩次做為第一個分量，即 $(2,w)$ 與 $(2,x)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "說明 $f$、$\\mathscr{R}_1$、$\\mathscr{R}_2$ 都是 $A\\times B$ 的子集合，因此都是由 $A$ 到 $B$ 的關係。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "判定 $f$ 是函數：$1,2,3$ 各恰出現一次做為第一個分量（兩個元素對應到同一個 $x$ 不影響）。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "判定 $\\mathscr{R}_1$ 不是函數，理由是 $3$ 沒有出現為第一個分量。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "判定 $\\mathscr{R}_2$ 不是函數，理由是 $2$ 出現兩次做為第一個分量（$(2,w)$ 與 $(2,x)$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 定義 5.4 例：定義域、對應域與值域（講義第 9 頁）\n依定義 5.4，對函數 $f\\colon A\\to B$，$A$ 被稱為 $f$ 的定義域（domain），$B$ 被稱為 $f$ 的對應域（codomain）。由 $f$ 的所有序對中第二個分量所組成的 $B$ 之子集合被稱為 $f$ 的值域（range），亦被表為 $f(A)$，因為它是 $A$ 的所有元素在 $f$ 之下的像所成的集合。\n\n令 $A=\\{1,2,3\\}$，$B=\\{w,x,y,z\\}$，$f=\\{(1,w),(2,x),(3,x)\\}$。寫出 $f$ 的定義域、對應域與值域 $f(A)$，並寫出值域與對應域是否相等。",
+    "hint": null,
+    "solution": "由定義 5.4，定義域是 $A=\\{1,2,3\\}$，對應域是 $B=\\{w,x,y,z\\}$。\n\n值域由 $f$ 的所有序對的第二個分量組成。$f$ 的序對是 $(1,w)$、$(2,x)$、$(3,x)$，第二個分量是 $w,x,x$，寫成集合時重複的 $x$ 只算一次，所以\n\n$$\n\\begin{aligned}\nf(A)&=\\{f(1),f(2),f(3)\\}\\\\\n&=\\{w,x\\}.\n\\end{aligned}\n$$\n\n$y$ 與 $z$ 不是 $A$ 中任何元素的像，所以 $f(A)$ 是 $B$ 的真子集合，$f(A)\\ne B$。值域是對應域的子集合，但不一定等於對應域。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "定義域為 $A=\\{1,2,3\\}$。"
+      },
+      {
+        "score": 1,
+        "description": "對應域為 $B=\\{w,x,y,z\\}$。"
+      },
+      {
+        "score": 1,
+        "description": "由序對的第二個分量得到值域 $f(A)=\\{w,x\\}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確判斷 $f(A)\\ne B$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "定義域為 $A=\\{1,2,3\\}$；對應域為 $B=\\{w,x,y,z\\}$；值域為 $f(A)=\\{w,x\\}$。\n\n值域與對應域不相等：$y$、$z$ 不是任何元素的像，$f(A)\\ne B$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "定義域為 $A=\\{1,2,3\\}$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "對應域為 $B=\\{w,x,y,z\\}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "由序對的第二個分量得到值域 $f(A)=\\{w,x\\}$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確判斷 $f(A)\\ne B$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 一對一函數：判別條件與個數（講義第 10–11 頁）\n依定義 5.5，函數 $f\\colon A\\to B$ 被稱為一對一（one-to-one）或嵌射（injective），若 $B$ 的每個元素至多出現一次做為 $A$ 的某個元素之像。\n\n(a) 用 $A$ 中任意兩個元素 $a_1$、$a_2$ 及它們的像，寫出「$f$ 為一對一」的等價條件，並寫出這個條件的逆否形式。\n\n(b) 令 $A=\\{a_1,a_2,\\ldots,a_m\\}$，$B=\\{b_1,b_2,\\ldots,b_n\\}$，且 $m\\le n$。一個一對一的函數 $f\\colon A\\to B$ 可寫成\n\n$$\n\\begin{aligned}\n\\{&(a_1,x_1),(a_2,x_2),\\\\\n&\\ldots,(a_m,x_m)\\}.\n\\end{aligned}\n$$\n\n依序考慮 $x_1,x_2,\\ldots,x_m$ 各有幾種選法，用乘積規則推導由 $A$ 到 $B$ 的一對一函數個數，並寫成階乘與排列數的形式。",
+    "hint": null,
+    "solution": "**(a)** 「$B$ 的每個元素至多出現一次做為像」表示不會有兩個不同的元素有相同的像。寫成條件：對所有 $a_1,a_2\\in A$，\n\n$$\nf(a_1)=f(a_2)\\Rightarrow a_1=a_2.\n$$\n\n它的逆否敘述是\n\n$$\na_1\\ne a_2\\Rightarrow f(a_1)\\ne f(a_2),\n$$\n\n也就是不同的元素有不同的像。一個蘊涵與它的逆否敘述等價，所以兩種寫法都可以用來判別一對一。\n\n**(b)** 依序選出 $x_1,x_2,\\ldots,x_m$：\n\n- $x_1$ 可以是 $B$ 的任一元素，有 $n$ 種選法；\n- $x_2$ 是 $B$ 的任一元素但不是已選給 $x_1$ 的元素，有 $n-1$ 種選法；\n- $x_3$ 有 $n-2$ 種選法；\n- 以此繼續，$x_m$ 有 $n-(m-1)=n-m+1$ 種選法。\n\n各個 $x_i$ 互不相同正好表示 $f$ 是一對一。由乘積規則，由 $A$ 到 $B$ 的一對一函數個數為\n\n$$\n\\begin{aligned}\n&n(n-1)(n-2)\\\\\n&\\quad\\cdots(n-m+1)\\\\\n&=\\frac{n!}{(n-m)!}=P(n,m)\\\\\n&=P(|B|,|A|).\n\\end{aligned}\n$$\n\n講義在這兩頁也指出：若 $f\\colon A\\to B$ 為一對一且 $A$、$B$ 為有限，則必有 $|A|\\le|B|$。理由（依定義 5.5 推得）是 $A$ 的 $m$ 個元素有 $m$ 個互不相同的像，它們都在 $B$ 中，所以 $m\\le n$；這也是 (b) 假設 $m\\le n$ 的原因。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 寫出 $f(a_1)=f(a_2)\\Rightarrow a_1=a_2$（對所有 $a_1,a_2\\in A$）。"
+      },
+      {
+        "score": 1,
+        "description": "(a) 寫出逆否形式 $a_1\\ne a_2\\Rightarrow f(a_1)\\ne f(a_2)$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明 $x_1,x_2,\\ldots,x_m$ 的選法依序為 $n,n-1,\\ldots,n-m+1$，因為已選過的元素不能再選。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 由乘積規則得到 $n(n-1)(n-2)\\cdots(n-m+1)$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 寫成 $\\frac{n!}{(n-m)!}=P(n,m)=P(|B|,|A|)$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $f$ 為一對一若且唯若對所有 $a_1,a_2\\in A$，$f(a_1)=f(a_2)\\Rightarrow a_1=a_2$；逆否形式為 $a_1\\ne a_2\\Rightarrow f(a_1)\\ne f(a_2)$。\n\n(b) $x_1$ 有 $n$ 種選法，$x_2$ 有 $n-1$ 種，……，$x_m$ 有 $n-m+1$ 種；一對一函數個數為 $n(n-1)(n-2)\\cdots(n-m+1)=\\frac{n!}{(n-m)!}=P(n,m)=P(|B|,|A|)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 寫出 $f(a_1)=f(a_2)\\Rightarrow a_1=a_2$（對所有 $a_1,a_2\\in A$）。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(a) 寫出逆否形式 $a_1\\ne a_2\\Rightarrow f(a_1)\\ne f(a_2)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 說明 $x_1,x_2,\\ldots,x_m$ 的選法依序為 $n,n-1,\\ldots,n-m+1$，因為已選過的元素不能再選。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "(b) 由乘積規則得到 $n(n-1)(n-2)\\cdots(n-m+1)$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 寫成 $\\frac{n!}{(n-m)!}=P(n,m)=P(|B|,|A|)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 例題 5.13：判斷函數是否一對一（講義第 12 頁）\n依定義 5.5，函數 $f\\colon A\\to B$ 被稱為一對一，若 $B$ 的每個元素至多出現一次做為 $A$ 的某個元素之像。\n\n考慮函數 $f\\colon\\mathbf{R}\\to\\mathbf{R}$，其中 $f(x)=3x+7$ 對所有 $x\\in\\mathbf{R}$；以及函數 $g\\colon\\mathbf{R}\\to\\mathbf{R}$，其中 $g(x)=x^4-x$ 對每個實數 $x$。\n\n分別判斷 $f$ 與 $g$ 是否為一對一：是一對一的請證明，不是的請舉出具體的反例。",
+    "hint": null,
+    "solution": "**$f$。** 要證明一對一，就要證明對所有 $x_1,x_2\\in\\mathbf{R}$，$f(x_1)=f(x_2)$ 蘊涵 $x_1=x_2$：\n\n$$\n\\begin{aligned}\n&f(x_1)=f(x_2)\\\\\n&\\Rightarrow 3x_1+7=3x_2+7\\\\\n&\\Rightarrow 3x_1=3x_2\\\\\n&\\Rightarrow x_1=x_2.\n\\end{aligned}\n$$\n\n第二步兩邊減 $7$，第三步兩邊除以 $3$。所以 $f$ 為一對一。\n\n**$g$。** 要說明不是一對一，只要找到兩個不同的實數有相同的像。計算\n\n$$\n\\begin{aligned}\ng(0)&=(0)^4-0=0,\\\\\ng(1)&=(1)^4-(1)=1-1=0.\n\\end{aligned}\n$$\n\n因此 $g(0)=g(1)$ 但 $0\\ne1$，即存在實數 $x_1$、$x_2$ 使 $g(x_1)=g(x_2)$ 卻 $x_1\\ne x_2$，所以 $g$ 不是一對一。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "寫出判別一對一的條件：對所有 $x_1,x_2$，$f(x_1)=f(x_2)\\Rightarrow x_1=x_2$（或等價的逆否形式）。"
+      },
+      {
+        "score": 3,
+        "description": "由 $3x_1+7=3x_2+7$ 逐步推得 $x_1=x_2$。"
+      },
+      {
+        "score": 1,
+        "description": "結論 $f$ 是一對一。"
+      },
+      {
+        "score": 2,
+        "description": "舉出反例並算出像，例如 $g(0)=0$ 與 $g(1)=0$。"
+      },
+      {
+        "score": 1,
+        "description": "由 $g(0)=g(1)$ 但 $0\\ne1$ 結論 $g$ 不是一對一。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$f$ 是一對一：對所有 $x_1,x_2\\in\\mathbf{R}$，$f(x_1)=f(x_2)\\Rightarrow3x_1+7=3x_2+7\\Rightarrow3x_1=3x_2\\Rightarrow x_1=x_2$\n\n$g$ 不是一對一：$g(0)=0^4-0=0$ 且 $g(1)=1^4-1=0$，所以 $g(0)=g(1)$ 但 $0\\ne1$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "寫出判別一對一的條件：對所有 $x_1,x_2$，$f(x_1)=f(x_2)\\Rightarrow x_1=x_2$（或等價的逆否形式）。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "由 $3x_1+7=3x_2+7$ 逐步推得 $x_1=x_2$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "結論 $f$ 是一對一。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "舉出反例並算出像，例如 $g(0)=0$ 與 $g(1)=0$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "由 $g(0)=g(1)$ 但 $0\\ne1$ 結論 $g$ 不是一對一。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 例題 5.21：判斷函數是否映成（講義第 13 頁）\n依定義 5.9，函數 $f\\colon A\\to B$ 被稱為映成（onto）或蓋射（surjective），若 $f(A)=B$，即若對所有 $b\\in B$，至少存在一個 $a\\in A$ 使得 $f(a)=b$。\n\n令 $A=\\{1,2,3,4\\}$，$B=\\{x,y,z\\}$，\n\n$$\n\\begin{aligned}\nf_1&=\\{(1,z),(2,y),\\\\\n&\\qquad(3,x),(4,y)\\},\\\\\nf_2&=\\{(1,x),(2,x),\\\\\n&\\qquad(3,y),(4,z)\\},\\\\\ng&=\\{(1,x),(2,x),\\\\\n&\\qquad(3,y),(4,y)\\}.\n\\end{aligned}\n$$\n\n寫出三者各自的值域，並判斷各自是否為由 $A$ 映成 $B$ 的函數。",
+    "hint": null,
+    "solution": "三個集合中，$A$ 的元素 $1,2,3,4$ 都恰出現一次做為第一個分量，第二個分量都在 $B$ 中，所以由定義 5.3 都是由 $A$ 到 $B$ 的函數。接著依定義 5.9 比較值域與 $B$。\n\n**$f_1$。** 第二個分量是 $z,y,x,y$，所以 $f_1(A)=\\{x,y,z\\}=B$：$x=f_1(3)$、$y=f_1(2)$、$z=f_1(1)$，$B$ 的每個元素都至少是一個元素的像，$f_1$ 是映成。\n\n**$f_2$。** 第二個分量是 $x,x,y,z$，所以 $f_2(A)=\\{x,y,z\\}=B$，$f_2$ 是映成。\n\n**$g$。** 第二個分量是 $x,x,y,y$，所以 $g(A)=\\{x,y\\}$。沒有任何 $a\\in A$ 使 $g(a)=z$，因此 $g(A)$ 是 $B$ 的真子集合，$g(A)\\subset B$，$g$ 不是映成。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$f_1(A)=\\{x,y,z\\}=B$，判定 $f_1$ 是映成。"
+      },
+      {
+        "score": 2,
+        "description": "$f_2(A)=\\{x,y,z\\}=B$，判定 $f_2$ 是映成。"
+      },
+      {
+        "score": 3,
+        "description": "$g(A)=\\{x,y\\}\\ne B$，判定 $g$ 不是映成。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$f_1(A)=\\{x,y,z\\}=B$，$f_1$ 是映成。\n\n$f_2(A)=\\{x,y,z\\}=B$，$f_2$ 是映成。\n\n$g(A)=\\{x,y\\}\\ne B$（$z$ 不是任何元素的像），$g$ 不是映成。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$f_1(A)=\\{x,y,z\\}=B$，判定 $f_1$ 是映成。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$f_2(A)=\\{x,y,z\\}=B$，判定 $f_2$ 是映成。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "$g(A)=\\{x,y\\}\\ne B$，判定 $g$ 不是映成。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 例題 5.24：七元素集合映成四元素集合（講義第 14–16 頁）\n對有限集合 $A$、$B$，若 $|A|=m$ 且 $|B|=n$，由 $A$ 到 $B$ 的映成函數個數為\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(m,n)\\\\\n&=\\sum_{k=0}^{n}(-1)^k\\\\\n&\\qquad\\binom{n}{n-k}(n-k)^m.\n\\end{aligned}\n$$\n\n令 $A=\\{1,2,3,4,5,6,7\\}$，$B=\\{w,x,y,z\\}$。\n\n求由 $A$ 映成 $B$ 的函數個數，寫出計算過程與答案。\n\n再把 $A$ 的元素看成 $7$ 個不同物體、$B$ 的元素看成 $4$ 個不同容器，寫出映成函數 $1\\to x$，$2\\to y$，$3\\to w$，$4\\to w$，$5\\to z$，$6\\to z$，$7\\to z$ 對應的分配（每個容器裝哪些物體）。",
+    "hint": null,
+    "solution": "以 $m=7$、$n=4$ 代入公式：\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(7,4)\\\\\n&=\\binom{4}{4}4^7-\\binom{4}{3}3^7\\\\\n&\\quad+\\binom{4}{2}2^7-\\binom{4}{1}1^7\\\\\n&=1\\cdot16384-4\\cdot2187\\\\\n&\\quad+6\\cdot128-4\\cdot1\\\\\n&=16384-8748+768-4\\\\\n&=8400.\n\\end{aligned}\n$$\n\n所以有 $8400$ 個由 $A$ 映成 $B$ 的函數。\n\n**上限 $n-1$ 與 $n$。** 兩個和只差 $k=n$ 這一項，它是 $(-1)^n\\binom{n}{0}0^m$。因為 $m\\ge1$，$0^m=0$，這一項為 $0$。本題 $k=4$ 的項是 $(-1)^4\\binom{4}{0}0^7=0$，所以兩種寫法都得到 $8400$。\n\n**與分配的對應。** 把 $A$ 的 $7$ 個元素當成 $7$ 個不同物體，$B$ 的 $4$ 個元素當成 $4$ 個不同容器，函數 $f$ 把物體 $a$ 放進容器 $f(a)$。因為 $A$ 的每個元素恰有一個像，每個物體恰好放進一個容器；反過來，每一種分配也唯一決定一個函數。$f$ 是映成，等價於每個容器至少收到一個物體，也就是沒有空容器。因此映成函數與「無容器是空的」分配一一對應，兩者個數相同，都是 $\\operatorname{onto}(7,4)$。\n\n題目的例子中，$3$、$4$ 對應到 $w$，$1$ 對應到 $x$，$2$ 對應到 $y$，$5$、$6$、$7$ 對應到 $z$，所以對應的分配是\n\n$$\n\\begin{array}{c|cccc}\n\\text{容器} & w & x & y & z\\\\\\hline\n\\text{物體} & 3,4 & 1 & 2 & 5,6,7\n\\end{array}\n$$\n\n四個容器都不空，符合映成。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "以 $m=7$、$n=4$ 代入，寫出 $\\binom{4}{4}4^7-\\binom{4}{3}3^7+\\binom{4}{2}2^7-\\binom{4}{1}1^7$。"
+      },
+      {
+        "score": 3,
+        "description": "算出各項數值 $16384$、$8748$、$768$、$4$。"
+      },
+      {
+        "score": 2,
+        "description": "得到 $\\operatorname{onto}(7,4)=8400$。"
+      },
+      {
+        "score": 2,
+        "description": "寫出例子對應的分配：$w$ 裝 $3,4$，$x$ 裝 $1$，$y$ 裝 $2$，$z$ 裝 $5,6,7$。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "$\\operatorname{onto}(7,4)=\\binom{4}{4}4^7-\\binom{4}{3}3^7+\\binom{4}{2}2^7-\\binom{4}{1}1^7=16384-8748+768-4=8400$\n\n例子對應的分配是：$w$ 裝 $3,4$；$x$ 裝 $1$；$y$ 裝 $2$；$z$ 裝 $5,6,7$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "以 $m=7$、$n=4$ 代入，寫出 $\\binom{4}{4}4^7-\\binom{4}{3}3^7+\\binom{4}{2}2^7-\\binom{4}{1}1^7$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "算出各項數值 $16384$、$8748$、$768$、$4$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "得到 $\\operatorname{onto}(7,4)=8400$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "寫出例子對應的分配：$w$ 裝 $3,4$，$x$ 裝 $1$，$y$ 裝 $2$，$z$ 裝 $5,6,7$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### 分配例：七個不同物體放入四個相同容器（講義第 17 頁）\n由 $A$（$|A|=m$）到 $B$（$|B|=n$）的映成函數個數\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(m,n)\\\\\n&=\\sum_{k=0}^{n}(-1)^k\\\\\n&\\qquad\\binom{n}{n-k}(n-k)^m\n\\end{aligned}\n$$\n\n也等於將 $m$ 個不同物體分配至 $n$ 個不同容器且無容器是空的方法數。\n\n將 $7$ 個不同物體分配至 $4$ 個相同容器（容器在外貌上無法區分）且無容器是空的，有多少種方法？請寫出計算過程與答案。",
+    "hint": null,
+    "solution": "先把容器編上號碼，變成 $4$ 個不同容器。由公式，\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(7,4)\\\\\n&=\\binom{4}{4}4^7-\\binom{4}{3}3^7\\\\\n&\\quad+\\binom{4}{2}2^7-\\binom{4}{1}1^7\\\\\n&=8400.\n\\end{aligned}\n$$\n\n再把號碼移去，讓容器在外貌上相同。任一種分配至相同容器的方法把物體分成 $4$ 堆非空的物體；替這 $4$ 個非空容器貼上 $4$ 個不同號碼有 $4!$ 種方式，而且因為每個容器都不空、裝的物體互不相同，不同的貼法給出不同的「不同容器」分配。所以每一種相同容器的分配恰好對應 $4!$ 種不同容器的分配，\n\n$$\n\\frac{\\operatorname{onto}(7,4)}{4!}=\\frac{8400}{24}=350.\n$$\n\n故有 $350$ 種方法。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "以不同容器的方法數除以 $4!$ 計算。"
+      },
+      {
+        "score": 2,
+        "description": "求出或引用不同容器的方法數 $\\operatorname{onto}(7,4)=8400$。"
+      },
+      {
+        "score": 2,
+        "description": "得到 $\\frac{8400}{4!}=350$ 種。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "每一種分配至 $4$ 個相同容器的方法，對應 $4!$ 種分配至 $4$ 個不同容器的方法，所以方法數為\n\n$\\frac{\\operatorname{onto}(7,4)}{4!}=\\frac{8400}{4!}=\\frac{8400}{24}=350$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "以不同容器的方法數除以 $4!$ 計算。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "求出或引用不同容器的方法數 $\\operatorname{onto}(7,4)=8400$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "得到 $\\frac{8400}{4!}=350$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### 例題 5.26：四個物體分配至三個容器（講義第 18 頁）\n由 $A$（$|A|=m$）到 $B$（$|B|=n$）的映成函數個數為\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(m,n)\\\\\n&=\\sum_{k=0}^{n}(-1)^k\\\\\n&\\qquad\\binom{n}{n-k}(n-k)^m.\n\\end{aligned}\n$$\n\n令 $A=\\{a,b,c,d\\}$，$B=\\{1,2,3\\}$。\n\n(a) 由 $A$ 到 $B$ 的映成函數有幾個？這也是把 $4$ 個不同物體分配至 $3$ 個不同容器且無容器是空的方法數。請寫出公式的各項並計算。\n\n(b) 將 $4$ 個不同物體 $a,b,c,d$ 分配至 $3$ 個相同容器且無容器是空的，有幾種方法？\n\n(c) 列出 (b) 的所有分配。",
+    "hint": null,
+    "solution": "**(a)** 以 $m=4$、$n=3$ 代入：\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(4,3)\\\\\n&=\\binom{3}{3}3^4-\\binom{3}{2}2^4+\\binom{3}{1}1^4\\\\\n&=81-48+3=36.\n\\end{aligned}\n$$\n\n$k=3$ 的項是 $(-1)^3\\binom{3}{0}0^4=0$，所以不必寫出。共有 $36$ 個映成函數，也就是 $36$ 種方法把 $4$ 個不同物體分配至 $3$ 個不同容器且無容器是空的。\n\n**(b)** 把 $3$ 個容器的號碼移去後，每一種相同容器的分配對應 $3!$ 種不同容器的分配（容器都不空，貼號碼的方式互不重複），所以\n\n$$\n\\frac{\\operatorname{onto}(4,3)}{3!}=\\frac{36}{6}=6.\n$$\n\n**(c)** $4$ 個物體放進 $3$ 個非空容器，容器的物體數只能是 $2,1,1$。因此一種分配完全由「哪兩個物體在同一個容器」決定，共有 $\\binom{4}{2}=6$ 種，與 (b) 一致：\n\n1. $\\{a,b\\}$，$\\{c\\}$，$\\{d\\}$\n2. $\\{a,c\\}$，$\\{b\\}$，$\\{d\\}$\n3. $\\{a,d\\}$，$\\{b\\}$，$\\{c\\}$\n4. $\\{b,c\\}$，$\\{a\\}$，$\\{d\\}$\n5. $\\{b,d\\}$，$\\{a\\}$，$\\{c\\}$\n6. $\\{c,d\\}$，$\\{a\\}$，$\\{b\\}$\n\n講義的圖以不同的順序列出同樣這六種分配。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 寫出 $\\binom{3}{3}3^4-\\binom{3}{2}2^4+\\binom{3}{1}1^4$（或等價的和式）。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 算出 $81-48+3=36$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 以 (a) 的結果除以 $3!$ 計算。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 得到 $6$ 種。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 完整列出六種分配，沒有遺漏或重複（容器的順序不計）。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $\\operatorname{onto}(4,3)=\\binom{3}{3}3^4-\\binom{3}{2}2^4+\\binom{3}{1}1^4=81-48+3=36$\n\n(b) $\\frac{\\operatorname{onto}(4,3)}{3!}=\\frac{36}{6}=6$ 種。\n\n(c) 六種分配為 $\\{a,b\\},\\{c\\},\\{d\\}$；$\\{a,c\\},\\{b\\},\\{d\\}$；$\\{a,d\\},\\{b\\},\\{c\\}$；$\\{b,c\\},\\{a\\},\\{d\\}$；$\\{b,d\\},\\{a\\},\\{c\\}$；$\\{c,d\\},\\{a\\},\\{b\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 寫出 $\\binom{3}{3}3^4-\\binom{3}{2}2^4+\\binom{3}{1}1^4$（或等價的和式）。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 算出 $81-48+3=36$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 以 (a) 的結果除以 $3!$ 計算。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "(b) 得到 $6$ 種。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(c) 完整列出六種分配，沒有遺漏或重複（容器的順序不計）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### 第二型 Stirling 數：映成函數與相同容器（講義第 19 頁）\n對 $m\\ge n$，分配 $m$ 個不同物體至 $n$ 個有編號（否則為相同）的容器且無容器是空的方法數為\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(m,n)\\\\\n&=\\sum_{k=0}^{n}(-1)^k\\\\\n&\\qquad\\binom{n}{n-k}(n-k)^m.\n\\end{aligned}\n$$\n\n把容器上的號碼移去，使容器在外貌上是相同的。分配 $m$ 個不同物體至 $n$ 個相同容器且無容器是空的方法數被表為 $S(m,n)$，稱為第二型的 Stirling 數（Stirling number of the second kind）。\n\n(a) 以 $\\operatorname{onto}(m,n)$ 表示 $S(m,n)$，並說明理由。\n\n(b) 對 $|A|=m\\ge n=|B|$，用 $S(m,n)$ 表示由 $A$ 到 $B$ 的映成函數個數，並說明理由。",
+    "hint": null,
+    "solution": "**(a)** 取一種進入 $n$ 個相同容器且無容器是空的分配。替這 $n$ 個容器貼上號碼 $1,2,\\ldots,n$，有 $n!$ 種貼法。因為每個容器都不空，而且不同容器裝的物體不同，不同的貼法得到不同的有編號分配；反過來，每個有編號的分配移去號碼後恰好得到一個相同容器的分配。所以進入這 $n$ 個（非空）容器的一個分配對應 $n!$ 個進入有編號容器的分配：\n\n$$\nn!\\cdot S(m,n)=\\operatorname{onto}(m,n).\n$$\n\n因此\n\n$$\n\\begin{aligned}\n&S(m,n)\\\\\n&=\\frac{1}{n!}\\cdot\\operatorname{onto}(m,n)\\\\\n&=\\frac{1}{n!}\\sum_{k=0}^{n}(-1)^k\\\\\n&\\qquad\\binom{n}{n-k}(n-k)^m.\n\\end{aligned}\n$$\n\n**(b)** 由 (a) 的關係式，由 $A$ 到 $B$ 的映成函數個數為\n\n$$\n\\operatorname{onto}(m,n)=n!\\cdot S(m,n).\n$$\n\n直觀地說，一個映成函數可以分兩步決定：先把 $A$ 的元素分成 $n$ 個非空的堆（$S(m,n)$ 種），再把這 $n$ 堆一一對應到 $B$ 的 $n$ 個元素（$n!$ 種）。\n\n例如例題 5.24 與第 17 頁：$S(7,4)=\\frac{8400}{4!}=350$；例題 5.26：$S(4,3)=\\frac{36}{3!}=6$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 說明一個相同容器的分配對應 $n!$ 個有編號容器的分配（容器都不空，貼號碼的方式互不重複）。"
+      },
+      {
+        "score": 1,
+        "description": "(a) 指出有編號容器的分配數就是 $\\operatorname{onto}(m,n)$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 得到 $S(m,n)=\\frac{1}{n!}\\cdot\\operatorname{onto}(m,n)=\\frac{1}{n!}\\sum_{k=0}^{n}(-1)^k\\binom{n}{n-k}(n-k)^m$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 得到映成函數個數為 $n!\\cdot S(m,n)$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 說明理由：由 (a) 移項，或「先分成 $n$ 個非空堆，再對應到 $B$ 的元素」。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) 進入 $n$ 個非空相同容器的一個分配對應 $n!$ 個進入有編號容器的分配，所以 $S(m,n)=\\frac{1}{n!}\\sum_{k=0}^{n}(-1)^k\\binom{n}{n-k}(n-k)^m=\\frac{1}{n!}\\cdot\\operatorname{onto}(m,n)$\n\n(b) 共有 $n!\\cdot S(m,n)$ 個由 $A$ 到 $B$ 的映成函數。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 說明一個相同容器的分配對應 $n!$ 個有編號容器的分配（容器都不空，貼號碼的方式互不重複）。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(a) 指出有編號容器的分配數就是 $\\operatorname{onto}(m,n)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 得到 $S(m,n)=\\frac{1}{n!}\\cdot\\operatorname{onto}(m,n)=\\frac{1}{n!}\\sum_{k=0}^{n}(-1)^k\\binom{n}{n-k}(n-k)^m$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 得到映成函數個數為 $n!\\cdot S(m,n)$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "(b) 說明理由：由 (a) 移項，或「先分成 $n$ 個非空堆，再對應到 $B$ 的元素」。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### 例題 5.39：檔案文書的生日月份（講義第 22–23 頁）\n鴿洞原理：若 $m$ 隻鴿子佔據 $n$ 個鴿洞且 $m>n$，則至少有一個鴿洞有兩隻或更多的鴿子棲息於內。\n\n某辦公室雇用 $13$ 位檔案文書。證明他們之中至少有兩位的生日在同一個月份，並指出鴿子與鴿洞各是什麼、各有幾個。",
+    "hint": null,
+    "solution": "把每位檔案文書放進他生日所在月份的鴿洞：\n\n- 鴿子：$13$ 位檔案文書 $P_1,P_2,\\ldots,P_{13}$；\n- 鴿洞：一年的月份，一月、二月、……、十二月，共 $12$ 個。\n\n每位文書恰屬於一個月份。鴿子數 $m=13$ 大於鴿洞數 $n=12$，由鴿洞原理至少有一個鴿洞有兩隻或更多的鴿子，也就是至少有兩位檔案文書有相同月的生日。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "指出鴿子是 $13$ 位檔案文書。"
+      },
+      {
+        "score": 1,
+        "description": "指出鴿洞是 $12$ 個月份。"
+      },
+      {
+        "score": 2,
+        "description": "由 $13>12$ 與鴿洞原理得到至少有兩位文書的生日在同一個月份。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "鴿子是 $13$ 位檔案文書，鴿洞是一年的 $12$ 個月份。因為 $13>12$，由鴿洞原理至少有一個月份有兩位或更多文書在該月生日。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "指出鴿子是 $13$ 位檔案文書。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "指出鴿洞是 $12$ 個月份。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "由 $13>12$ 與鴿洞原理得到至少有兩位文書的生日在同一個月份。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### 例題 5.42：被 36 除的餘數（講義第 24 頁）\n鴿洞原理：若 $m$ 隻鴿子佔據 $n$ 個鴿洞且 $m>n$，則至少有一個鴿洞有兩隻或更多的鴿子棲息於內。\n\n除法演算法（定理 4.5）：當任一正整數 $n$ 被 $36$ 除，存在唯一的商 $q$ 及唯一的餘數 $r$，使得\n\n$$\nn=36q+r,\\qquad 0\\le r<36.\n$$\n\n令 $S\\subset\\mathbf{Z}^+$，其中 $|S|=37$。證明 $S$ 中有兩個元素被 $36$ 除有相同餘數，並指出鴿子與鴿洞。",
+    "hint": null,
+    "solution": "- 鴿子：$S$ 中的 $37$ 個正整數 $n_1,n_2,\\ldots,n_{37}$。\n- 鴿洞：被 $36$ 除的可能餘數。由除法演算法，每個正整數 $n$ 被 $36$ 除有唯一的餘數 $r$，且 $0\\le r<36$，所以可能的 $r$ 值是 $0,1,2,\\ldots,35$，共 $36$ 個鴿洞；每隻鴿子依它唯一的餘數恰好進入一個鴿洞。\n\n鴿子數 $37$ 大於鴿洞數 $36$，由鴿洞原理至少有一個鴿洞有兩隻鴿子，也就是 $S$ 中有兩個（不同的）元素被 $36$ 除有相同餘數。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "指出鴿子是 $S$ 的 $37$ 個元素。"
+      },
+      {
+        "score": 2,
+        "description": "由除法演算法說明可能的餘數是 $0,1,\\ldots,35$，共 $36$ 個鴿洞，且每個元素的餘數唯一。"
+      },
+      {
+        "score": 2,
+        "description": "由 $37>36$ 與鴿洞原理得到兩個元素有相同餘數。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "鴿子是 $S$ 中的 $37$ 個正整數；鴿洞是 $36$ 個可能的餘數 $0,1,\\ldots,35$。每個元素依唯一的餘數放進一個鴿洞，因為 $37>36$，由鴿洞原理有兩個元素在同一個鴿洞，即被 $36$ 除有相同餘數。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "指出鴿子是 $S$ 的 $37$ 個元素。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "由除法演算法說明可能的餘數是 $0,1,\\ldots,35$，共 $36$ 個鴿洞，且每個元素的餘數唯一。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "由 $37>36$ 與鴿洞原理得到兩個元素有相同餘數。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### 例題 5.44：和為 10 的兩個元素（講義第 25 頁）\n鴿洞原理：若 $m$ 隻鴿子佔據 $n$ 個鴿洞且 $m>n$，則至少有一個鴿洞有兩隻或更多的鴿子棲息於內。\n\n證明：任何由集合 $S=\\{1,2,3,\\ldots,9\\}$ 中取出的大小為 $6$ 的子集合，必含兩個元素其和為 $10$。請寫出你選用的鴿洞，說明為什麼鴿子一定會讓某個鴿洞出現兩個和為 $10$ 的元素。\n\n再以子集合 $\\{2,3,5,6,8,9\\}$ 為例，指出它的元素如何放進鴿洞，以及哪兩個元素的和為 $10$。",
+    "hint": null,
+    "solution": "把 $S$ 分成下面 $5$ 個鴿洞：\n\n$$\n\\begin{aligned}\n&\\{1,9\\},\\ \\{2,8\\},\\ \\{3,7\\},\\\\\n&\\{4,6\\},\\ \\{5\\}.\n\\end{aligned}\n$$\n\n前四個鴿洞的兩個元素和都是 $10$，而 $S$ 的每個元素恰好屬於一個鴿洞。\n\n取出的大小為 $6$ 的子集合有 $6$ 個不同的元素，它們是鴿子；每隻鴿子進入它所屬的鴿洞。鴿子數 $6$ 大於鴿洞數 $5$，由鴿洞原理至少有一個鴿洞收到兩個（不同的）元素。鴿洞 $\\{5\\}$ 只有一個元素，不可能收到兩個不同的數，所以收到兩個元素的是前四個兩元素鴿洞之一，而這兩個元素就是該鴿洞的兩個數，和為 $10$。\n\n**例子。** $\\{2,3,5,6,8,9\\}$ 的元素依序進入 $\\{2,8\\}$、$\\{3,7\\}$、$\\{5\\}$、$\\{4,6\\}$、$\\{2,8\\}$、$\\{1,9\\}$。鴿洞 $\\{2,8\\}$ 收到 $2$ 與 $8$ 兩隻鴿子，$2+8=10$。\n\n講義的例子沒有寫出哪兩個數的和為 $10$；$2$ 與 $8$ 是依上述鴿洞直接得到的結果。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "寫出鴿洞 $\\{1,9\\}$、$\\{2,8\\}$、$\\{3,7\\}$、$\\{4,6\\}$、$\\{5\\}$（前四個的和為 $10$，涵蓋 $S$ 的每個元素）。"
+      },
+      {
+        "score": 2,
+        "description": "指出鴿子是子集合的 $6$ 個元素，由 $6>5$ 與鴿洞原理得到兩個元素在同一個鴿洞。"
+      },
+      {
+        "score": 2,
+        "description": "說明 $\\{5\\}$ 不能收兩個不同的數，所以這兩個元素在某個兩元素鴿洞中，和為 $10$。"
+      },
+      {
+        "score": 1,
+        "description": "例子中指出 $2$ 與 $8$ 同在 $\\{2,8\\}$，$2+8=10$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "鴿洞為 $\\{1,9\\}$、$\\{2,8\\}$、$\\{3,7\\}$、$\\{4,6\\}$、$\\{5\\}$，共 $5$ 個；鴿子是子集合的 $6$ 個元素。$6>5$，所以有兩個元素在同一個鴿洞；$\\{5\\}$ 只有一個元素，放不下兩個不同的數，所以這兩個元素就是某個兩元素鴿洞的兩數，和為 $10$。\n\n例子：$2,8$ 都在 $\\{2,8\\}$，$2+8=10$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "寫出鴿洞 $\\{1,9\\}$、$\\{2,8\\}$、$\\{3,7\\}$、$\\{4,6\\}$、$\\{5\\}$（前四個的和為 $10$，涵蓋 $S$ 的每個元素）。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "指出鴿子是子集合的 $6$ 個元素，由 $6>5$ 與鴿洞原理得到兩個元素在同一個鴿洞。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "說明 $\\{5\\}$ 不能收兩個不同的數，所以這兩個元素在某個兩元素鴿洞中，和為 $10$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "例子中指出 $2$ 與 $8$ 同在 $\\{2,8\\}$，$2+8=10$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### 例題 5.46：子集合的元素和（講義第 26–27 頁）\n鴿洞原理：若 $m$ 隻鴿子佔據 $n$ 個鴿洞且 $m>n$，則至少有一個鴿洞有兩隻或更多的鴿子棲息於內。\n\n令 $S$ 為六個正整數的集合，其中極大值最多是 $14$（maximum is at most $14$）。證明 $S$ 的所有非空子集合內的元素和不可能均相異。\n\n對 $S$ 的子集合 $A$，以 $s_A$ 表示 $A$ 中的元素和。請完成下列各點：\n\n- 先試著以 $S$ 的所有非空子集合為鴿子、所有可能的和 $s_A$ 為鴿洞，求出 $s_A$ 的範圍與鴿子數，並判斷這樣能否直接用鴿洞原理。\n- 改為只考慮某一部分的非空子集合，完成證明。\n- 以 $S=\\{5,10,11,12,13,14\\}$ 為例，找出兩個不同的子集合，它們的元素和相同。",
+    "hint": null,
+    "solution": "**所有非空子集合行不通。** $S$ 有六個不同的正整數，都不超過 $14$，所以任一非空子集合 $A$ 的和最大不超過六個最大可能值之和：\n\n$$\n\\begin{aligned}\n&1\\le s_A\\\\\n&\\le9+10+\\cdots+14=69.\n\\end{aligned}\n$$\n\n$S$ 的非空子集合有 $2^6-1=63$ 個。若以 $1$ 到 $69$ 這些可能的和為鴿洞，以 $63$ 個非空子集合為鴿子，鴿子比鴿洞少，鴿洞原理無法給出結論。\n\n**只看 $|A|\\le5$ 的子集合。** 若 $|A|\\le5$，$A$ 至多含 $5$ 個不同的正整數，每個都不超過 $14$，所以\n\n$$\n\\begin{aligned}\n&1\\le s_A\\\\\n&\\le10+11+\\cdots+14=60.\n\\end{aligned}\n$$\n\n$S$ 的非空子集合中 $|A|\\le5$ 的，就是 $S$ 的所有子集合除了 $\\emptyset$ 及 $S$ 本身，共 $2^6-2=62$ 個。以這 $62$ 個子集合為鴿子、$60$ 個可能的和為鴿洞，$62>60$，由鴿洞原理至少有兩個不同的子集合有相同的元素和。它們都是 $S$ 的非空子集合，所以 $S$ 的所有非空子集合的元素和不可能均相異。\n\n**例子。** $S=\\{5,10,11,12,13,14\\}$ 時，\n\n$$\n10+13=23=11+12,\n$$\n\n所以 $\\{10,13\\}$ 與 $\\{11,12\\}$ 是兩個不同的子集合，元素和都是 $23$（其他同和的組合也可以）。\n\n講義的例子沒有指出哪兩個子集合同和；$\\{10,13\\}$ 與 $\\{11,12\\}$ 是題庫為這個例子算出的一組。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "求出所有非空子集合時 $1\\le s_A\\le69$（$9+10+\\cdots+14$），以及共有 $2^6-1=63$ 個非空子集合。"
+      },
+      {
+        "score": 1,
+        "description": "說明 $63$ 隻鴿子少於 $69$ 個鴿洞，無法直接使用鴿洞原理。"
+      },
+      {
+        "score": 2,
+        "description": "改為考慮 $|A|\\le5$ 的非空子集合，求出 $1\\le s_A\\le60$（$10+11+\\cdots+14$）。"
+      },
+      {
+        "score": 2,
+        "description": "說明這樣的子集合是除去 $\\emptyset$ 與 $S$ 的所有子集合，共 $2^6-2=62$ 個。"
+      },
+      {
+        "score": 1,
+        "description": "由 $62>60$ 與鴿洞原理得到兩個不同的非空子集合元素和相同，完成證明。"
+      },
+      {
+        "score": 2,
+        "description": "以 $S=\\{5,10,11,12,13,14\\}$ 找出兩個不同而元素和相同的子集合，例如 $\\{10,13\\}$ 與 $\\{11,12\\}$（和為 $23$）。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "所有非空子集合：$1\\le s_A\\le9+10+\\cdots+14=69$，共 $2^6-1=63$ 個；$63<69$，鴿子較少，無法用鴿洞原理。\n\n只考慮 $|A|\\le5$ 的非空子集合：$1\\le s_A\\le10+11+\\cdots+14=60$，共 $2^6-2=62$ 個（除去 $\\emptyset$ 與 $S$）。$62>60$，由鴿洞原理至少有兩個子集合的元素和相同。\n\n例子：$\\{10,13\\}$ 與 $\\{11,12\\}$ 的和都是 $23$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "求出所有非空子集合時 $1\\le s_A\\le69$（$9+10+\\cdots+14$），以及共有 $2^6-1=63$ 個非空子集合。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "說明 $63$ 隻鴿子少於 $69$ 個鴿洞，無法直接使用鴿洞原理。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "改為考慮 $|A|\\le5$ 的非空子集合，求出 $1\\le s_A\\le60$（$10+11+\\cdots+14$）。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "說明這樣的子集合是除去 $\\emptyset$ 與 $S$ 的所有子集合，共 $2^6-2=62$ 個。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "由 $62>60$ 與鴿洞原理得到兩個不同的非空子集合元素和相同，完成證明。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "以 $S=\\{5,10,11,12,13,14\\}$ 找出兩個不同而元素和相同的子集合，例如 $\\{10,13\\}$ 與 $\\{11,12\\}$（和為 $23$）。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### 鴿洞原理例：選 101 個整數必有兩數互質（講義第 28 頁）\n鴿洞原理：若 $m$ 隻鴿子佔據 $n$ 個鴿洞且 $m>n$，則至少有一個鴿洞有兩隻或更多的鴿子棲息於內。\n\n證明：若由 $S=\\{1,2,3,\\ldots,200\\}$ 選出 $101$ 個整數，則選出的數中存在 $m$、$n$ 滿足 $\\gcd(m,n)=1$。請寫出你選用的鴿洞，並說明為什麼落在同一個鴿洞的兩數互質。\n\n再以「$1,3,5,\\ldots,199$ 這 $100$ 個奇數再加上 $100$」這種選法為例，指出哪兩個數落在同一個鴿洞，並驗證它們互質。",
+    "hint": null,
+    "solution": "講義只寫出結論「任何從 $S$ 選出的 $101$ 個數必含兩個連續整數 $n$、$n+1$，且 $\\gcd(n,n+1)=1$」與一個例子；下面的完整推論是依鴿洞原理與最大公因數的定義補上的。\n\n**鴿洞。** 把 $S$ 分成 $100$ 個兩元素子集合\n\n$$\n\\begin{aligned}\n&\\{2i-1,2i\\},\\\\\n&i=1,2,\\ldots,100,\n\\end{aligned}\n$$\n\n即 $\\{1,2\\}$，$\\{3,4\\}$，$\\{5,6\\}$，……，$\\{199,200\\}$。$S$ 的每個數恰好屬於其中一個。\n\n**鴿洞原理。** 選出的 $101$ 個不同整數是鴿子。$101>100$，所以至少有一個鴿洞 $\\{2i-1,2i\\}$ 收到兩個選出的數；這個鴿洞只有兩個元素，所以 $2i-1$ 與 $2i$ 都被選到。它們是兩個連續整數，記為 $n=2i-1$ 與 $n+1=2i$。\n\n**連續整數互質。** 設正整數 $d$ 同時整除 $n$ 與 $n+1$，則 $d$ 整除它們的差 $(n+1)-n=1$，所以 $d=1$。因此 $\\gcd(n,n+1)=1$，選出的 $2i-1$ 與 $2i$ 就是所求的兩數 $m$、$n$。\n\n**例子。** 選出 $1,3,5,\\ldots,199$（每個鴿洞各一個奇數）再加上 $100$。$100$ 落在鴿洞 $\\{99,100\\}$，與已選的 $99$ 同一個鴿洞。$99=3^2\\cdot11$、$100=2^2\\cdot5^2$ 沒有共同的質因數，$\\gcd(99,100)=1$，與上面的論證一致。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "寫出 $100$ 個鴿洞 $\\{2i-1,2i\\}$（$i=1,\\ldots,100$），涵蓋 $S$ 的每個數。"
+      },
+      {
+        "score": 2,
+        "description": "由 $101>100$ 與鴿洞原理得到某個鴿洞的兩數都被選到，它們是連續整數 $n$、$n+1$。"
+      },
+      {
+        "score": 2,
+        "description": "證明 $\\gcd(n,n+1)=1$：公因數整除 $(n+1)-n=1$。"
+      },
+      {
+        "score": 2,
+        "description": "例子中指出 $99$ 與 $100$ 同在 $\\{99,100\\}$，並驗證 $\\gcd(99,100)=1$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "鴿洞為 $\\{2i-1,2i\\}$，$i=1,2,\\ldots,100$，即 $\\{1,2\\}$、$\\{3,4\\}$、……、$\\{199,200\\}$，共 $100$ 個；鴿子是選出的 $101$ 個整數。$101>100$，所以有兩個數在同一個鴿洞，它們是連續整數 $n$、$n+1$。若 $d$ 整除 $n$ 與 $n+1$，則 $d$ 整除 $(n+1)-n=1$，所以 $\\gcd(n,n+1)=1$。\n\n例子：$99$ 與 $100$ 同在 $\\{99,100\\}$，$\\gcd(99,100)=1$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "寫出 $100$ 個鴿洞 $\\{2i-1,2i\\}$（$i=1,\\ldots,100$），涵蓋 $S$ 的每個數。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "由 $101>100$ 與鴿洞原理得到某個鴿洞的兩數都被選到，它們是連續整數 $n$、$n+1$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "證明 $\\gcd(n,n+1)=1$：公因數整除 $(n+1)-n=1$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "例子中指出 $99$ 與 $100$ 同在 $\\{99,100\\}$，並驗證 $\\gcd(99,100)=1$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch5-relations-functions-examples",
+    "revision": "2",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### 表 5.13：四個物體分配至三個容器的六種情形（講義第 29–30 頁）\n講義表 5.13 整理了「$m$ 個物體分配至 $n$ 個容器」在不同條件下的方法數。可用的記號：\n\n- 由 $m$ 元素集合到 $n$ 元素集合的映成函數個數 $\\operatorname{onto}(m,n)=\\sum_{k=0}^{n}(-1)^k\\binom{n}{n-k}(n-k)^m$；\n- 第二型 Stirling 數 $S(m,n)$：分配 $m$ 個不同物體至 $n$ 個相同容器且無容器是空的方法數。\n\n把 $m=4$ 個物體分配至 $n=3$ 個容器。對下列六種情形寫出計算過程與答案：先寫出一般 $m$、$n$ 的方法數公式（可用乘冪、$\\operatorname{onto}(m,n)$、$S(m,n)$ 或二項式係數表示），再代入 $m=4$、$n=3$ 算出數值。\n\n(1) 物體相異，容器相異，有些容器可能是空的。\n\n(2) 物體相異，容器相異，沒有容器是空的。\n\n(3) 物體相異，容器相同，有些容器可能是空的。\n\n(4) 物體相異，容器相同，沒有容器是空的。\n\n(5) 物體相同，容器相異，有些容器可能是空的。\n\n(6) 物體相同，容器相異，沒有容器是空的。",
+    "hint": null,
+    "solution": "**(1)** 每個物體都可以放進 $n$ 個容器中的任一個，由乘積規則共 $n^m$ 種；$3^4=81$。這也就是由 $4$ 元素集合到 $3$ 元素集合的函數個數。\n\n**(2)** 這是映成函數的個數，$\\operatorname{onto}(m,n)=n!\\,S(m,n)$：\n\n$$\n\\begin{aligned}\n&\\operatorname{onto}(4,3)\\\\\n&=\\binom{3}{3}3^4-\\binom{3}{2}2^4+\\binom{3}{1}1^4\\\\\n&=81-48+3=36.\n\\end{aligned}\n$$\n\n**(3)** 容器相同而允許空容器時，依「恰有幾個容器不空」分類：恰有 $i$ 個非空容器的分配有 $S(m,i)$ 種，$i=1,2,\\ldots,n$，所以共 $S(m,1)+S(m,2)+\\cdots+S(m,n)$ 種。由 $S(m,i)=\\frac{\\operatorname{onto}(m,i)}{i!}$：\n\n$$\n\\begin{aligned}\nS(4,1)&=\\tfrac{1}{1!}\\cdot1^4=1,\\\\\nS(4,2)&=\\tfrac{1}{2!}(2^4-2\\cdot1^4)=7,\\\\\nS(4,3)&=\\tfrac{36}{3!}=6,\n\\end{aligned}\n$$\n\n合計 $1+7+6=14$。\n\n**(4)** 這就是 $S(m,n)$ 的定義；$S(4,3)=\\frac{\\operatorname{onto}(4,3)}{3!}=\\frac{36}{6}=6$。\n\n**(5)** 物體相同時，一種分配只由各容器的物體數決定，即 $x_1+x_2+\\cdots+x_n=m$ 的非負整數解個數（第一章的重複組合），共 $\\binom{n+m-1}{m}$ 個；$\\binom{3+4-1}{4}=\\binom{6}{4}=15$。\n\n**(6)** 每個容器至少一個物體，即 $x_1+x_2+\\cdots+x_n=m$，$x_1\\ge1,x_2\\ge1,\\ldots,x_n\\ge1$ 的整數解個數。先在每個容器各放一個物體，剩下的 $m-n$ 個物體再任意分配，所以共\n\n$$\n\\begin{aligned}\n&\\binom{n+(m-n)-1}{m-n}\\\\\n&=\\binom{m-1}{m-n}=\\binom{m-1}{n-1}\n\\end{aligned}\n$$\n\n個；$\\binom{3}{2}=3$。\n\n**整理**（數值為 $m=4$、$n=3$；(3) 的和取 $i=1,2,\\ldots,n$）。\n\n$$\n\\begin{array}{c|l|r}\n & \\text{公式} & \\text{數值}\\\\\\hline\n(1) & n^m & 81\\\\\n(2) & n!\\,S(m,n) & 36\\\\\n(3) & \\textstyle\\sum_{i}S(m,i) & 14\\\\\n(4) & S(m,n) & 6\\\\\n(5) & \\binom{n+m-1}{m} & 15\\\\\n(6) & \\binom{m-1}{n-1} & 3\n\\end{array}\n$$\n\n講義表 5.13 只列出一般公式。(1) 的 $81$ 即例題 5.26 公式中的 $3^4$；(2)(3)(4) 的 $36$、$14$、$6$ 可以對照例題 5.26（$36$ 與 $6$）及講義第 21 頁的 Example 5.27（$14$）；(5)(6) 的 $15$、$3$ 是題庫代入 $m=4$、$n=3$ 算出的，講義沒有這兩個數值。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(1) 寫出 $n^m$，得到 $3^4=81$。"
+      },
+      {
+        "score": 2,
+        "description": "(2) 寫出 $\\operatorname{onto}(m,n)=n!\\,S(m,n)$（或映成函數公式），得到 $36$。"
+      },
+      {
+        "score": 2,
+        "description": "(3) 寫出 $S(m,1)+S(m,2)+\\cdots+S(m,n)$，得到 $1+7+6=14$。"
+      },
+      {
+        "score": 2,
+        "description": "(4) 寫出 $S(m,n)$，得到 $6$。"
+      },
+      {
+        "score": 2,
+        "description": "(5) 寫出 $\\binom{n+m-1}{m}$（非負整數解個數），得到 $\\binom{6}{4}=15$。"
+      },
+      {
+        "score": 2,
+        "description": "(6) 寫出 $\\binom{m-1}{n-1}$（或 $\\binom{m-1}{m-n}$，正整數解個數），得到 $\\binom{3}{2}=3$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(1) $n^m=3^4=81$\n\n(2) $\\operatorname{onto}(m,n)=n!\\,S(m,n)$；$\\operatorname{onto}(4,3)=81-48+3=36$\n\n(3) $S(m,1)+S(m,2)+\\cdots+S(m,n)$；$S(4,1)+S(4,2)+S(4,3)=1+7+6=14$\n\n(4) $S(m,n)$；$S(4,3)=6$\n\n(5) $\\binom{n+m-1}{m}$；$\\binom{6}{4}=15$\n\n(6) $\\binom{m-1}{n-1}$；$\\binom{3}{2}=3$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(1) 寫出 $n^m$，得到 $3^4=81$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(2) 寫出 $\\operatorname{onto}(m,n)=n!\\,S(m,n)$（或映成函數公式），得到 $36$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(3) 寫出 $S(m,1)+S(m,2)+\\cdots+S(m,n)$，得到 $1+7+6=14$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(4) 寫出 $S(m,n)$，得到 $6$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(5) 寫出 $\\binom{n+m-1}{m}$（非負整數解個數），得到 $\\binom{6}{4}=15$。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(6) 寫出 $\\binom{m-1}{n-1}$（或 $\\binom{m-1}{m-n}$，正整數解個數），得到 $\\binom{3}{2}=3$。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-exercises-2026",
     "revision": "1",
     "questionId": "q01",
