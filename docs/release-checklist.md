@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.16.1 chapter 5 revision 2 candidate
+## v1.16.1 chapter 5 revision 2 production acceptance closure
 
-日期：2026-10-17（Asia/Taipei）。Immutable base v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。以下勾選記錄 preparation 時已取得的證據；commit 之後的結果另記於 closure 文件。本階段沒有存取 production。
+日期：2026-10-17（Asia/Taipei）。Immutable base v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。已接受的 production runtime candidate 為 `817e954505b6cf9fe15d1aac02cff0d2d59f76db`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。
 
 - [x] Pre-preparation：master＝origin/master＝branch `claude/awesome-carson-b7doyu`＝`bea17ee`；local／remote v1.16.1 tag absent。
 - [x] 需求與 human 決定：刪除例題 5.5 與定理 5.1；只需計算的題目只要求計算過程與答案；新 revision 2、題號重排、各題配分不變（136 分）、100 分鐘；8 題的分類經 human 確認。
@@ -11,11 +11,25 @@
 - [x] Local gates：113 files／1,775 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、diff-check 的結果見 delivery。Mutation probe 6/6。
 - [x] Browser gate：1440／768／360 48/48、345 px 18/18 PASS；986＋236 個公式沒有溢出；console／page error 0、非 GET request 0。
 - [x] Classifier（`--base v1.16.0 --include-working-tree`）：security-ai／Risk C／providerCanaryRequired=false；需要六個 Edge function 重新部署，不需要 migration 或 provider canary。
-- [ ] Sub-agent review、candidate commit、合併到 master、`release:check --require-clean`、strict preflight、exact candidate CI。
-- [ ] 六個 Edge function 部署、runtime health、exact-SHA Pages、public smoke、production review（是否需要登入的 canary 由 review 決定）。
-- [ ] Closure、closure CI、closure-SHA Pages parity、annotated v1.16.1 tag；沒有 GitHub Release。
+- [x] Sub-agent review（feature 與 release prep）：cycle 1 PASS，一個不阻擋的 nit（新 q09 solution 的「上限 $n-1$ 與 $n$」一段保留）。
+- [x] Candidate `817e954505b6cf9fe15d1aac02cff0d2d59f76db`（parent `bea17ee`，14 個路徑）；在 local master 上 `release:check --base v1.16.0 --require-clean` 10／10 PASS（report：1.16.1／candidate SHA／base `bea17ee…`／security-ai／Risk C／providerCanaryRequired=false／1,775 tests）；strict `release:preflight --base v1.16.0 --version 1.16.1 --sha <candidate> --branch master --require-clean --require-tag-absent` 7 項全部 PASS。fast-forward 後先以 `npm run generate:ai-context` 寫回 LF 的 generated context 並 `git add`（沒有 staged 的變更），兩個工具第一次執行就通過；一次 normal push（remote master `bea17ee → 817e954`）。
+- [x] [LearnForge CI 39043637456](https://github.com/LukeTsengTW/learnforge/actions/runs/39043637456)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 117427923172。
+- [x] Edge：部署前以 `functions list` 取得 baseline（只讀 metadata）；六個 function 依序部署，每個一次嘗試、每個 exit 0：ai-tutor 24、ai-grade 26、ai-drawing 26、ai-responses 28、save-quiz-draft 12、submit-quiz 14（部署前依序為 23、25、25、27、11、13，與 v1.16.0 結束時相同）；全部 ACTIVE，verify_jwt 不變（只有 save-quiz-draft 為 true）；其餘五個 function 的版本、雜湊、id 與 updated_at 都沒有變。
+- [x] Edge 來源核對：partial: ai-tutor full; the other five not downloaded, plus gated exact-candidate deployment；`functions download ai-tutor --use-api` 在有自己 project_id 的隔離 scratch workdir；ai-tutor 的七個檔案與 candidate 的 git blob（LF 正規化）全部相同，`_shared/quiz-context.generated.ts` 含 38 個第五章 context（revision 1 的 20 個與 revision 2 的 18 個）。其餘五個沒有下載（CLI 的 `UnsafeFunctionDownloadPathError`），證據是有 gate 的 exact-candidate 部署。
+- [x] Runtime health：一個 function 一個 request，零憑證、不帶 body、不重試、不讀 log：5 個 GET 回 401 `MISSING_CREDENTIALS`（平台的回應），save-quiz-draft 的 OPTIONS 回 204，六個回應都有 `x-deno-execution-id`。這只證明函式已部署、被路由並由 Edge runtime 回應。
+- [x] [Deploy LearnForge to GitHub Pages 39043820681](https://github.com/LukeTsengTW/learnforge/actions/runs/39043820681)／attempt 1／workflow_dispatch／master／exact candidate success；build job 117428463905、deploy job 117428726317、deployment 7141520321 均 success；exactly one dispatch。Edge 與 Pages 之間的空窗：約 2.6 分鐘（Asia/Taipei 23:08:37 第一個 Edge 部署 → 23:11:11 Pages 部署成功）。這段期間舊的 Pages 仍以 revision 1 為 current，而 revision 1 的 context 仍在新的 Edge 中，所以沒有影響。
+- [x] Production public acceptance：canonical public smoke PASS（release identity 1.16.1／candidate SHA，root 與 manifest 200，5 個 asset），反向對照 1.16.0／`bea17ee` 被拒絕；`release.json` 一般與 cache-busted 相同；74 個路徑全部 HTTP 200；瀏覽器 smoke（對正式站只有 GET，github.io 以外的 host 一律中止並記錄）1440／768／360 48/48 PASS：Home「5 份題庫」與 v1.16.1、第五章卡片為 18 題／總分 136 分／約 100 分鐘、搜尋與篩選、題庫編寫頁的 revision 2（18 題與 metadata；Answer Preview 全部 986 個公式與 Student Preview 的 236 個公式沒有溢出、KaTeX error 0）、q01 打字與 q02 手寫保留在 Answer Preview、第三章仍可載入；console error 0、page error 0、非 GET request 0、被中止的 request 0。
+- [x] Production review（sub-agent）：cycle 1 PASS 並要求包含重新開始的 draft canary；cycle 2（canary 結果）PASS，把被中止的第一個儲存記為已知觀察。
+- [x] 登入後的 canary：PASS（production review 要求，draft-only，包含重新開始）：human 在一般啟動的 Chrome（新的暫存 profile，debugging 只綁 127.0.0.1）登入既有的 release-canary 帳號，登入後才 attach。帳號核對前後相同：5 筆已提交的紀錄，第三章、第五章與 2026 習題有草稿。(1) 封存草稿的路徑：開啟第五章題庫，伺服器回傳 v1.16.0 留下的 revision 1 草稿，頁面為 20 題，顯示「此未完成練習使用舊版題目（1）。你可以繼續完成，或捨棄草稿並使用最新版重新開始。」與「捨棄舊草稿並使用最新版重新開始」，q01 的手寫與文字還原；寫入只有 `get_or_create_quiz_draft` 與 `account-recovery-code`。(2) 按下「捨棄舊草稿並使用最新版重新開始」→「確認重新開始」：恰好一個 `DELETE /rest/v1/attempts` 回 200（刪除 1 列，canary 帳號自己的 revision 1 草稿；資料庫政策只允許刪除自己的草稿），接著 `get_or_create_quiz_draft` 建立 quizRevision 2 的空草稿，頁面為 18 題。(3) Revision 2：q01 打字「v1.16.1 release canary」、重新整理、畫一筆、重新整理；最後伺服器草稿為 revision 2、answerSchemaVersion 2、q01 drawing mode、1 筆、文字保留，畫面還原；其他 17 題未動。沒有提交、沒有 AI 請求（ai-quota、ai-responses 只有 GET）；觀察到的非 GET 只有 DELETE 1、`get_or_create_quiz_draft` 4、`save-quiz-draft` 3、`account-recovery-code`（狀態查詢）5；79 個 response 沒有 ≥400，console／page／CSP error 0。Chrome 已關閉、暫存 profile 已刪除，evidence 經敏感值掃描為 0。
+- [x] 已知觀察（原因不明）：重新開始之後的第一個 `save-quiz-draft`（15:41:39.165Z 送出）沒有收到回應，15:41:54.220Z 以 `net::ERR_ABORTED` 結束，也就是 app 的 15 秒逾時（`src/lib/supabase.ts:13`）；app 沒有顯示錯誤。Canary 沒有重試；在計畫中的重新整理後，app 重送待同步的 q01（15:42:28.851Z → 200，0.8 秒），之後畫一筆的儲存也是 200（0.9 秒）。重送前 1 ms，應用程式自己的 GET 讀到的伺服器草稿仍是空的（revision 2、schema 1、沒有答案列），重送也通過 handler 的 `expectedUpdatedAt` 檢查，所以被中止的請求沒有寫入任何資料。這是 save-quiz-draft v12 部署後（15:08:55Z）約 32.7 分鐘的第一個真正的 POST（health 只送了 OPTIONS）；冷啟動或暫時的平台延遲是可能的解釋，但沒有證明，也沒有讀 log。本版沒有改動儲存的程式路徑。
+- [x] Production 的存取：`functions list` 2 次；`functions download` 1 次（ai-tutor，在 scratch）；6 個 health request；public smoke 與反向對照；`release.json` 2 個 GET；74 個路徑的 crawl；瀏覽器 smoke（只有 GET）；登入後的 canary（上述 request）；GitHub 的唯讀 API（以上是 developer 的存取；sub-agent reviewer 只讀本機 evidence 與唯讀的 `gh`）。沒有 SQL、沒有 secrets list、沒有 log。Production 的變更：六次 Edge 部署、一次 Pages 部署；canary 帳號的第五章 revision 1 草稿經 app 的介面刪除，並建立一份 revision 2 草稿（q01 一筆答案）保留；`ai-quota` 的 GET 會整理該帳號過期的 reservation（影響列數 UNKNOWN），`account-recovery-code` 依 client 與 source 的契約判斷為狀態查詢。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.16.1 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
 
-Candidate scope 與驗證：[v1.16.1 delivery](v1.16.1-delivery.md)。以下歷史 checklist 保留原樣。
+Candidate scope、驗證、部署與驗收：[v1.16.1 delivery](v1.16.1-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.16.0 chapter 5 relations and functions examples production acceptance closure
 
