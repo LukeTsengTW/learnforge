@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.16.0 chapter 5 relations and functions examples candidate
+## v1.16.0 chapter 5 relations and functions examples production acceptance closure
 
-日期：2026-10-17（Asia/Taipei）。Immutable base v1.15.0：tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`。以下勾選記錄 preparation 時已取得的證據；commit 之後的結果另記於 post-commit report。本階段沒有存取 production。
+日期：2026-10-17（Asia/Taipei）。Immutable base v1.15.0：tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`。已接受的 production runtime candidate 為 `3c7d8d458d14595753b88b47899ea62fdce1d8a0`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。
 
 - [x] Pre-preparation：master＝origin/master＝live remote master＝`6cd622d77874707ff6e1f966e783f32eececaaf4`；開發 branch `claude/awesome-carson-b7doyu`＝origin 的同名 branch＝`b3cd217`（parent `6cd622d…`，只新增講義轉寫檔）；local／remote v1.16.0 tag absent。
 - [x] 需求與 human 決定：題目對照表（20 題、150 分、120 分鐘）經 human 確認；p20–21 不出題；p6 定理 5.1 改為證明題；p28 收錄；p2、p4 各自成題；表 5.13 出 $m=4$、$n=3$ 綜合題；標籤沿用 `stirling-numbers`、`relations`、`functions` 並更新 Library 測試的預期值；版本 1.16.0；推回 `claude/awesome-carson-b7doyu`，不開 PR、不部署、不 tag。
@@ -13,15 +13,27 @@
 - [x] Mutation probe（只改新題庫、每次重新產生 context、跑新測試、還原）：7/7 被對應的測試抓到。
 - [x] Classifier（`--base v1.15.0 --include-working-tree`）：security-ai／Risk C／providerCanaryRequired=false。需要六個 Edge function 重新部署；不需要 migration 或 provider canary。
 - [x] Sub-agent review：cycle 1 REWORK（公式在 360／345 px 寬會溢出，以及文件與測試的小問題，全部修正）、cycle 2 PASS。
-- [ ] Candidate 為 branch 上的兩個 commit：`c9a0111`（題庫與 release 準備，已推送）與修正 q17 rubric、記錄 browser gate 的 follow-up commit；推送與合併的結果記於 closure 文件。
-- [ ] 合併到 master（deploy.yml 只接受 master 上的 exact SHA；human 已於 2026-10-17 授權）與 exact candidate CI。
-- [ ] `release:check --require-clean`、strict `release:preflight`：preflight 預設 branch 為 master，所以在合併到 local master 之後、push 之前執行；結果記於 closure 文件。
+- [x] Release-prep review（sub-agent，follow-up commit 與 browser gate）：cycle 1 PASS，兩個文件 nit 已修正。
+- [x] Candidate：`c9a0111`（題庫與 release 準備）與 `3c7d8d458d14595753b88b47899ea62fdce1d8a0`（修正 q17 rubric 版面、記錄 browser gate），parent 依序為 `b3cd217`（講義轉寫）與 `c9a0111`；兩個 commit 都推到 `claude/awesome-carson-b7doyu`。
+- [x] Local master fast-forward `6cd622d → 3c7d8d4`；一次 normal push（remote master `6cd622d → 3c7d8d4`）。
+- [x] [LearnForge CI 39025646607](https://github.com/LukeTsengTW/learnforge/actions/runs/39025646607)：push／master／exact candidate SHA／attempt 1／completed-success，checks job 117375982830，15 個 step 全 success。
+- [x] Push 前：在 local master 上 `release:check --base v1.15.0 --require-clean` 10／10 PASS（report：1.16.0／candidate SHA／base `6cd622d…`／security-ai／Risk C／providerCanaryRequired=false／1,735 tests）；strict `release:preflight --base v1.15.0 --version 1.16.0 --sha <candidate> --branch master --require-clean --require-tag-absent` 7 項全部 PASS。前兩次 `release:check` 失敗、不計入：第一次是 test gate 的 `check:ai-context` 失敗，因為 fast-forward 時 Git（`core.autocrlf=true`）把 generated context 以 CRLF 寫回 working tree，而檢查逐位元比對（committed blob 是 LF）；以 `npm run generate:ai-context` 寫回相同內容的 LF 版本。第二次是 preflight 失敗，因為 Git 的 index 仍把該檔標為修改（內容沒有差異）；`git add` 該檔後清除，沒有 staged 的變更。
 - [x] Browser gate（scratch build 由 Playwright 從磁碟提供，沒有後端、零網路）：Home（5 份題庫、v1.16.0）、Library（5 張卡片、新卡片、搜尋「第五章」、`stirling-numbers` 篩選）、Author 載入第五章的 Student／Answer Preview、q01 打字與 q02 手寫（Answer Preview 的畫布與編輯畫布 PNG 雜湊相同）、第三章仍可載入；1440／768／360 48/48、345 px 18/18 PASS；Answer Preview 全部 1,119 個公式與 Student Preview 的 271 個公式溢出 0、KaTeX error 0、console／page error 0、非 GET request 0。過程中發現並修正 q17 rubric 在 360 px 溢出 10 px。
-- [ ] 每個 required Edge function 部署一次；之後一次 exact-SHA Pages dispatch；public smoke（human 已授權）。
-- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分沒有端到端證據；是否需要登入的 canary 由 production review 決定（需要 human 登入）。
-- [ ] Closure 與 annotated v1.16.0 tag（human 已授權）；沒有 GitHub Release。
+- [x] Edge：部署前以 `functions list` 取得 11 個 function 的 baseline（只讀 metadata）；六個 function 依序部署，每個一次嘗試、每個 exit 0：ai-tutor 23、ai-grade 25、ai-drawing 25、ai-responses 27、save-quiz-draft 11、submit-quiz 13（部署前依序為 22、24、24、26、10、12，與 v1.15.0 結束時相同）；全部 ACTIVE，verify_jwt 不變（只有 save-quiz-draft 為 true）；其餘五個 function（account-recovery-code、ai-quota、ai-usage、password-hint、recover-account）的版本、雜湊、id 與 updated_at 都沒有變。第一次與第二次的 Edge 部署指令被 Claude Code 的 auto-mode permission classifier 擋下，script 沒有開始（沒有 marker、沒有輸出）；human 離開 auto mode 並說「繼續」後執行，一次成功。
+- [x] Edge 來源核對：partial: ai-tutor full; the other five not downloaded, plus gated exact-candidate deployment；`functions download ai-tutor --use-api` 在有自己 project_id 的隔離 scratch workdir；ai-tutor 的七個檔案與 candidate 的 git blob（LF 正規化）全部相同，其中 `_shared/quiz-context.generated.ts` 含 20 個第五章 context，且與 `c9a0111` 的 blob 不同（reviewer 核對），所以部署的 context 包含 q17 rubric 的修正。其餘五個沒有下載（CLI 對 bundle 含 repo 根目錄 `src/` 的 function 會以 `UnsafeFunctionDownloadPathError` 失敗，v1.15.0 已確認），它們的證據是有 gate 的 exact-candidate 部署（HEAD 等於 candidate、working tree 乾淨、同一個 CLI、版本各加一、雜湊改變）。沒有使用 Supabase MCP（沒有 authenticate）。
+- [x] Runtime health：一個 function 一個 request，零憑證、不帶 body、不重試、不讀 log：5 個 GET（ai-tutor、ai-grade、ai-drawing、ai-responses、submit-quiz）回 401 `MISSING_CREDENTIALS`（平台的回應），save-quiz-draft 的 OPTIONS 回 204，六個回應都有 `x-deno-execution-id`。這只證明函式已部署、被路由並由 Edge runtime 回應。
+- [x] [Deploy LearnForge to GitHub Pages 39026583818](https://github.com/LukeTsengTW/learnforge/actions/runs/39026583818)／attempt 1／workflow_dispatch／master／exact candidate success；build job 117378644050、deploy job 117378893128、deployment 7138514435 均 success；exactly one dispatch。Edge 與 Pages 之間的空窗：約 3.6 分鐘（Asia/Taipei 18:51:00 第一個 Edge 部署 → 18:54:39 Pages 部署成功）。這段期間舊的 Pages 不列出新題庫，使用者看不到差異。
+- [x] Production public acceptance：canonical public smoke PASS（release identity 1.16.0／candidate SHA，root 與 manifest 200，5 個 asset），反向對照舊的 1.15.0／`6cd622d` identity 被拒絕；`release.json` 一般與 cache-busted 相同；74 個路徑全部 HTTP 200；瀏覽器 smoke（headless Chromium，對正式站只有 GET，github.io 以外的 host 一律中止並記錄）1440／768／360 48/48 PASS：Home「5 份題庫」與 v1.16.0、Library 5 張卡片與第五章卡片、搜尋「第五章」、`stirling-numbers` 篩選 2 張、題庫編寫頁載入第五章的 Student／Answer Preview（20 題；Answer Preview 全部 1,119 個公式與 Student Preview 的 271 個公式沒有溢出、KaTeX error 0）、q01 打字與 q02 手寫保留在 Answer Preview、第三章仍可載入；console error 0、page error 0、非 GET request 0、被中止的 request 0（沒有任何對 Supabase 的 request）。
+- [x] Production review（sub-agent）：PASS，並要求登入後的 draft canary。
+- [x] 登入後的 canary：PASS（production review 要求，draft-only）：human 在一般啟動的 Chrome（新的暫存 profile，debugging 只綁 127.0.0.1）登入既有的 release-canary 帳號，登入後才 attach。帳號核對（只讀練習紀錄與 Library，不讀 navigation）：5 筆已提交的紀錄（3 筆 `demo` 顯示「題目版本無法載入」、第一章、期中考），第三章與 2026 習題保留草稿，第五章卡片為「開始練習」。開啟新題庫：`get_or_create_quiz_draft` 建立 revision 1 的空草稿；q01 打字「v1.16.0 release canary」→ `save-quiz-draft` 200（answerSchemaVersion 2）；重新整理後應用程式自己的 GET 讀到伺服器草稿含 q01 的文字，畫面也還原；q01 切到手寫並畫一筆短線 → `save-quiz-draft` 200；重新整理後伺服器回傳 drawing mode、1 筆、文字保留，畫布相同。其他 19 題未動；沒有提交、沒有 AI 請求（ai-quota、ai-responses 只有 GET）。觀察到的 POST 只有 `get_or_create_quiz_draft` 3 次、`save-quiz-draft` 2 次、`account-recovery-code`（狀態查詢）5 次；72 個 response 沒有 ≥400，console／page／CSP error 0。草稿保留，沒有 cleanup、沒有登出；Chrome 已關閉、暫存 profile 已刪除，evidence 經敏感值掃描為 0。Submit 與 AI 評分沒有在新題庫上端到端執行（不在 canary 範圍）。
+- [x] Production 的存取：`functions list` 2 次；`functions download` 1 次（ai-tutor，在 scratch）；6 個 health request；public smoke 與反向對照；`release.json` 2 個 GET；74 個路徑的 crawl；瀏覽器 smoke（只有 GET）；登入後的 canary（上述 request）；GitHub 的唯讀 API（以上是 developer 的存取；sub-agent reviewer 另外對 `release.json` 與網站根目錄各做 1 個 GET，並使用唯讀的 `gh run view`／`gh api`）。沒有 SQL、沒有 secrets list、沒有 log。Production 的變更：六次 Edge 部署、一次 Pages 部署，以及 canary 帳號在新題庫的一份草稿（q01 一筆答案）；`ai-quota` 的 GET 會整理該帳號過期的 reservation（影響列數 UNKNOWN），`account-recovery-code` 依 client 與 source 的契約判斷為狀態查詢。
+- [ ] Documentation closure commit：本 snapshot 寫於 commit 之前。
+- [ ] Closure commit exact CI：尚未取得。
+- [ ] Exact closure-SHA Pages deployment＋parity smoke：尚未執行。
+- [ ] Annotated v1.16.0 tag：尚未建立。
+- GitHub Release：**not used / not planned**。
 
-Candidate scope、來源對應與部署程序：[v1.16.0 delivery](v1.16.0-delivery.md)。以下歷史 checklist 保留原樣。
+Candidate scope、來源對應、部署與驗收：[v1.16.0 delivery](v1.16.0-delivery.md)。以下歷史 checklist 保留原樣。
 
 ## v1.15.0 remove three quiz banks production acceptance closure
 
