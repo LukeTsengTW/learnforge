@@ -1,5 +1,28 @@
 # Release checklist
 
+## v1.16.0 chapter 5 relations and functions examples candidate
+
+日期：2026-10-17（Asia/Taipei）。Immutable base v1.15.0：tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`。以下勾選記錄 preparation 時已取得的證據；commit 之後的結果另記於 post-commit report。本階段沒有存取 production。
+
+- [x] Pre-preparation：master＝origin/master＝live remote master＝`6cd622d77874707ff6e1f966e783f32eececaaf4`；開發 branch `claude/awesome-carson-b7doyu`＝origin 的同名 branch＝`b3cd217`（parent `6cd622d…`，只新增講義轉寫檔）；local／remote v1.16.0 tag absent。
+- [x] 需求與 human 決定：題目對照表（20 題、150 分、120 分鐘）經 human 確認；p20–21 不出題；p6 定理 5.1 改為證明題；p28 收錄；p2、p4 各自成題；表 5.13 出 $m=4$、$n=3$ 綜合題；標籤沿用 `stirling-numbers`、`relations`、`functions` 並更新 Library 測試的預期值；版本 1.16.0；推回 `claude/awesome-carson-b7doyu`，不開 PR、不部署、不 tag。
+- [x] 來源：轉寫檔 `docs/sources/discrete-math-ch5-relations-functions-2026.md` 為權威來源；PDF（4,290,799 bytes、SHA-256 `49d6a425…6494`、31 頁）本次沒有取得，沒有重新核對雜湊或影像。31 頁都有對應：27 頁進入 20 題，p1、p20、p21、p31 不成題（原因見 delivery）。
+- [x] 答案：獨立 Python 腳本（不讀題庫檔與轉寫檔）53/53 相符，與講義及轉寫檔附錄 B 一致；沒有 source answer 衝突。
+- [x] 新題庫 20 calculation／20 drawing-capable，150 分，1200×900；發布的 6 revisions／5 current／94 questions／94 contexts；既有 103 題（含測試 fixture）inventory 的雜湊保留。
+- [x] Local gates：112 files／1,735 PASS，零 skipped；lint、check:quizzes、check:ai-context、check:edge-imports、build、diff-check 的結果見 delivery。
+- [x] Mutation probe（只改新題庫、每次重新產生 context、跑新測試、還原）：7/7 被對應的測試抓到。
+- [x] Classifier（`--base v1.15.0 --include-working-tree`）：security-ai／Risk C／providerCanaryRequired=false。需要六個 Edge function 重新部署；不需要 migration 或 provider canary。
+- [x] Sub-agent review：cycle 1 REWORK（公式在 360／345 px 寬會溢出，以及文件與測試的小問題，全部修正）、cycle 2 PASS。
+- [ ] 一個 candidate commit、推到 `claude/awesome-carson-b7doyu`。
+- [ ] 合併到 master（deploy.yml 只接受 master 上的 exact SHA；需另行授權）與 exact candidate CI。
+- [ ] `release:check`、strict `release:preflight`：本階段沒有執行（human 指定的 gate 為 lint、test、build、check:edge-imports、diff-check）。
+- [ ] Browser evidence（Library、Student／Answer Preview、360／768／1440 的公式寬度）：本階段沒有執行。
+- [ ] 每個 required Edge function 部署一次（需 backend production mutation 授權）；之後一次 exact-SHA Pages dispatch（需 Pages 授權）；public smoke。
+- [ ] 新題庫登入後的作答、草稿儲存、submit／AI 評分沒有端到端證據；是否以 canary 驗證由 human 決定並另行授權。
+- [ ] Closure 與 annotated v1.16.0 tag 需另行授權；沒有 GitHub Release。
+
+Candidate scope、來源對應與部署程序：[v1.16.0 delivery](v1.16.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.15.0 remove three quiz banks production acceptance closure
 
 日期：2026-10-17（Asia/Taipei）。已接受的 production runtime candidate 為 `e7eb6187caf5d3aabb8f3136d6b0030707e2f85e`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`，保持不變。

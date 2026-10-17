@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.16.0 — 離散數學第五章：關係和函數－例題練習
+
+Release candidate preparation：2026-10-17（Asia/Taipei）。基準 immutable v1.15.0（tag object `938d66192bfbdc6837b154431d42730cfa6df14a`／peeled `6cd622d77874707ff6e1f966e783f32eececaaf4`）。開發在 branch `claude/awesome-carson-b7doyu`，接在講義轉寫 commit `b3cd217`（只新增 `docs/sources/discrete-math-ch5-relations-functions-2026.md`）之後；candidate commit 的 SHA 與 push 結果由 post-commit report 記錄。這不是 closure 或 tag；本階段沒有存取或變更 production，也沒有合併到 master。
+
+- 新 bundled quiz family `discrete-math-ch5-relations-functions-examples/1`：依 31 頁講義《05 關係和函數 - 2026》（4,290,799 bytes，SHA-256 `49d6a425d779d2e6eaf9357ad77f5ff7f4169d21ae4fcbe93c962d5e629f6494`）的轉寫檔收錄 20 個單元，20 calculation／drawing-capable、150 分、1200×900、120 分鐘，支援打字與手寫。全庫（發布的）6 revisions／5 current／94 questions／94 canonical contexts。
+- 來源：權威來源是 repo 內的轉寫檔 `docs/sources/discrete-math-ch5-relations-functions-2026.md`。本次沒有取得 PDF，所以沒有重新核對 SHA-256 或逐頁比對影像；題目只依轉寫檔，沒有猜測講義沒寫的內容，講義沒寫、由題庫補上的推論與數值都在 solution 標明（見下一項）。
+- 題目切分（human 確認）：p2、p3、p4、p5、p6、p7–8、p9、p10–11、p12、p13、p14–16、p17、p18、p19、p22–23、p24、p25、p26–27、p28、p29–30 各一題；配分 6／6／4／8／8／8／4／8／8／8／10／6／10／8／4／6／8／10／8／12。p1（章名）、p31（結尾）不成題；p20–21 標「(略)」，依 human 決定不出題。定理 5.1 改為證明題；第 28 頁沒有例題編號，仍收錄；表 5.13 出成 $m=4$、$n=3$ 的綜合題。
+- 講義沒有寫出、由 solution 補上並註明的內容：定理 5.1 的證明（依定義 5.1）、例題 5.5 與 5.9 的理由（依定義 5.2、5.3）、$|A|\le|B|$ 的理由（依定義 5.5）、第 25 頁與第 26–27 頁例子的結果、第 28 頁的完整推論、表 5.13 (5)(6) 的數值 15 與 3。來源筆誤依轉寫檔附錄 C 改用正確寫法（p4 少「個」、p10「有為限」「必為有」、p19「的的」、p29–30 漏「+」）；p14／p16 上限 $n-1$ 與 $n$ 並列的寫法保留，solution 說明 $k=n$ 的項為 0。
+- 答案：以不讀題庫檔的獨立 Python 腳本重算 53 項（列舉 $A\times B$ 的 64 個子集合、定理 5.1 在三元素宇集的 512 組集合、$4^7$ 個函數中的映成者、集合分割、$\binom{9}{6}=84$ 個子集合、$\{1,\ldots,14\}$ 的全部 3,003 個六元素集合等），全部與講義及轉寫檔附錄 B 一致。
+- 標籤：`cartesian-product`、`relations`、`functions`、`one-to-one`、`onto`、`stirling-numbers`、`pigeonhole-principle`。`relations`、`functions`、`stirling-numbers` 與既有題庫共用，所以 Library 測試的預期值跟著更新：搜尋 `stirling-numbers` 由只找到 2026 習題改為找到兩份；`relations`、`stirling-numbers` 標籤，以及科目「離散數學」、題型「計算」的篩選加入新題庫，題型「單選」的篩選排除新題庫。沒有刪除或放寬任何斷言。
+- 測試：新增 `src/features/quiz/ch5-relations-functions.test.tsx`（48 個測試：每題的題幹、答案、頁次、配分、rubric、題幹不洩漏答案、KaTeX 渲染與 canonical context；整份來源的 1,115 個公式（48 個 display）一次渲染；頁次對照；solution 的來源註明；答案與鴿洞原理例子的窮舉重算；既有 103 題 inventory 的雜湊由 HEAD `b3cd217` 的 blob 推得，這些 blob 與 v1.15.0 相同）。`ch1-counting`、`ch3-set-theory`、`discrete-math-exercises-2026` 三個家族測試把新家族排除在各自的 baseline 之外，原有雜湊不變；`quiz-loader.test.ts` 改為恰好發布五份題庫。Local gates：112 files／1,735 tests 全部 PASS、零 skipped（v1.15.0 為 111／1,683）。
+- 版面：以 app 的 Markdown pipeline 與 CSS 渲染整份題庫，量測 answer 欄 226／211 px、其他欄 254／239 px（360 與 345 px 視窗）下每個 KaTeX 方塊，2,074 個方塊都沒有水平溢出；這個量測比 sub-agent reviewer 的量測嚴格約 25 px（同一批原始公式在兩邊分別量到 +74 與 +45 px）。這是靜態頁的量測，不是在 app 內的 browser 檢查。
+- Sub-agent review：cycle 1 REWORK（blocking：四個 display 公式在 360 px 寬會溢出 1–45 px；should-fix：CHANGELOG 前後矛盾；五個 nit：雜湊來源寫法不一致、q20 的 81 沒有註明出處、q19 的變數名稱混用、q18 題幹暗示結論、兩行不會失敗的測試），全部修正；cycle 2 PASS（reviewer 以自己的 harness 重新量測：1,115 個公式在四種欄寬都沒有溢出），沒有新的 finding。
+- Generated canonical context 是 Edge 看得到的檔案（74 → 94，diff +1,192／−0，既有 74 個不變）。Classifier：security-ai／Risk C／providerCanaryRequired=false。部署順序：candidate CI → 六個 Edge function（ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz）→ exact-SHA Pages → production smoke；Edge 同步之前，新題庫在 production 的草稿儲存、提交與 AI 請求不會運作。本次只把順序寫進文件，沒有部署。
+- Package／lock root version 與 navigation label 準備為 1.16.0。來源對應、驗證證據與尚待完成的項目見 [v1.16.0 delivery](docs/v1.16.0-delivery.md)。
+
 ## 1.15.0 — 移除三份題庫
 
 Production acceptance：2026-10-17（Asia/Taipei）。Accepted runtime candidate `e7eb6187caf5d3aabb8f3136d6b0030707e2f85e`（exact candidate CI 39015563847）；基準 immutable v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`。六個 Edge function 已部署、health 6／6、exact candidate Pages（run 39016013054／deployment 7136815881）與未登入的 public acceptance 均已完成，review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

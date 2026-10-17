@@ -41,6 +41,7 @@ const midtermTitle = '2025 Discrete Mathematics 期中考'
 const countingTitle = '離散數學第一章：計數的基本原理－例題練習'
 const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
 const setTheoryTitle = '離散數學第三章：集合論－例題練習'
+const relationsFunctionsTitle = '離散數學第五章：關係和函數－例題練習'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -130,6 +131,25 @@ describe('Quiz Library search and filters', () => {
       .toHaveAttribute('href', '/quiz/discrete-math-ch3-set-theory-examples')
   })
 
+  it('shows the separate Chapter 5 relations and functions quiz with its declared points, tags and quiz link', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: relationsFunctionsTitle, level: 2 }).closest('article')!
+    expect(within(card).getByText('離散數學')).toBeInTheDocument()
+    expect(within(card).getByText('20 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 150 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
+    expect(within(within(card).getByRole('list', { name: '題庫標籤' })).getAllByRole('listitem').map((tag) => tag.textContent))
+      .toEqual(['cartesian-product', 'relations', 'functions', 'one-to-one', 'onto', 'stirling-numbers', 'pigeonhole-principle'])
+    expect(within(card).getByRole('link', { name: /開始練習/ }))
+      .toHaveAttribute('href', '/quiz/discrete-math-ch5-relations-functions-examples')
+  })
+
+  it.each(['第五章', '關係和函數', 'pigeonhole-principle'])('finds the Chapter 5 quiz with %s', async (query) => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
+    expect(visibleTitles()).toEqual([relationsFunctionsTitle])
+  })
+
   it.each(['第三章', '集合論', 'power-set'])('finds the Chapter 3 quiz with %s', async (query) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
@@ -142,10 +162,16 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual([countingTitle])
   })
 
-  it.each(['Ch7', '五份習題解答', 'stirling-numbers'])('finds the 2026 exercises quiz with %s', async (query) => {
+  it.each(['Ch7', '五份習題解答'])('finds the 2026 exercises quiz with %s', async (query) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
     expect(visibleTitles()).toEqual([exercisesTitle])
+  })
+
+  it('finds both stirling-numbers quizzes when the tag is searched', async () => {
+    const user = renderLibrary(originalCatalog)
+    await user.type(screen.getByRole('searchbox', { name: '搜尋' }), 'stirling-numbers')
+    expect(visibleTitles()).toEqual(inCatalogOrder(exercisesTitle, relationsFunctionsTitle))
   })
 
   it('finds both stars-and-bars quizzes when the tag is searched', async () => {
@@ -155,17 +181,18 @@ describe('Quiz Library search and filters', () => {
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle)],
-    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle)],
+    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle
+      && title !== relationsFunctionsTitle)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle)],
     ['標籤', 'combinatorics', [midtermTitle]],
     ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle)],
     ['標籤', 'sets', inCatalogOrder(exercisesTitle, setTheoryTitle)],
     ['標籤', 'de-morgan', [setTheoryTitle]],
-    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle)],
+    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle, relationsFunctionsTitle)],
     ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
     ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],
-    ['標籤', 'stirling-numbers', [exercisesTitle]],
+    ['標籤', 'stirling-numbers', inCatalogOrder(exercisesTitle, relationsFunctionsTitle)],
   ])('filters the real bundle by %s=%s', async (label, value, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.selectOptions(screen.getByRole('combobox', { name: label }), value)

@@ -327,22 +327,25 @@ describe('PDF-backed Chapter 3 set theory practice', () => {
   })
 
   it('adds exactly 13 questions and contexts and leaves the earlier 90-question inventory untouched', () => {
+    // Families bundled after this one are pinned by their own tests; they stay out of the 103-question baseline.
     // The inventory deliberately includes the retired demo, boolean-algebra and relations fixtures (see the quiz-loader mock above),
     // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
-    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
+    const later = new Set(['discrete-math-ch5-relations-functions-examples'])
+    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
+    const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
     expect(all).toHaveLength(9)
-    expect(quizCatalog.current).toHaveLength(7)
+    expect(quizCatalog.current.filter(({ quiz: current }) => !later.has(current.id))).toHaveLength(7)
     expect(quizCatalog.errors).toEqual([])
     expect(all.flatMap((q) => q.questions)).toHaveLength(103)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(103)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id)).toHaveLength(13)
+    expect(contexts).toHaveLength(103)
+    expect(contexts.filter((c) => String(c.quizId) === id)).toHaveLength(13)
     const old = all.filter((q) => q.id !== id).sort((a, b) => `${a.id}/${a.revision}`.localeCompare(`${b.id}/${b.revision}`))
     expect(old.map((q) => `${q.id}/${q.revision}`)).toEqual(['boolean-algebra/1', 'demo/v1-7d7c900e', 'demo/v2-handwriting',
       'discrete-math-ch1-counting-examples/1', 'discrete-math-exercises-2026/1', 'discrete-math/1', 'discrete-math/2', 'relations/1'])
     expect(sha(beforeExercisesWordingEdit(old))).toBe('b6f3d2016b2e98716c3da0ce6639058dbe9769b99d4da2984dd0cfc81e630926')
     expect(sha(beforeExercisesWordingEdit(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions })))))
       .toBe('c3f8005c886a46135fc018783cc1a937f5e695a27ea77e1166d70b9970857df7')
-    expect(sha(beforeExercisesWordingEdit(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id))))
+    expect(sha(beforeExercisesWordingEdit(contexts.filter((c) => String(c.quizId) !== id))))
       .toBe('d3c2b4151fc216ec514a145067395cd8b048202483d3351db7441246039dd278')
     // The edit is real: without the reversal the exercises revision differs from v1.10.0.
     expect(sha(old)).not.toBe('b6f3d2016b2e98716c3da0ce6639058dbe9769b99d4da2984dd0cfc81e630926')

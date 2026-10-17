@@ -11,11 +11,12 @@ import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-hel
 const sources = { ...bundledQuizSources, ...fixtureQuizSources }
 const fixtureCatalog = createQuizCatalog(sources)
 describe('bundled quiz catalog', () => {
-  it('publishes exactly the four remaining quizzes and none of the removed ones', () => {
+  it('publishes exactly the five current quizzes and none of the removed ones', () => {
     expect(quizCatalog.errors).toEqual([])
     expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['discrete-math',
-      'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-exercises-2026'])
-    expect(Object.keys(bundledQuizSources)).toHaveLength(5)
+      'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-ch5-relations-functions-examples',
+      'discrete-math-exercises-2026'])
+    expect(Object.keys(bundledQuizSources)).toHaveLength(6)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()
