@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.15.0 — 移除三份題庫
+
+Release preparation：2026-10-17（Asia/Taipei）。基準 immutable v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`。Candidate commit、CI、Edge 部署、Pages 部署與 production 驗收尚未發生，由之後的 post-commit report 與 closure 文件記錄。
+
+- 移除三份題庫（human 要求）：「數位邏輯與基礎數學」（`demo`，revision `v1-7d7c900e`［封存］與 `v2-handwriting`［current］）、「布林代數基礎」（`boolean-algebra/1`）、「離散數學：關係」（`relations/1`）。發布的題庫剩 4 份 current：2025 Discrete Mathematics 期中考（`discrete-math/2`，封存 `discrete-math/1`）、離散數學第一章例題、離散數學習題 2026、離散數學第三章例題；全庫 5 revisions／4 current／74 questions／74 canonical contexts（9／7／103／103 → 5／4／74／74），其餘題庫的內容與其 74 個 canonical context 與 v1.14.1 逐位元相同。
+- `supabase/functions/_shared/quiz-context.generated.ts` 重新產生（103 → 74 個 context；移除 `boolean-algebra/1` 7、`demo/v1-7d7c900e` 7、`demo/v2-handwriting` 7、`relations/1` 8）。這是 Risk C：六個使用它的 Edge function（ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz）需要先於 Pages 重新部署。
+- Home 的精選題庫由 `boolean-algebra` 改為 `discrete-math-ch1-counting-examples`（期中考的描述含未渲染的 LaTeX，不適合卡片）；`index.html` 的 meta description 由「數位邏輯與基礎數學」改為「離散數學」；移除只有測試使用的 `demoQuiz` 匯出。
+- 測試：三個題庫的 Markdown 以 `git mv` 移到 `src/test-fixtures/quizzes/`（內容不變），作為測試資料由 `fixture-quizzes.test-helper.ts` 的 `withFixtureQuizzes`／`withFixtureContexts` 選擇加入；它們不在 production 的 bundle 或 generated context。新增「恰好發布四份題庫」的測試與使用真實 regenerated context 的 `discrete-math/2` 測試。111 files／1,683 tests 全部 PASS；lint／check:quizzes／check:ai-context／check:edge-imports／build／audit／diff-check／tsc 通過。
+- Sub-agent review：cycle 1 REWORK（有測試經由 mock 不再驗證真正發布的內容等），修正後 cycle 2、cycle 3 PASS。Browser 證據（scratch build 由 Playwright 從磁碟提供，沒有登入）：Home、Library（4 張卡片；搜尋被移除的名稱沒有結果）、`#/quiz/demo`（未登入轉登入、已登入「找不到這個練習」）、練習紀錄、結果頁、學習分析、錯題複習的降級顯示，1440／768／360 沒有 overflow，console／page errors 0。
+- Classifier：security-ai／Risk C／providerCanaryRequired=false；不需要 provider canary。
+- 使用者可見的後果：這三份題庫過去的作答在練習紀錄顯示「題目版本無法載入」，練習紀錄只對 deterministic-v1 的紀錄顯示已保存的分數，其他 grading version 顯示「— / —」；結果頁無法顯示這些紀錄的分數、答案與解析（既有的降級行為）；已發布的題庫只剩單選與計算題，Library 的題型篩選仍列出沒有題目的題型；Home 的邏輯閘插圖與裝飾沒有改。
+- 沒有改變：留下的題庫、parser、評分、migration、RLS、Auth／secrets／provider configuration、dependency；除了 generated canonical context 以外，Edge function 的原始碼不變。
+- Package／lock root version 與 visible navigation label 為 1.15.0。見 [v1.15.0 delivery](docs/v1.15.0-delivery.md)。
+
 ## 1.14.1 — 畫布工具列圖示
 
 Production acceptance：2026-10-16（Asia/Taipei）。Accepted runtime candidate `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`（exact candidate CI 38926266625）；基準 immutable v1.14.0（tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`）。Exact candidate Pages（run 38926525130／deployment 7123281622）與未登入的 public acceptance 均已完成，review PASS。不需要 Edge 部署與 provider canary。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

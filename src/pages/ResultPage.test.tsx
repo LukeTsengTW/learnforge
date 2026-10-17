@@ -11,6 +11,7 @@ import type { TrustedRubricJudgment } from '../models/attempt'
 import type { AnswerMap } from '../models/attempt'
 import { GRADING_VERSION } from '../models/grading-version'
 import { ResultPage } from './ResultPage'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 vi.mock('../features/ai/use-ai-tutor', () => ({ useAiTutor: () => ({}) }))
 vi.mock('../features/ai/AiTutorControls', () => ({ AiTutorControls: () => null, AiQuotaStatus: () => null }))

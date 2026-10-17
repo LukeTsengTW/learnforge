@@ -9,6 +9,7 @@ import { createPracticeStore, INVALID_SUBMISSION_NOTICE, SCHEMA_CHANGED_NOTICE, 
 import { SubmissionError } from './practice-repository'
 import { quizCatalog } from './quiz-loader'
 import { createV4MemoryRepository, memoryStorage, pen, v3Quiz, v4Quiz } from './practice-v4.test-helper'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 
 afterEach(() => { vi.useRealTimers() })
 const handText = (text: string, strokes = [pen()]) => ({ type: 'calculation' as const, mode: 'text' as const, text, strokes })

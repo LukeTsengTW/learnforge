@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { quizCatalog } from './quiz-loader'
 import { mapPracticeRecord } from './practice-repository'
 import { trustedFillJudgments, trustedRubricJudgments } from './repositories'
@@ -8,6 +8,7 @@ import { deriveMistakes } from './practice-history'
 import type { Database } from '../../types/database.types'
 import type { AnswerMap } from '../../models/attempt'
 import type { JudgmentRow, RubricJudgmentRow } from './repositories'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 
 const quiz = quizCatalog.getCurrentQuiz('demo')!
 const now = '2026-09-25T06:00:00.000Z'

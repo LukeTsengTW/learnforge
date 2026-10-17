@@ -4,6 +4,7 @@ import { requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import type { AppSupabase } from '../../lib/supabase'
 import type { QuizAttempt } from '../../models/attempt'
 import { requiresV4DraftContext } from '../../../supabase/functions/_shared/draft-v4'
+import { tutorContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { createSaveQuizDraftHandler, type DraftAttemptSnapshot, type DraftSaveBackend } from '../../../supabase/functions/save-quiz-draft/handler'
 import { LocalPracticeCache, LocalPracticeCacheV4, practiceCacheKeyV4 } from './practice-cache'
 import { restorePracticeBackup } from './practice-recovery'
@@ -13,8 +14,10 @@ import { quizCatalog } from './quiz-loader'
 import { fromDatabaseV4, type RubricJudgmentRow } from './repositories'
 import { createV4MemoryRepository, memoryStorage, pen, submittedV4Rows, v3Quiz, v4Catalog, v4Quiz } from './practice-v4.test-helper'
 import { ctx, fixture as edgeFixture, lookup as edgeLookup, R0, R1, submit as edgeSubmit } from './submission-v4.test-helper'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
-// The archived text-only exact revision; demo/v2-handwriting is the current v4-capable revision.
+// The retired demo fixture: v1-7d7c900e is its text-only exact revision, demo/v2-handwriting its v4-capable one.
 const demo = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
 const demoV4 = quizCatalog.getCurrentQuiz('demo')!
 const attemptId = '00000000-0000-4000-8000-0000000000e1'
@@ -55,9 +58,11 @@ describe('M5.1 one exact-revision v4 capability rule', () => {
 
 describe('M5.1 save-quiz-draft enforces capability on the server', () => {
   it('refuses a direct save for the bundled v3-only exact revision without any write or promotion', async () => {
-    const env = saveBackend(demo.id, demo.revision)
-    const calc = demo.questions.find((question) => question.type === 'calculation')!
-    // Uses the real bundled exact-revision context (tutorContext), not a browser hint.
+    const archived = quizCatalog.getQuizRevision('discrete-math', '1')!
+    const env = saveBackend(archived.id, archived.revision)
+    const calc = archived.questions.find((question) => question.type === 'calculation')!
+    // Uses the real bundled exact-revision context (tutorContext) of the archived discrete-math/1, not a browser hint.
+    expect(tutorContext.listRevision(archived.id, archived.revision).length).toBeGreaterThan(0)
     const response = await createSaveQuizDraftHandler(env.backend)(saveRequest({ [calc.id]: { type: 'calculation', text: 'x' } }))
     expect(response.status).toBe(503)
     expect((await response.json()).code).toBe('unavailable')
@@ -65,9 +70,20 @@ describe('M5.1 save-quiz-draft enforces capability on the server', () => {
     expect(env.state.attempt.answer_schema_version).toBe(1)
   })
 
-  it('accepts bundled demo/v2-handwriting through the real regenerated server context', async () => {
-    const env = saveBackend(demoV4.id, demoV4.revision)
+  it('accepts shipped discrete-math/2 through the real regenerated server context', async () => {
+    const current = quizCatalog.getCurrentQuiz('discrete-math')!
+    expect(current.revision).toBe('2')
+    const env = saveBackend(current.id, current.revision)
     // Default lookup = the generated tutorContext, i.e. what the deployed Edge bundle will contain.
+    const response = await createSaveQuizDraftHandler(env.backend)(saveRequest({ q2: handText }))
+    expect(response.status).toBe(200)
+    expect(env.backend.saveDraft).toHaveBeenCalledTimes(1)
+    expect(env.state.attempt.answer_schema_version).toBe(2)
+  })
+
+  it('accepts the retired demo/v2-handwriting fixture through the fixture-merged server context', async () => {
+    const env = saveBackend(demoV4.id, demoV4.revision)
+    // Fixture only: demo contexts exist solely through the test mock, not in the deployed Edge bundle.
     const response = await createSaveQuizDraftHandler(env.backend)(saveRequest({ q6: handText }))
     expect(response.status).toBe(200)
     expect(env.backend.saveDraft).toHaveBeenCalledTimes(1)

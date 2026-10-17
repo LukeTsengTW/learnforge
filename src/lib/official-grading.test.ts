@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { mapAnalyticsRecord, mapPracticeRecord } from '../features/quiz/practice-repository'
 import { deriveMistakes } from '../features/quiz/practice-history'
@@ -9,6 +9,8 @@ import { answerHash, gradeOfficialSubmission, type FillJudgment,
 import { tutorContext } from '../../supabase/functions/_shared/ai-tutor'
 import type { AnswerMap, TrustedFillJudgment } from '../models/attempt'
 import type { Database } from '../types/database.types'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
+vi.mock('../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const quiz = quizCatalog.getCurrentQuiz('demo')!
 const now = '2026-09-28T01:00:00.000Z'

@@ -5,6 +5,7 @@ import { LocalPracticeCache, practiceCacheKey } from './practice-cache'
 import { createPracticeStore } from './practice-store'
 import { quizCatalog } from './quiz-loader'
 import { reduceAttempt } from '../../lib/attempt'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 
 // Schema-1 / ai-grading-v3 store behavior on the text-only exact revision (schema 2: practice-store-v4.test.ts).
 const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!

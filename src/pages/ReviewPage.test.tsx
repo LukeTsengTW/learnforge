@@ -10,6 +10,7 @@ import { GRADING_VERSION } from '../models/grading-version'
 import { PracticeContext, type PracticeRepository } from '../features/quiz/practice-context'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { ReviewPage } from './ReviewPage'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 const now = '2026-09-21T12:00:00Z'
 const source: Quiz = { id: 'review-fixture', revision: 'v1', title: 'Review fixture', subject: 'Logic', tags: ['logic'],

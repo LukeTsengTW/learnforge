@@ -4,6 +4,7 @@ import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-contex
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { validateGradingResult } from '../../../supabase/functions/_shared/calculation-grading'
 import { validateDrawingResult } from '../../../supabase/functions/_shared/drawing-analysis'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const attemptId = '11111111-1111-4111-8111-111111111111'
 const output = { title: '提示', message: '先整理條件。', keyPoints: [], nextStep: null }

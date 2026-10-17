@@ -9,6 +9,8 @@ import {
   isIncorrectObjective, normalizeStudentAnswer, parseOpenAIResponse, parseTutorRequest,
   parseTutorResponse, readBoundedJson, tutorContext, type TutorQuestionContext,
 } from '../../../supabase/functions/_shared/ai-tutor'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const contexts = AI_QUIZ_CONTEXT as unknown as TutorQuestionContext[]
 const single = contexts.find((question) => question.type === 'single')!

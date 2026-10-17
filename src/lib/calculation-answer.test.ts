@@ -1,5 +1,5 @@
 import { describe, expect, expectTypeOf, it } from 'vitest'
-import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
+import demoSource from '../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import type { CalculationAnswer, CalculationAnswerV4, LegacyCalculationAnswer, QuestionAnswer } from '../models/attempt'
 import type { DrawingStroke } from '../models/drawing'
 import { DRAWING_COLORS } from '../models/drawing'

@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { DRAFT_V4_LIMITS, draftAnswersBytes } from '../../supabase/functions/_shared/draft-v4'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import type { DraftAnswerMapV4, PracticeAnswer, QuizDraftV4 } from '../models/draft-v4'
 import type { DrawingStroke } from '../models/drawing'
 import type { Quiz } from '../models/quiz'
 import { answerQuizDraftV4, decodeDraftAnswersV4, decodeQuizDraftV4, draftAnswerMapBytes, draftAnswerProblemV4 } from './draft-v4'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 /**
  * Saving refuses a draft whose answers exceed DRAFT_V4_LIMITS.maxAnswerBytes. An answer update is

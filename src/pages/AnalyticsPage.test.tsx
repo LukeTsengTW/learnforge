@@ -10,6 +10,7 @@ import type { AnalyticsAttempt } from '../models/analytics'
 import type { TrustedRubricJudgment } from '../models/attempt'
 import { GRADING_VERSION } from '../models/grading-version'
 import { AnalyticsPage } from './AnalyticsPage'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 function renderWith(repo: Pick<PracticeRepository, 'listSubmittedAnalyticsPage'>) {

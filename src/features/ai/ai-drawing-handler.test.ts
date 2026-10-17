@@ -4,6 +4,7 @@ import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-contex
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { validateDrawingResult } from '../../../supabase/functions/_shared/drawing-analysis'
 import { createDrawingHandler, type DrawingBackend } from '../../../supabase/functions/ai-drawing/handler'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const contexts = AI_QUIZ_CONTEXT as unknown as TutorQuestionContext[]
 const drawing = contexts.find((item) => item.type === 'drawing')!

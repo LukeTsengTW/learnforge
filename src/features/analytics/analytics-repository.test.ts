@@ -5,6 +5,7 @@ import { quizCatalog } from '../quiz/quiz-loader'
 import { mapAnalyticsRecord, SupabasePracticeRepository } from '../quiz/practice-repository'
 import { PersistenceError } from '../quiz/repositories'
 import { scanLearningHistory } from './use-learning-history'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
 
 type AttemptRow = Database['public']['Tables']['attempts']['Row']
 type AnswerRow = Database['public']['Tables']['answers']['Row']

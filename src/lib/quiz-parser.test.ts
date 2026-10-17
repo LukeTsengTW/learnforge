@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import rawDemoSource from '../content/quizzes/demo/v1.quiz.md?raw'
+import rawDemoSource from '../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz, QuizParseError } from './quiz-parser'
 
 const demoSource = rawDemoSource.replaceAll('\r\n', '\n')

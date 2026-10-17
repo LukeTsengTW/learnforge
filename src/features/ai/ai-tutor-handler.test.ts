@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import { createTutorHandler, type TutorBackend } from '../../../supabase/functions/ai-tutor/handler'
 import type { TutorQuestionContext, TutorProviderResult } from '../../../supabase/functions/_shared/ai-tutor'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const contexts = AI_QUIZ_CONTEXT as unknown as TutorQuestionContext[]
 const single = contexts.find((item) => item.type === 'single')!

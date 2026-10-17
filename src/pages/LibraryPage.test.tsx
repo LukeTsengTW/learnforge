@@ -7,12 +7,13 @@ import { MemoryRouter } from 'react-router-dom'
 import { AuthContext } from '../features/auth/auth-context'
 import { PracticeContext } from '../features/quiz/practice-context'
 import { createMemoryPracticeRepository } from '../features/quiz/practice-memory.test-helper'
-import { quizCatalog, type QuizCatalogEntry } from '../features/quiz/quiz-loader'
+import { createQuizCatalog, quizCatalog, type QuizCatalogEntry } from '../features/quiz/quiz-loader'
+import { fixtureQuizSources } from '../test-fixtures/fixture-quizzes.test-helper'
 import { QUESTION_LABEL, QUESTION_TYPE, type QuestionType } from '../models/quiz'
 import { LibraryPage } from './LibraryPage'
 
 const originalCatalog = quizCatalog.current
-const demo = quizCatalog.getCurrentQuiz('demo')!
+const demo = createQuizCatalog(fixtureQuizSources).getCurrentQuiz('demo')!
 
 function entry(id: string, title: string, subject: string, tags: string[], types: QuestionType[], description: string): QuizCatalogEntry {
   const questions = types.map((type) => {
@@ -154,14 +155,14 @@ describe('Quiz Library search and filters', () => {
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, '離散數學：關係', countingTitle, exercisesTitle, setTheoryTitle)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle)],
     ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, '數位邏輯與基礎數學', countingTitle, exercisesTitle, setTheoryTitle)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle)],
     ['標籤', 'combinatorics', [midtermTitle]],
     ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle)],
-    ['標籤', 'sets', inCatalogOrder('離散數學：關係', exercisesTitle, setTheoryTitle)],
+    ['標籤', 'sets', inCatalogOrder(exercisesTitle, setTheoryTitle)],
     ['標籤', 'de-morgan', [setTheoryTitle]],
-    ['標籤', 'relations', inCatalogOrder(midtermTitle, '離散數學：關係', exercisesTitle)],
+    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle)],
     ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
     ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],
     ['標籤', 'stirling-numbers', [exercisesTitle]],

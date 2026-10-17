@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { QuestionAnswer } from '../../models/attempt'
 import type { TrustedRubricJudgment } from '../../models/attempt'
 import { QUESTION_TYPE, type Question, type Quiz, type SingleChoiceQuestion } from '../../models/quiz'
 import { GRADING_VERSION } from '../../models/grading-version'
 import { quizCatalog } from '../quiz/quiz-loader'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
 import { aggregateByTag, buildLearningAnalytics, buildReviewQueue, buildWeeklyTrend,
   occurrenceTags, topicSignal } from './learning-analytics'
 

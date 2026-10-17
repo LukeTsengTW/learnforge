@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { createAttempt, reduceAttempt } from '../../lib/attempt'
-import { demoQuiz } from './quiz-loader'
+import { createQuizCatalog } from './quiz-loader'
+import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-helper'
 import { cacheKey, PersistenceError } from './repositories'
 import { LocalPracticeCache, draftIndexKey, practiceCacheKey } from './practice-cache'
 import { createMemoryPracticeRepository, legacyAttempt } from './practice-memory.test-helper'
 
-if (!demoQuiz.ok) throw new Error('Invalid demo')
-const quiz = demoQuiz.quiz
+const quiz = createQuizCatalog(fixtureQuizSources).getCurrentQuiz('demo')!
 function memory() {
   const data = new Map<string, string>()
   return { data, getItem: (key: string) => data.get(key) ?? null,

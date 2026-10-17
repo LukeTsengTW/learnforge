@@ -1,9 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { quizCatalog } from './quiz-loader'
 import { tutorContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { createSubmissionCalculationRequest, SUBMISSION_CALCULATION_INSTRUCTIONS } from '../../../supabase/functions/_shared/calculation-grading'
 import { createSubmissionDrawingRequest, SUBMISSION_DRAWING_INSTRUCTIONS } from '../../../supabase/functions/_shared/drawing-analysis'
 import { AiProviderError } from '../../../supabase/functions/_shared/ai-provider'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 import { parseSubmissionRubricProviderResponse, submissionRubricSchema,
   validateSubmissionRubricOutput } from '../../../supabase/functions/_shared/submission-rubric'
 

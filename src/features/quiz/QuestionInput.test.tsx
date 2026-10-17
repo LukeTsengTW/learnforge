@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, render, screen } from '@testing-library/react'
 import { QUESTION_TYPE } from '../../models/quiz'
 import { quizCatalog } from './quiz-loader'
 import { QuestionCard } from './QuestionCard'
 import { QuestionInput } from './QuestionInput'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 
 const quiz = quizCatalog.getCurrentQuiz('demo')!
 const notice = '提交後會依評分規準由 AI 自動評分並納入本次練習得分。AI 自動評分僅供學習參考，可能存在誤判。'

@@ -1,12 +1,12 @@
 import { describe, expect, it, vi, afterEach } from 'vitest'
-import { demoQuiz } from './quiz-loader'
+import { createQuizCatalog } from './quiz-loader'
+import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-helper'
 import { createAttempt, reduceAttempt } from '../../lib/attempt'
 import { LocalAttemptRepository, SupabaseAttemptRepository, PersistenceError, fromDatabase, toDatabase, type AttemptRepository, type StoredAttempt } from './repositories'
 import type { AppSupabase } from '../../lib/supabase'
 import { resolveAttemptConflict, sameAttempt } from './sync'
 import { createCloudAttemptStore, SYNC_WARNING } from './cloud-attempt-store'
-if (!demoQuiz.ok) throw new Error('Invalid demo')
-const quiz = demoQuiz.quiz
+const quiz = createQuizCatalog(fixtureQuizSources).getCurrentQuiz('demo')!
 const t1 = '2026-09-25T01:00:00.000Z', t2 = '2026-09-25T02:00:00.000Z'
 const draft = reduceAttempt(quiz, createAttempt(quiz, t1), { type: 'answer', questionId: 'q1', answer: { type: 'single', optionId: 'b' }, now: t1 })
 const newer = { ...draft, updatedAt: t2 }

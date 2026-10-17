@@ -1,5 +1,28 @@
 # Release checklist
 
+## v1.15.0 remove three quiz banks release preparation
+
+日期：2026-10-17（Asia/Taipei）。本 section 是 release preparation snapshot：**candidate commit、candidate CI、六個 Edge function 的部署、runtime health、exact-SHA Pages 部署、production 驗收、documentation closure、closure CI、closure-SHA parity 與 annotated tag 都還沒有發生**，不預先宣稱完成。Immutable base v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`，保持不變。
+
+- [x] Pre-preparation HEAD／master／origin/master／live remote master = `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`；release prep 開始時 working tree 只有本次的變更；v1.14.1 tag object 與 peeled commit 未變；local／remote v1.15.0 tag absent。
+- [x] 需求範圍：human 要求移除「數位邏輯與基礎數學」（demo）、「布林代數基礎」（boolean-algebra）、「離散數學：關係」（relations），其餘題庫不變；交由 reviewer 審查並以 Playwright 測試；之後下達 release。
+- [x] 實作：三個題庫的 Markdown 移到 `src/test-fixtures/quizzes/`；`quiz-context.generated.ts` 重新產生（103 → 74）；Home 精選題庫改為 `discrete-math-ch1-counting-examples`；`index.html` meta description；移除 `demoQuiz` 匯出；測試以 fixture helper 選擇加入。
+- [x] Local gates：111 files／1,683 PASS；lint、check:quizzes（5 revisions／4 current／74 questions）、check:ai-context（5 quizzes／74 questions）、check:edge-imports、build、production audit（0 vulnerabilities）、diff-check、tsc PASS。
+- [x] Browser evidence（scratch build 由 Playwright 從磁碟提供，沒有登入）：Home、Library（4 張卡片；搜尋被移除的名稱沒有結果）、`#/quiz/demo`、練習紀錄／結果頁／學習分析／錯題複習的降級顯示；1440／768／360；console／page errors 0。
+- [x] Sub-agent review：cycle 1 REWORK、cycle 2 PASS、cycle 3 PASS。
+- [x] Classifier：security-ai／Risk C／providerCanaryRequired=false。需要六個 Edge function 的重新部署（generated context 改變）；不需要 provider canary；不需要 migration。
+- [x] Release tools（commit 前，含全部變更的 working tree）：`release:check --base v1.14.1` 10／10 PASS（111 files／1,683 tests）；`release:preflight`（沒有 `--sha` 與 `--require-clean`，含 `--require-tag-absent`）PASS。Commit 後以嚴格形式重跑，結果記於 post-commit report。
+- [ ] Release-prep review。
+- [ ] Candidate commit、push、exact candidate CI。
+- [ ] Edge：ai-tutor、ai-grade、ai-drawing、ai-responses、save-quiz-draft、submit-quiz 依序部署並核對來源；runtime health。
+- [ ] Exact candidate Pages 部署與 production public acceptance。
+- [ ] Documentation closure commit、closure CI、closure-SHA Pages parity、annotated v1.15.0 tag。
+- GitHub Release：**not used / not planned**。
+
+已知未改的項目：`scripts/release-browser-e2e.mjs`、`scripts/release-real-turnstile-e2e.mjs`、`scripts/release-final-gate.mjs` 與下方較舊的 checklist 段落仍以 `/quiz/demo` 為目標；`release-browser-e2e.mjs` 與 `release-real-turnstile-e2e.mjs` 是需要後端與專用註冊帳號的選用 script（`release-browser-e2e` 使用已連結的開發後端），它們的 `/quiz/demo` 步驟會失敗，使用前必須改用保留的題庫；`release-final-gate.mjs` 是只允許 127.0.0.1／localhost 的唯讀 smoke，不使用憑證或帳號，它的 `/quiz/demo` 步驟只檢查未登入會轉到登入頁，仍會通過（`RequireAuth` 包住題庫路由），只是不再對應一份存在的題庫。三者都不在 `release:check` 或 CI 中，本版沒有改它們。
+
+Candidate scope、設計與已知限制：[v1.15.0 delivery](v1.15.0-delivery.md)。以下歷史 checklist 保留原樣。
+
 ## v1.14.1 drawing toolbar icons production acceptance closure
 
 日期：2026-10-16（Asia/Taipei）。已接受的 production runtime candidate 為 `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。Immutable base v1.14.0：tag object `7428088176665828c11c68e952c46fe52315142f`／peeled `b2f770402f0b06ee632896ecaf539cb59d867302`，保持不變。

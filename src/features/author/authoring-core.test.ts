@@ -1,9 +1,9 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import demoSource from '../../content/quizzes/demo/v1.quiz.md?raw'
-import demoV2Source from '../../content/quizzes/demo/v2.quiz.md?raw'
-import booleanSource from '../../content/quizzes/boolean-algebra/v1.quiz.md?raw'
-import relationsSource from '../../content/quizzes/relations/v1.quiz.md?raw'
+import demoSource from '../../test-fixtures/quizzes/demo/v1.quiz.md?raw'
+import demoV2Source from '../../test-fixtures/quizzes/demo/v2.quiz.md?raw'
+import booleanSource from '../../test-fixtures/quizzes/boolean-algebra/v1.quiz.md?raw'
+import relationsSource from '../../test-fixtures/quizzes/relations/v1.quiz.md?raw'
 import { parseQuiz } from '../../lib/quiz-parser'
 import { validateV3Publication, validateV4Publication } from '../../lib/scored-rubric'
 import {

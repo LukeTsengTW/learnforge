@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { decodeQuizDraftV4, upgradeLegacyQuizDraftV4 } from './draft-v4'
 import { createAttempt } from './attempt'
 import { decodeAttempt } from './attempt-storage'
@@ -6,6 +6,7 @@ import { gradeQuiz } from './grading'
 import type { QuizAttempt } from '../models/attempt'
 import type { Quiz } from '../models/quiz'
 import { quizCatalog } from '../features/quiz/quiz-loader'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 // The text-only historical revision; `future` below is a synthetic capable copy of it.
 const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!

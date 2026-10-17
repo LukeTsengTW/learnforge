@@ -1,16 +1,30 @@
 import { describe, expect, it } from 'vitest'
-import demoV1Source from '../../content/quizzes/demo/v1.quiz.md?raw'
-import demoSource from '../../content/quizzes/demo/v2.quiz.md?raw'
-import booleanSource from '../../content/quizzes/boolean-algebra/v1.quiz.md?raw'
+import demoV1Source from '../../test-fixtures/quizzes/demo/v1.quiz.md?raw'
+import demoSource from '../../test-fixtures/quizzes/demo/v2.quiz.md?raw'
+import booleanSource from '../../test-fixtures/quizzes/boolean-algebra/v1.quiz.md?raw'
 import { parseQuiz } from '../../lib/quiz-parser'
 import { bundledQuizSources, createQuizCatalog, quizCatalog } from './quiz-loader'
+import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-helper'
 
-// Includes archived revisions as well as every current bundled quiz.
-const sources = { ...bundledQuizSources }
+// Unpublished fixtures (demo, boolean-algebra, relations) stay parser and catalog fixtures next to the shipped quizzes.
+// Includes archived revisions as well as every current quiz.
+const sources = { ...bundledQuizSources, ...fixtureQuizSources }
+const fixtureCatalog = createQuizCatalog(sources)
 describe('bundled quiz catalog', () => {
+  it('publishes exactly the four remaining quizzes and none of the removed ones', () => {
+    expect(quizCatalog.errors).toEqual([])
+    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['discrete-math',
+      'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-exercises-2026'])
+    expect(Object.keys(bundledQuizSources)).toHaveLength(5)
+    for (const id of ['demo', 'boolean-algebra', 'relations']) {
+      expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
+      expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()
+    }
+    expect(Object.keys(bundledQuizSources).filter((file) => /\/(demo|boolean-algebra|relations)\//.test(file))).toEqual([])
+  })
   it('parses every current quiz in zh-Hant title order without catalog errors', () => {
     expect(quizCatalog.errors).toEqual([])
-    const currentIds = Object.values(sources).map((source) => parseQuiz(source, true))
+    const currentIds = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
       .filter((quiz) => quiz.current).map((quiz) => quiz.id)
     expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(currentIds.sort())
     const titles = quizCatalog.current.map(({ quiz }) => quiz.title)
@@ -23,7 +37,7 @@ describe('bundled quiz catalog', () => {
     }
   })
   it.each(['boolean-algebra', 'demo', 'relations'])('preserves the four objective types in %s', (id) => {
-    expect(quizCatalog.getCurrentQuiz(id)!.questions.map((question) => question.type))
+    expect(fixtureCatalog.getCurrentQuiz(id)!.questions.map((question) => question.type))
       .toEqual(expect.arrayContaining(['single', 'multiple', 'true-false', 'fill']))
   })
   it('loads the approved midterm with declared total distinct from deterministic capacity', () => {
@@ -42,8 +56,8 @@ describe('bundled quiz catalog', () => {
     }
     expect(q3).toMatchObject({ type: 'calculation', referenceAnswer: expect.stringContaining('=165') })
   })
-  it('preserves the published demo revision', () => {
-    expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')?.questions).toHaveLength(7)
+  it('preserves the v1 revision of the retired demo fixture', () => {
+    expect(fixtureCatalog.getQuizRevision('demo', 'v1-7d7c900e')?.questions).toHaveLength(7)
   })
   it('archives discrete math revision 1 and preserves every question field in revision 2', () => {
     const v1 = quizCatalog.getQuizRevision('discrete-math', '1')!
@@ -62,9 +76,9 @@ describe('bundled quiz catalog', () => {
         : v1.questions[index])
     }
   })
-  it('publishes demo v2-handwriting as v1 content with handwriting added only to q6', () => {
-    const v1 = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
-    const v2 = quizCatalog.getCurrentQuiz('demo')!
+  it('keeps the v2-handwriting of the retired demo fixture as v1 content with handwriting added only to q6', () => {
+    const v1 = fixtureCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
+    const v2 = fixtureCatalog.getCurrentQuiz('demo')!
     expect(v2.revision).toBe('v2-handwriting')
     expect(v1.current).toBe(false)
     expect(v2.questions.map((question) => question.id)).toEqual(v1.questions.map((question) => question.id))
@@ -86,7 +100,7 @@ describe('bundled quiz catalog', () => {
     expect(nextQuestion.drawing).toEqual({ width: 1000, height: 700 })
     expect(catalog.getCurrentQuiz('demo')?.revision).toBe('synthetic-m1')
     expect(catalog.getQuizRevision('demo', 'missing-historical-revision')).toBeNull()
-    expect(quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!.questions.find((question) => question.type === 'calculation'))
+    expect(fixtureCatalog.getQuizRevision('demo', 'v1-7d7c900e')!.questions.find((question) => question.type === 'calculation'))
       .not.toHaveProperty('drawing')
   })
 
@@ -98,7 +112,7 @@ describe('bundled quiz catalog', () => {
   it('resolves an archived revision without duplicating the library card', () => {
     const archived = demoSource.replace('revision="v2-handwriting"', 'revision="archive"').replace('current="true"', 'current="false"')
     const catalog = createQuizCatalog({ ...sources, archived })
-    expect(catalog.current).toHaveLength(quizCatalog.current.length)
+    expect(catalog.current).toHaveLength(fixtureCatalog.current.length)
     expect(catalog.getQuizRevision('demo', 'archive')?.revision).toBe('archive')
     expect(catalog.getQuizRevision('demo', 'v1-7d7c900e')?.current).toBe(false)
     expect(catalog.getCurrentQuiz('demo')?.revision).toBe('v2-handwriting')
@@ -121,7 +135,7 @@ describe('bundled quiz catalog', () => {
   })
   it('keeps valid quizzes available when one file fails parsing', () => {
     const catalog = createQuizCatalog({ ...sources, broken: '@quiz bad' })
-    expect(catalog.current).toHaveLength(quizCatalog.current.length)
+    expect(catalog.current).toHaveLength(fixtureCatalog.current.length)
     expect(catalog.errors[0].file).toBe('broken')
   })
   it('retains fingerprint revisions for legacy Quiz Markdown', () => {

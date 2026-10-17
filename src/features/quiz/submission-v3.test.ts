@@ -4,6 +4,8 @@ import { quizCatalog } from './quiz-loader'
 import { tutorContext, type TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { AiProviderError } from '../../../supabase/functions/_shared/ai-provider'
 import { parseSubmissionInput, type FillVerdict } from '../../../supabase/functions/_shared/semantic-fill'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 import { validateSubmissionRubricOutput, type SubmissionRubricJudgment,
   type SubmissionRubricOutput, type SubmissionRubricQuestionType } from '../../../supabase/functions/_shared/submission-rubric'
 import { AI_GRADING_UNAVAILABLE, createSubmitQuizHandler, type AttemptSnapshot, type PersistedFillJudgment,

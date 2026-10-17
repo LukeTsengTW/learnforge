@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event'
 import { Application } from '../../App'
 import type { Account, AuthService } from './auth-service'
 import { createMemoryPracticeRepository } from '../quiz/practice-memory.test-helper'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
 function mockService() {
   let account: Account | null = null
   const listeners = new Set<() => void>()

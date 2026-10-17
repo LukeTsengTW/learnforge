@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { quizCatalog } from './quiz-loader'
 import { tutorContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { AiProviderError } from '../../../supabase/functions/_shared/ai-provider'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 import { createFillJudgeRequest, FILL_JUDGE_UNAVAILABLE, parseFillProviderResponse,
   parseSubmissionInput, type FillVerdict } from '../../../supabase/functions/_shared/semantic-fill'
 import { createSubmitQuizHandler, type PersistedFillJudgment, type PersistedRubricJudgment,

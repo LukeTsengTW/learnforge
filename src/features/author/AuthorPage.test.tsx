@@ -3,10 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import rawDemoSource from '../../content/quizzes/demo/v1.quiz.md?raw'
+import rawDemoSource from '../../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import { bundledQuizSources } from '../quiz/quiz-loader'
 import { AuthorPage } from './AuthorPage'
 import { AUTHOR_DRAFT_KEY, NEW_QUIZ_TEMPLATE } from './authoring-core'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
 
 const demoSource = rawDemoSource.replaceAll('\r\n', '\n')
 const demoFile = Object.keys(bundledQuizSources).find((file) => file.endsWith('/demo/v1.quiz.md'))!

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render } from '@testing-library/react'
 import { Markdown } from '../../components/Markdown'
 import { parseQuiz } from '../../lib/quiz-parser'
@@ -10,6 +10,8 @@ import { inspectQuiz, publicationErrors } from '../author/authoring-core'
 import { toTutorContext } from '../../../scripts/ai-quiz-context'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import { bundledQuizSources, quizCatalog } from './quiz-loader'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const id = 'discrete-math-ch1-counting-examples'
 const title = '離散數學第一章：計數的基本原理－例題練習'
@@ -95,6 +97,8 @@ describe('PDF-backed Chapter 1 counting practice', () => {
 
   it('adds only 26 contexts/questions and preserves the immutable 51-question baseline', () => {
     // Families bundled after this one are pinned by their own tests; they stay out of the 51-question baseline.
+    // The inventory deliberately includes the retired demo, boolean-algebra and relations fixtures (see the quiz-loader mock above),
+    // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
     const later = new Set(['discrete-math-exercises-2026', 'discrete-math-ch3-set-theory-examples'])
     const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
     const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))

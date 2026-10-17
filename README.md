@@ -1,8 +1,10 @@
 # LearnForge
 
+**Release preparation：v1.15.0 — 移除三份題庫。** 依 human 的要求移除「數位邏輯與基礎數學」（`demo`）、「布林代數基礎」（`boolean-algebra`）與「離散數學：關係」（`relations`）三份題庫，其餘題庫保持不變：發布的題庫剩 4 份 current，全庫 5 revisions／74 questions／74 canonical contexts。generated canonical context 由 103 個降為 74 個（這是 Risk C，六個 Edge function 需要重新部署，順序為 candidate CI → Edge → exact-SHA Pages）；三份題庫的 Markdown 移到 `src/test-fixtures/quizzes/` 作為測試資料，不在 production 的 bundle。Home 精選題庫改為「離散數學第一章：計數的基本原理－例題練習」。這三份題庫過去的作答在練習紀錄顯示「題目版本無法載入」，看不到答案與解析；已發布的題庫只剩單選與計算題。基準是 immutable v1.14.1：tag object `566497ff0dc85167d0b4742da875eeeefb730a04`／peeled `6e98fc7c81d2f9171731f5d35b1bdc7f3b86a753`。Local gates 111 files／1,683 tests PASS；review 三輪（cycle 1 REWORK，cycle 2、3 PASS）；scratch build 的 browser 檢查沒有登入。本段是準備階段的 snapshot：**candidate commit、CI、Edge 部署、Pages 部署與 production 驗收尚未發生**，之後的結果不預先記錄在此，也不宣稱 v1.15.0 已 accepted 或 closed。[v1.15.0 delivery](docs/v1.15.0-delivery.md)。
+
 **Production accepted：v1.14.1 — 畫布工具列圖示。** Accepted runtime candidate `0abb09a962f0e62a7a4ed0b670c7bceb0612fb20` 已部署到 production：exact candidate CI 38926266625、Pages 38926525130／deployment 7123281622 與 production release identity（version 1.14.1／runtime candidate SHA）全 PASS。手寫畫布工具列的六個按鈕改以 SVG 圖示顯示：畫筆、橡皮擦、復原、重做、放大書寫／結束放大（放大時圖示切換為縮小）與移動畫面。按鈕上沒有文字；滑鼠停留時顯示名稱（`title`，結束放大為「結束放大（Esc）」），螢幕閱讀器讀到的名稱（`aria-label`）與原本的文字相同；畫筆、橡皮擦與移動畫面的按下狀態、復原與重做的停用狀態與鍵盤操作不變；放大的切換按鈕以名稱表示動作，不再標示按下狀態，放大時加上 `aria-keyshortcuts="Escape"`。放大時的狀態行改為「已放大書寫。按 Esc 或工具列的縮小按鈕返回。」，因為「結束放大」不再是看得到的文字。按鈕為 44 × 44 px，圖示 20 × 20 px，以按鈕的文字顏色繪製，淺色與深色主題都沿用既有的顏色 token。顏色色塊、1×／1.5×／2×、「輸入方式」選單與畫布下方的「清除畫布」、「匯出 PNG」維持原樣（human 決定）。只改 frontend 的呈現，不需要 Edge 部署、migration 或 provider canary。Local gates 111 files／1,681 tests PASS。Public acceptance：canonical public smoke、bundle 內容、74 個路徑 HTTP 200、瀏覽器 smoke，以及在部署上未登入的題庫編寫頁 Student Preview 確認圖示按鈕並操作放大書寫（1440 與 360）。登入後的練習頁沒有在部署上驗證（只改按鈕的呈現，release-prep review 核定）。這次驗收沒有存取 Supabase。Documentation closure 正在進行。**尚未完成**：documentation closure commit、exact closure CI、closure-SHA Pages deployment／parity 與 annotated v1.14.1 tag；GitHub Release：not used / not planned。本段不預先記錄之後任何 commit、CI、Pages deployment、parity 或 tag 的結果，也不宣稱 v1.14.1 已 closed。[v1.14.1 delivery](docs/v1.14.1-delivery.md)。
 
-以下為保留的歷史 release snapshots。其中 v1.9.0、v1.10.0、v1.10.1、v1.10.2、v1.11.0、v1.12.0、v1.13.0 與 v1.14.0 的 snapshot 都寫於各自的 final closure-SHA Pages parity 與 annotated tag 之前；這些步驟其後都已完成，八版都已 closed，原文保留不改。
+以下為保留的歷史 release snapshots。其中 v1.9.0、v1.10.0、v1.10.1、v1.10.2、v1.11.0、v1.12.0、v1.13.0、v1.14.0 與 v1.14.1 的 snapshot 都寫於各自的 final closure-SHA Pages parity 與 annotated tag 之前；這些步驟其後都已完成，九版都已 closed，原文保留不改。
 
 **Production accepted：v1.14.0 — 手寫畫布的放大書寫。** Accepted runtime candidate `b9e2d49150a8c02cd1ddd1e21bf30fadcbef6d10` 已部署到 production：exact candidate CI 38916766079、Pages 38917018937／deployment 7121715145 與 production release identity（version 1.14.0／runtime candidate SHA）全 PASS。手寫畫布的工具列多了「放大書寫」：畫布編輯區鋪滿整個視窗，1× 時整張畫布剛好放進視窗，可再切換 1.5×、2×，放大時以「移動畫面」或捲動移動畫面；按 Esc 或「結束放大」回到頁面，筆跡都保留。讓一題有多個小題時寫得下。畫布的邏輯大小與保存的格式不變（筆跡仍以邏輯座標保存），所以作答、評分與 AI 評分的影像都不受影響；只改 frontend，不需要 Edge 部署、migration 或 provider canary。Local gates 110 files／1,678 tests PASS；本機受控 fixture 的 browser 證據（1440／1180／820／360、座標、modal 與焦點）見 delivery。Public acceptance：canonical public smoke、bundle 內容、74 個路徑 HTTP 200、瀏覽器 smoke，以及在部署上未登入的題庫編寫頁 Student Preview 實際操作放大書寫（1440 與 360，2× 畫的筆跡與 Answer Preview 的 PNG 相同，頁面回到原來的捲動位置）。登入後的練習頁沒有在部署上驗證（程式路徑未變，release-prep review 核定）。這次驗收沒有存取 Supabase。Documentation closure 正在進行。**尚未完成**：documentation closure commit、exact closure CI、closure-SHA Pages deployment／parity 與 annotated v1.14.0 tag；GitHub Release：not used / not planned。本段不預先記錄之後任何 commit、CI、Pages deployment、parity 或 tag 的結果，也不宣稱 v1.14.0 已 closed。[v1.14.0 delivery](docs/v1.14.0-delivery.md)。
 
@@ -45,14 +47,14 @@ LearnForge 是學生自主練習平台，讓學生透過選擇、填空、推導
 ## 功能
 
 - 全域 Light／Dark 主題涵蓋頁面、卡片、控制項、結果狀態、code／KaTeX 與 Author。明確選擇保存於 learnforge:theme 並在 reload 保留；沒有有效偏好時依 prefers-color-scheme 初始化，不將系統預設寫成明確偏好。同步 head bootstrap 在 React 載入前套用主題。
-- Repository 有七份 current bundled 題庫；全庫九個 revisions／103 questions／103 canonical contexts：原「數位邏輯與基礎數學」7 題、「布林代數基礎」7 題、「離散數學：關係」8 題、「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算）、「離散數學第一章：計數的基本原理－例題練習」26 題計算題／150 分、v1.9.0 新增的「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」13 題計算題／150 分，以及 v1.10.0 新增的「離散數學第三章：集合論－例題練習」13 題計算題／150 分。期中考隨 v1.5.0 上線；v1.7.0 的六個 Edge bundles 已同步當時全部 77 canonical contexts，v1.9.0 新增的 13 個 contexts 已隨六個 Edge functions 的重新部署進入 production，共 90 canonical contexts；v1.10.0 新增的 13 個 contexts 也已隨六個 Edge functions 的重新部署進入 production，共 103 canonical contexts。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 仍為 boolean-algebra。歷史發布證據維持原狀。
+- Repository 有四份 current bundled 題庫；全庫五個 revisions／74 questions／74 canonical contexts：「2025 Discrete Mathematics 期中考」11 題（宣告總分 100 分，6 題單選、5 題計算；current 為 revision 2，封存的 revision 1 另有 11 題）、「離散數學第一章：計數的基本原理－例題練習」26 題計算題／150 分、「離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8」13 題計算題／150 分，以及「離散數學第三章：集合論－例題練習」13 題計算題／150 分。原有的「數位邏輯與基礎數學」、「布林代數基礎」與「離散數學：關係」三份題庫已在 v1.15.0 移除（發布的題庫只剩單選與計算題）；它們的 Markdown 保存在 `src/test-fixtures/quizzes/`，只作為測試資料，不在 bundle 或 generated context。期中考隨 v1.5.0 上線；v1.15.0 的 generated canonical context 由 103 個降為 74 個。Library／Home 卡片顯示宣告 totalPoints；deterministic maxPoints 語意維持，Home featured 為 discrete-math-ch1-counting-examples。歷史發布證據維持原狀。
 - `#/library` 支援標籤、科目、題型各一個單選篩選，預設為「所有標籤／所有科目／所有題型」。標籤與科目選項由 current catalog 動態產生並去重；題型沿用既有 `QUESTION_TYPE`／`QUESTION_LABEL` 的單選、多選、是非、填空、計算、畫圖六型。
 - Library 搜尋只比對題庫 `title`、`description`、`subject`、`tags`，輸入會 trim，Latin 文字不區分大小寫。Canonical answers、solutions、rubrics、hints 不參與搜尋。
 - 搜尋與所有有效篩選採 AND；題型條件只要題庫中任一題符合就成立。僅篩選 `quizCatalog.current`，保留原題庫順序，不加入 archived revisions。
 - 篩選／搜尋無結果時顯示空狀態與「清除篩選」；重設會清空搜尋、恢復三個預設值及完整 current catalog，並將 focus 回到搜尋。桌面與 360 × 800 手機排版、鍵盤巡覽及可見 focus 已做 UI smoke；這不是 WCAG 認證。
 - `#/author` 可編寫 raw Quiz Markdown、匯入本機檔案、複製 bundled revision、即時解析、正式題目／答案預覽、檢視 metadata 與題目導覽、建立新 revision、本機草稿、複製及下載 .quiz.md。編寫頁不建立正式作答，也不呼叫 AI 或寫入 Supabase。
-- 原範例共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖。
-- 目前 demo revision 為 `demo/v2-handwriting`，其計算題提供「打字／手寫」；封存的 `demo/v1-7d7c900e` 保留文字計算題及歷史結果。其他未宣告此能力的精確版本仍使用原有文字輸入。
+- 已退役的原範例（`demo`，共 7 題：2 單選、1 多選、1 是非、1 填空、1 計算、1 畫圖）與 `boolean-algebra`、`relations` 保存在 `src/test-fixtures/quizzes/`，作為測試資料；題型能力（多選、是非、填空、畫圖）由這些 fixture 在測試中涵蓋，已發布的題庫沒有這四種題型。
+- 已退役的 `demo/v2-handwriting`（fixture）曾是第一個提供計算題「打字／手寫」的 revision，封存的 `demo/v1-7d7c900e` 保留文字計算題；其他未宣告此能力的精確版本仍使用原有文字輸入。這三份題庫過去的作答仍在資料庫，練習紀錄只對 deterministic-v1 的紀錄顯示已保存的分數，其他 grading version 顯示「— / —」；結果頁無法顯示這些紀錄的分數、答案與解析。
 - schema2 計算答案保留文字與筆畫兩個 buffer；只有選取的模式是正式評分輸入，未選取的內容不參與評分。
 - 畫布只顯示答案已接受的筆跡，正式提交的手寫內容等於按下提交時畫布上已完成的筆跡。每題手寫的儲存預算是 32,000 個取樣點與 geometry（筆畫與橡皮擦的累計範圍）；筆數另有 16,000 的上限，只用來防濫用。整份草稿的答案合計不超過 4 MiB。超過任何一項時新的變更不會加入並顯示是哪一項，已接受的內容保留。提交進行中畫布不接受新筆畫。
 - 畫布下方的容量提示在任何一項限制達到 75%、或已經沒有一筆一般筆畫的餘裕時出現，並指出是哪一項。
@@ -144,7 +146,7 @@ src/
     attempt-storage.ts      # versioned localStorage boundary / validation
     drawing.ts              # coordinates、history、replay、PNG utilities
     supabase.ts             # typed client、公開環境設定、要求 timeout
-  content/quizzes/           # 每份 Quiz Markdown 的版本目錄；舊 demo id/revision 保留
+  content/quizzes/           # 每份 Quiz Markdown 的版本目錄；已退役的 demo、boolean-algebra、relations 在 src/test-fixtures/quizzes/，不在 bundle
   components/               # Markdown、Layout、Brand、error UI
   features/auth/            # Auth service / Provider、pure validation、route guard
   features/quiz/            # catalog、domain ↔ DB mapping、repositories、sync store、quiz UI
@@ -477,7 +479,7 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 
 ## 完整 example quiz
 
-直接閱讀 [目前 demo/v2-handwriting](src/content/quizzes/demo/v2.quiz.md)、[封存 demo/v1-7d7c900e](src/content/quizzes/demo/v1.quiz.md)、[布林代數](src/content/quizzes/boolean-algebra/v1.quiz.md)、[離散數學：關係](src/content/quizzes/relations/v1.quiz.md)、[2025 離散數學期中考](src/content/quizzes/discrete-math/v1.quiz.md)、[離散數學第一章例題](src/content/quizzes/discrete-math-ch1-counting-examples/v1.quiz.md)、[離散數學習題 2026](src/content/quizzes/discrete-math-exercises-2026/v1.quiz.md) 與[離散數學第三章例題](src/content/quizzes/discrete-math-ch3-set-theory-examples/v1.quiz.md)。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
+直接閱讀 [2025 離散數學期中考](src/content/quizzes/discrete-math/v1.quiz.md)、[離散數學第一章例題](src/content/quizzes/discrete-math-ch1-counting-examples/v1.quiz.md)、[離散數學習題 2026](src/content/quizzes/discrete-math-exercises-2026/v1.quiz.md) 與[離散數學第三章例題](src/content/quizzes/discrete-math-ch3-set-theory-examples/v1.quiz.md)；已退役的 [demo/v2-handwriting](src/test-fixtures/quizzes/demo/v2.quiz.md)、[demo/v1-7d7c900e](src/test-fixtures/quizzes/demo/v1.quiz.md)、[布林代數](src/test-fixtures/quizzes/boolean-algebra/v1.quiz.md) 與[離散數學：關係](src/test-fixtures/quizzes/relations/v1.quiz.md)是測試 fixture，涵蓋多選、是非、填空與畫圖題型。`quiz-loader.ts` 使用 typed `import.meta.glob` 匯入所有 `src/content/quizzes/**/*.quiz.md`，建立版本感知的 catalog；解析失敗附檔名／行號，其他有效題庫仍可使用。重複 id+revision 或多個 current 等識別歧義會在測試與載入時明確報錯。題目不放進 Supabase。
 
 ## Grading 規則
 
@@ -493,7 +495,7 @@ UI 會顯示「題目格式錯誤，無法載入。」；開發模式顯示簡�
 
 ## Canvas 設計
 
-每題定義固定 logical resolution（demo 為 800 × 600），直接設定 Canvas `width`／`height`。CSS 只調整顯示寬度且保持長寬比；繪圖前用 `(clientX - rect.left) * logicalWidth / rect.width` 換算座標，Y 軸同理並 clamp 範圍，再取整到 0.1 logical units（先 clamp 再取整，取整後的點不會離開畫布），邊框位於外層元素，不干擾座標。
+每題定義固定 logical resolution（例如 800 × 600），直接設定 Canvas `width`／`height`。CSS 只調整顯示寬度且保持長寬比；繪圖前用 `(clientX - rect.left) * logicalWidth / rect.width` 換算座標，Y 軸同理並 clamp 範圍，再取整到 0.1 logical units（先 clamp 再取整，取整後的點不會離開畫布），邊框位於外層元素，不干擾座標。
 
 Pointer Events + pointer capture 支援滑鼠、手指與觸控筆；`touch-action: none` 僅限畫布。每筆存 `tool/color/width/points`；筆寬也是 logical units。密集的 pointer 取樣在加入筆畫時精簡（`src/lib/stroke-sampling.ts`）：一段取樣若都在「上一個保留點到最新取樣」的線段 0.5 logical units 之內、且線段不超過 24 units，就只留兩端；保存的點是收到的取樣（取整後）的子集合，筆畫的最後一點永遠是最新的取樣，所以畫出來的就是會被保存的。筆畫進行中，已完成的筆畫來自一張整頁共用的離屏點陣圖，每次移動只貼上它再畫進行中的這一筆（`paintInProgress`）；離屏圖無法使用時退回完整重畫。靜止時的畫布永遠是依答案完整重畫的結果，被接受的一筆完整重畫一次。重繪與螢幕尺寸無關，橡皮擦使用 `destination-out`。復原／重做操作 stroke history，新筆畫清除 redo；清除需確認，清除後不可復原。只持久化已完成的 strokes，進行中的 pointer 與 undo/redo 不存入 localStorage。
 
@@ -513,7 +515,7 @@ Domain `PracticeAttempt` 同時包含歷史 schemaVersion 1 的 `QuizAttempt` �
 
 ## GitHub Pages notes
 
-HashRouter 的 route 位於 `#` 後方，重新整理 `.../learnforge/#/quiz/demo` 不需伺服器處理巢狀路徑。Vite 預設 `base: '/'` 適合 root Pages site。
+HashRouter 的 route 位於 `#` 後方，重新整理 `.../learnforge/#/quiz/discrete-math` 不需伺服器處理巢狀路徑。Vite 預設 `base: '/'` 適合 root Pages site。
 
 若是 project Pages site，例如 repository 名稱 `learnforge`，手動 build：
 
@@ -529,7 +531,7 @@ Production Pages URL：[https://luketsengtw.github.io/learnforge/](https://luket
 
 ## Known limitations
 
-- 題庫仍是 Git 內七個題庫、九個 bundled revisions；宣告 calculation handwriting 而選用 schema2/v4 的精確版本為 `demo/v2-handwriting`、`discrete-math/2`、`discrete-math-ch1-counting-examples/1`、`discrete-math-exercises-2026/1` 與 `discrete-math-ch3-set-theory-examples/1`。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史只能顯示基本紀錄與分數快取。
+- 題庫是 Git 內四個題庫、五個 bundled revisions；宣告 calculation handwriting 而選用 schema2/v4 的精確版本為 `discrete-math/2`、`discrete-math-ch1-counting-examples/1`、`discrete-math-exercises-2026/1` 與 `discrete-math-ch3-set-theory-examples/1`。v0.8 編寫工具只提供本機編輯、預覽與匯出，沒有 CMS、多人協作或動態發布；移除舊 revision 檔會讓相應歷史無法重建題目：練習紀錄只對 deterministic-v1 的紀錄顯示已保存的分數，其他 grading version 顯示「— / —」，結果頁看不到分數、答案與解析（v1.15.0 移除的三份題庫就是這樣）。
 - 錯題頁依序分頁載入提交並用 persisted grading evidence 重建結果；目前只列已載入頁的錯題，需按「載入更多」檢視較早紀錄。recovery 備份只在產生衝突的裝置上。
 - 未同步的作答可能因清除瀏覽器資料而遺失；大量筆畫可能超過 localStorage 容量。斷電時尚未完成的一筆不會保存，undo/redo 不跨重新整理。
 - 手寫作答每題最多 32,000 個取樣點（另有 geometry 預算與 16,000 筆的防濫用上限），整份草稿的答案合計最多 4 MiB。達到任何一項後無法再加入新的內容，需先復原或清除部分筆畫；題數多而每題都寫得多時，先碰到的會是整份草稿的大小。整份草稿已滿時，打字題與選擇題的原因只顯示在頁面上方的訊息區。資料庫與 Edge function 的上限放寬後不能再調低。這些數字是依合成筆畫與桌面瀏覽器的量測所做的判斷，沒有 iPad 或 Apple Pencil 的實機資料；筆畫很多時，放開一筆後的重畫與每次同步的處理時間都會變長。每次同步仍上傳整份草稿。整份草稿 4 MiB 的上限這一版沒有放大，之後另開 capacity／sync 架構的工作（逐題或增量同步、避免每次同步整份草稿、payload 與儲存效率、是否調整整份草稿的上限）。

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
+import demoSource from '../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import type { AnswerMap, TrustedRubricJudgment } from '../models/attempt'
 import type { Quiz, CalculationQuestion, DrawingQuestion } from '../models/quiz'
 import { gradeQuiz, gradeQuizV3, gradeQuizWithFillJudgments } from './grading'

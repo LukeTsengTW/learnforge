@@ -8,6 +8,7 @@ import type { PracticeRecord } from '../features/quiz/practice-repository'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { GRADING_VERSION } from '../models/grading-version'
 import { HistoryPage } from './HistoryPage'
+vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
 
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 

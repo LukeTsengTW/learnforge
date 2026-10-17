@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import demoSource from '../../content/quizzes/demo/v1.quiz.md?raw'
+import demoSource from '../../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import { toTutorContext } from '../../../scripts/ai-quiz-context'
 import { parseQuiz } from '../../lib/quiz-parser'
 

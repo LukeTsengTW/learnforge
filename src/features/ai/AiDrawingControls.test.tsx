@@ -6,6 +6,7 @@ import type { AiDrawingState, AiTutorState } from './use-ai-tutor'
 import { quizCatalog } from '../quiz/quiz-loader'
 import { gradeQuiz } from '../../lib/grading'
 import type { DrawingQuestion } from '../../models/quiz'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
 
 afterEach(cleanup)
 const quiz = quizCatalog.getCurrentQuiz('demo')!

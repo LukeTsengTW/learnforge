@@ -11,6 +11,7 @@ import { CalculationAnswerEditor } from './CalculationAnswerEditor'
 import { DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
 import { QuestionInput } from './QuestionInput'
 import { quizCatalog } from './quiz-loader'
+vi.mock('./quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('./quiz-loader')>()))
 
 const config = { width: 800, height: 600 }
 const textOnly: CalculationQuestion = {

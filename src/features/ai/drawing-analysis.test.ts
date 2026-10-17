@@ -1,10 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { DRAWING_INSTRUCTIONS, DRAWING_REFUSAL, DRAWING_SCHEMA, createDrawingOpenAIRequest,
   isScoredDrawingContext, parseDrawingProviderResponse, parseDrawingRequest,
   parseStoredDrawingResponse, validateDrawingResult } from '../../../supabase/functions/_shared/drawing-analysis'
 import { encodeDrawingPng, rasterDrawingPixels } from '../../../supabase/functions/_shared/drawing-raster'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const drawing = (AI_QUIZ_CONTEXT as unknown as TutorQuestionContext[])
   .find((question) => question.type === 'drawing' && question.questionId === 'q7')!

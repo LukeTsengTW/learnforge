@@ -24,7 +24,7 @@ export function HomePage() {
   const { account } = useAuth()
   const drafts = useDrafts()
   const firstDraft = drafts.find((draft) => quizCatalog.getQuizRevision(draft.quizId, draft.revision))
-  const featured = quizCatalog.current.find(({ quiz }) => quiz.id === 'boolean-algebra')
+  const featured = quizCatalog.current.find(({ quiz }) => quiz.id === 'discrete-math-ch1-counting-examples')
   return <div className="home-page">
     <section className="home-intro"><div>
       <div className="section-kicker"><span className="small-rule" /> 自主學習，從練習開始</div>

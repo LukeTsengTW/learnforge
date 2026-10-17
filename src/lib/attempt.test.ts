@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import demoSource from '../content/quizzes/demo/v1.quiz.md?raw'
+import demoSource from '../test-fixtures/quizzes/demo/v1.quiz.md?raw'
 import { parseQuiz } from './quiz-parser'
 import { createAttempt, reduceAttempt } from './attempt'
 import { attemptKey, decodeAttempt, loadAttempt, saveAttempt } from './attempt-storage'

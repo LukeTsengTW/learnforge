@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { toTutorContext } from '../../../scripts/ai-quiz-context'
 import { quizCatalog } from '../quiz/quiz-loader'
 import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-context.generated'
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
+vi.mock('../quiz/quiz-loader', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../quiz/quiz-loader')>()))
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 import { GRADING_ANSWER_MAX_BYTES, GRADING_SCHEMA, createGradingOpenAIRequest, isScoredCalculationContext,
   normalizeGradingAnswer, parseGradingProviderResponse, parseGradingRequest,
   parseStoredGradingResponse, validateGradingResult } from '../../../supabase/functions/_shared/calculation-grading'

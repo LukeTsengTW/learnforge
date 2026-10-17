@@ -3,6 +3,7 @@ import { AI_QUIZ_CONTEXT } from '../../../supabase/functions/_shared/quiz-contex
 import type { TutorQuestionContext } from '../../../supabase/functions/_shared/ai-tutor'
 import { validateGradingResult } from '../../../supabase/functions/_shared/calculation-grading'
 import { createGradingHandler, type GradingBackend } from '../../../supabase/functions/ai-grade/handler'
+vi.mock('../../../supabase/functions/_shared/quiz-context.generated', async (importOriginal) => (await import('../../test-fixtures/fixture-quizzes.test-helper')).withFixtureContexts(await importOriginal<typeof import('../../../supabase/functions/_shared/quiz-context.generated')>()))
 
 const contexts = AI_QUIZ_CONTEXT as unknown as TutorQuestionContext[]
 const calculation = contexts.find((item) => item.type === 'calculation')!
