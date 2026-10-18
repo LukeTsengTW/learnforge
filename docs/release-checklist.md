@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.17.0 Chapter 7 relations second examples — release preparation
+## v1.17.0 Chapter 7 relations second examples — production acceptance
 
-日期：2026-10-18（Asia/Taipei）。Immutable base：annotated v1.16.1 tag object `04aee9e2ac97b43dbca4e4fd7f4f35d424c4bb11`／peeled commit `e2dd2175bd9a694c93e170b7b53b57f138aaec2a`。Preparation branch starts at `542847bdaf0783c66ea14fe9d15009b50b8a9250`. Current production remains v1.16.1. Classifier: `security-ai`／Risk C／`providerCanaryRequired=false`; generated canonical contexts changed, so the six dependent Edge functions must be deployed before Pages. This checklist records completed local work only; future CI, deployment and acceptance are not pre-marked.
+日期：2026-10-18（Asia/Taipei）。Runtime candidate `8b370833177b2f22c92582cd4860df12bafe9cd5` 已通過 production acceptance 與 Stage 4 review。Immutable base：annotated v1.16.1 tag object `04aee9e2ac97b43dbca4e4fd7f4f35d424c4bb11`／peeled commit `e2dd2175bd9a694c93e170b7b53b57f138aaec2a`。Classifier：`security-ai`／Risk C／`providerCanaryRequired=false`; generated canonical contexts changed, so the six dependent Edge functions were deployed before Pages. This section records the production-acceptance snapshot; documentation-closure validation is a separate stage.
 
 - [x] Source review: 21 questions／150 points／120 minutes; source identity and independent Stage 0 review are recorded in [v1.17.0 delivery](v1.17.0-delivery.md).
 - [x] Quiz integration and regression coverage: 21 new canonical contexts; previous 112-context fingerprint preserved; total bundle inventory is 8 revisions／6 current quizzes／133 questions／133 contexts.
@@ -12,12 +12,12 @@
 - [x] Conservative classifier: Risk C, no provider canary indicated. `.env.local` is an existing ignored local Vite input and is included by the classifier without reading or staging its values.
 - [x] Stage 2 independent release-preparation review: PASS; final documentation corrections were independently re-reviewed with no blockers or nits.
 - [x] Candidate commit created locally after Stage 2 PASS.
-- [ ] Normal push, exact candidate CI and fresh Stage 3 pre-deploy review.
-- [ ] Deploy six context-dependent Edge functions and record revisions/results; Edge runtime health 6／6.
-- [ ] Dispatch Pages for the exact candidate SHA; canonical public smoke, cache-busted manifest and public browser acceptance.
-- [ ] Authenticated canary, only if the final release checklist requires it and authorized access is available.
-- [ ] Production review and explicit acceptance.
-- [ ] Documentation closure commit, exact closure-SHA CI, closure-SHA Pages parity and annotated v1.17.0 tag.
+- [x] Normal push; exact candidate CI [39099160596](https://github.com/LukeTsengTW/learnforge/actions/runs/39099160596), job `117591674582` 15／15; Stage 3 review PASS.
+- [x] Six context-dependent Edge deployments: `ai-tutor` 25, `ai-grade` 27, `ai-drawing` 27, `ai-responses` 29, `save-quiz-draft` 13, `submit-quiz` 15; health probes 6／6. Probe limits are recorded in [delivery](v1.17.0-delivery.md).
+- [x] Exact candidate Pages [39099697903](https://github.com/LukeTsengTW/learnforge/actions/runs/39099697903), build job `117593254269` 20／20 and deploy job `117593579289` 6／6; canonical public smoke and cache-busted manifest identity match. Deployment-object ID was unavailable.
+- [x] Production browser acceptance and clean guarded reruns; the initial Cloudflare Turnstile errors/warnings/POSTs remain disclosed separately in [delivery](v1.17.0-delivery.md).
+- [x] Authenticated canary not required by this release's final checklist decision; `providerCanaryRequired=false`. Authenticated practice, persistence, submit and AI remain unverified.
+- [x] Independent Stage 4 production review: PASS.
 - GitHub Release: **not requested / not planned**.
 
 ## v1.16.1 chapter 5 revision 2 production acceptance closure

@@ -2,10 +2,9 @@
 
 ## 1.17.0 — 第七章「關係－第二回」例題練習
 
-Release preparation：2026-10-18（Asia/Taipei）。Current production remains v1.16.1; the candidate commit is created locally. Normal push, exact CI, production deployment, acceptance and annotated tag are pending. The source adds revision 1 of `discrete-math-ch7-relations-second-examples`: 21 calculation questions, 150 points, 120 minutes, with typing and 1200×900 handwriting. Release classification: `security-ai`／Risk C／`providerCanaryRequired=false`; the generated canonical contexts changed, so the six dependent Edge functions must be deployed before exact-SHA Pages. No migration is included.
+Production acceptance：2026-10-18（Asia/Taipei）。Accepted runtime candidate `8b370833177b2f22c92582cd4860df12bafe9cd5`；exact candidate CI [39099160596](https://github.com/LukeTsengTW/learnforge/actions/runs/39099160596) succeeded. Six dependent Edge functions are ACTIVE at revisions 25／27／27／29／13／15; health probes passed 6／6. Exact-candidate Pages [39099697903](https://github.com/LukeTsengTW/learnforge/actions/runs/39099697903) succeeded; production release identity and cache-busted manifest both report v1.17.0 and the candidate SHA. Independent Stage 4 production review: PASS.
 
-- Source review and integration regression/browser evidence passed locally; see [v1.17.0 delivery](docs/v1.17.0-delivery.md).
-- Do not treat this preparation entry as production acceptance. It will be updated only with evidence from each completed release gate.
+The source adds revision 1 of `discrete-math-ch7-relations-second-examples`: 21 calculation questions, 150 points, 120 minutes, typing and 1200×900 handwriting. Production Library search/filter, Author student/answer previews, KaTeX rendering, drawing-mode switch and 1440／768／360／345 px layouts passed. The first Chromium attempt recorded 10 Cloudflare Turnstile-frame console errors, 6 warnings and two automatic challenge POSTs; a later guarded Edge rerun and supplemental Home/Library observer run recorded zero console/page/CSP events and only first-party GET traffic. No authenticated practice/persistence/submit/AI behavior was exercised; no migration, provider canary, database read, secret read or production log access occurred. The full evidence and limits are in [v1.17.0 delivery](docs/v1.17.0-delivery.md). GitHub Release: not requested / not planned.
 
 ## 1.16.1 — 第五章題庫 revision 2：刪除兩題並簡化計算題的要求
 
