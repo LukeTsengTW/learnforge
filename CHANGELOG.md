@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.18.0 — 第八章「包含及互斥原理」例題練習
+
+Release preparation for revision 1 of `discrete-math-ch8-inclusion-exclusion-examples`: 12 calculation questions, 90 points, 75 minutes, and typing or 1200×900 handwriting. The source-derived quiz, canonical tutor contexts, validation evidence, and pending release stages are recorded in [v1.18.0 delivery](docs/v1.18.0-delivery.md). This entry records candidate preparation; production acceptance is pending.
+
 ## 1.17.0 — 第七章「關係－第二回」例題練習
 
 Production acceptance：2026-10-18（Asia/Taipei）。Accepted runtime candidate `8b370833177b2f22c92582cd4860df12bafe9cd5`；exact candidate CI [39099160596](https://github.com/LukeTsengTW/learnforge/actions/runs/39099160596) succeeded. Six dependent Edge functions are ACTIVE at revisions 25／27／27／29／13／15; health probes passed 6／6. Exact-candidate Pages [39099697903](https://github.com/LukeTsengTW/learnforge/actions/runs/39099697903) succeeded; production release identity and cache-busted manifest both report v1.17.0 and the candidate SHA. Independent Stage 4 production review: PASS.

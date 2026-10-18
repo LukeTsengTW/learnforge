@@ -43,6 +43,7 @@ const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
 const setTheoryTitle = '離散數學第三章：集合論－例題練習'
 const relationsFunctionsTitle = '離散數學第五章：關係和函數－例題練習'
 const chapter7Title = '離散數學第七章：關係－第二回－例題練習'
+const chapter8Title = '離散數學第八章：包含及互斥原理－例題練習'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -186,24 +187,24 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual(inCatalogOrder(exercisesTitle, relationsFunctionsTitle))
   })
 
-  it('finds both stars-and-bars quizzes when the tag is searched', async () => {
+  it('finds all stars-and-bars quizzes when the tag is searched', async () => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), 'stars-and-bars')
-    expect(visibleTitles()).toEqual(inCatalogOrder(countingTitle, exercisesTitle))
+    expect(visibleTitles()).toEqual(inCatalogOrder(countingTitle, exercisesTitle, chapter8Title))
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
     ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle
-      && title !== relationsFunctionsTitle && title !== chapter7Title)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title)],
+      && title !== relationsFunctionsTitle && title !== chapter7Title && title !== chapter8Title)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
     ['標籤', 'combinatorics', [midtermTitle]],
-    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle)],
+    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle, chapter8Title)],
     ['標籤', 'sets', inCatalogOrder(exercisesTitle, setTheoryTitle)],
     ['標籤', 'de-morgan', [setTheoryTitle]],
     ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle, relationsFunctionsTitle, chapter7Title)],
-    ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
-    ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],
+    ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, chapter8Title)],
+    ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle, chapter8Title)],
     ['標籤', 'stirling-numbers', inCatalogOrder(exercisesTitle, relationsFunctionsTitle)],
   ])('filters the real bundle by %s=%s', async (label, value, expected) => {
     const user = renderLibrary(originalCatalog)

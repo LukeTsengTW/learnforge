@@ -1,5 +1,24 @@
 # Release checklist
 
+## v1.18.0 Chapter 8 inclusion-exclusion examples — release preparation
+
+日期：2026-10-18（Asia/Taipei）。Preparation base: v1.17.0 tag object `c6cc7b6747b9ad9005ec7f28bd42405504d31208`, peeled `e9176598618b4d7eca341cbca7808f0c7b3137e0`; source branch commit `24324447a1954036e96fecc7d83909c64d602f1e`. Current production remains v1.17.0. The v1.18.0 candidate SHA and all production evidence are pending.
+
+- [x] Source identity and independent Stage 0 review: revision 1 of `discrete-math-ch8-inclusion-exclusion-examples`, 12 calculation questions, 90 points, 75 minutes, 1200×900 handwriting, V4 draft eligible. Independent answer/rubric review PASS; the original PowerPoint was unavailable for image-level comparison.
+- [x] Integration: 9 bundled revisions／7 current quizzes／145 questions and 145 contexts. The 133 prior contexts retain SHA-256 `8b45ac7c7f2eb147a88d34ec15d51dc3a80439458772b29d33e1e42e50328e7d`; 12 new contexts are generated. Earlier chapter inventory and content hashes remain asserted.
+- [x] Local gates: 115 test files／1,818 passed; lint, `check:quizzes`, `check:ai-context`, Edge imports, production build, production dependency audit (0 vulnerabilities), and `git diff --check` passed. Five DrawingCanvas lint warnings and the existing large-chunk build advisory are recorded in [delivery](v1.18.0-delivery.md).
+- [x] Local browser acceptance: Home and Library show 7 quizzes; inclusion-exclusion search discovers Chapter 8; Student and Answer Preview render 12 questions; KaTeX errors 0; all 12 typing/handwriting switches work; 1440／768／360／345 px have no horizontal overflow. Browser console errors 0; one Vite React DevTools shim warning. A dummy loopback backend and all external HTTPS routes were blocked; no credentials, login, production host, or provider were used.
+- [x] Stage 1 independent integration review: final follow-up PASS with no blockers, should-fix items, or nits. The first-cycle naming nit was corrected and the full suite rerun.
+- [x] Final release classification: `security-ai`／Risk C／`providerCanaryRequired=false`; the six context-dependent Edge functions precede Pages. No migration or provider canary is indicated.
+- [x] Stage 2 independent release-preparation review: PASS with no blockers, should-fix items, or nits. The reviewer independently verified version alignment, baseline hashes, context additions and rollout classification; corrected the browser-evidence wording; confirmed no premature CI or production claims.
+- [ ] Master-only `release:check` and exact-SHA strict preflight. The attempt on `codex/v118-release` stopped at the expected branch guard; repeat after candidate fast-forward to master.
+- [ ] Candidate commit, fast-forward to master, normal push, exact candidate CI, and Stage 3 review.
+- [ ] If the final classifier confirms the generated-context dependency, deploy the six named Edge functions and run their authorized health probes; no migrations or provider calls are currently indicated.
+- [ ] Exact candidate Pages deployment, canonical public smoke, production acceptance, and Stage 4 review.
+- [ ] Documentation closure, closure CI, closure-SHA Pages parity, final independent review, annotated `v1.18.0` tag, and the user-requested GitHub Release.
+
+Production deployment, production acceptance, tag, and GitHub Release have not occurred. Full evidence and current limits are recorded in [v1.18.0 delivery](v1.18.0-delivery.md). The user prompt authorizes the release operations listed there; it does not authorize migration/DB writes, Auth or secret inspection, provider canary calls, or production-changing E2E scripts.
+
 ## v1.17.0 Chapter 7 relations second examples — production acceptance
 
 日期：2026-10-18（Asia/Taipei）。Runtime candidate `8b370833177b2f22c92582cd4860df12bafe9cd5` 已通過 production acceptance 與 Stage 4 review。Immutable base：annotated v1.16.1 tag object `04aee9e2ac97b43dbca4e4fd7f4f35d424c4bb11`／peeled commit `e2dd2175bd9a694c93e170b7b53b57f138aaec2a`。Classifier：`security-ai`／Risk C／`providerCanaryRequired=false`; generated canonical contexts changed, so the six dependent Edge functions were deployed before Pages. This section records the production-acceptance snapshot; documentation-closure validation is a separate stage.

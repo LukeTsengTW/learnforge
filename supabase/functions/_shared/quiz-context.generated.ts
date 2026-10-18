@@ -5507,6 +5507,732 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 例題 8.1：選修大一作文與經濟學入門（投影片第 3–4 頁）\n令 $S$ 為 $100$ 位參加中央學院新生工程學程的學生所成的集合，$N=|S|=100$。\n\n條件 $c_1$：該學生選修大一作文；條件 $c_2$：該學生選修經濟學入門。已知\n\n$N(c_1)=35$，$N(c_2)=30$，$N(c_1c_2)=9$。\n\n以 $\\overline{c_i}$ 表示不滿足條件 $c_i$。求：\n\n(a) $N(\\overline{c_1})$：沒選大一作文的人數；\n\n(b) $N(\\overline{c_2})$：沒選經濟學入門的人數；\n\n(c) $N(c_1\\overline{c_2})$：有選大一作文但沒選經濟學入門的人數；\n\n(d) $N(\\overline{c_1}c_2)$：有選經濟學入門但沒選大一作文的人數；\n\n(e) $N(\\overline{c_1}\\,\\overline{c_2})$：兩門都沒選的人數。",
+    "hint": null,
+    "solution": "(a) $N(\\overline{c_1})=N-N(c_1)$，代入得 $100-35=65$。\n\n(b) $N(\\overline{c_2})=N-N(c_2)$，代入得 $100-30=70$。\n\n(c) $N(c_1\\overline{c_2})=N(c_1)-N(c_1c_2)$，代入得 $35-9=26$。\n\n(d) $N(\\overline{c_1}c_2)=N(c_2)-N(c_1c_2)$，代入得 $30-9=21$。\n\n(e) 由包含及互斥原理，\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2})\\\\\n&=N-[N(c_1)+N(c_2)]\\\\\n&\\quad+N(c_1c_2)\\\\\n&=100-[35+30]+9\\\\\n&=44.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) 正確算出 $N(\\overline{c_1})=65$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確算出 $N(\\overline{c_2})=70$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 由 $N(c_1)-N(c_1c_2)$ 正確算出 $26$。"
+      },
+      {
+        "score": 2,
+        "description": "(d) 由 $N(c_2)-N(c_1c_2)$ 正確算出 $21$。"
+      },
+      {
+        "score": 2,
+        "description": "(e) 正確代入兩個條件的包含及互斥公式，算出 $44$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $N(\\overline{c_1})=65$。\n\n(b) $N(\\overline{c_2})=70$。\n\n(c) $N(c_1\\overline{c_2})=26$。\n\n(d) $N(\\overline{c_1}c_2)=21$。\n\n(e) $N(\\overline{c_1}\\,\\overline{c_2})=44$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) 正確算出 $N(\\overline{c_1})=65$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 正確算出 $N(\\overline{c_2})=70$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 由 $N(c_1)-N(c_1c_2)$ 正確算出 $26$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) 由 $N(c_2)-N(c_1c_2)$ 正確算出 $21$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(e) 正確代入兩個條件的包含及互斥公式，算出 $44$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### 兩個條件：不是 $3$ 或 $4$ 的倍數（投影片第 5 頁）\n令 $S=\\{1,2,3,\\ldots,20\\}$，$N=|S|=20$。對 $a\\in S$：\n\n條件 $c_1$：$a$ 是 $3$ 的倍數；\n\n條件 $c_2$：$a$ 是 $4$ 的倍數。\n\n(a) 求 $N(c_1)$、$N(c_2)$、$N(c_1c_2)$、$N(\\overline{c_1})$、$N(\\overline{c_2})$。\n\n(b) 用包含及互斥原理求 $N(\\overline{c_1}\\,\\overline{c_2})$，並列出這些元素。",
+    "hint": null,
+    "solution": "(a) $3$ 的倍數為 $3,6,9,12,15,18$，所以 $N(c_1)=6$；$4$ 的倍數為 $4,8,12,16,20$，所以 $N(c_2)=5$；同時是 $3$ 與 $4$ 的倍數，即 $12$ 的倍數，只有 $12$，所以 $N(c_1c_2)=1$。\n\n因此 $N(\\overline{c_1})=20-6=14$，$N(\\overline{c_2})=20-5=15$。\n\n(b)\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2})\\\\\n&=N-[N(c_1)+N(c_2)]\\\\\n&\\quad+N(c_1c_2)\\\\\n&=20-[6+5]+1\\\\\n&=10.\n\\end{aligned}\n$$\n\n從 $1$ 到 $20$ 刪去上面列出的 $3$ 或 $4$ 的倍數，剩下 $1$、$2$、$5$、$7$、$10$、$11$、$13$、$14$、$17$、$19$，共 $10$ 個，與公式結果相同。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_1)=6$、$N(c_2)=5$、$N(c_1c_2)=1$。"
+      },
+      {
+        "score": 1,
+        "description": "正確算出 $N(\\overline{c_1})=14$、$N(\\overline{c_2})=15$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入公式算出 $N(\\overline{c_1}\\,\\overline{c_2})=10$。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $10$ 個元素。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $N(c_1)=6$，$N(c_2)=5$，$N(c_1c_2)=1$，$N(\\overline{c_1})=14$，$N(\\overline{c_2})=15$。\n\n(b) $N(\\overline{c_1}\\,\\overline{c_2})=10$，這些元素為 $1$、$2$、$5$、$7$、$10$、$11$、$13$、$14$、$17$、$19$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確算出 $N(c_1)=6$、$N(c_2)=5$、$N(c_1c_2)=1$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確算出 $N(\\overline{c_1})=14$、$N(\\overline{c_2})=15$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確代入公式算出 $N(\\overline{c_1}\\,\\overline{c_2})=10$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確列出 $10$ 個元素。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### 三個條件：不是 $3$、$4$ 或 $5$ 的倍數（投影片第 7 頁）\n令 $S=\\{1,2,3,\\ldots,20\\}$，$N=|S|=20$。對 $a\\in S$：\n\n條件 $c_1$：$a$ 是 $3$ 的倍數；\n\n條件 $c_2$：$a$ 是 $4$ 的倍數；\n\n條件 $c_3$：$a$ 是 $5$ 的倍數。\n\n(a) 求 $N(c_1)$、$N(c_2)$、$N(c_3)$、$N(c_1c_2)$、$N(c_1c_3)$、$N(c_2c_3)$、$N(c_1c_2c_3)$。\n\n(b) 用包含及互斥原理求 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})$，並列出這些元素。",
+    "hint": null,
+    "solution": "(a) $3$ 的倍數：$3,6,9,12,15,18$，共 $6$ 個；$4$ 的倍數：$4,8,12,16,20$，共 $5$ 個；$5$ 的倍數：$5,10,15,20$，共 $4$ 個。\n\n$12$ 的倍數只有 $12$，$15$ 的倍數只有 $15$，$20$ 的倍數只有 $20$，所以 $N(c_1c_2)=N(c_1c_3)=N(c_2c_3)=1$。$60$ 的倍數在 $S$ 中不存在，所以 $N(c_1c_2c_3)=0$。\n\n(b)\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})\\\\\n&=N-[N(c_1)+N(c_2)\\\\\n&\\qquad+N(c_3)]\\\\\n&\\quad+[N(c_1c_2)+N(c_1c_3)\\\\\n&\\qquad+N(c_2c_3)]\\\\\n&\\quad-N(c_1c_2c_3)\\\\\n&=20-[6+5+4]\\\\\n&\\quad+[1+1+1]-0\\\\\n&=8.\n\\end{aligned}\n$$\n\n這 $8$ 個元素為 $1$、$2$、$7$、$11$、$13$、$14$、$17$、$19$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出 $N(c_1)=6$、$N(c_2)=5$、$N(c_3)=4$，每個 1 分。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出三個兩兩交集皆為 $1$，且 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入三個條件的包含及互斥公式，算出 $8$。"
+      },
+      {
+        "score": 1,
+        "description": "正確列出 $8$ 個元素。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $N(c_1)=6$，$N(c_2)=5$，$N(c_3)=4$；$N(c_1c_2)=1$，$N(c_1c_3)=1$，$N(c_2c_3)=1$；$N(c_1c_2c_3)=0$。\n\n(b) $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})=8$，這些元素為 $1$、$2$、$7$、$11$、$13$、$14$、$17$、$19$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出 $N(c_1)=6$、$N(c_2)=5$、$N(c_3)=4$，每個 1 分。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確算出三個兩兩交集皆為 $1$，且 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確代入三個條件的包含及互斥公式，算出 $8$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確列出 $8$ 個元素。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Example 8.3：四個條件的包含及互斥公式（投影片第 9 頁）\n設有限集合 $S$ 滿足 $|S|=N$，且有四個條件 $c_1,c_2,c_3,c_4$。\n\n(a) 仿照兩個與三個條件的公式，寫出 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})$ 的完整展開式。\n\n(b) 令 $S_0=N$，$S_k$ 為所有「同時滿足 $k$ 個條件」的 $N(\\cdots)$ 之和（$k=1,2,3,4$）。把 (a) 寫成 $S_0,\\ldots,S_4$ 的式子，並寫出 $S_1,S_2,S_3,S_4$ 各含幾項。",
+    "hint": null,
+    "solution": "從四個條件中選出 $k$ 個條件的方法有 $\\binom4k$ 種，每一種對應一個 $N(\\cdots)$ 項，所以 $S_1,S_2,S_3,S_4$ 依序含 $\\binom41=4$、$\\binom42=6$、$\\binom43=4$、$\\binom44=1$ 項：\n\n$S_1=N(c_1)+N(c_2)+N(c_3)+N(c_4)$；\n\n$$\n\\begin{aligned}\nS_2=\\,&N(c_1c_2)+N(c_1c_3)\\\\\n&+N(c_1c_4)+N(c_2c_3)\\\\\n&+N(c_2c_4)+N(c_3c_4);\n\\end{aligned}\n$$\n\n$$\n\\begin{aligned}\nS_3=\\,&N(c_1c_2c_3)\\\\\n&+N(c_1c_2c_4)\\\\\n&+N(c_1c_3c_4)\\\\\n&+N(c_2c_3c_4);\n\\end{aligned}\n$$\n\n$S_4=N(c_1c_2c_3c_4)$。\n\n與兩個、三個條件的情形相同，滿足奇數個條件的項取負號，滿足偶數個條件的項取正號，因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})\\\\\n&=S_0-S_1+S_2-S_3+S_4,\n\\end{aligned}\n$$\n\n展開即為 (a) 的式子。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 正確寫出完整展開式：$4$ 個單一條件項、$6$ 個兩條件項、$4$ 個三條件項與 $N(c_1c_2c_3c_4)$，正負號交錯正確。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確寫成 $S_0-S_1+S_2-S_3+S_4$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確寫出 $S_1,S_2,S_3,S_4$ 依序含 $4,6,4,1$ 項。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a)\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})\\\\\n&=N\\\\\n&\\quad-[N(c_1)+N(c_2)\\\\\n&\\qquad+N(c_3)+N(c_4)]\\\\\n&\\quad+[N(c_1c_2)+N(c_1c_3)\\\\\n&\\qquad+N(c_1c_4)+N(c_2c_3)\\\\\n&\\qquad+N(c_2c_4)+N(c_3c_4)]\\\\\n&\\quad-[N(c_1c_2c_3)\\\\\n&\\qquad+N(c_1c_2c_4)\\\\\n&\\qquad+N(c_1c_3c_4)\\\\\n&\\qquad+N(c_2c_3c_4)]\\\\\n&\\quad+N(c_1c_2c_3c_4).\n\\end{aligned}\n$$\n\n(b) $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})=S_0-S_1+S_2-S_3+S_4$；$S_1,S_2,S_3,S_4$ 依序含 $4,6,4,1$ 項。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 正確寫出完整展開式：$4$ 個單一條件項、$6$ 個兩條件項、$4$ 個三條件項與 $N(c_1c_2c_3c_4)$，正負號交錯正確。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 正確寫成 $S_0-S_1+S_2-S_3+S_4$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確寫出 $S_1,S_2,S_3,S_4$ 依序含 $4,6,4,1$ 項。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 例題 8.4：不被 $2$、$3$ 或 $5$ 整除的正整數（投影片第 12–13 頁）\n求正整數 $n$ 的個數，其中 $1\\le n\\le100$ 且 $n$ 不被 $2$、$3$ 或 $5$ 整除。\n\n令 $S=\\{1,2,3,\\ldots,100\\}$，$N=100$。對 $n\\in S$：\n\n條件 $c_1$：$n$ 被 $2$ 整除；\n\n條件 $c_2$：$n$ 被 $3$ 整除；\n\n條件 $c_3$：$n$ 被 $5$ 整除。\n\n請算出所需的各項 $N(\\cdots)$，再求 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})$。",
+    "hint": null,
+    "solution": "被 $d$ 整除的元素個數為 $\\lfloor 100/d\\rfloor$：\n\n$N(c_1)=\\lfloor100/2\\rfloor=50$；\n\n$N(c_2)=\\lfloor100/3\\rfloor=33$；\n\n$N(c_3)=\\lfloor100/5\\rfloor=20$。\n\n同時被兩個或三個數整除，等於被它們的最小公倍數整除：\n\n$N(c_1c_2)=\\lfloor100/6\\rfloor=16$；\n\n$N(c_1c_3)=\\lfloor100/10\\rfloor=10$；\n\n$N(c_2c_3)=\\lfloor100/15\\rfloor=6$；\n\n$N(c_1c_2c_3)=\\lfloor100/30\\rfloor=3$。\n\n所以\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})\\\\\n&=S_0-S_1+S_2-S_3\\\\\n&=100-[50+33+20]\\\\\n&\\quad+[16+10+6]-3\\\\\n&=26.\n\\end{aligned}\n$$\n\n這 $26$ 個數為 $1$、$7$、$11$、$13$、$17$、$19$、$23$、$29$、$31$、$37$、$41$、$43$、$47$、$49$、$53$、$59$、$61$、$67$、$71$、$73$、$77$、$79$、$83$、$89$、$91$、$97$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_1)=50$、$N(c_2)=33$、$N(c_3)=20$。"
+      },
+      {
+        "score": 2,
+        "description": "以最小公倍數正確算出 $N(c_1c_2)=16$、$N(c_1c_3)=10$、$N(c_2c_3)=6$。"
+      },
+      {
+        "score": 1,
+        "description": "正確算出 $N(c_1c_2c_3)=3$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入三個條件的包含及互斥公式。"
+      },
+      {
+        "score": 1,
+        "description": "最終答案 $26$ 正確。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$N(c_1)=50$，$N(c_2)=33$，$N(c_3)=20$；\n\n$N(c_1c_2)=16$，$N(c_1c_3)=10$，$N(c_2c_3)=6$；\n\n$N(c_1c_2c_3)=3$。\n\n所求為 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})=26$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確算出 $N(c_1)=50$、$N(c_2)=33$、$N(c_3)=20$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "以最小公倍數正確算出 $N(c_1c_2)=16$、$N(c_1c_3)=10$、$N(c_2c_3)=6$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確算出 $N(c_1c_2c_3)=3$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確代入三個條件的包含及互斥公式。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "最終答案 $26$ 正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 十位數與個位數和為 $12$（投影片第 14 頁）\n$0$ 到 $99$ 的整數中，有多少個的十位數 $x_1$ 與個位數 $x_2$ 的和是 $12$？\n\n即求 $x_1+x_2=12$ 在 $0\\le x_1\\le9$、$0\\le x_2\\le9$ 下的整數解個數。令 $S$ 為 $x_1+x_2=12$ 的所有非負整數解所成的集合；解 $(x_1,x_2)$ 若 $x_1\\ge10$ 則滿足條件 $c_1$，若 $x_2\\ge10$ 則滿足條件 $c_2$。請算出 $N$、$N(c_1)$、$N(c_2)$、$N(c_1c_2)$，再求答案。",
+    "hint": null,
+    "solution": "$x_1+x_2=12$ 的非負整數解個數為\n\n$$N=\\binom{2+12-1}{12}=\\binom{13}{12}=13.$$\n\n求 $N(c_1)$：令 $y_1=x_1-10\\ge0$，則 $y_1+x_2=2$，非負整數解有\n\n$$\\binom{2+2-1}{2}=\\binom32=3$$\n\n組，即 $(x_1,x_2)$ 為 $(10,2)$、$(11,1)$、$(12,0)$。同理 $N(c_2)=3$。\n\n若 $x_1\\ge10$ 且 $x_2\\ge10$，則 $x_1+x_2\\ge20>12$，所以 $N(c_1c_2)=0$。\n\n因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2})\\\\\n&=N-[N(c_1)+N(c_2)]\\\\\n&\\quad+N(c_1c_2)\\\\\n&=13-(3+3)+0=7.\n\\end{aligned}\n$$\n\n這 $7$ 組解為 $(3,9)$、$(4,8)$、$(5,7)$、$(6,6)$、$(7,5)$、$(8,4)$、$(9,3)$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確算出 $N=\\binom{13}{12}=13$。"
+      },
+      {
+        "score": 2,
+        "description": "以 $y_1=x_1-10$ 等代換正確算出 $N(c_1)=N(c_2)=3$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $N(c_1c_2)=0$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入公式，得到答案 $7$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$N=13$，$N(c_1)=N(c_2)=3$，$N(c_1c_2)=0$。\n\n所求為 $N(\\overline{c_1}\\,\\overline{c_2})=13-(3+3)+0=7$，即 $39$、$48$、$57$、$66$、$75$、$84$、$93$，共 $7$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確算出 $N=\\binom{13}{12}=13$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "以 $y_1=x_1-10$ 等代換正確算出 $N(c_1)=N(c_2)=3$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到 $N(c_1c_2)=0$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確代入公式，得到答案 $7$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 三位數字和為 $22$（投影片第 15–16 頁）\n$0$ 到 $999$ 的整數中，有多少個的百位數 $x_1$、十位數 $x_2$ 與個位數 $x_3$ 的和是 $22$？\n\n即求 $x_1+x_2+x_3=22$ 在 $0\\le x_i\\le9$（$i=1,2,3$）下的整數解個數。令 $S$ 為 $x_1+x_2+x_3=22$ 的所有非負整數解所成的集合；解若 $x_i\\ge10$ 則滿足條件 $c_i$。請用包含及互斥原理求答案。",
+    "hint": null,
+    "solution": "$x_1+x_2+x_3=22$ 的非負整數解個數為\n\n$$N=\\binom{3+22-1}{22}=\\binom{24}{2}=276.$$\n\n求 $N(c_1)$：令 $y_1=x_1-10\\ge0$，得 $y_1+x_2+x_3=12$，所以\n\n$$N(c_1)=\\binom{3+12-1}{12}=\\binom{14}{2}=91.$$\n\n由對稱性，$N(c_1)=N(c_2)=N(c_3)=91$。\n\n求 $N(c_1c_2)$：令 $y_1=x_1-10$、$y_2=x_2-10$，得 $y_1+y_2+x_3=2$，所以\n\n$$N(c_1c_2)=\\binom{3+2-1}{2}=\\binom42=6,$$\n\n同理 $N(c_1c_3)=N(c_2c_3)=6$。三個數都 $\\ge10$ 時和至少為 $30>22$，所以 $N(c_1c_2c_3)=0$。\n\n因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})\\\\\n&=S_0-S_1+S_2-S_3\\\\\n&=\\tbinom{24}{2}-3\\tbinom{14}{2}\\\\\n&\\quad+3\\tbinom42-0\\\\\n&=276-3\\cdot91+3\\cdot6\\\\\n&=21.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確算出 $N=\\binom{24}{2}=276$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_i)=\\binom{14}{2}=91$，且三個條件相同。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_ic_j)=\\binom42=6$，且三組相同。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入公式，得到答案 $21$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$N=276$，$N(c_i)=91$，$N(c_ic_j)=6$，$N(c_1c_2c_3)=0$。\n\n所求為 $276-3\\cdot91+3\\cdot6-0=21$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確算出 $N=\\binom{24}{2}=276$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確算出 $N(c_i)=\\binom{14}{2}=91$，且三個條件相同。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確算出 $N(c_ic_j)=\\binom42=6$，且三組相同。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確得到 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "正確代入公式，得到答案 $21$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Example 8.5：每個變數不超過 $7$ 的整數解（投影片第 17–19 頁）\n在第 1 章中，我們求過方程式 $x_1+x_2+x_3+x_4=18$ 的非負整數解個數。現在加上限制：對所有 $1\\le i\\le4$，$x_i\\le7$，回答同樣的問題。\n\n令 $S$ 為 $x_1+x_2+x_3+x_4=18$ 的所有非負整數解所成的集合；解若 $x_i\\ge8$（即 $x_i>7$）則滿足條件 $c_i$。請算出 $S_0$ 到 $S_4$，再求 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})$。",
+    "hint": null,
+    "solution": "$$S_0=N=\\binom{4+18-1}{18}=\\binom{21}{18}=1330.$$\n\n求 $N(c_1)$：令 $y_1=x_1-8\\ge0$，得 $y_1+x_2+x_3+x_4=10$，所以\n\n$$N(c_1)=\\binom{4+10-1}{10}=\\binom{13}{10}=286.$$\n\n由對稱性，四個 $N(c_i)$ 都是 $286$，所以 $S_1=\\binom41\\cdot286=1144$。\n\n求 $N(c_1c_2)$：兩個變數各減 $8$ 後得到和為 $2$ 的方程式，所以\n\n$$N(c_1c_2)=\\binom{4+2-1}{2}=\\binom52=10,$$\n\n$S_2=\\binom42\\cdot10=60$。\n\n三個變數都 $\\ge8$ 時和至少為 $24>18$，所以任意三個或四個條件同時成立的解都不存在，$S_3=S_4=0$。\n\n因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})\\\\\n&=S_0-S_1+S_2-S_3+S_4\\\\\n&=\\tbinom{21}{18}-\\tbinom41\\tbinom{13}{10}\\\\\n&\\quad+\\tbinom42\\tbinom52-0+0\\\\\n&=1330-1144+60\\\\\n&=246.\n\\end{aligned}\n$$\n\n也就是說，$1330$ 組非負整數解中，只有 $246$ 組滿足每個 $x_i\\le7$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確算出 $S_0=\\binom{21}{18}=1330$。"
+      },
+      {
+        "score": 2,
+        "description": "以 $y_i=x_i-8$ 正確算出 $N(c_i)=286$，並得到 $S_1=1144$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_ic_j)=10$，並得到 $S_2=60$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $S_3=S_4=0$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入公式，得到答案 $246$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$S_0=1330$，$S_1=4\\cdot286=1144$，$S_2=6\\cdot10=60$，$S_3=S_4=0$。\n\n所求為 $1330-1144+60=246$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確算出 $S_0=\\binom{21}{18}=1330$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "以 $y_i=x_i-8$ 正確算出 $N(c_i)=286$，並得到 $S_1=1144$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確算出 $N(c_ic_j)=10$，並得到 $S_2=60$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確得到 $S_3=S_4=0$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "正確代入公式，得到答案 $246$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 由 $4$ 元素集合到 $3$ 元素集合的映成函數（投影片第 20 頁）\n令 $A=\\{a_1,a_2,a_3,a_4\\}$，$B=\\{b_1,b_2,b_3\\}$。求由 $A$ 到 $B$ 的映成函數個數。\n\n令 $S$ 為所有由 $A$ 到 $B$ 的函數所成的集合；$f\\in S$ 若 $b_i$ 不在 $f$ 的值域中，則 $f$ 滿足條件 $c_i$（$i=1,2,3$）。請用包含及互斥原理計算。",
+    "hint": null,
+    "solution": "由 $A$ 到 $B$ 的函數共有 $N=3^4=81$ 個。\n\n若 $b_1$ 不在值域中，則每個 $a_j$ 只能對應到其餘 $2$ 個元素，所以 $N(c_1)=(3-1)^4=16$；同理三個 $N(c_i)$ 都是 $16$。\n\n若 $b_1,b_2$ 都不在值域中，則 $N(c_1c_2)=(3-2)^4=1$；同理三個 $N(c_ic_j)$ 都是 $1$。三個元素都不在值域中的函數不存在，所以 $N(c_1c_2c_3)=(3-3)^4=0$。\n\n映成函數就是三個條件都不滿足的函數，所以\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})\\\\\n&=3^4-\\tbinom31(3-1)^4\\\\\n&\\quad+\\tbinom32(3-2)^4-\\tbinom33(3-3)^4\\\\\n&=81-48+3-0\\\\\n&=36.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確算出 $N=3^4=81$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_i)=2^4=16$，並得到 $S_1=48$。"
+      },
+      {
+        "score": 1,
+        "description": "正確算出 $N(c_ic_j)=1$，並得到 $S_2=3$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "score": 1,
+        "description": "最終答案 $36$ 正確。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$N=3^4=81$，$N(c_i)=2^4=16$，$N(c_ic_j)=1^4=1$，$N(c_1c_2c_3)=0^4=0$。\n\n映成函數共有 $81-3\\cdot16+3\\cdot1-0=36$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確算出 $N=3^4=81$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確算出 $N(c_i)=2^4=16$，並得到 $S_1=48$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確算出 $N(c_ic_j)=1$，並得到 $S_2=3$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確得到 $N(c_1c_2c_3)=0$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "最終答案 $36$ 正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Example 8.6：映成函數個數的一般公式（投影片第 21 頁）\n設有限集合 $A=\\{a_1,a_2,\\ldots,a_m\\}$、$B=\\{b_1,b_2,\\ldots,b_n\\}$，且 $|A|=m\\ge n=|B|$。\n\n令 $S$ 為所有由 $A$ 到 $B$ 的函數所成的集合；$f\\in S$ 若 $b_i$ 不在 $f$ 的值域中，則 $f$ 滿足條件 $c_i$（$1\\le i\\le n$）。用包含及互斥原理推導由 $A$ 到 $B$ 的映成函數個數的一般公式。",
+    "hint": null,
+    "solution": "所有函數的個數為 $S_0=|S|=n^m$。\n\n若指定的 $k$ 個元素 $b_{i_1},\\ldots,b_{i_k}$ 都不在值域中，則每個 $a_j$ 只能對應到其餘 $n-k$ 個元素，所以\n\n$$N(c_{i_1}c_{i_2}\\cdots c_{i_k})=(n-k)^m.$$\n\n例如 $N(c_1)=(n-1)^m$、$N(c_1c_2)=(n-2)^m$。從 $n$ 個條件中選 $k$ 個有 $\\binom nk$ 種，所以 $S_k=\\binom nk(n-k)^m$。\n\n映成函數就是 $n$ 個條件都不滿足的函數，因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\cdots\\overline{c_n})\\\\\n&=S_0-S_1+S_2-\\cdots\\\\\n&\\quad+(-1)^nS_n\\\\\n&=n^m-\\tbinom n1(n-1)^m\\\\\n&\\quad+\\tbinom n2(n-2)^m-\\cdots\\\\\n&\\quad+(-1)^n\\tbinom nn(n-n)^m\\\\\n&=\\sum_{i=0}^{n}(-1)^i\\binom ni(n-i)^m.\n\\end{aligned}\n$$\n\n因為 $\\binom ni=\\binom n{n-i}$，也可寫成 $\\sum_{i=0}^{n}(-1)^i\\binom n{n-i}(n-i)^m$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確得到 $S_0=n^m$。"
+      },
+      {
+        "score": 2,
+        "description": "正確說明 $k$ 個指定元素不在值域中的函數有 $(n-k)^m$ 個，例如 $N(c_1)=(n-1)^m$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $S_k=\\binom nk(n-k)^m$。"
+      },
+      {
+        "score": 3,
+        "description": "正確寫出正負交錯的最終公式 $\\sum_{i=0}^{n}(-1)^i\\binom ni(n-i)^m$ 或等價形式。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$S_0=n^m$；同時滿足 $k$ 個條件的函數有 $(n-k)^m$ 個，所以 $S_k=\\binom nk(n-k)^m$。\n\n映成函數個數為\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\cdots\\overline{c_n})\\\\\n&=\\sum_{i=0}^{n}(-1)^i\\binom ni(n-i)^m.\n\\end{aligned}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確得到 $S_0=n^m$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確說明 $k$ 個指定元素不在值域中的函數有 $(n-k)^m$ 個，例如 $N(c_1)=(n-1)^m$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $S_k=\\binom nk(n-k)^m$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確寫出正負交錯的最終公式 $\\sum_{i=0}^{n}(-1)^i\\binom ni(n-i)^m$ 或等價形式。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### 例題 8.7：不含 car、dog、pun、byte 的字母排列（投影片第 22–23 頁）\n有多少種方法可將 $26$ 個英文字母排成一列，使得排列中不出現連續的 car、dog、pun 或 byte？\n\n令 $S$ 為 $26$ 個字母所有排列所成的集合，並令排列含 car、dog、pun、byte 時分別滿足條件 $c_1$、$c_2$、$c_3$、$c_4$。請算出各項 $N(\\cdots)$，再以階乘表示答案（不必算出數值）。",
+    "hint": null,
+    "solution": "四個字串 car、dog、pun、byte 共用了 $13$ 個不同的字母，彼此沒有重複的字母，所以把含有的字串各看成一個符號即可計數。\n\n$N(c_1)$：把 car 看成一個符號，與其餘 $23$ 個字母共 $24$ 個符號，所以 $N(c_1)=24!$；同理 $N(c_2)=N(c_3)=24!$。byte 有 $4$ 個字母，看成一個符號後共 $23$ 個符號，所以 $N(c_4)=23!$。\n\n兩個條件：car 與 dog 兩個符號加上其餘 $20$ 個字母共 $22$ 個符號，所以 $N(c_1c_2)=22!$，同理 $N(c_1c_3)=N(c_2c_3)=22!$；含 byte 的兩個條件共 $26-3-4+2=21$ 個符號，所以 $N(c_ic_4)=21!$。\n\n三個條件：$N(c_1c_2c_3)$ 有 $26-9+3=20$ 個符號，為 $20!$；含 byte 的三個條件有 $26-3-3-4+3=19$ 個符號，為 $19!$。四個條件有 $26-13+4=17$ 個符號，為 $17!$。\n\n因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3}\\,\\overline{c_4})\\\\\n&=S_0-S_1+S_2-S_3+S_4\\\\\n&=26!-[3(24!)+23!]\\\\\n&\\quad+[3(22!)+3(21!)]\\\\\n&\\quad-[20!+3(19!)]+17!.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確得到 $N=26!$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_1)=N(c_2)=N(c_3)=24!$ 與 $N(c_4)=23!$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出兩個條件的各項：三個 $22!$ 與三個 $21!$。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出三個條件的各項：$20!$ 與三個 $19!$。"
+      },
+      {
+        "score": 1,
+        "description": "正確算出 $N(c_1c_2c_3c_4)=17!$。"
+      },
+      {
+        "score": 2,
+        "description": "正確寫出最終答案的階乘式，正負號正確。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "$N=26!$；$N(c_1)=N(c_2)=N(c_3)=24!$，$N(c_4)=23!$。\n\n$N(c_1c_2)=N(c_1c_3)=N(c_2c_3)=22!$；\n\n$N(c_ic_4)=21!$（$i=1,2,3$）。\n\n$N(c_1c_2c_3)=20!$；\n\n$N(c_ic_jc_4)=19!$（$1\\le i<j\\le3$）。\n\n$N(c_1c_2c_3c_4)=17!$。\n\n所求為\n\n$$\n\\begin{aligned}\n&26!-[3(24!)+23!]\\\\\n&+[3(22!)+3(21!)]\\\\\n&-[20!+3(19!)]+17!.\n\\end{aligned}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確得到 $N=26!$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確算出 $N(c_1)=N(c_2)=N(c_3)=24!$ 與 $N(c_4)=23!$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確算出兩個條件的各項：三個 $22!$ 與三個 $21!$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確算出三個條件的各項：$20!$ 與三個 $19!$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "正確算出 $N(c_1c_2c_3c_4)=17!$。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "正確寫出最終答案的階乘式，正負號正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch8-inclusion-exclusion-examples",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### 不是完全平方數、立方數或四次方數（投影片第 24 頁）\n求滿足 $1\\le n\\le1000$ 且 $n$ 不是完全平方數、不是完全立方數、也不是四次方數的正整數 $n$ 的個數。\n\n令 $S=\\{1,2,3,\\ldots,1000\\}$。對 $n\\in S$：\n\n條件 $c_1$：$n$ 是完全平方數；\n\n條件 $c_2$：$n$ 是完全立方數；\n\n條件 $c_3$：$n$ 是四次方數。\n\n請算出各項 $N(\\cdots)$，再求 $N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})$。",
+    "hint": null,
+    "solution": "因為 $31^2=961\\le1000<1024=32^2$，所以 $N(c_1)=31$；$10^3=1000$，所以 $N(c_2)=10$；$5^4=625\\le1000<1296=6^4$，所以 $N(c_3)=5$。\n\n同時是平方數與立方數的是六次方數：$1^6=1$、$2^6=64$、$3^6=729$（$4^6=4096>1000$），所以 $N(c_1c_2)=3$。\n\n四次方數一定是平方數，所以 $N(c_1c_3)=N(c_3)=5$。\n\n同時是立方數與四次方數的是十二次方數，而 $2^{12}=4096>1000$，只有 $1$，所以 $N(c_2c_3)=1$；同理 $N(c_1c_2c_3)=1$。\n\n因此\n\n$$\n\\begin{aligned}\n&N(\\overline{c_1}\\,\\overline{c_2}\\,\\overline{c_3})\\\\\n&=1000-(31+10+5)\\\\\n&\\quad+(3+5+1)-1\\\\\n&=962.\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確算出 $N(c_1)=31$、$N(c_2)=10$、$N(c_3)=5$。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出 $N(c_1c_2)=3$、$N(c_1c_3)=5$、$N(c_2c_3)=1$，每個 1 分。"
+      },
+      {
+        "score": 1,
+        "description": "正確算出 $N(c_1c_2c_3)=1$。"
+      },
+      {
+        "score": 2,
+        "description": "正確代入公式，得到答案 $962$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$N(c_1)=31$，$N(c_2)=10$，$N(c_3)=5$；\n\n$N(c_1c_2)=3$，$N(c_1c_3)=5$，$N(c_2c_3)=1$；\n\n$N(c_1c_2c_3)=1$。\n\n所求為 $1000-(31+10+5)+(3+5+1)-1=962$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確算出 $N(c_1)=31$、$N(c_2)=10$、$N(c_3)=5$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確算出 $N(c_1c_2)=3$、$N(c_1c_3)=5$、$N(c_2c_3)=1$，每個 1 分。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確算出 $N(c_1c_2c_3)=1$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確代入公式，得到答案 $962$。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-exercises-2026",
     "revision": "1",
     "questionId": "q01",

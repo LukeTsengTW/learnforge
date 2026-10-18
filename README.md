@@ -1,5 +1,7 @@
 # LearnForge
 
+**Release preparation：v1.18.0 — 第八章「包含及互斥原理」例題練習。** Local integration, independent review and browser checks are complete; candidate release gates and production acceptance remain pending. Production currently serves v1.17.0. Evidence and limitations are recorded in [v1.18.0 delivery](docs/v1.18.0-delivery.md).
+
 **Production accepted：v1.17.0 — 第七章「關係－第二回」例題練習。** Runtime candidate `8b370833177b2f22c92582cd4860df12bafe9cd5` passed exact candidate CI, six dependent Edge deployments, exact-SHA Pages deployment, public smoke and independent Stage 4 production review. The source bundle contains six current quizzes／eight revisions／133 questions／133 canonical contexts. Production acceptance and known limitations are recorded in [v1.17.0 delivery](docs/v1.17.0-delivery.md).
 
 The v1.16.1 section below is historical and records the production release state before v1.17.0 superseded it.

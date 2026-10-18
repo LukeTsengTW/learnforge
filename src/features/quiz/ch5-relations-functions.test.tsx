@@ -425,16 +425,18 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
   it('adds exactly 20 questions and contexts and leaves the earlier 103-question inventory untouched', () => {
     // The inventory deliberately includes the retired demo, boolean-algebra and relations fixtures (see the quiz-loader mock above),
     // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
-    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true))
     const chapter7 = 'discrete-math-ch7-relations-second-examples'
-    // Chapter 7 is a later family and stays outside this test's pre-v1.16.1 baseline.
+    const chapter8 = 'discrete-math-ch8-inclusion-exclusion-examples'
+    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => q.id !== chapter8)
+    const contexts = AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== chapter8)
+    // Chapter 8 stays outside this inventory; the Chapter 7 family is excluded from the older-content hashes below.
     expect(all).toHaveLength(12)
-    expect(quizCatalog.current).toHaveLength(9)
+    expect(quizCatalog.current.filter(({ quiz }) => quiz.id !== chapter8)).toHaveLength(9)
     expect(quizCatalog.errors).toEqual([])
     expect(all.flatMap((q) => q.questions)).toHaveLength(162)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(162)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id && String(c.revision) === '1')).toHaveLength(20)
-    expect(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) === id && String(c.revision) === '2')).toHaveLength(18)
+    expect(contexts).toHaveLength(162)
+    expect(contexts.filter((c) => String(c.quizId) === id && String(c.revision) === '1')).toHaveLength(20)
+    expect(contexts.filter((c) => String(c.quizId) === id && String(c.revision) === '2')).toHaveLength(18)
     const old = all.filter((q) => q.id !== id && q.id !== chapter7)
       .sort((a, b) => (a.id + '/' + a.revision).localeCompare(b.id + '/' + b.revision))
     expect(old.map((q) => `${q.id}/${q.revision}`)).toEqual(['boolean-algebra/1', 'demo/v1-7d7c900e', 'demo/v2-handwriting',
@@ -442,7 +444,7 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
       'discrete-math/2', 'relations/1'])
     expect(sha(old)).toBe('dd07341108a87c86da3cf894d4eb02348f55861707ac9f04e55607023567fa69')
     expect(sha(old.map((q) => ({ id: q.id, revision: q.revision, questions: q.questions })))).toBe('11ce5ff42cfa01963b0303fb9448afdce7bd280d8197a53d91ad2c39493d2639')
-    expect(sha(AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== id && String(c.quizId) !== chapter7)))
+    expect(sha(contexts.filter((c) => String(c.quizId) !== id && String(c.quizId) !== chapter7)))
       .toBe('1153e47529798807e27378aae4b1680d6f1b1a2daf1544ecd20de5a6f0d2e09c')
     // The Chapter 3 family is the template for this one and must stay byte-identical (Git may check out CRLF on Windows).
     const template = readFileSync('src/content/quizzes/discrete-math-ch3-set-theory-examples/v1.quiz.md', 'utf8').replace(/\r\n/g, '\n')
