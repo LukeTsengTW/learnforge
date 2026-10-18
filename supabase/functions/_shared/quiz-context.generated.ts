@@ -4412,6 +4412,1101 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 關係例：由 $A\\times A$ 的子集合判斷關係（投影片第 2 頁）\n令 $A=\\{1,2,3\\}$。\n\n(a) 列出 $A\\times A$ 的所有序對。\n\n(b) 給定 $R=\\{(1,2),(1,3),(3,1),(3,2)\\}$，判斷 $R$ 是否為 $A$ 上的一個關係。",
+    "hint": null,
+    "solution": "由 $A=\\{1,2,3\\}$，兩個分量都可分別取 $1,2,3$，因此\n\n$$A\\times A=\\{(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),(3,1),(3,2),(3,3)\\}.$$\n\n$R$ 中的四個序對都屬於 $A\\times A$，所以 $R\\subseteq A\\times A$，因此 $R$ 是 $A$ 上的一個關係。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確列出 $A\\times A$ 的 9 個序對。"
+      },
+      {
+        "score": 1,
+        "description": "正確判斷 $R$ 是 $A$ 上的關係。"
+      },
+      {
+        "score": 1,
+        "description": "判斷依據正確：$R\\subseteq A\\times A$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) $A\\times A=\\{(1,1),(1,2),(1,3),(2,1),(2,2),(2,3),(3,1),(3,2),(3,3)\\}$。\n\n(b) 是，$R$ 是 $A$ 上的一個關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確列出 $A\\times A$ 的 9 個序對。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確判斷 $R$ 是 $A$ 上的關係。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "判斷依據正確：$R\\subseteq A\\times A$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### 例題 7.1：小於等於關係與模 $7$ 關係（投影片第 3 頁）\n(a) 在 $\\mathbf Z$ 上定義 $aRb$ 若 $a\\le b$。判斷 $(1,1)$、$(-1,2)$、$(3,5)$、$(5,3)$ 是否屬於 $R$。\n\n(b) 在 $\\mathbf Z$ 上定義模 $7$ 關係：$xRy$ 若 $x-y$ 是 $7$ 的倍數。判斷 $9R2$、$-3R11$、$14R0$、$3R7$ 是否成立。請寫出必要的差值計算。",
+    "hint": null,
+    "solution": "(a) 直接比較兩個分量：$1\\le1$、$-1\\le2$、$3\\le5$，但 $5\\nleq3$。\n\n(b) 計算差值：$9-2=7$、$-3-11=-14$、$14-0=14$ 都是 $7$ 的倍數；$3-7=-4$ 不是 $7$ 的倍數。因此前三個關係成立，而 $3R7$ 不成立。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 四個序對的隸屬判斷全部正確。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確計算四個差值並判斷是否為 $7$ 的倍數。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 最終四個關係的成立／不成立判斷全部正確。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $(1,1)$、$(-1,2)$、$(3,5)$ 屬於 $R$；$(5,3)$ 不屬於 $R$。\n\n(b) $9R2$、$-3R11$、$14R0$ 成立；$3R7$ 不成立。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 四個序對的隸屬判斷全部正確。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(b) 正確計算四個差值並判斷是否為 $7$ 的倍數。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(b) 最終四個關係的成立／不成立判斷全部正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### 例題 7.4：反身關係（投影片第 4 頁）\n令 $A=\\{1,2,3,4\\}$，\n\n$R_1=\\{(1,1),(2,2),(3,3)\\}$，\n\n$R_2=\\{(1,1),(2,2),(3,3),(4,4),(1,2),(2,1)\\}$。\n\n分別判斷 $R_1$、$R_2$ 是否為 $A$ 上的反身關係；若不是，指出缺少的必要序對。",
+    "hint": null,
+    "solution": "$A$ 上的反身關係必須包含 $(1,1),(2,2),(3,3),(4,4)$。\n\n$R_1$ 缺少 $(4,4)$，所以不是反身的；$R_2$ 包含全部四個對角序對，因此是反身的。額外出現的 $(1,2),(2,1)$ 不影響反身性。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確判斷 $R_1$ 不是反身關係，並指出缺少 $(4,4)$。"
+      },
+      {
+        "score": 2,
+        "description": "正確判斷 $R_2$ 是反身關係。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$R_1$ 不是反身關係，因為缺少 $(4,4)$。\n\n$R_2$ 是反身關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確判斷 $R_1$ 不是反身關係，並指出缺少 $(4,4)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確判斷 $R_2$ 是反身關係。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### 例題 7.5：反身關係的個數（投影片第 5 頁）\n若有限集合 $A$ 有 $n$ 個元素，求 $A$ 上反身關係的個數。再代入 $A=\\{1,2,3\\}$ 計算實際個數。",
+    "hint": null,
+    "solution": "$A\\times A$ 有 $n^2$ 個序對。反身性強制包含 $n$ 個對角序對 $(a,a)$，其餘 $n^2-n$ 個非對角序對都可各自選擇包含或不包含，因此共有\n\n$$2^{n^2-n}$$\n\n個反身關係。\n\n當 $n=3$ 時，$n^2-n=9-3=6$，所以共有\n\n$$2^6=64$$\n\n個反身關係。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確辨認有 $n$ 個對角序對必須包含，剩下 $n^2-n$ 個可自由選取。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到一般公式 $2^{n^2-n}$。"
+      },
+      {
+        "score": 2,
+        "description": "代入 $n=3$ 得到 $2^6=64$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "一般情形共有 $2^{n^2-n}$ 個反身關係。\n\n當 $n=3$ 時，共有 $2^6=64$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確辨認有 $n$ 個對角序對必須包含，剩下 $n^2-n$ 個可自由選取。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確得到一般公式 $2^{n^2-n}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "代入 $n=3$ 得到 $2^6=64$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 例題 7.6：反身性與對稱性（投影片第 6 頁）\n令 $A=\\{1,2,3\\}$，考慮\n\n$R_1=\\{(1,2),(2,1),(1,3),(3,1)\\}$；\n\n$R_2=\\{(1,1),(2,2),(3,3),(2,3)\\}$；\n\n$R_3=\\{(1,1),(2,2),(3,3)\\}$；\n\n$R_4=\\{(1,1),(2,2),(3,3),(2,3),(3,2)\\}$；\n\n$R_5=\\{(1,1),(2,3),(3,3)\\}$。\n\n分別判斷每個關係是否反身、是否對稱；對不對稱的關係指出一組缺少反向序對的例子。",
+    "hint": null,
+    "solution": "反身性要求 $(1,1),(2,2),(3,3)$ 全部出現；對稱性要求每個 $(x,y)$ 出現時 $(y,x)$ 也出現。\n\n$R_1$ 有所有非對角序對的反向配對，但沒有三個對角序對，所以對稱但不反身。$R_2$ 有三個對角序對，所以反身；但只有 $(2,3)$ 而沒有 $(3,2)$，所以不對稱。$R_3$ 只含三個對角序對，同時反身且對稱。$R_4$ 除三個對角序對外，$(2,3)$ 與 $(3,2)$ 成對出現，因此同時反身且對稱。$R_5$ 缺少 $(2,2)$，而且 $(2,3)$ 沒有反向的 $(3,2)$，所以兩者都不是。",
+    "rubric": [
+      {
+        "score": 5,
+        "description": "五個關係的反身／對稱判斷全部正確，每個 1 分。"
+      },
+      {
+        "score": 2,
+        "description": "對 $R_2$ 與 $R_5$ 各指出一組正確的對稱性反例。"
+      },
+      {
+        "score": 1,
+        "description": "反身性的判斷依據正確使用三個對角序對。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "- $R_1$：不反身，對稱。\n- $R_2$：反身，不對稱；例如 $(2,3)\\in R_2$ 但 $(3,2)\\notin R_2$。\n- $R_3$：反身，對稱。\n- $R_4$：反身，對稱。\n- $R_5$：不反身，不對稱；例如 $(2,3)\\in R_5$ 但 $(3,2)\\notin R_5$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 5,
+        "description": "五個關係的反身／對稱判斷全部正確，每個 1 分。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "對 $R_2$ 與 $R_5$ 各指出一組正確的對稱性反例。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "反身性的判斷依據正確使用三個對角序對。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 對稱關係的個數（投影片第 7 頁）\n若 $|A|=n$，求 $A$ 上對稱關係的個數。再代入 $A=\\{1,2,3\\}$ 計算實際個數。",
+    "hint": null,
+    "solution": "$n$ 個對角序對 $(a,a)$ 各自可選擇放入或不放入關係，共有 $2^n$ 種。對任兩個不同元素 $a,b$，為維持對稱性，$(a,b)$ 與 $(b,a)$ 必須一起出現或一起不出現。這樣的無序元素對共有 $\\binom n2=n(n-1)/2$ 組，因此有 $2^{n(n-1)/2}$ 種選擇。\n\n所以總數為\n\n$$2^n\\cdot2^{n(n-1)/2}=2^{n(n+1)/2}.$$\n\n代入 $n=3$ 得 $2^3\\cdot2^3=64$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確處理 $n$ 個對角序對，得到 $2^n$。"
+      },
+      {
+        "score": 2,
+        "description": "正確處理 $\\binom n2$ 組非對角反向序對，得到 $2^{n(n-1)/2}$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到一般公式 $2^{n(n+1)/2}$。"
+      },
+      {
+        "score": 1,
+        "description": "代入 $n=3$ 得到 $64$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "一般情形共有 $2^n\\cdot2^{n(n-1)/2}=2^{n(n+1)/2}$ 個對稱關係。\n\n當 $n=3$ 時，共有 $2^3\\cdot2^3=2^6=64$ 個。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確處理 $n$ 個對角序對，得到 $2^n$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確處理 $\\binom n2$ 組非對角反向序對，得到 $2^{n(n-1)/2}$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確得到一般公式 $2^{n(n+1)/2}$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "代入 $n=3$ 得到 $64$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 例題 7.10：判斷遞移性（投影片第 8 頁）\n令 $A=\\{1,2,3,4\\}$，\n\n$R_1=\\{(1,1),(2,3),(3,4),(2,4)\\}$；\n\n$R_2=\\{(1,3),(3,2)\\}$；\n\n$R_3=\\{(1,1),(1,2),(2,3),(3,4),(2,4)\\}$；\n\n$R_4=\\{(1,2),(3,4)\\}$；\n\n$R_5=\\{(2,3)\\}$。\n\n分別判斷 $R_1$ 至 $R_5$ 是否具有遞移性。對不是遞移的關係，寫出造成違反遞移性的序對鏈。",
+    "hint": null,
+    "solution": "遞移性要求：若 $(x,y)$ 與 $(y,z)$ 都在關係中，則 $(x,z)$ 也必須在關係中。\n\n$R_1$ 中唯一需要額外檢查的非平凡鏈為 $(2,3),(3,4)$，而 $(2,4)$ 已包含，因此遞移；$(1,1)$ 與自身組合仍得到 $(1,1)$。\n\n$R_2$ 有 $(1,3),(3,2)$，卻缺 $(1,2)$，所以不遞移。\n\n$R_3$ 有 $(1,2),(2,3)$，卻缺 $(1,3)$，所以不遞移；此外 $(1,2),(2,4)$ 也會要求 $(1,4)$。\n\n$R_4$ 與 $R_5$ 中不存在第二個序對能以前一個序對的第二分量作為第一分量，因此沒有違反遞移性的序對鏈，兩者皆為遞移關係。",
+    "rubric": [
+      {
+        "score": 5,
+        "description": "$R_1$ 至 $R_5$ 的遞移性判斷全部正確，每個 1 分。"
+      },
+      {
+        "score": 2,
+        "description": "對 $R_2$ 正確指出 $(1,3),(3,2)$ 要求 $(1,2)$。"
+      },
+      {
+        "score": 2,
+        "description": "對 $R_3$ 正確指出一組遞移性反例，例如 $(1,2),(2,3)$ 缺 $(1,3)$。"
+      },
+      {
+        "score": 1,
+        "description": "對 $R_1$、$R_4$、$R_5$ 的判斷有足以支持結論的檢查。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "- $R_1$：遞移。\n- $R_2$：不遞移，因為 $(1,3),(3,2)\\in R_2$，但 $(1,2)\\notin R_2$。\n- $R_3$：不遞移，因為 $(1,2),(2,3)\\in R_3$，但 $(1,3)\\notin R_3$。\n- $R_4$：遞移。\n- $R_5$：遞移。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 5,
+        "description": "$R_1$ 至 $R_5$ 的遞移性判斷全部正確，每個 1 分。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "對 $R_2$ 正確指出 $(1,3),(3,2)$ 要求 $(1,2)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "對 $R_3$ 正確指出一組遞移性反例，例如 $(1,2),(2,3)$ 缺 $(1,3)$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "對 $R_1$、$R_4$、$R_5$ 的判斷有足以支持結論的檢查。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 例題 7.8：整除關係的性質（投影片第 9 頁）\n在 $\\mathbf Z^+$ 上定義 $aRb$ 若 $a$ 整除 $b$。判斷 $R$ 是否反身、對稱、遞移，並對每個判斷給出必要的推理或反例。",
+    "hint": null,
+    "solution": "對任意 $x\\in\\mathbf Z^+$，$x\\mid x$，所以 $xRx$，故 $R$ 反身。\n\n$2\\mid6$，所以 $2R6$；但 $6\\nmid2$，所以 $6\\not R2$，故 $R$ 不對稱。\n\n若 $xRy$ 且 $yRz$，則存在 $s,t\\in\\mathbf Z^+$ 使 $y=sx$、$z=ty$。因此 $z=t(sx)=(ts)x$，且 $ts\\in\\mathbf Z^+$，所以 $x\\mid z$，即 $xRz$。因此 $R$ 遞移。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確判斷反身。"
+      },
+      {
+        "score": 1,
+        "description": "以 $x\\mid x$ 正確支持反身性。"
+      },
+      {
+        "score": 1,
+        "description": "正確判斷不對稱。"
+      },
+      {
+        "score": 1,
+        "description": "給出有效反例，例如 $2R6$ 但 $6\\not R2$。"
+      },
+      {
+        "score": 1,
+        "description": "正確判斷遞移。"
+      },
+      {
+        "score": 1,
+        "description": "由 $y=sx$、$z=ty$ 推得 $z=(ts)x$ 或給出等價的遞移證明。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$R$ 是反身的、不是對稱的、是遞移的。\n\n不對稱的反例可取 $2R6$，但 $6\\not R2$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確判斷反身。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "以 $x\\mid x$ 正確支持反身性。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "正確判斷不對稱。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "給出有效反例，例如 $2R6$ 但 $6\\not R2$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "正確判斷遞移。"
+      },
+      {
+        "id": "r6",
+        "points": 1,
+        "description": "由 $y=sx$、$z=ty$ 推得 $z=(ts)x$ 或給出等價的遞移證明。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 例題 7.9：由乘積符號定義的關係（投影片第 10 頁）\n在 $\\mathbf Z$ 上定義 $aRb$ 若 $ab\\ge0$。判斷 $R$ 是否反身、對稱、遞移，並對每個判斷給出必要的推理或反例。",
+    "hint": null,
+    "solution": "對任意整數 $x$，$x^2\\ge0$，所以 $xRx$，故 $R$ 反身。\n\n若 $xRy$，則 $xy\\ge0$；因為 $yx=xy\\ge0$，所以 $yRx$，故 $R$ 對稱。\n\n但 $3\\cdot0=0\\ge0$ 且 $0\\cdot(-7)=0\\ge0$，所以 $3R0$ 且 $0R(-7)$；然而 $3\\cdot(-7)=-21<0$，故 $3\\not R(-7)$。因此 $R$ 不遞移。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確判斷並以 $x^2\\ge0$ 支持反身性。"
+      },
+      {
+        "score": 2,
+        "description": "正確判斷並以 $xy=yx$ 支持對稱性。"
+      },
+      {
+        "score": 2,
+        "description": "正確判斷不遞移，並給出有效反例，例如 $3,0,-7$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$R$ 是反身的、對稱的，但不是遞移的。\n\n遞移性的反例可取 $3R0$、$0R(-7)$，但 $3\\not R(-7)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確判斷並以 $x^2\\ge0$ 支持反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確判斷並以 $xy=yx$ 支持對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確判斷不遞移，並給出有效反例，例如 $3,0,-7$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### 例題 7.12：對稱與反對稱（投影片第 11 頁）\n來源更正：投影片此頁寫 $A=\\{1,2,3\\}$，但 $R_1$ 含 $(2,4)$；為使所有列出的序對都屬於 $A\\times A$，本題採明顯修正 $A=\\{1,2,3,4\\}$。\n\n令\n\n$R_1=\\{(1,2),(2,1),(2,3),(2,4)\\}$；\n\n$R_2=\\{(1,1),(2,2),(3,2)\\}$；\n\n$R_3=\\{(1,2),(2,1)\\}$；\n\n$R_4=\\{(1,2),(2,3),(2,2)\\}$；\n\n$R_5=\\{(1,1),(2,2),(3,3)\\}$。\n\n分別判斷每個關係是否對稱、是否反對稱。對否定的判斷，指出一組能支持結論的序對。",
+    "hint": null,
+    "solution": "$R_1$ 中 $(2,3)$ 沒有反向 $(3,2)$，所以不對稱；又 $(1,2)$ 與 $(2,1)$ 同時存在且 $1\\ne2$，所以不反對稱。\n\n$R_2$ 中 $(3,2)$ 沒有 $(2,3)$，所以不對稱；不同元素之間沒有任何一對雙向序對，因此反對稱。\n\n$R_3$ 的兩個序對互為反向，所以對稱；但 $(1,2)$ 與 $(2,1)$ 同時存在且 $1\\ne2$，所以不反對稱。\n\n$R_4$ 中 $(1,2)$ 沒有 $(2,1)$，所以不對稱；沒有不同元素的雙向序對，因此反對稱。\n\n$R_5$ 只含對角序對，交換兩個分量仍是同一序對，所以對稱；而任何同時出現 $(x,y)$、$(y,x)$ 的情形都只有 $x=y$，因此也反對稱。",
+    "rubric": [
+      {
+        "score": 5,
+        "description": "五個關係的對稱／反對稱分類全部正確，每個 1 分。"
+      },
+      {
+        "score": 1,
+        "description": "對 $R_1$ 正確指出其不對稱與不反對稱的依據。"
+      },
+      {
+        "score": 1,
+        "description": "對 $R_3$ 正確指出其不反對稱的雙向序對。"
+      },
+      {
+        "score": 1,
+        "description": "對 $R_2$、$R_4$ 或 $R_5$ 至少一個反對稱判斷給出正確依據。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "- $R_1$：不對稱，不反對稱。\n- $R_2$：不對稱，反對稱。\n- $R_3$：對稱，不反對稱。\n- $R_4$：不對稱，反對稱。\n- $R_5$：對稱，反對稱。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 5,
+        "description": "五個關係的對稱／反對稱分類全部正確，每個 1 分。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "對 $R_1$ 正確指出其不對稱與不反對稱的依據。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "對 $R_3$ 正確指出其不反對稱的雙向序對。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "對 $R_2$、$R_4$ 或 $R_5$ 至少一個反對稱判斷給出正確依據。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### 反對稱關係的個數（投影片第 12–13 頁）\n若 $|A|=n>0$，求 $A$ 上反對稱關係的個數。再分別計算 $n=3$ 與 $n=4$ 的結果。",
+    "hint": null,
+    "solution": "$n$ 個對角序對 $(a,a)$ 可各自選擇包含或不包含，共有 $2^n$ 種。\n\n對每一組不同元素 $x,y$，反對稱性不允許在 $x\\ne y$ 時同時包含 $(x,y)$ 與 $(y,x)$。因此每個無序元素對 $\\{x,y\\}$ 有三種選擇：只放 $(x,y)$、只放 $(y,x)$、兩個都不放。這樣的無序元素對共有 $\\binom n2=n(n-1)/2$ 組，所以共有\n\n$$2^n3^{n(n-1)/2}$$\n\n個反對稱關係。\n\n$n=3$ 時為 $2^3\\cdot3^3=8\\cdot27=216$；$n=4$ 時為 $2^4\\cdot3^6=16\\cdot729=11{,}664$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確得到對角序對的 $2^n$ 種選擇。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到每一組不同元素有 3 種合法選擇，且共有 $\\binom n2$ 組。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到一般公式 $2^n3^{n(n-1)/2}$。"
+      },
+      {
+        "score": 1,
+        "description": "$n=3$ 正確得到 $216$。"
+      },
+      {
+        "score": 1,
+        "description": "$n=4$ 正確得到 $11{,}664$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "一般情形共有 $2^n3^{n(n-1)/2}$ 個反對稱關係。\n\n$n=3$ 時：$2^3\\cdot3^3=216$。\n\n$n=4$ 時：$2^4\\cdot3^6=11{,}664$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確得到對角序對的 $2^n$ 種選擇。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確得到每一組不同元素有 3 種合法選擇，且共有 $\\binom n2$ 組。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到一般公式 $2^n3^{n(n-1)/2}$。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "$n=3$ 正確得到 $216$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "$n=4$ 正確得到 $11{,}664$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### 等價關係例：$A=\\{1,2,3\\}$ 上的四個關係（投影片第 15 頁）\n令 $A=\\{1,2,3\\}$，並定義\n\n$R_1=\\{(1,1),(2,2),(3,3)\\}$；\n\n$R_2=\\{(1,1),(2,2),(2,3),(3,2),(3,3)\\}$；\n\n$R_3=\\{(1,1),(1,3),(2,2),(3,1),(3,3)\\}$；\n\n$R_4=A\\times A$。\n\n判斷 $R_1,R_2,R_3,R_4$ 是否為等價關係。此題只需寫出判斷結果，不要求逐一證明反身、對稱、遞移三個性質。",
+    "hint": null,
+    "solution": "$R_1$ 只有三個對角序對，因此反身、對稱且遞移。\n\n$R_2$ 對應的兩個區塊為 $\\{1\\}$ 與 $\\{2,3\\}$：每個元素都有自迴圈，$2$ 與 $3$ 的雙向序對都存在，且同一區塊內的所有必要序對都已包含，因此反身、對稱、遞移。\n\n$R_3$ 類似，區塊為 $\\{1,3\\}$ 與 $\\{2\\}$，所以同樣具備三個性質。\n\n$R_4=A\\times A$ 包含所有可能序對，顯然包含所有對角序對、每個序對都有反向序對；若 $(x,y),(y,z)\\in R_4$，則 $(x,z)$ 也必定在 $A\\times A$ 中，因此遞移。",
+    "rubric": [
+      {
+        "score": 8,
+        "description": "正確判斷 $R_1,R_2,R_3,R_4$ 全部都是等價關係，每個 2 分；不要求逐一寫出三性質的證明。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$R_1,R_2,R_3,R_4$ 全部都是 $A$ 上的等價關係；四者都同時具備反身性、對稱性與遞移性。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 8,
+        "description": "正確判斷 $R_1,R_2,R_3,R_4$ 全部都是等價關係，每個 2 分；不要求逐一寫出三性質的證明。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Example 7.15：整除關係形成偏序（投影片第 16 頁）\n令 $A=\\{1,2,3,4,6,12\\}$，在 $A$ 上定義 $xRy$ 若 $x$ 整除 $y$。證明 $R$ 是 $A$ 上的一個偏序關係。",
+    "hint": null,
+    "solution": "反身性：任意 $x\\in A$ 都有 $x\\mid x$，所以 $xRx$。\n\n反對稱性：若 $xRy$ 且 $yRx$，則 $x\\mid y$ 且 $y\\mid x$。由 $x,y$ 都是正整數可得 $x=y$。\n\n遞移性：若 $xRy$ 且 $yRz$，則存在正整數 $a,b$ 使 $y=ax$、$z=by$。因此 $z=b(ax)=(ab)x$，所以 $x\\mid z$，即 $xRz$。\n\n因此 $R$ 同時反身、反對稱且遞移，是 $A$ 上的偏序關係。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確證明反身性。"
+      },
+      {
+        "score": 3,
+        "description": "正確證明反對稱性。"
+      },
+      {
+        "score": 3,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "score": 1,
+        "description": "由三個性質正確下結論：$R$ 是偏序關係。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "需證明 $R$ 具有反身性、反對稱性與遞移性，因此 $R$ 是偏序關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確證明反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確證明反對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "由三個性質正確下結論：$R$ 是偏序關係。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### 偏序補充：子集合關係（投影片第 17 頁）\n令\n\n$A=\\{\\emptyset,\\{1\\},\\{2\\},\\{3\\},\\{1,2\\},\\{1,3\\},\\{2,3\\},\\{1,2,3\\}\\}$，\n\n在 $A$ 上定義 $xRy$ 若 $x\\subseteq y$。證明 $R$ 是 $A$ 上的一個偏序關係。",
+    "hint": null,
+    "solution": "反身性：任意集合 $x\\in A$ 都有 $x\\subseteq x$，所以 $xRx$。\n\n反對稱性：若 $xRy$ 且 $yRx$，則 $x\\subseteq y$ 且 $y\\subseteq x$，因此 $x=y$。\n\n遞移性：若 $xRy$ 且 $yRz$，則 $x\\subseteq y$ 且 $y\\subseteq z$，所以 $x\\subseteq z$，即 $xRz$。\n\n因此 $R$ 是 $A$ 上的偏序關係。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明反對稱性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "score": 2,
+        "description": "正確由三個性質得到偏序關係的結論。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "子集合關係 $\\subseteq$ 在 $A$ 上具有反身性、反對稱性與遞移性，所以 $R$ 是偏序關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確證明反對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確由三個性質得到偏序關係的結論。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### 等價關係補充：和為偶數（投影片第 18 頁）\n令 $A=\\{1,2,3,4,5\\}$，在 $A$ 上定義 $xRy$ 若 $x+y$ 是偶數。證明 $R$ 是 $A$ 上的一個等價關係。",
+    "hint": null,
+    "solution": "反身性：對任意 $x\\in A$，$x+x=2x$ 是偶數，所以 $xRx$。\n\n對稱性：若 $xRy$，則 $x+y$ 是偶數；因為 $y+x=x+y$，所以 $y+x$ 也是偶數，因此 $yRx$。\n\n遞移性：若 $xRy$ 且 $yRz$，則 $x+y$ 與 $y+z$ 都是偶數。兩式相加得到 $x+2y+z$ 是偶數，而 $2y$ 是偶數，因此 $x+z$ 也是偶數，所以 $xRz$。\n\n因此 $R$ 是等價關係。實際上它把 $A$ 分成奇數類 $\\{1,3,5\\}$ 與偶數類 $\\{2,4\\}$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "score": 3,
+        "description": "正確證明遞移性，沒有直接把「兩個和為偶數」錯誤地省略中間步驟。"
+      },
+      {
+        "score": 1,
+        "description": "正確下結論：$R$ 是等價關係。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$R$ 具有反身性、對稱性與遞移性，因此是 $A$ 上的等價關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確證明遞移性，沒有直接把「兩個和為偶數」錯誤地省略中間步驟。"
+      },
+      {
+        "id": "r4",
+        "points": 1,
+        "description": "正確下結論：$R$ 是等價關係。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### 例題 7.52：集合的分割（投影片第 43 頁）\n令 $A=\\{1,2,3,\\ldots,10\\}$。判斷下列三組子集合是否各自構成 $A$ 的分割；若是，寫出對應的指標集合 $I$。\n\n(a) $A_1=\\{1,2,3,4,5\\}$，$A_2=\\{6,7,8,9,10\\}$。\n\n(b) $A_1=\\{1,2,3\\}$，$A_2=\\{4,6,7,9\\}$，$A_3=\\{5,8,10\\}$。\n\n(c) $A_i=\\{i,i+5\\}$，$1\\le i\\le5$。",
+    "hint": null,
+    "solution": "(a) 兩個集合非空、互不相交，聯集為 $A$，所以是分割，$I=\\{1,2\\}$。\n\n(b) 三個集合非空且兩兩不相交，合起來恰為 $\\{1,2,\\ldots,10\\}$，所以是分割，$I=\\{1,2,3\\}$。\n\n(c) 五個集合依序為 $\\{1,6\\},\\{2,7\\},\\{3,8\\},\\{4,9\\},\\{5,10\\}$，彼此不相交且聯集為 $A$，所以是分割，$I=\\{1,2,3,4,5\\}$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確判斷為分割並寫出 $I=\\{1,2\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確判斷為分割並寫出 $I=\\{1,2,3\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 正確判斷為分割並寫出 $I=\\{1,2,3,4,5\\}$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "三者都構成 $A$ 的分割。\n\n(a) $I=\\{1,2\\}$。\n\n(b) $I=\\{1,2,3\\}$。\n\n(c) $I=\\{1,2,3,4,5\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確判斷為分割並寫出 $I=\\{1,2\\}$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 正確判斷為分割並寫出 $I=\\{1,2,3\\}$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 正確判斷為分割並寫出 $I=\\{1,2,3,4,5\\}$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### 等價類例：由關係 $R_1$ 求分割（投影片第 44 頁）\n令 $A=\\{1,2,3,4\\}$，且\n\n$R_1=\\{(1,1),(1,2),(2,1),(2,2),(3,3),(3,4),(4,3),(4,4)\\}$。\n\n已知 $R_1$ 是 $A$ 上的等價關係。求 $[1],[2],[3],[4]$，寫出 $R_1$ 的等價類分割，並以等價類的笛卡兒積表示 $R_1$。",
+    "hint": null,
+    "solution": "由 $R_1$ 可見，與 $1$（或 $2$）等價的元素正好是 $1,2$，所以 $[1]=[2]=\\{1,2\\}$。同理，與 $3$（或 $4$）等價的元素正好是 $3,4$，所以 $[3]=[4]=\\{3,4\\}$。\n\n不同等價類互不相交且聯集為 $A$，因此得到分割 $\\{\\{1,2\\},\\{3,4\\}\\}$。關係本身就是每個等價類內所有可能序對的聯集：\n\n$$R_1=\\{1,2\\}\\times\\{1,2\\}\\cup\\{3,4\\}\\times\\{3,4\\}=[1]\\times[1]\\cup[3]\\times[3].$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確得到 $[1]=[2]=\\{1,2\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $[3]=[4]=\\{3,4\\}$ 並寫出分割。"
+      },
+      {
+        "score": 2,
+        "description": "正確寫出 $R_1=[1]\\times[1]\\cup[3]\\times[3]$ 或等價表示。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$[1]=[2]=\\{1,2\\}$，$[3]=[4]=\\{3,4\\}$。\n\n分割為 $\\{\\{1,2\\},\\{3,4\\}\\}$。\n\n$R_1=[1]\\times[1]\\cup[3]\\times[3]$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確得到 $[1]=[2]=\\{1,2\\}$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確得到 $[3]=[4]=\\{3,4\\}$ 並寫出分割。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確寫出 $R_1=[1]\\times[1]\\cup[3]\\times[3]$ 或等價表示。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### 例題 7.54：模 $4$ 的等價關係（投影片第 45 頁）\n在 $\\mathbf Z$ 上定義 $xRy$ 若 $4\\mid(x-y)$。\n\n(a) 證明 $R$ 是等價關係。\n\n(b) 求 $[0],[1],[2],[3]$，並寫出 $\\mathbf Z$ 因此得到的分割。",
+    "hint": null,
+    "solution": "反身性：對任意 $x\\in\\mathbf Z$，$x-x=0$ 且 $4\\mid0$，所以 $xRx$。\n\n對稱性：若 $xRy$，則 $4\\mid(x-y)$。因為 $y-x=-(x-y)$，所以 $4\\mid(y-x)$，故 $yRx$。\n\n遞移性：若 $xRy$ 且 $yRz$，可令 $x-y=4k_1$、$y-z=4k_2$，其中 $k_1,k_2\\in\\mathbf Z$。相加得 $x-z=4(k_1+k_2)$，所以 $4\\mid(x-z)$，即 $xRz$。\n\n因此 $R$ 是等價關係。等價類由除以 $4$ 的餘數決定：\n\n$[0]=\\{\\ldots,-8,-4,0,4,8,\\ldots\\}=\\{4k\\mid k\\in\\mathbf Z\\}$；\n\n$[1]=\\{\\ldots,-7,-3,1,5,9,\\ldots\\}=\\{4k+1\\mid k\\in\\mathbf Z\\}$；\n\n$[2]=\\{\\ldots,-6,-2,2,6,10,\\ldots\\}=\\{4k+2\\mid k\\in\\mathbf Z\\}$；\n\n$[3]=\\{\\ldots,-5,-1,3,7,11,\\ldots\\}=\\{4k+3\\mid k\\in\\mathbf Z\\}$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "score": 3,
+        "description": "正確寫出四個等價類 $[0],[1],[2],[3]$。"
+      },
+      {
+        "score": 1,
+        "description": "正確寫出分割 $\\{[0],[1],[2],[3]\\}$。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $R$ 反身、對稱、遞移，因此是等價關係。\n\n(b)\n\n$[0]=\\{4k\\mid k\\in\\mathbf Z\\}$，\n\n$[1]=\\{4k+1\\mid k\\in\\mathbf Z\\}$，\n\n$[2]=\\{4k+2\\mid k\\in\\mathbf Z\\}$，\n\n$[3]=\\{4k+3\\mid k\\in\\mathbf Z\\}$。\n\n分割為 $\\{[0],[1],[2],[3]\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確寫出四個等價類 $[0],[1],[2],[3]$。"
+      },
+      {
+        "id": "r5",
+        "points": 1,
+        "description": "正確寫出分割 $\\{[0],[1],[2],[3]\\}$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q19",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### 例題 7.55：平方相等的等價關係（投影片第 46 頁）\n在 $\\mathbf Z$ 上定義 $aRb$ 若 $a^2=b^2$。\n\n(a) 證明 $R$ 是等價關係。\n\n(b) 求 $[0]$，並對任意 $n\\in\\mathbf Z^+$ 寫出 $[n]$ 與 $[-n]$；據此描述 $\\mathbf Z$ 的分割。",
+    "hint": null,
+    "solution": "反身性：對任意 $a\\in\\mathbf Z$，$a^2=a^2$，所以 $aRa$。\n\n對稱性：若 $aRb$，則 $a^2=b^2$，因此 $b^2=a^2$，所以 $bRa$。\n\n遞移性：若 $aRb$ 且 $bRc$，則 $a^2=b^2$ 且 $b^2=c^2$，所以 $a^2=c^2$，故 $aRc$。\n\n因此 $R$ 是等價關係。$a^2=b^2$ 等價於 $a=b$ 或 $a=-b$，所以 $0$ 只與自己等價，而每個正整數 $n$ 與 $-n$ 在同一個等價類：$[n]=[-n]=\\{-n,n\\}$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "score": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $[0]=\\{0\\}$ 與 $[n]=[-n]=\\{-n,n\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "正確描述由這些等價類形成的 $\\mathbf Z$ 分割。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $R$ 反身、對稱、遞移，因此是等價關係。\n\n(b) $[0]=\\{0\\}$；對任意 $n\\in\\mathbf Z^+$，$[n]=[-n]=\\{-n,n\\}$。\n\n因此分割可寫為 $\\{\\{0\\},\\{-1,1\\},\\{-2,2\\},\\{-3,3\\},\\ldots\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確證明反身性。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確證明對稱性。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確證明遞移性。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確得到 $[0]=\\{0\\}$ 與 $[n]=[-n]=\\{-n,n\\}$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "正確描述由這些等價類形成的 $\\mathbf Z$ 分割。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q20",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### 例題 7.56：有限集合上的等價類（投影片第 47 頁）\n令 $A=\\{1,2,3,4,5\\}$，且\n\n$R=\\{(1,1),(2,2),(2,3),(3,2),(3,3),(4,4),(4,5),(5,4),(5,5)\\}$。\n\n已知 $R$ 是 $A$ 上的等價關係。求 $[1],[2],[3],[4],[5]$，寫出由等價類得到的分割，並以各等價類的笛卡兒積表示 $R$。",
+    "hint": null,
+    "solution": "從關係中的序對可直接讀出互相等價的元素群：$1$ 只與自己相連，所以 $[1]=\\{1\\}$；$2$ 與 $3$ 彼此有雙向序對且都有自迴圈，所以 $[2]=[3]=\\{2,3\\}$；同理 $[4]=[5]=\\{4,5\\}$。\n\n因此不同等價類形成分割 $\\{\\{1\\},\\{2,3\\},\\{4,5\\}\\}$。每個等價類內的所有序對全部屬於 $R$，故\n\n$$R=(\\{1\\}\\times\\{1\\})\\cup(\\{2,3\\}\\times\\{2,3\\})\\cup(\\{4,5\\}\\times\\{4,5\\}).$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確得到三個不同等價類 $\\{1\\}$、$\\{2,3\\}$、$\\{4,5\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "正確寫出分割。"
+      },
+      {
+        "score": 2,
+        "description": "正確以三個等價類的笛卡兒積聯集表示 $R$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$[1]=\\{1\\}$，$[2]=[3]=\\{2,3\\}$，$[4]=[5]=\\{4,5\\}$。\n\n分割為 $\\{\\{1\\},\\{2,3\\},\\{4,5\\}\\}$。\n\n$R=(\\{1\\}\\times\\{1\\})\\cup(\\{2,3\\}\\times\\{2,3\\})\\cup(\\{4,5\\}\\times\\{4,5\\})$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確得到三個不同等價類 $\\{1\\}$、$\\{2,3\\}$、$\\{4,5\\}$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確寫出分割。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確以三個等價類的笛卡兒積聯集表示 $R$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-ch7-relations-second-examples",
+    "revision": "1",
+    "questionId": "q21",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### 例題 7.58：由分割建立等價關係（投影片第 49 頁）\n令 $A=\\{1,2,3,4,5,6,7\\}$。某個等價關係 $R$ 在 $A$ 上引出的分割區塊為\n\n$\\{\\{1,2\\},\\{3\\},\\{4,5,7\\},\\{6\\}\\}$。\n\n寫出 $R$ 的笛卡兒積聯集表示，並完整列出 $R$ 的所有序對。",
+    "hint": null,
+    "solution": "等價關係對每一個分割區塊，都必須包含該區塊與自身笛卡兒積中的全部序對；不同區塊之間不產生序對。因此\n\n$$R=(\\{1,2\\}\\times\\{1,2\\})\\cup(\\{3\\}\\times\\{3\\})\\cup(\\{4,5,7\\}\\times\\{4,5,7\\})\\cup(\\{6\\}\\times\\{6\\}).$$\n\n展開後，$\\{1,2\\}$ 提供 4 個序對，$\\{3\\}$ 與 $\\{6\\}$ 各提供 1 個序對，$\\{4,5,7\\}$ 提供 $3^2=9$ 個序對，總共 $4+1+9+1=15$ 個：\n\n$$R=\\{(1,1),(1,2),(2,1),(2,2),(3,3),(6,6),(4,4),(5,5),(7,7),(4,5),(5,4),(4,7),(7,4),(5,7),(7,5)\\}.$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確寫出四個分割區塊的笛卡兒積聯集。"
+      },
+      {
+        "score": 2,
+        "description": "正確且完整列出 15 個序對，沒有跨區塊的序對。"
+      },
+      {
+        "score": 1,
+        "description": "序對總數或展開過程正確。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$R=(\\{1,2\\}\\times\\{1,2\\})\\cup(\\{3\\}\\times\\{3\\})\\cup(\\{4,5,7\\}\\times\\{4,5,7\\})\\cup(\\{6\\}\\times\\{6\\})$。\n\n$R=\\{(1,1),(1,2),(2,1),(2,2),(3,3),(6,6),(4,4),(5,5),(7,7),(4,5),(5,4),(4,7),(7,4),(5,7),(7,5)\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確寫出四個分割區塊的笛卡兒積聯集。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確且完整列出 15 個序對，沒有跨區塊的序對。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "序對總數或展開過程正確。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-exercises-2026",
     "revision": "1",
     "questionId": "q01",

@@ -1,5 +1,25 @@
 # Release checklist
 
+## v1.17.0 Chapter 7 relations second examples — release preparation
+
+日期：2026-10-18（Asia/Taipei）。Immutable base：annotated v1.16.1 tag object `04aee9e2ac97b43dbca4e4fd7f4f35d424c4bb11`／peeled commit `e2dd2175bd9a694c93e170b7b53b57f138aaec2a`。Preparation branch starts at `542847bdaf0783c66ea14fe9d15009b50b8a9250`. Current production remains v1.16.1. Classifier: `security-ai`／Risk C／`providerCanaryRequired=false`; generated canonical contexts changed, so the six dependent Edge functions must be deployed before Pages. This checklist records completed local work only; future CI, deployment and acceptance are not pre-marked.
+
+- [x] Source review: 21 questions／150 points／120 minutes; source identity and independent Stage 0 review are recorded in [v1.17.0 delivery](v1.17.0-delivery.md).
+- [x] Quiz integration and regression coverage: 21 new canonical contexts; previous 112-context fingerprint preserved; total bundle inventory is 8 revisions／6 current quizzes／133 questions／133 contexts.
+- [x] Local verification: 114 test files／1,802 passed／0 skipped; lint, quiz inventory, generated-context consistency, Edge imports, build, production dependency audit and diff checks passed. Lint retained five pre-existing DrawingCanvas warnings; build retained the existing large-chunk advisory.
+- [x] Pre-commit `release:check --base v1.16.1`: all 10 gates passed. Strict preflight passed all six checks, including local／remote v1.17.0 tag absence and working-tree diff checks. This preparation run used HEAD `542847bdaf0783c66ea14fe9d15009b50b8a9250` with uncommitted changes; it is not exact candidate CI.
+- [x] Local browser acceptance: Library discoverability, filters, route, Author Student/Answer previews, KaTeX rendering, typing/handwriting switch and 1440／768／360／345 px layouts passed; no app console errors or horizontal overflow.
+- [x] Conservative classifier: Risk C, no provider canary indicated. `.env.local` is an existing ignored local Vite input and is included by the classifier without reading or staging its values.
+- [x] Stage 2 independent release-preparation review: PASS; final documentation corrections were independently re-reviewed with no blockers or nits.
+- [x] Candidate commit created locally after Stage 2 PASS.
+- [ ] Normal push, exact candidate CI and fresh Stage 3 pre-deploy review.
+- [ ] Deploy six context-dependent Edge functions and record revisions/results; Edge runtime health 6／6.
+- [ ] Dispatch Pages for the exact candidate SHA; canonical public smoke, cache-busted manifest and public browser acceptance.
+- [ ] Authenticated canary, only if the final release checklist requires it and authorized access is available.
+- [ ] Production review and explicit acceptance.
+- [ ] Documentation closure commit, exact closure-SHA CI, closure-SHA Pages parity and annotated v1.17.0 tag.
+- GitHub Release: **not requested / not planned**.
+
 ## v1.16.1 chapter 5 revision 2 production acceptance closure
 
 日期：2026-10-17（Asia/Taipei）。Immutable base v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。已接受的 production runtime candidate 為 `817e954505b6cf9fe15d1aac02cff0d2d59f76db`。本 section 在 documentation closure commit 前整理；**closure commit、closure commit CI、exact closure-SHA Pages parity 與 annotated tag 仍 pending**，不預先宣稱完成。

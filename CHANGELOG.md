@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.17.0 — 第七章「關係－第二回」例題練習
+
+Release preparation：2026-10-18（Asia/Taipei）。Current production remains v1.16.1; the candidate commit is created locally. Normal push, exact CI, production deployment, acceptance and annotated tag are pending. The source adds revision 1 of `discrete-math-ch7-relations-second-examples`: 21 calculation questions, 150 points, 120 minutes, with typing and 1200×900 handwriting. Release classification: `security-ai`／Risk C／`providerCanaryRequired=false`; the generated canonical contexts changed, so the six dependent Edge functions must be deployed before exact-SHA Pages. No migration is included.
+
+- Source review and integration regression/browser evidence passed locally; see [v1.17.0 delivery](docs/v1.17.0-delivery.md).
+- Do not treat this preparation entry as production acceptance. It will be updated only with evidence from each completed release gate.
+
 ## 1.16.1 — 第五章題庫 revision 2：刪除兩題並簡化計算題的要求
 
 Production acceptance：2026-10-17（Asia/Taipei）。Accepted runtime candidate `817e954505b6cf9fe15d1aac02cff0d2d59f76db`（exact candidate CI 39043637456）；基準 immutable v1.16.0：tag object `7fafccb9106e591f83870656e176ac70433c7a68`／peeled `bea17ee1ba6543bd60a47d95c3e80117c18d84b6`。六個 Edge function 已部署、health 6／6、exact candidate Pages（run 39043820681／deployment 7141520321）、未登入的 public acceptance 與登入後的 draft canary（包含封存草稿的重新開始）均已完成，production review PASS。Closure commit、closure CI、closure-SHA Pages parity 與 annotated tag 仍 pending；GitHub Release：not used / not planned。

@@ -42,6 +42,7 @@ const countingTitle = '離散數學第一章：計數的基本原理－例題練
 const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
 const setTheoryTitle = '離散數學第三章：集合論－例題練習'
 const relationsFunctionsTitle = '離散數學第五章：關係和函數－例題練習'
+const chapter7Title = '離散數學第七章：關係－第二回－例題練習'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -96,6 +97,17 @@ describe('Quiz Library search and filters', () => {
     expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
     expect(within(card).getByRole('link', { name: /開始練習/ }))
       .toHaveAttribute('href', '/quiz/discrete-math-ch1-counting-examples')
+  })
+
+  it('shows Chapter 7 with its current revision facts and practice route', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: chapter7Title, level: 2 }).closest('article')!
+    expect(within(card).getByText('離散數學')).toBeInTheDocument()
+    expect(within(card).getByText('21 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 150 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 120 分鐘')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: /開始練習/ }))
+      .toHaveAttribute('href', '/quiz/discrete-math-ch7-relations-second-examples')
   })
 
   it.each(['2025', 'Discrete Mathematics', '期中考'])('finds the bundled midterm with %s', async (query) => {
@@ -181,15 +193,15 @@ describe('Quiz Library search and filters', () => {
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle)],
+    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title)],
     ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle
-      && title !== relationsFunctionsTitle)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle)],
+      && title !== relationsFunctionsTitle && title !== chapter7Title)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title)],
     ['標籤', 'combinatorics', [midtermTitle]],
     ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle)],
     ['標籤', 'sets', inCatalogOrder(exercisesTitle, setTheoryTitle)],
     ['標籤', 'de-morgan', [setTheoryTitle]],
-    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle, relationsFunctionsTitle)],
+    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle, relationsFunctionsTitle, chapter7Title)],
     ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle)],
     ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle)],
     ['標籤', 'stirling-numbers', inCatalogOrder(exercisesTitle, relationsFunctionsTitle)],
