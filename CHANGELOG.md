@@ -2,7 +2,9 @@
 
 ## 1.18.0 — 第八章「包含及互斥原理」例題練習
 
-Release preparation for revision 1 of `discrete-math-ch8-inclusion-exclusion-examples`: 12 calculation questions, 90 points, 75 minutes, and typing or 1200×900 handwriting. The source-derived quiz, canonical tutor contexts, validation evidence, and pending release stages are recorded in [v1.18.0 delivery](docs/v1.18.0-delivery.md). This entry records candidate preparation; production acceptance is pending.
+Production acceptance：2026-10-18（Asia/Taipei）。Accepted runtime candidate `536a68539951052f025159d547873c6623a64886` passed exact candidate CI [39106545026](https://github.com/LukeTsengTW/learnforge/actions/runs/39106545026) (115 files／1,818 tests；production audit 0 vulnerabilities). The six context-dependent Edge functions are ACTIVE at revisions 26／28／28／30／14／16; `verify_jwt` remains false except `save-quiz-draft=true`. Five credentialless GET probes returned 401 and the `save-quiz-draft` OPTIONS probe returned 204. Exact-candidate Pages [39107181062](https://github.com/LukeTsengTW/learnforge/actions/runs/39107181062) succeeded; canonical public smoke and the cache-busted manifest confirm `learnforge`／1.18.0／the candidate SHA. Independent Stage 4 production review: PASS.
+
+Production browser acceptance found seven Library cards and the Chapter 8 quiz; search and tag filtering each found four matching cards. Chapter 8 Student and Answer Preview rendered all 12 questions; retained Chapters 1／3／5／7 also loaded. KaTeX errors and horizontal overflow at 1440／768／360／345 px were zero. Console, page and CSP errors, non-GET or non-github.io requests, and blocked requests were zero. No immediate predeployment Edge inventory was captured; unchanged-function evidence uses prior release records and current metadata, not a live before/after snapshot. The complete evidence, health-probe execution IDs and limits are in [v1.18.0 delivery](docs/v1.18.0-delivery.md). The docs-only closure, closure-SHA parity, annotated tag and requested GitHub Release follow this production-acceptance snapshot.
 
 ## 1.17.0 — 第七章「關係－第二回」例題練習
 

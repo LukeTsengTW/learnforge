@@ -2,7 +2,7 @@
 
 ## v1.18.0 Chapter 8 inclusion-exclusion examples — release preparation
 
-日期：2026-10-18（Asia/Taipei）。Preparation base: v1.17.0 tag object `c6cc7b6747b9ad9005ec7f28bd42405504d31208`, peeled `e9176598618b4d7eca341cbca7808f0c7b3137e0`; source branch commit `24324447a1954036e96fecc7d83909c64d602f1e`. Current production remains v1.17.0. The v1.18.0 candidate SHA and all production evidence are pending.
+日期：2026-10-18（Asia/Taipei）。Production acceptance: **PASS** for runtime candidate `536a68539951052f025159d547873c6623a64886`; independent Stage 4 production review: **PASS**. Immutable base: v1.17.0 tag object `c6cc7b6747b9ad9005ec7f28bd42405504d31208`, peeled `e9176598618b4d7eca341cbca7808f0c7b3137e0`. Exact candidate CI and Pages, Edge deployments, health probes, public smoke and browser evidence are recorded below and in [delivery](v1.18.0-delivery.md). The docs-only closure, closure-SHA Pages parity, annotated tag and GitHub Release are separate Stage 5 operations.
 
 - [x] Source identity and independent Stage 0 review: revision 1 of `discrete-math-ch8-inclusion-exclusion-examples`, 12 calculation questions, 90 points, 75 minutes, 1200×900 handwriting, V4 draft eligible. Independent answer/rubric review PASS; the original PowerPoint was unavailable for image-level comparison.
 - [x] Integration: 9 bundled revisions／7 current quizzes／145 questions and 145 contexts. The 133 prior contexts retain SHA-256 `8b45ac7c7f2eb147a88d34ec15d51dc3a80439458772b29d33e1e42e50328e7d`; 12 new contexts are generated. Earlier chapter inventory and content hashes remain asserted.
@@ -11,13 +11,14 @@
 - [x] Stage 1 independent integration review: final follow-up PASS with no blockers, should-fix items, or nits. The first-cycle naming nit was corrected and the full suite rerun.
 - [x] Final release classification: `security-ai`／Risk C／`providerCanaryRequired=false`; the six context-dependent Edge functions precede Pages. No migration or provider canary is indicated.
 - [x] Stage 2 independent release-preparation review: PASS with no blockers, should-fix items, or nits. The reviewer independently verified version alignment, baseline hashes, context additions and rollout classification; corrected the browser-evidence wording; confirmed no premature CI or production claims.
-- [ ] Master-only `release:check` and exact-SHA strict preflight. The attempt on `codex/v118-release` stopped at the expected branch guard; repeat after candidate fast-forward to master.
-- [ ] Candidate commit, fast-forward to master, normal push, exact candidate CI, and Stage 3 review.
-- [ ] If the final classifier confirms the generated-context dependency, deploy the six named Edge functions and run their authorized health probes; no migrations or provider calls are currently indicated.
-- [ ] Exact candidate Pages deployment, canonical public smoke, production acceptance, and Stage 4 review.
-- [ ] Documentation closure, closure CI, closure-SHA Pages parity, final independent review, annotated `v1.18.0` tag, and the user-requested GitHub Release.
+- [x] Master candidate `536a68539951052f025159d547873c6623a64886`; normal fast-forward and push; `origin/master` matches. `release:check --base v1.17.0` and strict 7-check exact-SHA preflight passed.
+- [x] Exact candidate CI [39106545026](https://github.com/LukeTsengTW/learnforge/actions/runs/39106545026) succeeded on the first attempt (115 files／1,818 tests). Independent Stage 3 review: PASS.
+- [x] Six named Edge functions deployed only; each ACTIVE, version increment +1, `verify_jwt` unchanged. Five GET probes returned 401 and the `save-quiz-draft` OPTIONS probe returned 204. See delivery for versions, IDs, and the missing immediate before-inventory limitation.
+- [x] Exact candidate Pages [39107181062](https://github.com/LukeTsengTW/learnforge/actions/runs/39107181062), canonical public smoke, exact manifest identity, production browser acceptance, and independent Stage 4 review: PASS.
+- Stage 5 follows this acceptance snapshot: commit and push the four closure documents; require exact closure CI; deploy that closure SHA and confirm Pages manifest parity plus public smoke; create the annotated `v1.18.0` tag and requested GitHub Release; then complete the independent final review.
+- The final tag's peeled commit must match the exact SHA served by the final Pages manifest. The closure workflow and tag/Release metadata provide the post-commit identities.
 
-Production deployment, production acceptance, tag, and GitHub Release have not occurred. Full evidence and current limits are recorded in [v1.18.0 delivery](v1.18.0-delivery.md). The user prompt authorizes the release operations listed there; it does not authorize migration/DB writes, Auth or secret inspection, provider canary calls, or production-changing E2E scripts.
+This section is the production-acceptance snapshot for the runtime candidate. Stage 5 records the closure transaction and verifies the final tag and Release against the Pages identity. Full evidence and current limits are recorded in [v1.18.0 delivery](v1.18.0-delivery.md). The user prompt authorizes the release sequence; it excludes migration/DB writes, Auth or secret inspection, provider canary calls, and production-changing E2E scripts.
 
 ## v1.17.0 Chapter 7 relations second examples — production acceptance
 
