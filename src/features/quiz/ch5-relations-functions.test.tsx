@@ -427,11 +427,12 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
     const chapter7 = 'discrete-math-ch7-relations-second-examples'
     const chapter8 = 'discrete-math-ch8-inclusion-exclusion-examples'
-    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => q.id !== chapter8)
-    const contexts = AI_QUIZ_CONTEXT.filter((c) => String(c.quizId) !== chapter8)
-    // Chapter 8 stays outside this inventory; the Chapter 7 family is excluded from the older-content hashes below.
+    const later = new Set([chapter8, 'discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024'])
+    const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
+    const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
+    // Chapter 8 and the three midterms stay outside this inventory; the Chapter 7 family is excluded from older-content hashes below.
     expect(all).toHaveLength(12)
-    expect(quizCatalog.current.filter(({ quiz }) => quiz.id !== chapter8)).toHaveLength(9)
+    expect(quizCatalog.current.filter(({ quiz }) => !later.has(quiz.id))).toHaveLength(9)
     expect(quizCatalog.errors).toEqual([])
     expect(all.flatMap((q) => q.questions)).toHaveLength(162)
     expect(contexts).toHaveLength(162)

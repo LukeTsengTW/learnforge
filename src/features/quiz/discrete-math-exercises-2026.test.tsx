@@ -189,7 +189,8 @@ describe('PDF-backed 2026 exercises for chapters 1, 3, 5, 7 and 8', () => {
     // The inventory deliberately includes the retired demo, boolean-algebra and relations fixtures (see the quiz-loader mock above),
     // so these pins keep proving the earlier families are byte-identical; the shipped inventory is pinned in quiz-loader.test.ts.
     const later = new Set(['discrete-math-ch3-set-theory-examples', 'discrete-math-ch5-relations-functions-examples',
-      'discrete-math-ch7-relations-second-examples', 'discrete-math-ch8-inclusion-exclusion-examples'])
+      'discrete-math-ch7-relations-second-examples', 'discrete-math-ch8-inclusion-exclusion-examples',
+      'discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024'])
     const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
     const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
     expect(all).toHaveLength(8)

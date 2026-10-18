@@ -37,6 +37,9 @@ const fixtures = [
     [QUESTION_TYPE.single, QUESTION_TYPE.trueFalse], '入門練習與基本概念'),
 ]
 const allTitles = ['Logic Challenge', '數學進階', 'Logic Warmup']
+const midterm2021Title = '2021 Discrete Mathematics 期中考'
+const midterm2023Title = '2023 Discrete Mathematics 期中考'
+const midterm2024Title = '2024 Discrete Mathematics 期中考'
 const midtermTitle = '2025 Discrete Mathematics 期中考'
 const countingTitle = '離散數學第一章：計數的基本原理－例題練習'
 const exercisesTitle = '離散數學習題 Ch1、Ch3、Ch5、Ch7、Ch8'
@@ -111,10 +114,14 @@ describe('Quiz Library search and filters', () => {
       .toHaveAttribute('href', '/quiz/discrete-math-ch7-relations-second-examples')
   })
 
-  it.each(['2025', 'Discrete Mathematics', '期中考'])('finds the bundled midterm with %s', async (query) => {
+  it.each([
+    ['2025', [midtermTitle]],
+    ['Discrete Mathematics', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle)],
+    ['期中考', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle)],
+  ])('finds the matching bundled midterm(s) with %s', async (query, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
-    expect(visibleTitles()).toEqual([midtermTitle])
+    expect(visibleTitles()).toEqual(expected)
   })
 
   it('shows the separate 2026 exercises quiz with its declared points, tags and quiz link', () => {
@@ -157,10 +164,14 @@ describe('Quiz Library search and filters', () => {
       .toHaveAttribute('href', '/quiz/discrete-math-ch5-relations-functions-examples')
   })
 
-  it.each(['第五章', '關係和函數', 'pigeonhole-principle'])('finds the Chapter 5 quiz with %s', async (query) => {
+  it.each([
+    ['第五章', [relationsFunctionsTitle]],
+    ['關係和函數', [relationsFunctionsTitle]],
+    ['pigeonhole-principle', inCatalogOrder(midterm2023Title, midterm2024Title, relationsFunctionsTitle)],
+  ])('finds the matching quiz with %s', async (query, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
-    expect(visibleTitles()).toEqual([relationsFunctionsTitle])
+    expect(visibleTitles()).toEqual(expected)
   })
 
   it.each(['第三章', '集合論', 'power-set'])('finds the Chapter 3 quiz with %s', async (query) => {
@@ -169,10 +180,14 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual([setTheoryTitle])
   })
 
-  it.each(['第一章', '計數的基本原理', 'binomial-theorem'])('finds the Chapter 1 quiz with %s', async (query) => {
+  it.each([
+    ['第一章', [countingTitle]],
+    ['計數的基本原理', [countingTitle]],
+    ['binomial-theorem', inCatalogOrder(midterm2021Title, midterm2023Title, countingTitle)],
+  ])('finds the matching quiz with %s', async (query, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), query)
-    expect(visibleTitles()).toEqual([countingTitle])
+    expect(visibleTitles()).toEqual(expected)
   })
 
   it.each(['Ch7', '五份習題解答'])('finds the 2026 exercises quiz with %s', async (query) => {
@@ -181,31 +196,37 @@ describe('Quiz Library search and filters', () => {
     expect(visibleTitles()).toEqual([exercisesTitle])
   })
 
-  it('finds both stirling-numbers quizzes when the tag is searched', async () => {
+  it('finds all stirling-numbers quizzes when the tag is searched', async () => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), 'stirling-numbers')
-    expect(visibleTitles()).toEqual(inCatalogOrder(exercisesTitle, relationsFunctionsTitle))
+    expect(visibleTitles()).toEqual(inCatalogOrder(midterm2021Title, midterm2023Title, exercisesTitle, relationsFunctionsTitle))
   })
 
   it('finds all stars-and-bars quizzes when the tag is searched', async () => {
     const user = renderLibrary(originalCatalog)
     await user.type(screen.getByRole('searchbox', { name: '搜尋' }), 'stars-and-bars')
-    expect(visibleTitles()).toEqual(inCatalogOrder(countingTitle, exercisesTitle, chapter8Title))
+    expect(visibleTitles()).toEqual(inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
+      countingTitle, exercisesTitle, chapter8Title))
   })
 
   it.each([
-    ['科目', '離散數學', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
-    ['題型', QUESTION_TYPE.single, bundledTitles.filter((title) => title !== countingTitle && title !== exercisesTitle && title !== setTheoryTitle
-      && title !== relationsFunctionsTitle && title !== chapter7Title && title !== chapter8Title)],
-    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
-    ['標籤', 'combinatorics', [midtermTitle]],
-    ['標籤', 'inclusion-exclusion', inCatalogOrder(midtermTitle, exercisesTitle, setTheoryTitle, chapter8Title)],
-    ['標籤', 'sets', inCatalogOrder(exercisesTitle, setTheoryTitle)],
+    ['科目', '離散數學', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
+      countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
+    ['題型', QUESTION_TYPE.single, inCatalogOrder(midterm2023Title, midterm2024Title, midtermTitle)],
+    ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
+      countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
+    ['標籤', 'combinatorics', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle)],
+    ['標籤', 'inclusion-exclusion', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
+      midtermTitle, exercisesTitle, setTheoryTitle, chapter8Title)],
+    ['標籤', 'sets', inCatalogOrder(midterm2023Title, exercisesTitle, setTheoryTitle)],
     ['標籤', 'de-morgan', [setTheoryTitle]],
-    ['標籤', 'relations', inCatalogOrder(midtermTitle, exercisesTitle, relationsFunctionsTitle, chapter7Title)],
-    ['標籤', 'counting', inCatalogOrder(midtermTitle, countingTitle, exercisesTitle, chapter8Title)],
-    ['標籤', 'stars-and-bars', inCatalogOrder(countingTitle, exercisesTitle, chapter8Title)],
-    ['標籤', 'stirling-numbers', inCatalogOrder(exercisesTitle, relationsFunctionsTitle)],
+    ['標籤', 'relations', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
+      midtermTitle, exercisesTitle, relationsFunctionsTitle, chapter7Title)],
+    ['標籤', 'counting', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
+      midtermTitle, countingTitle, exercisesTitle, chapter8Title)],
+    ['標籤', 'stars-and-bars', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
+      countingTitle, exercisesTitle, chapter8Title)],
+    ['標籤', 'stirling-numbers', inCatalogOrder(midterm2021Title, midterm2023Title, exercisesTitle, relationsFunctionsTitle)],
   ])('filters the real bundle by %s=%s', async (label, value, expected) => {
     const user = renderLibrary(originalCatalog)
     await user.selectOptions(screen.getByRole('combobox', { name: label }), value)

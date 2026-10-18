@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.19.0 — 2021／2023／2024 離散數學期中考題庫（release preparation）
+
+本地整合與獨立 Stage 0／Stage 1 審查、完整測試及 production build 已通過。這仍是發布準備紀錄：exact-SHA CI、六個相依 Edge function 部署、Pages production acceptance、文件閉環、annotated tag 與 GitHub Release 均待執行；Production acceptance 尚未宣告。
+
+- 新增 2021／2023／2024 三份題庫，共 25 題：18 題計算、7 題單選；各卷 100 分、90 分鐘。
+- canonical tutor context 從 145 增至 170。既有 145 筆序列化內容與 fingerprint `8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368` 相同。
+- Classifier 判定 security-ai／Risk C；Pages 前須明確部署六個相依函式：`ai-tutor`、`ai-grade`、`ai-drawing`、`ai-responses`、`save-quiz-draft`、`submit-quiz`。未要求 provider canary；沒有資料庫 migration。
+- Local gates：1,828 tests、lint、quiz/context checks、Edge import check、production build、production dependency audit 與 diff check 通過。Lint 有 5 個既有 warning；build 有既有大型 chunk advisory。
+- Local browser acceptance 僅使用隔離的本機 mock backend；未驗證 production。
+
+完整來源、整合證據、尚待執行的發布關卡與限制見 [v1.19.0 delivery](docs/v1.19.0-delivery.md)。
+
 ## 1.18.0 — 第八章「包含及互斥原理」例題練習
 
 Production acceptance：2026-10-18（Asia/Taipei）。Accepted runtime candidate `536a68539951052f025159d547873c6623a64886` passed exact candidate CI [39106545026](https://github.com/LukeTsengTW/learnforge/actions/runs/39106545026) (115 files／1,818 tests；production audit 0 vulnerabilities). The six context-dependent Edge functions are ACTIVE at revisions 26／28／28／30／14／16; `verify_jwt` remains false except `save-quiz-draft=true`. Five credentialless GET probes returned 401 and the `save-quiz-draft` OPTIONS probe returned 204. Exact-candidate Pages [39107181062](https://github.com/LukeTsengTW/learnforge/actions/runs/39107181062) succeeded; canonical public smoke and the cache-busted manifest confirm `learnforge`／1.18.0／the candidate SHA. Independent Stage 4 production review: PASS.

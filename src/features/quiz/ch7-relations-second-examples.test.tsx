@@ -114,8 +114,10 @@ describe('Chapter 7 relations, second examples', () => {
 
   it('adds 21 contexts and preserves the existing canonical context fingerprint', () => {
     const chapter8Id = 'discrete-math-ch8-inclusion-exclusion-examples'
-    const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== id && context.quizId !== chapter8Id)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(145)
+    const midtermIds = new Set(['discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024'])
+    const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== id && context.quizId !== chapter8Id
+      && !midtermIds.has(context.quizId))
+    expect(AI_QUIZ_CONTEXT).toHaveLength(170)
     expect(existing).toHaveLength(112)
     expect(AI_QUIZ_CONTEXT.filter((context) => context.quizId === id && context.revision === '1')).toHaveLength(21)
     expect(sha(existing)).toBe('f3e9710df4a12ddf38ce4b395a92d72f8fb5779c3ba11f93f24fe0c6aad8f065')

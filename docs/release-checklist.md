@@ -1,5 +1,18 @@
 # Release checklist
 
+## v1.19.0 2021／2023／2024 離散數學期中考題庫 — release preparation
+
+目前狀態：Stage 0 source review、Stage 1 integration review 及本機 gates PASS。尚未建立 release candidate commit，也未宣告 production acceptance。Production 仍為 v1.18.0。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。
+
+- [x] 三份來源題庫已存在於 source commit `e891aeac3b0a6c6a09df60a222004f4e03290734`；18 題計算、7 題單選，每份 100 分、90 分鐘。
+- [x] Stage 0：獨立 source review PASS，無 blocker／should-fix／nit。
+- [x] 整合：10 份 current quizzes／12 個 revisions／170 題；既有 145 個 canonical contexts 保持 serialized-byte-identical，fingerprint `8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368`。
+- [x] Stage 1：獨立 integration review PASS，無 blocker／should-fix／nit；1,828 tests、lint、quiz/context checks、Edge import check、build、production dependency audit 與 diff check PASS。
+- [ ] Stage 2：版本與文件更新完成後的獨立 release-documentation review。
+- [ ] Stage 3：candidate commit／push、精確 SHA CI；需綠燈後才可進入 provider 部署。
+- [ ] Stage 4：security-ai／Risk C；先以明確名稱部署六個 context-dependent Edge functions，再部署 Pages；確認 canonical smoke、manifest SHA、production browser 與獨立 production review。無 provider canary 要求，無 DB migration。
+- [ ] Stage 5：更新實際 acceptance 證據、docs-only closure commit／push／CI、closure SHA Pages parity、annotated tag、GitHub Release 與獨立 final review。
+
 ## v1.18.0 Chapter 8 inclusion-exclusion examples — release preparation
 
 日期：2026-10-18（Asia/Taipei）。Production acceptance: **PASS** for runtime candidate `536a68539951052f025159d547873c6623a64886`; independent Stage 4 production review: **PASS**. Immutable base: v1.17.0 tag object `c6cc7b6747b9ad9005ec7f28bd42405504d31208`, peeled `e9176598618b4d7eca341cbca7808f0c7b3137e0`. Exact candidate CI and Pages, Edge deployments, health probes, public smoke and browser evidence are recorded below and in [delivery](v1.18.0-delivery.md). The docs-only closure, closure-SHA Pages parity, annotated tag and GitHub Release are separate Stage 5 operations.

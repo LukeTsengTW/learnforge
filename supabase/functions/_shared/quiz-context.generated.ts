@@ -7069,6 +7069,1417 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q1",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 1.（14 分）\n(a) $(x+y)^7$ 的展開式中 $x^5y^2$ 的係數 = ?\n\n(b) 在有 8 位學生的某班上，選 4 位坐成一列拍照，試問共有多少可能的線性安排？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 由二項式定理，\n\n$$\n(x+y)^7=\\sum_{k=0}^{7}\\binom7k x^{7-k}y^k.\n$$\n\n$x^5y^2$ 對應 $k=2$，所以係數為\n\n$$\n\\binom72=21.\n$$\n\n**(b)** 先從 8 位學生中選 4 位，再將這 4 位排成一列：\n\n$$\n\\binom84 4!\n=\\frac{8!}{4!}\n=8\\cdot7\\cdot6\\cdot5\n=1680.\n$$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 正確使用二項式定理並辨認 $x^5y^2$ 對應 $\\binom72$。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確算出係數 $21$。"
+      },
+      {
+        "score": 4,
+        "description": "(b) 正確辨認為從 8 人中選 4 人並排列，列出 $P(8,4)$、$\\binom84 4!$ 或等價式。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確算出 $1680$。"
+      }
+    ],
+    "points": 14,
+    "referenceAnswer": "(a) $\\binom72=21$。\n\n(b) $P(8,4)=\\dfrac{8!}{4!}=1680$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 正確使用二項式定理並辨認 $x^5y^2$ 對應 $\\binom72$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 正確算出係數 $21$。"
+      },
+      {
+        "id": "r3",
+        "points": 4,
+        "description": "(b) 正確辨認為從 8 人中選 4 人並排列，列出 $P(8,4)$、$\\binom84 4!$ 或等價式。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(b) 正確算出 $1680$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q2",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### 2.（24 分）\n(a) 有多少種方法可將 12 本不同的書分給 4 個小孩，使得每個小孩得 3 本書？\n\n(b) 有多少種方法可分配 10 個（相同）白彈珠至 6 個相異容器？\n\n(c) 請寫出將 7 個不同物體分配至 4 個相同容器且無容器是空的方法數。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 12 本書相異、4 位小孩相異，且每人恰得 3 本，因此\n\n$$\n\\binom{12}{3}\\binom{9}{3}\\binom{6}{3}\\binom{3}{3}\n=\\frac{12!}{(3!)^4}\n=369600.\n$$\n\n**(b)** 令六個相異容器中的彈珠數為 $x_1,\\ldots,x_6\\ge0$。題目未要求容器非空，所以要求\n\n$$\nx_1+x_2+x_3+x_4+x_5+x_6=10\n$$\n\n的非負整數解個數。由星與棒，\n\n$$\n\\binom{10+6-1}{6-1}\n=\\binom{15}{5}\n=3003.\n$$\n\n**(c)** 四個容器相同且皆不可為空，等同將 7 個相異物體分割成 4 個非空、無標號的子集合，因此方法數為第二類 Stirling 數 $S(7,4)$。可用映成函數計數：\n\n$$\nS(7,4)\n=\\frac{1}{4!}\\left(4^7-\\binom41 3^7+\\binom42 2^7-\\binom43 1^7\\right).\n$$\n\n代入可得\n\n$$\nS(7,4)\n=\\frac{16384-8748+768-4}{24}\n=\\frac{8400}{24}\n=350.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 正確列出 $\\frac{12!}{(3!)^4}$ 或等價的依序選書公式。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確算出 $369600$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確建模為六個非負整數總和為 10。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確使用星與棒得到 $\\binom{15}{5}=3003$。"
+      },
+      {
+        "score": 4,
+        "description": "(c) 正確辨認為第二類 Stirling 數 $S(7,4)$，或等價的「相異物體到相同非空容器」計數。"
+      },
+      {
+        "score": 4,
+        "description": "(c) 正確使用映成函數除以 $4!$、Stirling 遞迴或其他完整方法得到計數式。"
+      },
+      {
+        "score": 4,
+        "description": "(c) 正確算出 $350$。"
+      }
+    ],
+    "points": 24,
+    "referenceAnswer": "(a) $\\dfrac{12!}{(3!)^4}=369600$ 種。\n\n(b) $\\binom{15}{5}=3003$ 種。\n\n(c) $S(7,4)=350$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 正確列出 $\\frac{12!}{(3!)^4}$ 或等價的依序選書公式。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 正確算出 $369600$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 正確建模為六個非負整數總和為 10。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(b) 正確使用星與棒得到 $\\binom{15}{5}=3003$。"
+      },
+      {
+        "id": "r5",
+        "points": 4,
+        "description": "(c) 正確辨認為第二類 Stirling 數 $S(7,4)$，或等價的「相異物體到相同非空容器」計數。"
+      },
+      {
+        "id": "r6",
+        "points": 4,
+        "description": "(c) 正確使用映成函數除以 $4!$、Stirling 遞迴或其他完整方法得到計數式。"
+      },
+      {
+        "id": "r7",
+        "points": 4,
+        "description": "(c) 正確算出 $350$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q3",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### 3.（18 分）\n有限集合 $A,B$，其中 $|A|=4$、$|B|=3$。\n\n(a) 共有幾個由 $A$ 到 $B$ 的關係？\n\n(b) 共有幾個由 $A$ 到 $B$ 的函數？\n\n(c) 共有幾個由 $A$ 到 $B$ 的映成函數？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** $|A\\times B|=4\\cdot3=12$。關係是 $A\\times B$ 的任意子集合，所以共有\n\n$$\n2^{12}=4096\n$$\n\n個。\n\n**(b)** 對 $A$ 的每一個元素，都有 3 個 $B$ 中元素可作為函數值；四個選擇彼此獨立，因此共有\n\n$$\n3^4=81\n$$\n\n個函數。\n\n**(c)** 要求映成表示 $B$ 的三個元素都至少被命中一次。由包含及互斥原理，\n\n$$\n3^4-\\binom31 2^4+\\binom32 1^4\n=81-48+3\n=36.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 正確指出 $|A\\times B|=12$，且關係為其任意子集合。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確得到 $2^{12}=4096$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確得到每個 $A$ 中元素有 3 個像可選，因此為 $3^4$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確算出 $81$。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 正確使用包含及互斥原理排除未命中至少一個陪域元素的函數。"
+      },
+      {
+        "score": 3,
+        "description": "(c) 正確算出 $36$。"
+      }
+    ],
+    "points": 18,
+    "referenceAnswer": "(a) $2^{12}=4096$ 個關係。\n\n(b) $3^4=81$ 個函數。\n\n(c) $36$ 個映成函數。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 正確指出 $|A\\times B|=12$，且關係為其任意子集合。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 正確得到 $2^{12}=4096$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 正確得到每個 $A$ 中元素有 3 個像可選，因此為 $3^4$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(b) 正確算出 $81$。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(c) 正確使用包含及互斥原理排除未命中至少一個陪域元素的函數。"
+      },
+      {
+        "id": "r6",
+        "points": 3,
+        "description": "(c) 正確算出 $36$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q4",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### 4.（20 分）\nFor each of the following relations, determine whether the relation is reflexive, symmetric, antisymmetric, or transitive?\n\n(a) $R$ is the relation on $\\mathbb Z^+$ where $aRb$ if $a\\mid b$。\n\n(b) $R$ is the relation on $A=\\{1,2,3,4,5,6\\}$ where $xRy$ if $|x-y|\\le1$。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a) 整除關係。**\n\n- Reflexive：是。對任意正整數 $a$，$a\\mid a$。\n- Symmetric：否。例如 $2\\mid4$，但 $4\\nmid2$。\n- Antisymmetric：是。若 $a\\mid b$ 且 $b\\mid a$，因 $a,b$ 為正整數，可推出 $a=b$。\n- Transitive：是。若 $a\\mid b$ 且 $b\\mid c$，則 $b=ka$、$c=\\ell b$，所以 $c=(\\ell k)a$，故 $a\\mid c$。\n\n**(b) 距離至多 1 的關係。**\n\n- Reflexive：是。對任意 $x\\in A$，$|x-x|=0\\le1$。\n- Symmetric：是。若 $|x-y|\\le1$，則 $|y-x|=|x-y|\\le1$。\n- Antisymmetric：否。例如 $1R2$ 且 $2R1$，但 $1\\ne2$。\n- Transitive：否。例如 $1R2$ 且 $2R3$，但 $|1-3|=2>1$，所以 $1\\not R3$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確判定 reflexive 為是並說明 $a\\mid a$。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確判定 symmetric 為否並給出有效反例。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 antisymmetric 為是並由互相整除推出相等。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 正確判定 transitive 為是並給出一般證明。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確判定 reflexive 為是。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確判定 symmetric 為是。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確判定 antisymmetric 為否並給出 $1R2,2R1$ 等反例。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確判定 transitive 為否並給出 $1R2,2R3$ 但 $1\\not R3$ 等反例。"
+      }
+    ],
+    "points": 20,
+    "referenceAnswer": "(a) Reflexive：是；symmetric：否；antisymmetric：是；transitive：是。\n\n(b) Reflexive：是；symmetric：是；antisymmetric：否；transitive：否。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確判定 reflexive 為是並說明 $a\\mid a$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 正確判定 symmetric 為否並給出有效反例。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確判定 antisymmetric 為是並由互相整除推出相等。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "(a) 正確判定 transitive 為是並給出一般證明。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 正確判定 reflexive 為是。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(b) 正確判定 symmetric 為是。"
+      },
+      {
+        "id": "r7",
+        "points": 3,
+        "description": "(b) 正確判定 antisymmetric 為否並給出 $1R2,2R1$ 等反例。"
+      },
+      {
+        "id": "r8",
+        "points": 3,
+        "description": "(b) 正確判定 transitive 為否並給出 $1R2,2R3$ 但 $1\\not R3$ 等反例。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q5",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 5.（12 分）\n集合 $S=\\{1,2,3,\\ldots,20\\}$，$n\\in S$，$n$ 滿足：\n\n(a) 條件 $c_1$：若 $n$ 被 3 整除；\n\n(b) 條件 $c_2$：若 $n$ 被 4 整除。\n\n求 $N(c_1)$、$N(c_2)$、$N(c_1c_2)$、$N(\\overline{c_1}\\,\\overline{c_2})$。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "在 $1,\\ldots,20$ 中，3 的倍數為\n\n$$\n3,6,9,12,15,18,\n$$\n\n所以 $N(c_1)=6$。\n\n4 的倍數為\n\n$$\n4,8,12,16,20,\n$$\n\n所以 $N(c_2)=5$。\n\n同時被 3 與 4 整除等同被 $\\operatorname{lcm}(3,4)=12$ 整除；在 $S$ 中只有 12，因此\n\n$$\nN(c_1c_2)=1.\n$$\n\n同時不被 3 與 4 整除的數量由包含及互斥原理得到：\n\n$$\nN(\\overline{c_1}\\,\\overline{c_2})\n=20-N(c_1)-N(c_2)+N(c_1c_2)\n=20-6-5+1\n=10.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出 $N(c_1)=6$。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出 $N(c_2)=5$。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出 $N(c_1c_2)=1$。"
+      },
+      {
+        "score": 3,
+        "description": "正確以包含及互斥原理算出 $N(\\overline{c_1}\\,\\overline{c_2})=10$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$N(c_1)=6$，$N(c_2)=5$，$N(c_1c_2)=1$，$N(\\overline{c_1}\\,\\overline{c_2})=10$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出 $N(c_1)=6$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確算出 $N(c_2)=5$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確算出 $N(c_1c_2)=1$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確以包含及互斥原理算出 $N(\\overline{c_1}\\,\\overline{c_2})=10$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2021",
+    "revision": "1",
+    "questionId": "q6",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 6.（12 分）\n有多少個方法可安排三個 $x$、三個 $y$，及三個 $z$，使得無連續三個相同字母出現？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "先不加限制。三個 $x$、三個 $y$、三個 $z$ 的多重集合排列總數為\n\n$$\n\\frac{9!}{3!3!3!}=1680.\n$$\n\n令 $E_x,E_y,E_z$ 分別表示三個 $x$、三個 $y$、三個 $z$ 全部連在一起的排列集合。因每種字母恰好只有三個，所以「出現連續三個相同字母」等同至少發生 $E_x,E_y,E_z$ 之一。\n\n固定 $x$ 連成一塊，把 $xxx$ 視為一個物件，連同三個 $y$ 與三個 $z$，共有 7 個位置，其中 $y,z$ 各重複三次：\n\n$$\n|E_x|=\\frac{7!}{3!3!}=140.\n$$\n\n同理 $|E_y|=|E_z|=140$。\n\n若 $x$ 與 $y$ 都各自連成一塊，則物件為 $xxx,yyy,z,z,z$，所以\n\n$$\n|E_x\\cap E_y|=\\frac{5!}{3!}=20.\n$$\n\n三個兩兩交集皆為 20。若三種字母都各自連成一塊，則只有三個不同區塊可排列，因此\n\n$$\n|E_x\\cap E_y\\cap E_z|=3!=6.\n$$\n\n由包含及互斥原理，合法排列數為\n\n$$\n1680-3(140)+3(20)-6\n=1314.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出無限制多重集合排列總數 $\\frac{9!}{(3!)^3}=1680$。"
+      },
+      {
+        "score": 3,
+        "description": "正確計算單一字母三個連在一起時有 $\\frac{7!}{3!3!}=140$ 種，並辨認共有三個此類事件。"
+      },
+      {
+        "score": 3,
+        "description": "正確計算兩個事件交集為 $\\frac{5!}{3!}=20$、三重交集為 $3!=6$。"
+      },
+      {
+        "score": 3,
+        "description": "正確使用包含及互斥原理得到 $1680-420+60-6=1314$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$1314$ 種排列。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出無限制多重集合排列總數 $\\frac{9!}{(3!)^3}=1680$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確計算單一字母三個連在一起時有 $\\frac{7!}{3!3!}=140$ 種，並辨認共有三個此類事件。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確計算兩個事件交集為 $\\frac{5!}{3!}=20$、三重交集為 $3!=6$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確使用包含及互斥原理得到 $1680-420+60-6=1314$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q1",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 1.（14 分）\n(a) 有多少種方法可將 12 本不同的書分給 4 個小孩，使得每個小孩得 3 本書？（7 分）\n\n(b) 有多少方法可分配 7 根香蕉及 6 個橘子給 4 個小孩，使得每一個小孩至少得一根香蕉？（7 分）\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 四個小孩彼此不同，12 本書也彼此不同，而且每人恰得 3 本。可依序選擇前三位小孩的書，最後 3 本自動分給第四位：\n\n$$\n\\binom{12}{3}\\binom{9}{3}\\binom{6}{3}\\binom{3}{3}\n=\\frac{12!}{(3!)^4}\n=369600.\n$$\n\n**(b)** 依這類分配題的慣例，同類水果視為相同，而四個小孩相異。先分香蕉。因每位小孩至少一根香蕉，令第 $i$ 位小孩得到 $b_i\\ge1$ 根，則\n\n$$\nb_1+b_2+b_3+b_4=7.\n$$\n\n正整數解有\n\n$$\n\\binom{7-1}{4-1}=\\binom63=20\n$$\n\n種。\n\n橘子沒有最低數量限制。令第 $i$ 位小孩得到 $o_i\\ge0$ 個橘子，則\n\n$$\no_1+o_2+o_3+o_4=6,\n$$\n\n非負整數解有\n\n$$\n\\binom{6+4-1}{4-1}=\\binom93=84\n$$\n\n種。兩種分配彼此獨立，因此共有\n\n$$\n20\\cdot84=1680\n$$\n\n種。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 正確辨認為將 12 本相異書依 $3,3,3,3$ 分給 4 位相異小孩。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確列出 $\\frac{12!}{(3!)^4}$ 或等價的連乘組合式。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確算出 $369600$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確將香蕉視為四個正整數總和為 7，得到 $\\binom63=20$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確將橘子視為四個非負整數總和為 6，得到 $\\binom93=84$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確相乘得到 $20\\cdot84=1680$，並說明香蕉與橘子的分配彼此獨立。"
+      }
+    ],
+    "points": 14,
+    "referenceAnswer": "(a) $\\dfrac{12!}{(3!)^4}=369600$ 種。\n\n(b) $\\binom63\\binom93=1680$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 正確辨認為將 12 本相異書依 $3,3,3,3$ 分給 4 位相異小孩。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確列出 $\\frac{12!}{(3!)^4}$ 或等價的連乘組合式。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確算出 $369600$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確將香蕉視為四個正整數總和為 7，得到 $\\binom63=20$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 正確將橘子視為四個非負整數總和為 6，得到 $\\binom93=84$。"
+      },
+      {
+        "id": "r6",
+        "points": 3,
+        "description": "(b) 正確相乘得到 $20\\cdot84=1680$，並說明香蕉與橘子的分配彼此獨立。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q2-i",
+    "questionIndex": 1,
+    "type": "single",
+    "prompt": "### 2. (i)\n將 4 個不同物體分配至 3 個不同容器且無容器是空的方法數",
+    "hint": null,
+    "solution": "這是由 4 個相異物體到 3 個相異容器的映成函數數目：\n\n$$\n3^4-\\binom31 2^4+\\binom32 1^4\n=81-48+3\n=36.\n$$\n\n因此選 (b)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "30"
+      },
+      {
+        "id": "b",
+        "content": "36"
+      },
+      {
+        "id": "c",
+        "content": "42"
+      },
+      {
+        "id": "d",
+        "content": "48"
+      },
+      {
+        "id": "e",
+        "content": "54"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q2-ii",
+    "questionIndex": 2,
+    "type": "single",
+    "prompt": "### 2. (ii)\n將 4 個不同物體分配至 3 個相同容器且無容器是空的方法數",
+    "hint": null,
+    "solution": "相同容器且皆非空，等同將 4 個相異物體分成 3 個非空、無標號的群組，因此方法數為第二類 Stirling 數 $S(4,3)$。\n\n群組大小只能是 $(2,1,1)$，只要選出哪兩個物體在同一組即可：\n\n$$\n\\binom42=6.\n$$\n\n因此選 (d)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "9"
+      },
+      {
+        "id": "b",
+        "content": "8"
+      },
+      {
+        "id": "c",
+        "content": "7"
+      },
+      {
+        "id": "d",
+        "content": "6"
+      },
+      {
+        "id": "e",
+        "content": "5"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q2-iii",
+    "questionIndex": 3,
+    "type": "single",
+    "prompt": "### 2. (iii)\n$(x+y)^7$ 展開後 $x^5y^2$ 的係數等於",
+    "hint": null,
+    "solution": "由二項式定理，$x^5y^2$ 對應從 7 個因式中選 2 個提供 $y$，所以係數為\n\n$$\n\\binom72=21.\n$$\n\n因此選 (a)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "21"
+      },
+      {
+        "id": "b",
+        "content": "18"
+      },
+      {
+        "id": "c",
+        "content": "15"
+      },
+      {
+        "id": "d",
+        "content": "12"
+      },
+      {
+        "id": "e",
+        "content": "10"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q3",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### 3.（14 分）\n(a) 何謂鴿洞原理（pigeonhole principle）？（7 分）\n\n(b) 請說明為何由集合 $S=\\{1,2,3,4,5,6,7,8,9\\}$ 中取出大小為 6 的子集合，必含兩個元素其和為 10。（7 分）\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 鴿洞原理可表述為：若把 $m$ 個物件放入 $n$ 個容器，且 $m>n$，則至少有一個容器含有至少兩個物件。更一般地，至少有一個容器含有 $\\left\\lceil m/n\\right\\rceil$ 個物件。\n\n**(b)** 將 $S$ 分成五組：\n\n$$\n\\{1,9\\},\\{2,8\\},\\{3,7\\},\\{4,6\\},\\{5\\}.\n$$\n\n前四組的兩個元素和都等於 10。若取出 6 個相異元素，把它們依所屬組別放入上述 5 個「鴿洞」，由鴿洞原理，至少有一組含兩個被選元素。單元素組 $\\{5\\}$ 不可能含兩個相異元素，所以必有前四個配對之一的兩個元素同時被選中；它們的和為 10。",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 正確敘述基本鴿洞原理：多於 $n$ 個物件放入 $n$ 個容器，至少一個容器含至少兩個物件。"
+      },
+      {
+        "score": 3,
+        "description": "(a) 敘述清楚物件與容器的對應，或給出等價的一般化敘述。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確分成四個和為 10 的配對與單獨的 $\\{5\\}$，共 5 組。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確以 6 個被選元素對 5 組套用鴿洞原理。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 說明雙元素組不可能是 $\\{5\\}$，故一定選到一個完整的和為 10 配對。"
+      }
+    ],
+    "points": 14,
+    "referenceAnswer": "(a) 若將多於 $n$ 個物件放入 $n$ 個容器，至少有一個容器含兩個以上物件。\n\n(b) 將 $S$ 分成 $\\{1,9\\},\\{2,8\\},\\{3,7\\},\\{4,6\\},\\{5\\}$ 五組；選 6 個相異元素時至少有一組選到兩個，而該組只能是前四個和為 10 的配對之一。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 正確敘述基本鴿洞原理：多於 $n$ 個物件放入 $n$ 個容器，至少一個容器含至少兩個物件。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(a) 敘述清楚物件與容器的對應，或給出等價的一般化敘述。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 正確分成四個和為 10 的配對與單獨的 $\\{5\\}$，共 5 組。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確以 6 個被選元素對 5 組套用鴿洞原理。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 說明雙元素組不可能是 $\\{5\\}$，故一定選到一個完整的和為 10 配對。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q4",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 4.（15 分）\n(a) 若 $A=\\{1,2,3,4\\}$，$A$ 上的一個關係\n\n$$\nR=\\{(1,1),(2,3),(3,4),(2,4)\\},\n$$\n\n$R$ 是否 reflexive？symmetric？antisymmetric？transitive？（8 分）\n\n(b) 若 $A=\\{1,2,3,4\\}$，$A$ 上共有多少個反對稱（antisymmetric）關係？（7 分）\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)**\n\n- Reflexive：否。雖然 $(1,1)\\in R$，但例如 $(2,2)\\notin R$。\n- Symmetric：否。$(2,3)\\in R$，但 $(3,2)\\notin R$。\n- Antisymmetric：是。沒有任何相異元素 $a\\ne b$ 同時出現 $(a,b)$ 與 $(b,a)$。\n- Transitive：是。唯一需要特別檢查的非平凡鏈為 $(2,3)$ 與 $(3,4)$，而 $(2,4)\\in R$；$(1,1)$ 與自身組合仍得到 $(1,1)$。其餘有序對沒有可接續的中間元素，因此不會產生新的傳遞性要求。\n\n**(b)** 四個對角有序對各可任意包含或不包含，共 $2^4$ 種。四個元素形成 $\\binom42=6$ 個相異元素的無序對；對每個 $\\{a,b\\}$，反對稱性只允許「兩個方向都不放、只放 $(a,b)$、只放 $(b,a)$」三種選擇，共 $3^6$ 種。因此\n\n$$\n2^4\\cdot3^6\n=16\\cdot729\n=11664.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確判定 reflexive 為否，並指出缺少某個對角有序對。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 symmetric 為否，並給出有效反例。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 antisymmetric 為是。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 transitive 為是，並檢查 $(2,3),(3,4)\\Rightarrow(2,4)$ 等必要鏈。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到對角有序對的 $2^4$ 種選擇。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確得到六個無序對各三種合法選擇，因此為 $3^6$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確算出 $2^4\\cdot3^6=11664$。"
+      }
+    ],
+    "points": 15,
+    "referenceAnswer": "(a) Reflexive：否；symmetric：否；antisymmetric：是；transitive：是。\n\n(b) $2^4\\cdot3^6=11664$ 個反對稱關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確判定 reflexive 為否，並指出缺少某個對角有序對。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確判定 symmetric 為否，並給出有效反例。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確判定 antisymmetric 為是。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(a) 正確判定 transitive 為是，並檢查 $(2,3),(3,4)\\Rightarrow(2,4)$ 等必要鏈。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(b) 正確得到對角有序對的 $2^4$ 種選擇。"
+      },
+      {
+        "id": "r6",
+        "points": 3,
+        "description": "(b) 正確得到六個無序對各三種合法選擇，因此為 $3^6$。"
+      },
+      {
+        "id": "r7",
+        "points": 2,
+        "description": "(b) 正確算出 $2^4\\cdot3^6=11664$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q5",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 5.（17 分）\n集合 $A=\\{1,2,3,4\\}$、$B=\\{a,b,c\\}$。\n\n(a) $A\\times B=?$（6 分）\n\n(b) 共有幾個由 $A$ 到 $B$ 的關係？（5 分）\n\n(c) 給集合 $A$ 上一個關係 $R$ 的例子，使其為反身的及對稱的，但非遞移的。（6 分）\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)** 笛卡兒積 $A\\times B$ 由所有第一分量取自 $A$、第二分量取自 $B$ 的有序對組成，因此共有 $4\\cdot3=12$ 個：\n\n$$\nA\\times B=\n\\{(1,a),(1,b),(1,c),(2,a),(2,b),(2,c),(3,a),(3,b),(3,c),(4,a),(4,b),(4,c)\\}.\n$$\n\n**(b)** 由 $A$ 到 $B$ 的關係就是 $A\\times B$ 的任意子集合。因 $|A\\times B|=12$，每個有序對都可獨立選擇放入或不放入，所以共有\n\n$$\n2^{12}=4096\n$$\n\n個關係。\n\n**(c)** 取\n\n$$\nR=\\{(1,1),(2,2),(3,3),(4,4),(1,2),(2,1),(2,3),(3,2)\\}.\n$$\n\n四個對角有序對都在 $R$ 中，因此 $R$ 反身；每個非對角有序對都和其反向一起出現，因此 $R$ 對稱。但 $(1,2)\\in R$ 且 $(2,3)\\in R$，而 $(1,3)\\notin R$，所以 $R$ 非遞移。",
+    "rubric": [
+      {
+        "score": 6,
+        "description": "(a) 正確列出 $A\\times B$ 的 12 個有序對；少量純抄寫錯誤可依完整性酌扣。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確指出關係是 $A\\times B$ 的任意子集合，且 $|A\\times B|=12$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確得到 $2^{12}=4096$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 給出的關係包含四個對角有序對，因此確實反身。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 非對角有序對成反向配對，因此確實對稱。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 給出有效的非遞移見證，例如 $(1,2),(2,3)\\in R$ 但 $(1,3)\\notin R$。"
+      }
+    ],
+    "points": 17,
+    "referenceAnswer": "(a)\n\n$$\nA\\times B=\n\\{(1,a),(1,b),(1,c),(2,a),(2,b),(2,c),(3,a),(3,b),(3,c),(4,a),(4,b),(4,c)\\}.\n$$\n\n(b) $2^{12}=4096$ 個關係。\n\n(c) 例如\n\n$$\nR=\\{(1,1),(2,2),(3,3),(4,4),(1,2),(2,1),(2,3),(3,2)\\}.\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 6,
+        "description": "(a) 正確列出 $A\\times B$ 的 12 個有序對；少量純抄寫錯誤可依完整性酌扣。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 正確指出關係是 $A\\times B$ 的任意子集合，且 $|A\\times B|=12$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(b) 正確得到 $2^{12}=4096$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(c) 給出的關係包含四個對角有序對，因此確實反身。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(c) 非對角有序對成反向配對，因此確實對稱。"
+      },
+      {
+        "id": "r6",
+        "points": 2,
+        "description": "(c) 給出有效的非遞移見證，例如 $(1,2),(2,3)\\in R$ 但 $(1,3)\\notin R$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q6",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 6.（12 分）\n求方程式\n\n$$\nx_1+x_2+x_3+x_4=18\n$$\n\n的非負整數解個數，且加上 $x_i\\le7$ 對所有 $1\\le i\\le4$ 的限制。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "先忽略上界，四個非負整數總和為 18 的解有\n\n$$\n\\binom{18+4-1}{4-1}\n=\\binom{21}{3}\n=1330\n$$\n\n個。\n\n令 $E_i$ 表示違反第 $i$ 個上界，即 $x_i\\ge8$。固定一個 $i$，令 $y_i=x_i-8\\ge0$，新的總和為 10，因此\n\n$$\n|E_i|=\\binom{13}{3}=286.\n$$\n\n固定兩個不同的 $i,j$ 同時違規，兩者各減 8 後剩餘總和為 2，因此\n\n$$\n|E_i\\cap E_j|=\\binom53=10.\n$$\n\n三個變數同時至少為 8 時總和至少 24，不可能發生，所以三重與四重交集皆為空。由包含及互斥原理，\n\n$$\n\\binom{21}{3}\n-4\\binom{13}{3}\n+\\binom42\\binom53\n=1330-1144+60\n=246.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出無上界時有 $\\binom{21}{3}=1330$ 個非負整數解。"
+      },
+      {
+        "score": 3,
+        "description": "正確處理單一變數 $x_i\\ge8$，得到每個違規集合 $\\binom{13}{3}=286$，共四個。"
+      },
+      {
+        "score": 3,
+        "description": "正確處理兩個變數同時違規，得到每個交集 $\\binom53=10$，共有 $\\binom42=6$ 個，並指出三重交集為空。"
+      },
+      {
+        "score": 3,
+        "description": "正確套用包含及互斥原理得到 $246$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$246$ 個非負整數解。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出無上界時有 $\\binom{21}{3}=1330$ 個非負整數解。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確處理單一變數 $x_i\\ge8$，得到每個違規集合 $\\binom{13}{3}=286$，共四個。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確處理兩個變數同時違規，得到每個交集 $\\binom53=10$，共有 $\\binom42=6$ 個，並指出三重交集為空。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確套用包含及互斥原理得到 $246$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2023",
+    "revision": "1",
+    "questionId": "q7",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 7.（10 分）\nFord 太太有多少種方法分配 4 本不同書給她 4 個小孩（每位小孩一本書），並收回再重新分配這些書，使得每位小孩有機會閱讀兩本不同的書？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "第一次把 4 本不同的書一人一本分給 4 位不同的小孩，共有\n\n$$\n4!=24\n$$\n\n種分配。\n\n固定第一次分配後，第二次分配必須讓每位小孩都拿到與第一次不同的書，因此第二次分配是相對於第一次分配的一個 4 元錯排（derangement）。四個元素的錯排數為\n\n$$\nD_4\n=4!\\left(1-\\frac1{1!}+\\frac1{2!}-\\frac1{3!}+\\frac1{4!}\\right)\n=9.\n$$\n\n所以兩次分配的有序組合共有\n\n$$\n4!\\,D_4\n=24\\cdot9\n=216\n$$\n\n種。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出第一次分配有 $4!=24$ 種。"
+      },
+      {
+        "score": 3,
+        "description": "正確辨認第二次分配必須是相對於第一次分配的 4 元錯排。"
+      },
+      {
+        "score": 2,
+        "description": "正確算出 $D_4=9$。"
+      },
+      {
+        "score": 2,
+        "description": "正確相乘得到 $24\\cdot9=216$ 種。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "$4!\\,D_4=24\\cdot9=216$ 種。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出第一次分配有 $4!=24$ 種。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確辨認第二次分配必須是相對於第一次分配的 4 元錯排。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確算出 $D_4=9$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "正確相乘得到 $24\\cdot9=216$ 種。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q1",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### 1.（12 分）\nDetermine the number of integer solutions of\n\n$$\nx_1+x_2+x_3+x_4=7,\n$$\n\nwhere $x_i\\ge 0$，$1\\le i\\le4$。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "這是四個非負整數總和為 $7$ 的星與棒（stars and bars）問題。用 $7$ 個星號代表單位量，並以 $3$ 個隔板分成四組，因此解的個數為\n\n$$\n\\binom{7+4-1}{4-1}\n=\\binom{10}{3}\n=120.\n$$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "正確辨認為四個非負整數總和為 7 的星與棒問題。"
+      },
+      {
+        "score": 4,
+        "description": "正確列出 $\\binom{7+4-1}{4-1}=\\binom{10}{3}$。"
+      },
+      {
+        "score": 4,
+        "description": "正確算出 $120$ 個整數解。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$\\binom{10}{3}=120$ 個整數解。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "正確辨認為四個非負整數總和為 7 的星與棒問題。"
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "正確列出 $\\binom{7+4-1}{4-1}=\\binom{10}{3}$。"
+      },
+      {
+        "id": "r3",
+        "points": 4,
+        "description": "正確算出 $120$ 個整數解。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q2-i",
+    "questionIndex": 1,
+    "type": "single",
+    "prompt": "### 2. (I)\n將 4 個不同物體分配至 3 個不同容器且無容器是空的方法數",
+    "hint": null,
+    "solution": "這等同於計算由 4 個相異物體到 3 個相異容器的映成函數（onto function）。由包含及互斥原理，\n\n$$\n3^4-\\binom31 2^4+\\binom32 1^4\n=81-48+3\n=36.\n$$\n\n因此選 (b)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "30"
+      },
+      {
+        "id": "b",
+        "content": "36"
+      },
+      {
+        "id": "c",
+        "content": "42"
+      },
+      {
+        "id": "d",
+        "content": "48"
+      },
+      {
+        "id": "e",
+        "content": "54"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q2-ii",
+    "questionIndex": 2,
+    "type": "single",
+    "prompt": "### 2. (II)\n$(x+y+z)^7$ 展開後 $xyz^5$ 的係數等於",
+    "hint": null,
+    "solution": "要得到 $x^1y^1z^5$，七個因式中需選 1 個提供 $x$、1 個提供 $y$、5 個提供 $z$。係數為多項式係數\n\n$$\n\\frac{7!}{1!\\,1!\\,5!}\n=7\\cdot6\n=42.\n$$\n\n因此選 (e)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "21"
+      },
+      {
+        "id": "b",
+        "content": "18"
+      },
+      {
+        "id": "c",
+        "content": "15"
+      },
+      {
+        "id": "d",
+        "content": "10"
+      },
+      {
+        "id": "e",
+        "content": "42"
+      }
+    ],
+    "correctOptionId": "e"
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q2-iii",
+    "questionIndex": 3,
+    "type": "single",
+    "prompt": "### 2. (III)\n有限集合 $A,B$，其中 $A=\\{1,2,3,4\\}$、$B=\\{a,b\\}$，共有幾個由 $A$ 到 $B$ 的關係？",
+    "hint": null,
+    "solution": "由 $A$ 到 $B$ 的一個關係是 $A\\times B$ 的任意子集合。因為\n\n$$\n|A\\times B|=|A||B|=4\\cdot2=8,\n$$\n\n所以共有 $2^8=256$ 個關係。因此選 (c)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "64"
+      },
+      {
+        "id": "b",
+        "content": "128"
+      },
+      {
+        "id": "c",
+        "content": "256"
+      },
+      {
+        "id": "d",
+        "content": "512"
+      },
+      {
+        "id": "e",
+        "content": "1024"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q2-iv",
+    "questionIndex": 4,
+    "type": "single",
+    "prompt": "### 2. (IV)\n函數 $f:\\mathbb Z\\to\\mathbb Z$，$f(x)=3x+1$ 是否為映成函數？是否為一對一函數？",
+    "hint": null,
+    "solution": "若 $f(a)=f(b)$，則 $3a+1=3b+1$，因此 $a=b$，所以 $f$ 是一對一函數。\n\n但 $f(x)$ 對任何整數 $x$ 都滿足 $f(x)\\equiv1\\pmod3$；例如陪域中的 $0$ 不可能寫成 $3x+1$，所以 $f$ 不是映成函數。因此選 (b)。",
+    "rubric": [],
+    "points": 6,
+    "options": [
+      {
+        "id": "a",
+        "content": "是映成函數，是一對一函數"
+      },
+      {
+        "id": "b",
+        "content": "不是映成函數，是一對一函數"
+      },
+      {
+        "id": "c",
+        "content": "是映成函數，不是一對一函數"
+      },
+      {
+        "id": "d",
+        "content": "不是映成函數，不是一對一函數"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q3",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### 3.（12 分）\n在字元 $0,1,2,\\ldots,9$ 的排列中，以 3 開頭或以 7 結尾的排列共有多少個？\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "令 $A$ 為「以 3 開頭」的排列集合，$B$ 為「以 7 結尾」的排列集合。\n\n固定第一個字元為 3 後，其餘 9 個字元可任意排列，所以 $|A|=9!$。固定最後一個字元為 7 後，同理 $|B|=9!$。\n\n同時以 3 開頭且以 7 結尾時，首尾固定，其餘 8 個字元可任意排列，因此 $|A\\cap B|=8!$。由包含及互斥原理，\n\n$$\n|A\\cup B|\n=|A|+|B|-|A\\cap B|\n=2\\cdot9!-8!\n=685440.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出以 3 開頭的排列有 $9!$ 個。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出以 7 結尾的排列有 $9!$ 個。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出同時以 3 開頭且以 7 結尾的交集有 $8!$ 個，並使用包含及互斥原理。"
+      },
+      {
+        "score": 3,
+        "description": "正確得到 $2\\cdot9!-8!=685440$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$685440$ 個排列。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出以 3 開頭的排列有 $9!$ 個。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確算出以 7 結尾的排列有 $9!$ 個。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確算出同時以 3 開頭且以 7 結尾的交集有 $8!$ 個，並使用包含及互斥原理。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確得到 $2\\cdot9!-8!=685440$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q4",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### 4.（18 分）\n(a) 若 $A=\\{1,2,3,4\\}$，$A$ 上的一個關係\n\n$$\nR=\\{(1,1),(2,2),(3,3),(4,4),(1,2),(2,3),(3,4),(2,4)\\},\n$$\n\n$R$ 是否 reflexive？symmetric？antisymmetric？transitive？（10 分）\n\n(b) 若 $A=\\{1,2,3\\}$，$A$ 上共有多少個反對稱（antisymmetric）關係？（8 分）\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "**(a)**\n\n- Reflexive：是。$A$ 中四個元素的 $(1,1),(2,2),(3,3),(4,4)$ 都在 $R$ 中。\n- Symmetric：否。例如 $(1,2)\\in R$，但 $(2,1)\\notin R$。\n- Antisymmetric：是。$R$ 中沒有任何相異元素 $a\\ne b$ 同時滿足 $(a,b)\\in R$ 與 $(b,a)\\in R$。\n- Transitive：否。因為 $(1,2)\\in R$ 且 $(2,3)\\in R$，但 $(1,3)\\notin R$，所以不具傳遞性。\n\n**(b)** 三個對角有序對 $(1,1),(2,2),(3,3)$ 各可自由選擇是否放入關係，共有 $2^3$ 種。\n\n相異元素形成 $\\binom32=3$ 個無序對。對每一個無序對 $\\{a,b\\}$，反對稱性禁止同時放入 $(a,b)$ 與 $(b,a)$，因此只有三種合法選擇：兩者皆不放、只放 $(a,b)$、只放 $(b,a)$。三個無序對彼此獨立，共有 $3^3$ 種。\n\n因此反對稱關係總數為\n\n$$\n2^3\\cdot3^3=8\\cdot27=216.\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確判定 reflexive 為是，並指出四個對角有序對皆存在。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 symmetric 為否，並給出有效反例，例如 $(1,2)$ 與 $(2,1)$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確判定 antisymmetric 為是，並說明沒有相異元素的雙向有序對。"
+      },
+      {
+        "score": 4,
+        "description": "(a) 正確判定 transitive 為否，並以 $(1,2),(2,3)$ 但缺少 $(1,3)$ 等有效反例說明。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確說明三個對角有序對各有兩種選擇，得到 $2^3$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) 正確說明三個無序對各有三種合法方向選擇，得到 $3^3$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到 $2^3\\cdot3^3=216$。"
+      }
+    ],
+    "points": 18,
+    "referenceAnswer": "(a) Reflexive：是；symmetric：否；antisymmetric：是；transitive：否。\n\n(b) $2^3\\cdot3^3=216$ 個反對稱關係。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確判定 reflexive 為是，並指出四個對角有序對皆存在。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確判定 symmetric 為否，並給出有效反例，例如 $(1,2)$ 與 $(2,1)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(a) 正確判定 antisymmetric 為是，並說明沒有相異元素的雙向有序對。"
+      },
+      {
+        "id": "r4",
+        "points": 4,
+        "description": "(a) 正確判定 transitive 為否，並以 $(1,2),(2,3)$ 但缺少 $(1,3)$ 等有效反例說明。"
+      },
+      {
+        "id": "r5",
+        "points": 3,
+        "description": "(b) 正確說明三個對角有序對各有兩種選擇，得到 $2^3$。"
+      },
+      {
+        "id": "r6",
+        "points": 3,
+        "description": "(b) 正確說明三個無序對各有三種合法方向選擇，得到 $3^3$。"
+      },
+      {
+        "id": "r7",
+        "points": 2,
+        "description": "(b) 正確得到 $2^3\\cdot3^3=216$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q5",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### 5.（10 分）\n說明若由 $S=\\{1,2,3,\\ldots,35\\}$ 選出 19 個相異整數，則存在 2 個整數和為 36。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "把 $S$ 分成以下 18 組：\n\n$$\n\\{1,35\\},\\{2,34\\},\\ldots,\\{17,19\\},\\{18\\}.\n$$\n\n前 17 組中的每一組兩個數相加都等於 36，最後一組只有 18。\n\n現在從 $S$ 選出 19 個相異整數，等於把 19 個被選出的數放進上述 18 組中。由鴿籠原理，至少有一組含有兩個被選出的整數。因為 $\\{18\\}$ 只有一個元素，不可能提供兩個相異整數，所以含有兩個被選整數的一定是前 17 個配對之一。該配對的兩個整數和即為 36。",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "正確把 $1,\\ldots,35$ 組成 $\\{1,35\\},\\ldots,\\{17,19\\}$ 與單獨的 $\\{18\\}$，共 18 組。"
+      },
+      {
+        "score": 3,
+        "description": "正確套用鴿籠原理：19 個相異被選整數分到 18 組，至少一組有兩個被選整數。"
+      },
+      {
+        "score": 3,
+        "description": "說明單獨的 $\\{18\\}$ 不可能含兩個相異被選整數，因此必有一個和為 36 的完整配對被選中。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "一定存在；可將 $S$ 分成 17 個和為 36 的配對與單獨的 $\\{18\\}$，再套用鴿籠原理。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "正確把 $1,\\ldots,35$ 組成 $\\{1,35\\},\\ldots,\\{17,19\\}$ 與單獨的 $\\{18\\}$，共 18 組。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確套用鴿籠原理：19 個相異被選整數分到 18 組，至少一組有兩個被選整數。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "說明單獨的 $\\{18\\}$ 不可能含兩個相異被選整數，因此必有一個和為 36 的完整配對被選中。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q6",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### 6.（12 分）\nFor $A=\\{1,2,3,4,5,6\\}$,\n\n$$\nR=\\{(1,1),(1,2),(2,1),(2,2),(3,3),(4,4),(4,5),(5,4),(5,5),(6,6)\\}\n$$\n\nis an equivalence relation on $A$。\n\n(a) What are $[1]$、$[2]$、and $[3]$ under this equivalence relation?\n\n(b) What partition of $A$ does $R$ induce?\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "等價類 $[a]$ 是所有與 $a$ 有關係的元素所成的集合。\n\n由 $R$ 中的 $(1,1),(1,2)$ 可得 $[1]=\\{1,2\\}$；由 $(2,1),(2,2)$ 可得 $[2]=\\{1,2\\}$；而與 3 有關的只有 $(3,3)$，所以 $[3]=\\{3\\}$。\n\n其餘元素中，4 與 5 彼此等價，故形成 $\\{4,5\\}$；6 只與自己等價，形成 $\\{6\\}$。因此 $A$ 被分成互不相交的等價類\n\n$$\n\\big\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\big\\}.\n$$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "正確得到 $[1]=\\{1,2\\}$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $[2]=\\{1,2\\}$ 並辨認 $[1]=[2]$。"
+      },
+      {
+        "score": 2,
+        "description": "正確得到 $[3]=\\{3\\}$。"
+      },
+      {
+        "score": 4,
+        "description": "正確寫出分割 $\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\}$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "(a) $[1]=[2]=\\{1,2\\}$，$[3]=\\{3\\}$。\n\n(b) $R$ 誘導的分割為 $\\big\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\big\\}$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "正確得到 $[1]=\\{1,2\\}$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確得到 $[2]=\\{1,2\\}$ 並辨認 $[1]=[2]$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "正確得到 $[3]=\\{3\\}$。"
+      },
+      {
+        "id": "r4",
+        "points": 4,
+        "description": "正確寫出分割 $\\{\\{1,2\\},\\{3\\},\\{4,5\\},\\{6\\}\\}$。"
+      }
+    ]
+  },
+  {
+    "quizId": "discrete-math-midterm-2024",
+    "revision": "1",
+    "questionId": "q7",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### 7.（12 分）\n求正整數 $n$ 的個數，其中 $1\\le n\\le500$ 且 $n$ 不被 2、3 或 5 整除。\n\n請寫計算過程或說明理由。",
+    "hint": null,
+    "solution": "在 $1,\\ldots,500$ 中，令 $A_2,A_3,A_5$ 分別表示被 2、3、5 整除的數。\n\n各單一集合大小為\n\n$$\n|A_2|=\\left\\lfloor\\frac{500}{2}\\right\\rfloor=250,\\quad\n|A_3|=\\left\\lfloor\\frac{500}{3}\\right\\rfloor=166,\\quad\n|A_5|=\\left\\lfloor\\frac{500}{5}\\right\\rfloor=100.\n$$\n\n兩兩交集與三重交集為\n\n$$\n|A_2\\cap A_3|=\\left\\lfloor\\frac{500}{6}\\right\\rfloor=83,\\quad\n|A_2\\cap A_5|=\\left\\lfloor\\frac{500}{10}\\right\\rfloor=50,\n$$\n\n$$\n|A_3\\cap A_5|=\\left\\lfloor\\frac{500}{15}\\right\\rfloor=33,\\quad\n|A_2\\cap A_3\\cap A_5|=\\left\\lfloor\\frac{500}{30}\\right\\rfloor=16.\n$$\n\n由包含及互斥原理，被 2、3 或 5 至少一者整除的數共有\n\n$$\n250+166+100-83-50-33+16=366.\n$$\n\n因此三者皆不整除的數共有\n\n$$\n500-366=134.\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確算出被 2、3、5 整除的個數分別為 $250,166,100$。"
+      },
+      {
+        "score": 3,
+        "description": "正確算出兩兩交集為 $83,50,33$，三重交集為 $16$。"
+      },
+      {
+        "score": 3,
+        "description": "正確使用包含及互斥原理得到聯集大小 $366$。"
+      },
+      {
+        "score": 3,
+        "description": "正確由 $500-366$ 得到 $134$。"
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$134$ 個正整數。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確算出被 2、3、5 整除的個數分別為 $250,166,100$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確算出兩兩交集為 $83,50,33$，三重交集為 $16$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "正確使用包含及互斥原理得到聯集大小 $366$。"
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "正確由 $500-366$ 得到 $134$。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math",
     "revision": "1",
     "questionId": "q1-i",
