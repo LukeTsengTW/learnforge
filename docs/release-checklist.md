@@ -1,17 +1,20 @@
 # Release checklist
 
-## v1.19.0 2021／2023／2024 離散數學期中考題庫 — release preparation
+## v1.19.0 2021／2023／2024 離散數學期中考題庫 — production acceptance
 
-目前狀態：Stage 0 source review、Stage 1 integration review 及本機 gates PASS。尚未建立 release candidate commit，也未宣告 production acceptance。Production 仍為 v1.18.0。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。
+目前 production acceptance 已通過；production runtime candidate 為 `f283c14c45fa670865f30510c77bf40e64e35e4a`。Stage 0–4 reviews、exact candidate CI、六個 Edge 部署、exact-candidate Pages、public smoke、manifest 與受限 production browser acceptance 均 PASS。Stage 5 的文件 closure commit、exact closure-SHA CI／Pages parity、annotated tag、GitHub Release 與獨立 final review 尚待完成。Production manifest 目前顯示 candidate SHA；最後的正式 release identity 必須是通過 closure gates 的 SHA。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。
 
 - [x] 三份來源題庫已存在於 source commit `e891aeac3b0a6c6a09df60a222004f4e03290734`；18 題計算、7 題單選，每份 100 分、90 分鐘。
-- [x] Stage 0：獨立 source review PASS，無 blocker／should-fix／nit。
-- [x] 整合：10 份 current quizzes／12 個 revisions／170 題；既有 145 個 canonical contexts 保持 serialized-byte-identical，fingerprint `8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368`。
-- [x] Stage 1：獨立 integration review PASS，無 blocker／should-fix／nit；1,828 tests、lint、quiz/context checks、Edge import check、build、production dependency audit 與 diff check PASS。
-- [ ] Stage 2：版本與文件更新完成後的獨立 release-documentation review。
-- [ ] Stage 3：candidate commit／push、精確 SHA CI；需綠燈後才可進入 provider 部署。
-- [ ] Stage 4：security-ai／Risk C；先以明確名稱部署六個 context-dependent Edge functions，再部署 Pages；確認 canonical smoke、manifest SHA、production browser 與獨立 production review。無 provider canary 要求，無 DB migration。
-- [ ] Stage 5：更新實際 acceptance 證據、docs-only closure commit／push／CI、closure SHA Pages parity、annotated tag、GitHub Release 與獨立 final review。
+- [x] Stage 0 source、Stage 1 integration、Stage 2 release-documentation、Stage 3 candidate review 均 PASS；各 reviewer 0 blocker／should-fix／nit。
+- [x] 整合 inventory：10 份 current quizzes／12 個 revisions／170 題；既有 145 個 canonical contexts 保持 serialized-byte-identical，fingerprint `8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368`。
+- [x] Local gates：116 files／1,828 tests；lint、quiz/context checks、Edge import check、production build、production dependency audit 與 diff check PASS。五個既有 DrawingCanvas lint warnings 及大型 chunk advisory 維持不變。
+- [x] Exact candidate CI [39113976004](https://github.com/LukeTsengTW/learnforge/actions/runs/39113976004)，attempt 1、checks job `117635839715` PASS；candidate SHA 為 `f283c14c45fa670865f30510c77bf40e64e35e4a`。
+- [x] Stage 4 classifier：`security-ai`／Risk C／`providerCanaryRequired=false`；無 DB migration。六個指定 Edge functions 先於 Pages 部署，全部 ACTIVE、版本各 +1、`verify_jwt` 未變；另五個函式 metadata 保持不變，詳見 delivery。
+- [x] Exact candidate Pages [39115002948](https://github.com/LukeTsengTW/learnforge/actions/runs/39115002948)：build job `117638902663`、deploy job `117639193356` 均 PASS。Canonical public smoke 檢查 5 個 static assets；cache-busted manifest 顯示 `learnforge`／`1.19.0`／candidate SHA。
+- [x] Production browser acceptance：10 張題庫卡、2023 搜尋與 `derangements` tag、三份 Student／Answer Preview、KaTeX 與 1440／768／360／345 px 排版 PASS；request guard 僅允許同源 GET，console／page／network error arrays 均空。獨立 Stage 4 production review PASS。
+- [x] 限制：沒有執行 credentialless Edge health probes；沒有驗證 valid-JWT handler、authenticated submission、runtime context loading 或 provider behavior。Browser acceptance 為 unauthenticated read-only，未建立草稿或作答。
+- [ ] Stage 5：完成四份文件的實際證據更新；建立一次 docs-only closure commit／push，取得 exact-SHA CI PASS；部署該 closure SHA 的 Pages，重跑 public smoke 並確認 manifest parity。
+- [ ] 只有 final Pages parity 通過後才建立 annotated `v1.19.0` tag 與正式 GitHub Release；最後取得獨立 Stage 5 final review PASS。
 
 ## v1.18.0 Chapter 8 inclusion-exclusion examples — release preparation
 
