@@ -1,14 +1,14 @@
 # Changelog
 
-## 1.19.0 — 2021／2023／2024 離散數學期中考題庫（production acceptance）
+## 1.19.0 — 2021／2023／2024 離散數學期中考題庫（production acceptance snapshot before closure）
 
-Runtime candidate `f283c14c45fa670865f30510c77bf40e64e35e4a` passed exact candidate CI [39113976004](https://github.com/LukeTsengTW/learnforge/actions/runs/39113976004), six named Edge deployments, exact-candidate Pages [39115002948](https://github.com/LukeTsengTW/learnforge/actions/runs/39115002948), canonical public smoke, cache-busted manifest parity, production browser acceptance and independent Stage 4 review. Production acceptance is complete for this runtime snapshot; documentation closure, exact closure-SHA CI／Pages parity, annotated tag, requested GitHub Release and final independent review remain pending.
+This is the dated production-acceptance snapshot for runtime candidate `f283c14c45fa670865f30510c77bf40e64e35e4a`. It passed exact candidate CI [39113976004](https://github.com/LukeTsengTW/learnforge/actions/runs/39113976004), six named Edge deployments, exact-candidate Pages [39115002948](https://github.com/LukeTsengTW/learnforge/actions/runs/39115002948), canonical public smoke, candidate manifest parity, production browser acceptance and independent Stage 4 review. For the current closure SHA, final Pages identity, annotated tag and published Release, see the [v1.19.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.19.0) and [live release manifest](https://luketsengtw.github.io/learnforge/release.json).
 
 - 新增 2021／2023／2024 三份題庫，共 25 題：18 題計算、7 題單選；各卷 100 分、90 分鐘。
 - canonical tutor context 從 145 增至 170。既有 145 筆序列化內容與 fingerprint `8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368` 相同。
 - Classifier 判定 security-ai／Risk C；六個相依函式在 Pages 前各部署一次，revision 各 +1 且 `verify_jwt` 不變；五個未指定函式維持不變。未要求 provider canary；沒有資料庫 migration。
 - Local gates：1,828 tests、lint、quiz/context checks、Edge import check、production build、production dependency audit 與 diff check 通過。Lint 有 5 個既有 warning；build 有既有大型 chunk advisory。
-- Production manifest 顯示 `learnforge`／`1.19.0`／candidate SHA。Browser guard 僅允許第一方 GET；Library search/tag、三份 Student／Answer Preview、KaTeX 與 1440／768／360／345 px layout 通過，沒有 recorded browser/network errors。
+- At this snapshot, the production manifest returned `learnforge`／`1.19.0`／candidate SHA. Browser guard 僅允許第一方 GET；Library search/tag、三份 Student／Answer Preview、KaTeX 與 1440／768／360／345 px layout 通過，沒有 recorded browser/network errors.
 - 未執行 credentialless Edge health probes；未驗證 valid-JWT handlers、authenticated submission、runtime context loading 或 provider behavior。Browser acceptance 為 unauthenticated read-only，未建立草稿或作答。
 
 完整來源、Edge revisions、CI job IDs、production acceptance 證據、已知限制與 Stage 5 closure gates 見 [v1.19.0 delivery](docs/v1.19.0-delivery.md)。

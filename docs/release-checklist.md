@@ -1,8 +1,8 @@
 # Release checklist
 
-## v1.19.0 2021／2023／2024 離散數學期中考題庫 — production acceptance
+## v1.19.0 2021／2023／2024 離散數學期中考題庫 — production acceptance snapshot before closure
 
-目前 production acceptance 已通過；production runtime candidate 為 `f283c14c45fa670865f30510c77bf40e64e35e4a`。Stage 0–4 reviews、exact candidate CI、六個 Edge 部署、exact-candidate Pages、public smoke、manifest 與受限 production browser acceptance 均 PASS。Stage 5 的文件 closure commit、exact closure-SHA CI／Pages parity、annotated tag、GitHub Release 與獨立 final review 尚待完成。Production manifest 目前顯示 candidate SHA；最後的正式 release identity 必須是通過 closure gates 的 SHA。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。
+本節記錄 2026-10-18（Asia/Taipei）runtime candidate `f283c14c45fa670865f30510c77bf40e64e35e4a` 的 production acceptance，時間點在 docs-only closure commit 之前。當時 Stage 0–4 reviews、exact candidate CI、六個 Edge 部署、exact-candidate Pages、public smoke、candidate manifest 與受限 production browser acceptance 均 PASS，production manifest 回傳 candidate SHA。此為歷史 checkpoint；目前 closure SHA、最終 Pages manifest、annotated tag 與已發布 Release 請見 [v1.19.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.19.0) 及 [live release manifest](https://luketsengtw.github.io/learnforge/release.json)。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。
 
 - [x] 三份來源題庫已存在於 source commit `e891aeac3b0a6c6a09df60a222004f4e03290734`；18 題計算、7 題單選，每份 100 分、90 分鐘。
 - [x] Stage 0 source、Stage 1 integration、Stage 2 release-documentation、Stage 3 candidate review 均 PASS；各 reviewer 0 blocker／should-fix／nit。
@@ -13,8 +13,8 @@
 - [x] Exact candidate Pages [39115002948](https://github.com/LukeTsengTW/learnforge/actions/runs/39115002948)：build job `117638902663`、deploy job `117639193356` 均 PASS。Canonical public smoke 檢查 5 個 static assets；cache-busted manifest 顯示 `learnforge`／`1.19.0`／candidate SHA。
 - [x] Production browser acceptance：10 張題庫卡、2023 搜尋與 `derangements` tag、三份 Student／Answer Preview、KaTeX 與 1440／768／360／345 px 排版 PASS；request guard 僅允許同源 GET，console／page／network error arrays 均空。獨立 Stage 4 production review PASS。
 - [x] 限制：沒有執行 credentialless Edge health probes；沒有驗證 valid-JWT handler、authenticated submission、runtime context loading 或 provider behavior。Browser acceptance 為 unauthenticated read-only，未建立草稿或作答。
-- [ ] Stage 5：完成四份文件的實際證據更新；建立一次 docs-only closure commit／push，取得 exact-SHA CI PASS；部署該 closure SHA 的 Pages，重跑 public smoke 並確認 manifest parity。
-- [ ] 只有 final Pages parity 通過後才建立 annotated `v1.19.0` tag 與正式 GitHub Release；最後取得獨立 Stage 5 final review PASS。
+- [ ] Stage 5 pre-closure checklist state：當時待更新四份文件、建立 docs-only closure commit／push、取得 exact-SHA CI PASS、部署 closure SHA 並確認 public smoke／manifest parity。
+- [ ] Stage 5 pre-closure checklist state：當時待 final Pages parity 後建立 annotated `v1.19.0` tag 與正式 GitHub Release，再完成獨立 final review；目前結果見上方 linked Release 與 manifest。
 
 ## v1.18.0 Chapter 8 inclusion-exclusion examples — release preparation
 
