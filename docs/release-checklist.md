@@ -2,7 +2,7 @@
 
 ## v1.20.0 Multi-page handwriting — local implementation checkpoint
 
-This checkpoint is dated 2026-10-19 (Asia/Taipei). It is not production acceptance. The candidate branch is `codex/v1.20.0-paged-handwriting`, based on `2faf57ac9a089f1af79fd6c160eeb0dd58a0d661`; after `git fetch --all --prune`, `origin/master` still resolved to that SHA. The package and lockfile are set to `1.20.0`. The local and remote `v1.20.0` tag did not exist at this checkpoint.
+This checkpoint is dated 2026-10-19 (Asia/Taipei). It is not production acceptance. The local `master` and candidate branch `codex/v1.20.0-paged-handwriting` are at `aef16cdff880714b153dbc8237f2169234ea906d`; `origin/master` remains at base `2faf57ac9a089f1af79fd6c160eeb0dd58a0d661`. The implementation commit is `7ec6f5c5bf2fb56dc7ca821b586b64ec099735b`, followed by the whitespace-only migration fix. These commits are local and have not been pushed. The package and lockfile are set to `1.20.0`. The exact-SHA preflight on `aef16cd` passed and confirmed the local and remote `v1.20.0` tag absent. This documentation update creates a new candidate SHA, so candidate checks must be repeated before pushing.
 
 - [x] Core implementation: ordered calculation handwriting pages, per-page undo/redo, page selection/add/delete, recovery and preview/export, schema-3 draft contract, and V5 server-side submission/grading/history/analytics path.
 - [x] Independent Stage 3 review: PASS, zero blockers/should-fix/nits after moving page-delete confirmation and actions inside the expanded dialog.
@@ -16,7 +16,8 @@ This checkpoint is dated 2026-10-19 (Asia/Taipei). It is not production acceptan
 - [x] Stage 0 source review: N/A because the candidate changes no quiz-bank source content.
 - [x] Stage 2 release-documentation review: final follow-up PASS with zero blockers, should-fix items, or nits after recording the SQL rerun, review dispositions, completed tests, and secret-safe metadata checks.
 - [x] Stage 5 end-to-end candidate review: PASS with zero blockers, should-fix items, or nits after correcting its single documentation finding. Final release-closure review remains pending until the release gates complete.
-- [ ] `release:classify` and `release:check` on the versioned candidate; exact-SHA preflight and CI.
+- [x] `release:classify` on `aef16cd`: `security-ai`, Risk C, `providerCanaryRequired=true`; exact-SHA local preflight on that SHA passed. This was before the current documentation update.
+- [ ] Run `release:classify`, `release:check`, exact-SHA preflight and CI for the final candidate SHA after this documentation update.
 - [ ] Production backend preflight, additive migration, impacted Edge deployment, and bounded synthetic provider canary. The classifier has reported Risk C / `security-ai` and `providerCanaryRequired=true`; no production mutation or provider call has occurred.
 - [ ] Exact-SHA Pages deployment, public smoke, release manifest parity, production browser acceptance, and independent production review.
 - [ ] Update this checklist and delivery report with observed production/CI identities; create docs-only closure commit if the current workflow still requires it; verify closure CI and Pages SHA parity; then create the requested annotated tag and GitHub Release only after all preceding gates pass.
