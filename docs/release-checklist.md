@@ -2,15 +2,16 @@
 
 ## v1.20.1 — production version label correction
 
-This patch corrects the site header, which still displayed `v1.19.0` in the v1.20.0 production bundle. The live v1.20.0 manifest identified version `1.20.0` and closure SHA `d670b45c18976f051939b9dcba1fa7a2134d982d`; inspection found the entry bundle still contained the hard-coded label. The v1.20.0 tag and GitHub Release remain immutable.
+This is the production-acceptance snapshot for runtime candidate `423eeb7b5b3a2b643f7df39162281cf202088d73`, before the docs-only closure commit. It corrects the site header, which still displayed `v1.19.0` in the v1.20.0 production bundle. The live v1.20.0 manifest identified version `1.20.0` and closure SHA `d670b45c18976f051939b9dcba1fa7a2134d982d`; inspection found the entry bundle still contained the hard-coded label. The v1.20.0 tag and GitHub Release remain immutable.
 
 - [x] Source fix: inject `package.json` version into the Vite build and use it in the header.
 - [x] Patch version set to `1.20.1`; no quiz, database, Supabase Edge Function, or runtime API changes.
-- [ ] Final patch review; release classification, local release checks, and exact-SHA preflight.
-- [ ] Push candidate to `master`; exact-SHA CI passes.
-- [ ] Deploy exact candidate SHA to Pages; verify manifest identity and canonical public smoke.
-- [ ] Record deployment evidence in the v1.20.1 delivery note; push docs closure and verify its exact-SHA CI and Pages deployment.
-- [ ] Final public smoke and manifest parity; create immutable annotated `v1.20.1` tag and GitHub Release; verify tag points to the deployed closure SHA.
+- [x] Independent patch review: PASS, 0 blockers / 0 should-fix / 0 nits after the rollback note follow-up.
+- [x] Release classifier / exact-SHA preflight: `security-ai`, Risk C, provider canary not indicated; exact SHA and clean tree confirmed. Ignored `.env.local` was verified by metadata as excluded and untracked; its contents were not read.
+- [x] Local release checks: 123 files / 1,883 tests, lint, quiz/context checks, Edge import check, `/learnforge/` build, production dependency audit, and diff check passed.
+- [x] Candidate push and exact-SHA CI [39253836240](https://github.com/LukeTsengTW/learnforge/actions/runs/39253836240) passed for `423eeb7b5b3a2b643f7df39162281cf202088d73`.
+- [x] Candidate Pages [39254206719](https://github.com/LukeTsengTW/learnforge/actions/runs/39254206719) passed for the same SHA; public smoke matched `learnforge` / `1.20.1` / candidate SHA and checked five static assets. The production home page displayed `v1.20.1`.
+- [ ] Docs-only closure commit / push, exact closure-SHA CI and Pages deployment, final smoke/manifest parity, annotated tag, and GitHub Release. Final closure evidence belongs to the immutable v1.20.1 GitHub Release and live manifest.
 
 ## v1.20.0 Multi-page handwriting — production acceptance snapshot before closure
 
