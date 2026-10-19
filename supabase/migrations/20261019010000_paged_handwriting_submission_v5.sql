@@ -637,4 +637,3 @@ revoke all on function public.finalize_ai_grading_v5_submission(uuid,uuid,timest
   from public, anon, authenticated;
 grant execute on function public.finalize_ai_grading_v5_submission(uuid,uuid,timestamptz,uuid,text,text,jsonb,jsonb,jsonb,jsonb)
   to service_role;
-
