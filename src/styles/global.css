@@ -315,6 +315,12 @@
   .manual-notice { font-size: 13px; padding: 12px 16px; border-left: 3px solid var(--note-line); background: var(--note-surface); color: var(--muted); margin-bottom: 20px; }
   .drawing-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-bottom: 14px; }
   .tool-group { display: flex; gap: 4px; }
+  .paged-drawing-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+  .paged-drawing-controls button { min-height: 44px; }
+  .paged-drawing-count { color: var(--muted); font-size: 12px; max-width: 100%; }
+  .paged-delete-confirmation { flex-basis: 100%; margin: 0; padding: 12px 16px; }
+  .paged-delete-confirmation p { margin: 0; }
+  .paged-delete-confirmation .inline-actions { margin-top: 8px; }
   .drawing-toolbar button { font-size: 12px; padding: 6px 10px; }
   .drawing-toolbar button[aria-pressed='true'] { border-color: var(--teal); background: var(--control-active); color: var(--teal-dark); }
   .drawing-toolbar .color-button { width: 44px; padding: 0; position: relative; display: grid; place-items: center; }
@@ -328,6 +334,9 @@
   .drawing-canvas, .drawing-preview { display: block; width: 100%; height: auto; }
   .canvas-frame, .drawing-canvas { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   .drawing-canvas { cursor: crosshair; }
+  .student-paged-handwriting { display: grid; gap: 18px; }
+  .student-handwriting-page { min-width: 0; }
+  .student-handwriting-page h4 { margin: 0 0 8px; font-size: 13px; }
   .canvas-frame.is-panning .drawing-canvas { cursor: grab; }
   /* Enlarged writing: the editor fills the window; the canvas is magnified inside a scrolling viewport. */
   .drawing-editor.is-expanded { position: fixed; inset: 0; z-index: 30; display: flex; flex-direction: column; gap: 8px;

@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import type { PracticeAnswerMap } from '../../models/draft-v4'
+import type { PracticeAnswerMapV5 } from '../../models/draft-v4'
 import type { DrawingPoint, DrawingStroke } from '../../models/drawing'
 import { AuthorPreview } from '../author/AuthorPreview'
 import { DrawingCanvas } from './DrawingCanvas'
@@ -81,7 +81,7 @@ function release(target: Element, at: DrawingPoint) {
   pointer(target, 'pointerup', at.x, at.y)
   return (repaints.get(target as HTMLCanvasElement) ?? []).slice(before)
 }
-const handCanvas = () => document.querySelector('canvas[aria-describedby="answer-q_hand-drawing-instructions"]')!
+const handCanvas = () => screen.getByRole('img', { name: '第 1 頁手寫作答區' }) as HTMLCanvasElement
 
 describe('after every accepted stroke the canvas is replayed in full from the owner\'s answer', () => {
   it('on the practice page: the replay is exactly the strokes the practice store holds', async () => {
@@ -96,8 +96,10 @@ describe('after every accepted stroke the canvas is replayed in full from the ow
     const held = (): DrawingStroke[] => {
       for (const key of Object.keys(localStorage)) {
         if (key.includes(':recovery:')) continue
-        const value = JSON.parse(localStorage.getItem(key)!) as { attempt?: { answers?: Record<string, { strokes?: DrawingStroke[] }> } }
-        if (value.attempt?.answers?.q_hand?.strokes) return value.attempt.answers.q_hand.strokes
+        const value = JSON.parse(localStorage.getItem(key)!) as { attempt?: { answers?: Record<string, { strokes?: DrawingStroke[]; pages?: DrawingStroke[][] }> } }
+        const answer = value.attempt?.answers?.q_hand
+        if (answer?.pages) return answer.pages.flat()
+        if (answer?.strokes) return answer.strokes
       }
       return []
     }
@@ -119,11 +121,13 @@ describe('after every accepted stroke the canvas is replayed in full from the ow
   })
 
   it('in Author Preview: the replay is exactly the strokes of the preview answer', () => {
-    let answers: PracticeAnswerMap = {}
+    let answers: PracticeAnswerMapV5 = {}
     function Preview() {
-      const [state, setState] = useState<PracticeAnswerMap>({})
-      answers = state
-      return <AuthorPreview quiz={v4Quiz} mode="student" answers={state} onAnswer={(id, answer) => setState((current) => ({ ...current, [id]: answer }))} />
+      const [state, setState] = useState<PracticeAnswerMapV5>({})
+      return <AuthorPreview quiz={v4Quiz} mode="student" answers={state} onAnswer={(id, answer) => {
+        answers = { ...answers, [id]: answer }
+        setState((current) => ({ ...current, [id]: answer }))
+      }} />
     }
     render(<Preview />)
     fireEvent.click(screen.getByRole('radio', { name: '手寫' }))
@@ -133,7 +137,7 @@ describe('after every accepted stroke the canvas is replayed in full from the ow
       for (const sample of samples.slice(1, -1)) pointer(handCanvas(), 'pointermove', sample.x, sample.y)
       expect(release(handCanvas(), samples.at(-1)!)).toEqual(['copy', 'replay'])
       const answer = answers.q_hand
-      const strokes = answer?.type === 'calculation' && answer.mode === 'drawing' ? answer.strokes : []
+      const strokes = answer?.type === 'calculation' && answer.mode === 'drawing' && 'pages' in answer ? answer.pages[0] : []
       expect(strokes).toHaveLength(stroke)
       expect(strokes.at(-1)!.points).toEqual(samples)
       expect(shown(handCanvas()).images).toBe(0)

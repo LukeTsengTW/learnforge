@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.20.0 — Multi-page handwriting (local implementation candidate; release gates pending)
+
+- Add ordered pages to calculation handwriting, with isolated undo/redo per page, page navigation, add/delete confirmation, page-local mode and recovery, and multi-page PNG export.
+- Introduce draft schema 3 while retaining schema 1/2 read, recovery, migration, and submitted-history behavior.
+- Add versioned V5 validation, rasterization, grading, idempotent submission, rubric claims/finalization, and analytics paths for ordered page images.
+- Additive Supabase migrations and local security regressions cover page shape, dimensions, aggregate limits, and schema compatibility. No quiz-bank source content changed.
+- This entry records the local candidate only. Production migration, Edge deployment, provider canary, Pages, CI, public smoke, tag, and GitHub Release are not yet claimed; see [v1.20.0 delivery](docs/v1.20.0-delivery.md).
+
 ## 1.19.0 — 2021／2023／2024 離散數學期中考題庫（production acceptance snapshot before closure）
 
 This is the dated production-acceptance snapshot for runtime candidate `f283c14c45fa670865f30510c77bf40e64e35e4a`. It passed exact candidate CI [39113976004](https://github.com/LukeTsengTW/learnforge/actions/runs/39113976004), six named Edge deployments, exact-candidate Pages [39115002948](https://github.com/LukeTsengTW/learnforge/actions/runs/39115002948), canonical public smoke, candidate manifest parity, production browser acceptance and independent Stage 4 review. For the current closure SHA, final Pages identity, annotated tag and published Release, see the [v1.19.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.19.0) and [live release manifest](https://luketsengtw.github.io/learnforge/release.json).

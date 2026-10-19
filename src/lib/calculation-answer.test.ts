@@ -5,10 +5,22 @@ import type { DrawingStroke } from '../models/drawing'
 import { DRAWING_COLORS } from '../models/drawing'
 import { DRAWING_LIMITS } from '../../supabase/functions/_shared/drawing-raster'
 import { parseQuiz } from './quiz-parser'
+import * as calculationAnswerModule from './calculation-answer'
 import {
   getCalculationActiveMode, isCalculationAnswerV4, isLegacyCalculationAnswer,
   normalizeLegacyCalculationDraft, projectActiveCalculationAnswer,
 } from './calculation-answer'
+
+// Runtime lookup lets this regression test express the next schema before its API exists. Missing
+// behavior fails as an assertion (false/null), rather than as an unresolved import.
+const v5Api = calculationAnswerModule as unknown as {
+  isCalculationAnswerV5?: (value: unknown, question: { drawing?: { width: number; height: number } }) => boolean
+  projectActiveCalculationAnswerV5?: (value: unknown, question: { drawing?: { width: number; height: number } }) => unknown
+}
+const isCalculationAnswerV5 = (value: unknown, question: { drawing?: { width: number; height: number } }) =>
+  v5Api.isCalculationAnswerV5?.(value, question) ?? false
+const projectActiveCalculationAnswerV5 = (value: unknown, question: typeof capable) =>
+  v5Api.projectActiveCalculationAnswerV5?.(value, question) ?? null
 
 const calculation = parseQuiz(demoSource).questions.find((question) => question.type === 'calculation')!
 const capable = { ...calculation, drawing: { width: 800, height: 600 } }
@@ -178,5 +190,69 @@ describe('server-equivalent geometry validation without rasterization', () => {
       x: index % 2 === 0 ? 0 : 1200, y: index % 2 === 0 ? 0 : 1200,
     }))
     expect(isCalculationAnswerV4(future({ strokes: [stroke({ width: 40, points })] }), question)).toBe(false)
+  })
+})
+
+describe('schema-3 paged calculation answers', () => {
+  const pageAnswer = (overrides: Record<string, unknown> = {}) => ({
+    type: 'calculation', mode: 'drawing', text: 'inactive text', pages: [[stroke()]], ...overrides,
+  })
+
+  it('accepts one through six pages, including blank pages, and preserves inactive pages in text mode', () => {
+    for (const pages of [[[stroke()]], Array.from({ length: 6 }, (_, index) => index === 2 ? [] : [stroke()])]) {
+      expect(isCalculationAnswerV5(pageAnswer({ pages }), capable)).toBe(true)
+    }
+    expect(isCalculationAnswerV5(pageAnswer({ mode: 'text', pages: [[], [stroke()]] }), capable)).toBe(true)
+  })
+
+  it('rejects zero or seven pages for a drawing-capable calculation', () => {
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [] }), capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: Array.from({ length: 7 }, () => []) }), capable)).toBe(false)
+  })
+
+  it('keeps text-only calculations at mode text with canonical empty pages', () => {
+    expect(isCalculationAnswerV5({ type: 'calculation', mode: 'text', text: 'x', pages: [] }, calculation)).toBe(true)
+    expect(isCalculationAnswerV5({ type: 'calculation', mode: 'drawing', text: '', pages: [] }, calculation)).toBe(false)
+    expect(isCalculationAnswerV5({ type: 'calculation', mode: 'text', text: 'x', pages: [[]] }, calculation)).toBe(false)
+  })
+
+  it('rejects forged answer/page/stroke/point fields and malformed nested pages', () => {
+    expect(isCalculationAnswerV5({ ...pageAnswer(), png: 'browser-owned' }, capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [null] }), capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: Array(1) }), capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[{ ...stroke(), score: 1 }]] }), capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[{ ...stroke(), points: [{ x: 1, y: 2, pressure: 1 }] }]] }), capable)).toBe(false)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[{ ...stroke(), points: [{ x: Infinity, y: 2 }] }]] }), capable)).toBe(false)
+  })
+
+  it('enforces stroke and point budgets across all pages', () => {
+    const maxPoints = 32_000
+    // One point per stroke keeps this boundary independent from the aggregate point ceiling.
+    const strokeCount = (count: number) => Array.from({ length: count }, () => stroke({ points: [{ x: 10, y: 20 }] }))
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [strokeCount(8_000), strokeCount(8_000)] }), capable)).toBe(true)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [strokeCount(8_001), strokeCount(8_000)] }), capable)).toBe(false)
+    const points = Array.from({ length: maxPoints / 2 }, () => ({ x: 10, y: 20 }))
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[stroke({ points })], [stroke({ points })]] }), capable)).toBe(true)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[stroke({ points })], [stroke({ points: [...points, { x: 10, y: 20 }] })]] }), capable)).toBe(false)
+  })
+
+  it('enforces geometry work across pages even when each page is individually below the limit', () => {
+    const large = { ...calculation, drawing: { width: 1200, height: 900 } }
+    const points = Array.from({ length: 13 }, (_, index) => index % 2
+      ? { x: 1200, y: 900 } : { x: 0, y: 0 })
+    const heavyStroke = stroke({ width: 40, points })
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[heavyStroke]] }), large)).toBe(true)
+    expect(isCalculationAnswerV5(pageAnswer({ pages: [[heavyStroke], [heavyStroke]] }), large)).toBe(false)
+  })
+
+  it('projects only the active buffer and preserves page boundaries and stroke order', () => {
+    const answer = pageAnswer({ pages: [[stroke()], [], [stroke({ tool: 'eraser' })]] })
+    expect(projectActiveCalculationAnswerV5({ ...answer, mode: 'text' }, capable))
+      .toEqual({ type: 'calculation', mode: 'text', text: answer.text })
+    const active = projectActiveCalculationAnswerV5(answer, capable) as { pages?: DrawingStroke[][]; text?: string }
+    expect(active).toEqual({ type: 'calculation', mode: 'drawing', pages: answer.pages })
+    expect(active).not.toHaveProperty('text')
+    expect(projectActiveCalculationAnswerV5({ ...answer, pages: [[stroke(), stroke()], [stroke()], []] }, capable))
+      .not.toEqual(active)
   })
 })

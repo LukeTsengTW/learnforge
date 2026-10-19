@@ -1,21 +1,22 @@
 import { describe, expect, it } from 'vitest'
-import type { PracticeAnswer } from '../../models/draft-v4'
+import type { PracticeAnswerV5 } from '../../models/draft-v4'
+import type { DrawingStroke } from '../../models/drawing'
 import { LocalPracticeCache } from './practice-cache'
 import { SubmissionError } from './practice-repository'
 import { createPracticeStore } from './practice-store'
 import { fixture as edgeFixture, submit as edgeRequest } from './submission-v4.test-helper'
 import { createV4MemoryRepository, memoryStorage, pen, v4Quiz } from './practice-v4.test-helper'
 
-const handDraw = (text: string, strokes = [pen()]): PracticeAnswer =>
-  ({ type: 'calculation', mode: 'drawing', text, strokes })
+const handDraw = (text: string, strokes: DrawingStroke[] = [pen()]): PracticeAnswerV5 =>
+  ({ type: 'calculation', mode: 'drawing', text, pages: [strokes] })
 
 /**
- * Client store + in-memory draft server, with formal submission delegated to the REAL M4 submit-quiz
- * handler (fake providers, PostgreSQL-equivalent active-only v4 hash and cache semantics).
+ * Client store + in-memory draft server, with formal submission delegated to the real M6 submit-quiz
+ * handler (fake providers and page-aware v5 hash/cache semantics).
  */
 function integratedEnvironment() {
   const server = createV4MemoryRepository('student')
-  const edge = edgeFixture({})
+  const edge = edgeFixture({}, { schema: 3 })
   const requests: { expectedUpdatedAt: string; answers: unknown }[] = []
   server.repo.submitDraft = async (id, expectedUpdatedAt, requestId, gradingVersion) => {
     const row = server.rows.get(id)!
@@ -31,8 +32,9 @@ function integratedEnvironment() {
     const body = await response.json()
     if (body.gradingVersion !== gradingVersion) throw new SubmissionError('unavailable')
     const now = new Date(Date.parse(row.record.version.updatedAt) + 1000).toISOString()
-    row.record.attempt = { ...(row.record.attempt as Extract<typeof row.record.attempt, { schemaVersion: 2 }>),
-      status: 'submitted', submittedAt: now, result: body.result }
+    const attempt = row.record.attempt!
+    if (attempt.schemaVersion !== 3) throw new Error('expected the paged-handwriting schema')
+    row.record.attempt = { ...attempt, status: 'submitted', submittedAt: now, result: body.result }
     row.record.row = { ...row.record.row, status: 'submitted', grading_version: body.gradingVersion, submission_request_id: requestId,
       submitted_at: now, updated_at: now }
     row.record.version = { id, updatedAt: now }
@@ -41,8 +43,8 @@ function integratedEnvironment() {
   return { server, edge, requests }
 }
 
-describe('M5 client -> M4 submit-quiz integration', () => {
-  it('reuses the completed v4 judgment after an inactive-only edit advanced the CAS', async () => {
+describe('M6 client -> V5 submit-quiz integration', () => {
+  it('reuses the completed v5 judgment after an inactive-only edit advanced the CAS', async () => {
     const { server, edge, requests } = integratedEnvironment()
     const initial = await server.repo.getOrCreateDraft(v4Quiz)
     const save = server.repo.saveDraft
@@ -54,7 +56,7 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     edge.state.failFinalizeOnce = true
     expect(await store.submit()).toBeNull()
     expect(store.getSnapshot().notice).toBe('AI 評分暫時無法完成，本次作答尚未提交，請稍後再試。')
-    expect(edge.calculationV4.generateDrawing).toHaveBeenCalledTimes(1)
+    expect(edge.calculationV5.generateDrawingPages).toHaveBeenCalledTimes(1)
     const firstCas = requests[0].expectedUpdatedAt
 
     // Only the inactive text changes: persisted through save-quiz-draft with a new CAS, shape unchanged.
@@ -64,10 +66,10 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     expect(requests[1].expectedUpdatedAt).not.toBe(firstCas)
     expect(requests[1].expectedUpdatedAt).toBe(savedVersions.at(-1))
     expect(requests[1].answers).toMatchObject({ q_hand: handDraw('edited inactive note') })
-    expect(server.v4Saves.at(-1)?.attempt.answers.q_hand).toEqual(handDraw('edited inactive note'))
+    expect(server.v5Saves.at(-1)?.attempt.answers.q_hand).toEqual(handDraw('edited inactive note'))
     // Same active strokes -> same active-only identity -> cached judgment, no second provider call.
-    expect(edge.calculationV4.generateDrawing).toHaveBeenCalledTimes(1)
-    expect(edge.state.attempt).toMatchObject({ status: 'submitted', grading_version: 'ai-grading-v4' })
+    expect(edge.calculationV5.generateDrawingPages).toHaveBeenCalledTimes(1)
+    expect(edge.state.attempt).toMatchObject({ status: 'submitted', grading_version: 'ai-grading-v5' })
     expect(store.getSnapshot().attempt.status).toBe('submitted')
     store.stop()
   })
@@ -85,8 +87,8 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     expect(requests).toHaveLength(1)
     expect(requests[0].answers).toEqual({ q_hand: handDraw('', strokes) })
     // No provider of any kind was called: the claim made before rasterizing was released as raster_blank.
-    expect(edge.calculationV4.generateDrawing).not.toHaveBeenCalled()
-    expect(edge.calculationV4.generateText).not.toHaveBeenCalled()
+    expect(edge.calculationV5.generateDrawingPages).not.toHaveBeenCalled()
+    expect(edge.calculationV5.generateText).not.toHaveBeenCalled()
     expect(edge.drawingProvider.generate).not.toHaveBeenCalled()
     expect(edge.fillProvider.judge).not.toHaveBeenCalled()
     expect(edge.v3CalculationProvider.generate).not.toHaveBeenCalled()
@@ -95,7 +97,7 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     // Every rubric judgment is system evidence for an unanswered question.
     expect(edge.state.finalRubric.map((row) => `${row.question_id}:${row.source}:${row.status}:${row.score}`).sort())
       .toEqual(['q_draw:system:unanswered:0', 'q_hand:system:unanswered:0', 'q_text:system:unanswered:0'])
-    expect(edge.state.attempt).toMatchObject({ status: 'submitted', grading_version: 'ai-grading-v4' })
+    expect(edge.state.attempt).toMatchObject({ status: 'submitted', grading_version: 'ai-grading-v5' })
     // The submitted answer still holds exactly the strokes the client held.
     const submitted = server.rows.get(initial.id)!.record.attempt!
     expect(submitted.status).toBe('submitted')
@@ -103,7 +105,7 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     store.stop()
   })
 
-  it('an active stroke change after a failed finalization requires a new provider call', async () => {
+  it('an active page change after a failed finalization requires a new provider call', async () => {
     const { server, edge } = integratedEnvironment()
     const initial = await server.repo.getOrCreateDraft(v4Quiz)
     const store = createPracticeStore(initial, server.repo, new LocalPracticeCache('student', memoryStorage), 60_000)
@@ -112,7 +114,7 @@ describe('M5 client -> M4 submit-quiz integration', () => {
     expect(await store.submit()).toBeNull()
     store.answer('q_hand', handDraw('note', [pen(), pen(260)]))
     expect(await store.submit()).toBe(initial.id)
-    expect(edge.calculationV4.generateDrawing).toHaveBeenCalledTimes(2)
+    expect(edge.calculationV5.generateDrawingPages).toHaveBeenCalledTimes(2)
     store.stop()
   })
 })

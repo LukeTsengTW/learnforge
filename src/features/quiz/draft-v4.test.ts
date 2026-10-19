@@ -124,7 +124,7 @@ describe('authenticated Edge draft save', () => {
     const response = await env.handler(request({ ...input, answers }))
     expect(response.status).toBe(200)
     expect(env.backend.saveDraft).toHaveBeenCalledExactlyOnceWith({ userId, attemptId, expectedUpdatedAt: version,
-      clientUpdatedAt: nextVersion, answers })
+      clientUpdatedAt: nextVersion, answerSchemaVersion: 2, answers })
     expect(env.state.answers).toEqual(answers)
     expect(await response.json()).toEqual({ attemptId, updatedAt: nextVersion, answerSchemaVersion: 2 })
   })
@@ -133,7 +133,7 @@ describe('authenticated Edge draft save', () => {
     const response = await env.handler(request({ ...input, answers: { calc: { type: 'calculation', text: calc.text } } }))
     expect(response.status).toBe(200)
     expect(env.backend.saveDraft).toHaveBeenCalledExactlyOnceWith({ userId, attemptId, expectedUpdatedAt: version,
-      clientUpdatedAt: nextVersion, answers: { calc: { ...calc, strokes: [] } } })
+      clientUpdatedAt: nextVersion, answerSchemaVersion: 2, answers: { calc: { ...calc, strokes: [] } } })
     expect(await response.json()).toEqual({ attemptId, updatedAt: nextVersion, answerSchemaVersion: 2 })
     expect(response.headers.get('Cache-Control')).toBe('no-store')
     expect(env.state.attempt.answer_schema_version).toBe(2)

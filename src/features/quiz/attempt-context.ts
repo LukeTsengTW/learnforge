@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react'
-import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
+import type { DraftSchemaVersion, PracticeAnswerV5, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
 
 /**
@@ -37,7 +37,7 @@ export interface AttemptContextValue {
   /** Active draft schema; schema 2 renders the multimodal calculation editor. */
   draftSchema?: DraftSchemaVersion
   storageNotice: string | null
-  answerQuestion: (questionId: string, answer: PracticeAnswer) => AnswerOutcome
+  answerQuestion: (questionId: string, answer: PracticeAnswerV5) => AnswerOutcome
   submit: () => Promise<string | null> | string | null | void
   restart: () => Promise<boolean>
   /** Registers a pending-input flush that runs before formal submission; returns an unregister function. */

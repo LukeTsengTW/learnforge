@@ -8,7 +8,7 @@ import { quizCatalog } from '../features/quiz/quiz-loader'
 import { formatAttemptDate } from '../features/quiz/practice-history'
 import { gradeQuiz, hasAnswer } from '../lib/grading'
 import type { QuestionAnswer, QuestionGrade } from '../models/attempt'
-import { isLegacyQuestionAnswer } from '../lib/draft-v4'
+import { isLegacyQuestionAnswerV5 } from '../lib/draft-v5'
 
 export function ReviewPage() {
   const history = useLearningHistory()
@@ -58,7 +58,7 @@ export function ReviewPage() {
               {grade ? <><div role="status" aria-live="polite" className={`review-feedback status-${grade.status}`}>{grade.status === 'correct' ? '答對' : '答錯，請查看正確答案與解題說明。'}</div>
                 <ResultQuestion question={item.question} answer={answer} grade={grade} index={0} idPrefix="review-" /></>
                 : <QuestionCard key={`${item.key}:${trial}`} question={item.question} index={0} answer={answer}
-                  onChange={(next) => { if (!isLegacyQuestionAnswer(next)) return 'rejected'; setAnswer(next); return 'accepted' }} />}
+                  onChange={(next) => { if (!isLegacyQuestionAnswerV5(next)) return 'rejected'; setAnswer(next); return 'accepted' }} />}
             </div>
             <div className="review-actions">
               {grade ? <button className="button secondary" onClick={resetAnswer}>再試一次</button>

@@ -3,23 +3,25 @@ import { QuestionCard } from '../quiz/QuestionCard'
 import { ResultQuestion } from '../quiz/ResultQuestion'
 import { gradeQuiz } from '../../lib/grading'
 import type { AnswerMap } from '../../models/attempt'
-import type { PracticeAnswerMap, PracticeAnswer } from '../../models/draft-v4'
+import type { PracticeAnswerMapV5, PracticeAnswerV5 } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
-import { isLegacyQuestionAnswer, requiresV4Draft } from '../../lib/draft-v4'
+import { requiresV4Draft } from '../../lib/draft-v4'
+import { requiresV5Draft } from '../../lib/draft-v5'
+import { isLegacyQuestionAnswerV5 } from '../../lib/draft-v5'
 
 export function AuthorPreview({ quiz, mode, answers, onAnswer }: {
   quiz: Quiz
   mode: 'student' | 'answer'
-  answers: PracticeAnswerMap
-  onAnswer: (questionId: string, answer: PracticeAnswer) => void
+  answers: PracticeAnswerMapV5
+  onAnswer: (questionId: string, answer: PracticeAnswerV5) => void
 }) {
-  const draftSchema = requiresV4Draft(quiz) ? 2 : 1
+  const draftSchema = requiresV5Draft(quiz) ? 3 : requiresV4Draft(quiz) ? 2 : 1
   // Local preview grading only needs legacy objective answers. Calculations remain
   // manual; ResultQuestion receives the original value and displays its active mode.
   const gradingAnswers: AnswerMap = {}
   if (mode === 'answer') {
     for (const [id, answer] of Object.entries(answers)) {
-      if (isLegacyQuestionAnswer(answer)) gradingAnswers[id] = answer
+      if (isLegacyQuestionAnswerV5(answer)) gradingAnswers[id] = answer
     }
   }
   const grades = mode === 'answer' ? gradeQuiz(quiz, gradingAnswers).questions : []

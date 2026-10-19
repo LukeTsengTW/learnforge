@@ -63,4 +63,13 @@ describe('deterministic grading', () => {
     expect(hasAnswer({ type: 'multiple', optionIds: [] })).toBe(false)
     expect(hasAnswer({ type: 'drawing', strokes: [] })).toBe(false)
   })
+  it('counts schema-3 calculation pages only in active drawing mode', () => {
+    const stroke = { tool: 'pen', color: '#202b38', width: 4, points: [{ x: 10, y: 10 }] }
+    const answer = (mode: 'text' | 'drawing', text: string, pages: unknown) =>
+      ({ type: 'calculation', mode, text, pages } as unknown as Parameters<typeof hasAnswer>[0])
+    expect(hasAnswer(answer('drawing', '', [[], [stroke]]))).toBe(true)
+    expect(hasAnswer(answer('drawing', '', [[], []]))).toBe(false)
+    expect(hasAnswer(answer('text', '  ', [[stroke]]))).toBe(false)
+    expect(hasAnswer(answer('text', 'x', [[]]))).toBe(true)
+  })
 })

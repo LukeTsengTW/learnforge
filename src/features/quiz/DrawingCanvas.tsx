@@ -1,4 +1,4 @@
-import { useContext, useEffect, useEffectEvent, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type Ref } from 'react'
+import { useContext, useEffect, useEffectEvent, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState, type PointerEvent, type ReactNode, type Ref } from 'react'
 import { DRAWING_COLORS, DRAWING_ERASER_WIDTH_MIN, DRAWING_ERASER_WIDTH_MAX,
   DRAWING_PEN_WIDTH_MIN, DRAWING_PEN_WIDTH_MAX, type DrawingColor, type DrawingPoint, type DrawingStroke, type DrawingTool } from '../../models/drawing'
 import type { DrawingConfig } from '../../models/quiz'
@@ -17,6 +17,14 @@ interface DrawingCanvasProps {
   id: string
   config: DrawingConfig
   strokes: DrawingStroke[]
+  /** Other pages in this answer, used to enforce the shared answer-level budget. */
+  capacityStrokes?: DrawingStroke[]
+  /** Stable page identity isolates undo/redo while preserving the one mounted canvas and its tools. */
+  historyKey?: string
+  /** Accessible name for the current canvas; defaults to the historical single-canvas name. */
+  canvasLabel?: string
+  /** Typed toolbar extension point, also rendered in expanded mode. */
+  toolbarAddon?: ReactNode
   /** Synchronous: a result other than 'accepted' (or no result) means the owner did not take the change. */
   onChange: (strokes: DrawingStroke[]) => AnswerOutcome | void
   ref?: Ref<DrawingCanvasHandle>
@@ -46,6 +54,8 @@ export interface DrawingCanvasHandle {
   flushPendingStroke: () => DrawingStroke[]
   /** Commit visible pending ink and report whether the owner took it; 'accepted' when nothing was pending. */
   flushPendingInput: () => AnswerOutcome
+  /** Discard undo history when its owning page is permanently removed. */
+  forgetHistory: (key: string) => void
 }
 const COLOR_LABELS = ['黑色', '紅色', '藍色']
 /**
@@ -80,7 +90,8 @@ function makeOutsideInert(element: HTMLElement): () => void {
   return () => { for (const node of changed) node.removeAttribute('inert') }
 }
 
-export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCanvasProps) {
+export function DrawingCanvas({ id, config, strokes, capacityStrokes = [], historyKey = id,
+  canvasLabel = '繪圖作答區', toolbarAddon, onChange, ref }: DrawingCanvasProps) {
   const showPencilNotice = isIPadOS(navigator)
   const canvas = useRef<HTMLCanvasElement>(null)
   // stroke.points is always what is painted and what a commit would store; run feeds the sampler.
@@ -92,7 +103,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     refusal: CapacityLimit | 'other' | 'rejected' | null }>({ controlled: strokes, strokes, refusal: null })
   if (ink.controlled !== strokes) setInk({ controlled: strokes, strokes, refusal: null })
   const lastOutcome = useRef<AnswerOutcome>('accepted')
-  const [undone, setUndone] = useState<DrawingStroke[]>([])
+  const [undoneByPage, setUndoneByPage] = useState(() => new Map<string, DrawingStroke[]>())
+  const undone = undoneByPage.get(historyKey) ?? []
   const history = { strokes: ink.strokes, undone }
   const [tool, setTool] = useState<DrawingTool>('pen')
   const [color, setColor] = useState<DrawingColor>(DRAWING_COLORS[0])
@@ -121,7 +133,8 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
   const panDrag = useRef<{ pointerId: number; x: number; y: number; left: number; top: number } | null>(null)
   // The point of the canvas at the middle of the viewport, kept in place when the zoom changes.
   const zoomAnchor = useRef<{ x: number; y: number } | null>(null)
-  const usage = useMemo(() => drawingUsage(ink.strokes, config), [ink.strokes, config])
+  const allStrokes = useMemo(() => [...capacityStrokes, ...ink.strokes], [capacityStrokes, ink.strokes])
+  const usage = useMemo(() => drawingUsage(allStrokes, config), [allStrokes, config])
   // The room kept for an ordinary stroke depends on the brush that would draw it.
   const capacity = drawingCapacity(usage, width, draft)
 
@@ -151,7 +164,6 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (!active && holdsInkOf(element)) rememberInk(element, config, committed.current)
   }, [config, strokes])
 
-  const onEscape = useEffectEvent(() => collapse())
   // Before paint, so the enlarged frame never shows at a stale size.
   useLayoutEffect(() => {
     if (!expanded) return
@@ -224,6 +236,7 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     setEraserPreview(null)
     setStatus(DRAWING_COLLAPSED_STATUS)
   }
+  const onEscape = useEffectEvent(() => collapse())
   function changeZoom(level: DrawingZoom) {
     flushPendingStroke()
     const element = viewport.current
@@ -247,20 +260,22 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     if (outcome !== 'accepted') {
       // Name the limit that refused it, the way the stored-answer parser would find it.
       const refusal = outcome === 'rejected' ? 'rejected' : outcome === 'draft-limit' ? 'draft'
-        : exceededDrawingLimit(next.strokes, config) ?? 'other'
+        : exceededDrawingLimit([...capacityStrokes, ...next.strokes], config) ?? 'other'
       setInk({ controlled: strokes, strokes: committed.current, refusal })
       paint(committed.current)
       return committed.current
     }
     committed.current = next.strokes
     setInk({ controlled: strokes, strokes: next.strokes, refusal: null })
-    setUndone(next.undone)
+    setUndoneByPage((current) => new Map(current).set(historyKey, next.undone))
     // An accepted stroke is already on the canvas exactly as it was drawn; the owner's acknowledgement
     // replays the answer in full. Every other change (undo, redo, clear) is replayed here as well.
     if (action.type !== 'add') paint(next.strokes)
     if (action.type !== 'add') setStatus(action.type === 'clear' ? '畫布已清除。' : action.type === 'undo' ? '已復原上一筆。' : '已重做一筆。')
     // Said once, when a stroke uses up the room the capacity line keeps for the next one.
-    else if (!capacity.tight && drawingCapacity(drawingUsage(next.strokes, config), width, draft).tight) setStatus(DRAWING_CAPACITY_TIGHT_STATUS)
+    else if (!capacity.tight && drawingCapacity(drawingUsage([...capacityStrokes, ...next.strokes], config), width, draft).tight) {
+      setStatus(DRAWING_CAPACITY_TIGHT_STATUS)
+    }
     return next.strokes
   }
   function point(event: PointerEvent<HTMLCanvasElement>) {
@@ -366,7 +381,13 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
     flushPendingStroke()
     return lastOutcome.current
   }
-  useImperativeHandle(ref, () => ({ flushPendingStroke, flushPendingInput }))
+  useImperativeHandle(ref, () => ({ flushPendingStroke, flushPendingInput,
+    forgetHistory: (key) => setUndoneByPage((current) => {
+      if (!current.has(key)) return current
+      const next = new Map(current)
+      next.delete(key)
+      return next
+    }) }))
   async function exportPng() {
     try { await downloadDrawingPng(config, history.strokes, `${id}.png`); setStatus('PNG 已匯出。') }
     catch { setStatus('PNG 匯出失敗，請重試。') }
@@ -425,12 +446,13 @@ export function DrawingCanvas({ id, config, strokes, onChange, ref }: DrawingCan
         {expanded && zoom > 1 && <button type="button" className="icon-button" aria-label="移動畫面" title="移動畫面" aria-pressed={panning}
           onClick={() => { setPanning(!panning); setEraserPreview(null) }}><DrawingToolIcon name="move" /></button>}
       </div>
+      {toolbarAddon}
     </div>
     <div ref={viewport} className="canvas-viewport">
     <div className={`canvas-frame${panTool ? ' is-panning' : ''}`}
       style={expanded && fitWidth !== null ? { width: `${fitWidth * zoom + FRAME_BORDER}px` } : undefined}>
       <canvas ref={canvas} width={config.width} height={config.height} className="drawing-canvas"
-        aria-label="繪圖作答區" aria-describedby={`${id}-instructions`} role="img"
+         aria-label={canvasLabel} aria-describedby={`${id}-instructions`} role="img"
         onContextMenu={(event) => event.preventDefault()}
         onPointerEnter={hover} onPointerLeave={hidePreview}
         onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={cancel} onLostPointerCapture={lostCapture}>

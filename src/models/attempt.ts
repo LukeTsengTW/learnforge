@@ -15,7 +15,14 @@ export interface CalculationAnswerV4 {
   text: string
   strokes: DrawingStroke[]
 }
-export type CalculationAnswer = LegacyCalculationAnswer | CalculationAnswerV4
+/** Schema-3 calculation draft. Each nested array is one logical drawing page. */
+export interface CalculationAnswerV5 {
+  type: 'calculation'
+  mode: CalculationAnswerMode
+  text: string
+  pages: DrawingStroke[][]
+}
+export type CalculationAnswer = LegacyCalculationAnswer | CalculationAnswerV4 | CalculationAnswerV5
 
 export type QuestionAnswer =
   | { type: 'single'; optionId: string }

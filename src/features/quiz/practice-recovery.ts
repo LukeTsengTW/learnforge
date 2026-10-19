@@ -1,6 +1,8 @@
 import { decodeAttempt } from '../../lib/attempt-storage'
 import { decodeQuizDraftV4, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
+import { decodeQuizDraftV5, promoteQuizDraftV5, requiresV5Draft } from '../../lib/draft-v5'
 import type { QuizDraftV4 } from '../../models/draft-v4'
+import type { QuizDraftV5 } from '../../models/draft-v5'
 import type { Quiz } from '../../models/quiz'
 import { LocalPracticeCache, type CachedPractice } from './practice-cache'
 import { quizCatalog, type QuizCatalog } from './quiz-loader'
@@ -10,12 +12,13 @@ import { PersistenceError } from './repositories'
 
 export interface PracticeBackup {
   key: string; quizId: string; attemptId: string; savedAt: string | null; reason: string
-  /** Draft schema recorded by the backup namespace (2 = multimodal v4 draft). */
-  schemaVersion: 1 | 2
+  /** Draft schema recorded by the backup namespace (2 = v4, 3 = paged v5). */
+  schemaVersion: 1 | 2 | 3
 }
 const isV4Key = (userId: string, key: string) => key.startsWith(`learnforge:attempt:v4:${userId}:`)
+const isV5Key = (userId: string, key: string) => key.startsWith(`learnforge:attempt:v5:${userId}:`)
 function ownsKey(userId: string, key: string) {
-  return [2, 3, 4].some(version => key.startsWith(`learnforge:attempt:v${version}:${userId}:`)) && key.includes(':recovery:')
+  return [2, 3, 4, 5].some(version => key.startsWith(`learnforge:attempt:v${version}:${userId}:`)) && key.includes(':recovery:')
 }
 export function readBackup(userId: string, key: string, storage: Storage): string {
   if (!ownsKey(userId, key)) throw new PersistenceError('invalid')
@@ -40,7 +43,7 @@ export function listPracticeBackups(userId: string, storage: Storage): PracticeB
         attemptId: typeof value?.id === 'string' ? value.id : key.split(':')[4],
         savedAt: value?.recovery?.savedAt ?? value?.attempt?.updatedAt ?? null,
         reason: value?.recovery?.reason ?? (key.endsWith(':migration') ? '舊資料遷移／資料格式損壞' : '歷史同步衝突'),
-        schemaVersion: isV4Key(userId, key) ? 2 : 1 })
+        schemaVersion: isV5Key(userId, key) ? 3 : isV4Key(userId, key) ? 2 : 1 })
     } catch { /* Never expose an envelope owned by a different account. */ }
   }
   return backups.sort((a, b) => (b.savedAt ?? '').localeCompare(a.savedAt ?? ''))
@@ -69,20 +72,36 @@ export async function restorePracticeBackup(userId: string, key: string, storage
   const cache = new LocalPracticeCache(userId, () => storage)
   const now = (updatedAt: string) => new Date(Math.max(Date.now(), Date.parse(updatedAt) + 1)).toISOString()
 
-  let draft: QuizDraftV4
+  let draft: QuizDraftV4 | null = null
+  let draftV5: QuizDraftV5 | null = null
   let schema1Backup = false
-  if (isV4Key(userId, key)) {
+  if (isV5Key(userId, key)) {
+    if (value.cacheVersion !== 5 || !key.startsWith(`learnforge:attempt:v5:${userId}:${id}:recovery:`)
+      || !requiresV5Draft(quiz)) throw new PersistenceError('invalid')
+    const decoded = decodeQuizDraftV5(JSON.stringify(value.attempt), quiz)
+    if (!decoded) throw new PersistenceError('conflict')
+    draftV5 = decoded
+  } else if (isV4Key(userId, key)) {
     // Schema-2 backup: v4 envelope + strict v4 grammar for an exact v4-capable revision only.
     if (value.cacheVersion !== 4 || !key.startsWith(`learnforge:attempt:v4:${userId}:${id}:recovery:`)) throw new PersistenceError('invalid')
     if (!requiresV4Draft(quiz)) throw new PersistenceError('conflict')
     const decoded = decodeQuizDraftV4(JSON.stringify(value.attempt), quiz)
     if (!decoded) throw new PersistenceError('conflict')
-    draft = decoded
+    if (requiresV5Draft(quiz)) {
+      const promoted = promoteQuizDraftV5(decoded, quiz)
+      if (!promoted) throw new PersistenceError('conflict')
+      draftV5 = promoted
+    } else draft = decoded
   } else {
     if (value.schemaVersion !== 3 || !key.startsWith(`learnforge:attempt:v3:${userId}:${id}:recovery:`)) throw new PersistenceError('invalid')
     const legacy = decodeAttempt(JSON.stringify(value.attempt), quiz)
     if (!legacy || legacy.status !== 'in-progress') throw new PersistenceError('conflict')
-    if (requiresV4Draft(quiz)) {
+    if (requiresV5Draft(quiz)) {
+      const promoted = promoteQuizDraftV5(legacy, quiz)
+      if (!promoted) throw new PersistenceError('conflict')
+      draftV5 = promoted
+      schema1Backup = true
+    } else if (requiresV4Draft(quiz)) {
       // A v4-capable revision only accepts schema-2 drafts: promote in memory, never write schema 1.
       const promoted = upgradeLegacyQuizDraftV4(legacy, quiz)
       if (!promoted) throw new PersistenceError('conflict')
@@ -106,11 +125,20 @@ export async function restorePracticeBackup(userId: string, key: string, storage
   // authoritative server draft is still marker 1. Once the server is marker 2 it is never applied.
   if (schema1Backup && remote?.schemaVersion !== 1) throw new PersistenceError('conflict')
   assertRestorableRemote(remote, userId, quiz, expectedVersion)
-  const v4 = cache.forV4()
-  const local = v4.read(id, quiz)
-  if (local && Object.keys(local.attempt.answers).length) throw new PersistenceError('conflict')
-  // The store's schema-2 path saves this through save-quiz-draft once the exact remote version still matches.
-  v4.write({ id, attempt: { ...draft, updatedAt: now(draft.updatedAt) }, version: remote!.version,
-    recoveryExpectedVersion: remote!.version.updatedAt })
+  if (draftV5) {
+    const v5 = cache.forV5()
+    const local = v5.read(id, quiz)
+    if (local && Object.keys(local.attempt.answers).length) throw new PersistenceError('conflict')
+    v5.write({ id, attempt: { ...draftV5, updatedAt: now(draftV5.updatedAt) }, version: remote!.version,
+      recoveryExpectedVersion: remote!.version.updatedAt })
+  } else {
+    if (!draft) throw new PersistenceError('invalid')
+    const v4 = cache.forV4()
+    const local = v4.read(id, quiz)
+    if (local && Object.keys(local.attempt.answers).length) throw new PersistenceError('conflict')
+    // The schema-2 path still saves through the existing authenticated CAS endpoint.
+    v4.write({ id, attempt: { ...draft, updatedAt: now(draft.updatedAt) }, version: remote!.version,
+      recoveryExpectedVersion: remote!.version.updatedAt })
+  }
   return quiz.id
 }

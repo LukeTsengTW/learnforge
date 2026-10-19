@@ -1,13 +1,14 @@
-import { GRADE_STATUS, type AnswerMap, type CalculationAnswerV4, type GradeResult, type QuestionAnswer, type QuestionGrade,
+import { GRADE_STATUS, type AnswerMap, type CalculationAnswerV4, type CalculationAnswerV5, type GradeResult, type QuestionAnswer, type QuestionGrade,
   type TrustedFillJudgment, type TrustedRubricJudgment } from '../models/attempt.ts'
 import type { DraftAnswerMapV4 } from '../models/draft-v4.ts'
+import type { DraftAnswerMapV5 } from '../models/draft-v5.ts'
 import { QUESTION_TYPE, type FillBlankQuestion, type MultipleChoiceQuestion, type ObjectiveQuestion,
   type Quiz, type Question, type SingleChoiceQuestion, type TrueFalseQuestion } from '../models/quiz.ts'
 import { isV4BlankText } from './v4-blank.ts'
 import { canonicalV4Score, isCanonicalV4Score } from './v4-score.ts'
 
 /** Progress/display presence. A v4 calculation counts only its ACTIVE buffer. */
-export function hasAnswer(answer: QuestionAnswer | CalculationAnswerV4 | undefined): boolean {
+export function hasAnswer(answer: QuestionAnswer | CalculationAnswerV4 | CalculationAnswerV5 | undefined): boolean {
   if (!answer) return false
   switch (answer.type) {
     case QUESTION_TYPE.single: return Boolean(answer.optionId)
@@ -15,7 +16,9 @@ export function hasAnswer(answer: QuestionAnswer | CalculationAnswerV4 | undefin
     case QUESTION_TYPE.trueFalse: return true
     case QUESTION_TYPE.fill: return answer.text.trim().length > 0
     case QUESTION_TYPE.calculation:
-      if (answer.mode === 'drawing') return answer.strokes.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0)
+      if (answer.mode === 'drawing') return 'pages' in answer
+        ? answer.pages.some((page) => page.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0))
+        : answer.strokes.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0)
       return answer.mode === 'text' ? !isV4BlankText(answer.text) : answer.text.trim().length > 0
     case QUESTION_TYPE.drawing: return answer.strokes.some((stroke) => stroke.tool === 'pen' && stroke.points.length > 0)
   }
@@ -285,4 +288,15 @@ export function gradeQuizV4(quiz: Quiz, answers: DraftAnswerMapV4,
     } satisfies QuestionGrade
   })
   return aggregate(grades)
+}
+
+/** Pure official v5 composition. Pages remain in persisted answers and their trusted hash; grading
+ * only needs the same active-mode facts as v4 (text, or that handwriting was server-judged). */
+export function gradeQuizV5(quiz: Quiz, answers: DraftAnswerMapV5,
+  fillJudgments: readonly TrustedFillJudgment[], rubricJudgments: readonly TrustedRubricJudgment[]): GradeResult {
+  const v4Projection: DraftAnswerMapV4 = Object.fromEntries(Object.entries(answers).map(([questionId, answer]) =>
+    [questionId, answer.type === QUESTION_TYPE.calculation
+      ? { type: QUESTION_TYPE.calculation, mode: answer.mode, text: answer.text, strokes: answer.pages.flat() }
+      : answer])) as DraftAnswerMapV4
+  return gradeQuizV4(quiz, v4Projection, fillJudgments, rubricJudgments)
 }

@@ -1,5 +1,26 @@
 # Release checklist
 
+## v1.20.0 Multi-page handwriting — local implementation checkpoint
+
+This checkpoint is dated 2026-10-19 (Asia/Taipei). It is not production acceptance. The candidate branch is `codex/v1.20.0-paged-handwriting`, based on `2faf57ac9a089f1af79fd6c160eeb0dd58a0d661`; after `git fetch --all --prune`, `origin/master` still resolved to that SHA. The package and lockfile are set to `1.20.0`. The local and remote `v1.20.0` tag did not exist at this checkpoint.
+
+- [x] Core implementation: ordered calculation handwriting pages, per-page undo/redo, page selection/add/delete, recovery and preview/export, schema-3 draft contract, and V5 server-side submission/grading/history/analytics path.
+- [x] Independent Stage 3 review: PASS, zero blockers/should-fix/nits after moving page-delete confirmation and actions inside the expanded dialog.
+- [x] Independent Stage 4 review: PASS, zero blockers/should-fix/nits; schema-1/2 submitted paths remain versioned, schema-3 geometry and aggregate limits are checked, and empty-page handling is aligned across TypeScript and SQL.
+- [x] Independent Stage 1 integration review: PASS, zero blockers/should-fix/nits; sparse pages are rejected, and stroke-count boundary tests isolate the count limit.
+- [x] TypeScript build check; `check:quizzes`; `check:ai-context`; Edge import check; production build; Pages-base build; production dependency audit (0 vulnerabilities); lint; and `git diff --check` passed before this documentation/version checkpoint.
+- [x] Re-ran `supabase/tests/security.sql` on 2026-10-19 against the isolated local Supabase database after the latest drawing-mode predicate and regression assertion. `psql` exited 0; the script reached `ROLLBACK` and emitted its final `PASS` summary. Production database was not accessed or changed.
+- [x] Edge import graph scope: only `save-quiz-draft` (`verify_jwt=true`) and `submit-quiz` (`verify_jwt=false`) are affected. `quiz-context.generated.ts` has the same blob hash as the base and is not a candidate change; deploy only the two named functions and retain their JWT settings.
+- [x] Author Preview rendered the handwriting toolbar. In the in-app browser, adding a page showed page 2/2 and previous/next navigation returned 1/2 then 2/2. The connected Chrome automation surface also reported Canvas unavailable; no pointer stroke was claimed as browser-verified. Automated DrawingCanvas and submission tests cover the stroke path.
+- [x] Full local Vitest: 123 files / 1,883 tests passed in the controlled elevated run. The earlier sandbox run's only failure was the Git Bash named-object permission error; the same workflow test file also passed independently, 26/26.
+- [x] Stage 0 source review: N/A because the candidate changes no quiz-bank source content.
+- [x] Stage 2 release-documentation review: final follow-up PASS with zero blockers, should-fix items, or nits after recording the SQL rerun, review dispositions, completed tests, and secret-safe metadata checks.
+- [x] Stage 5 end-to-end candidate review: PASS with zero blockers, should-fix items, or nits after correcting its single documentation finding. Final release-closure review remains pending until the release gates complete.
+- [ ] `release:classify` and `release:check` on the versioned candidate; exact-SHA preflight and CI.
+- [ ] Production backend preflight, additive migration, impacted Edge deployment, and bounded synthetic provider canary. The classifier has reported Risk C / `security-ai` and `providerCanaryRequired=true`; no production mutation or provider call has occurred.
+- [ ] Exact-SHA Pages deployment, public smoke, release manifest parity, production browser acceptance, and independent production review.
+- [ ] Update this checklist and delivery report with observed production/CI identities; create docs-only closure commit if the current workflow still requires it; verify closure CI and Pages SHA parity; then create the requested annotated tag and GitHub Release only after all preceding gates pass.
+
 ## v1.19.0 2021／2023／2024 離散數學期中考題庫 — production acceptance snapshot before closure
 
 本節記錄 2026-10-18（Asia/Taipei）runtime candidate `f283c14c45fa670865f30510c77bf40e64e35e4a` 的 production acceptance，時間點在 docs-only closure commit 之前。當時 Stage 0–4 reviews、exact candidate CI、六個 Edge 部署、exact-candidate Pages、public smoke、candidate manifest 與受限 production browser acceptance 均 PASS，production manifest 回傳 candidate SHA。此為歷史 checkpoint；目前 closure SHA、最終 Pages manifest、annotated tag 與已發布 Release 請見 [v1.19.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.19.0) 及 [live release manifest](https://luketsengtw.github.io/learnforge/release.json)。細節與限制見 [v1.19.0 delivery](v1.19.0-delivery.md)。

@@ -1,7 +1,8 @@
 import { attemptKey, decodeAttempt } from '../../lib/attempt-storage'
 import { reduceAttempt } from '../../lib/attempt'
-import { answerQuizDraftV4, draftAnswerMapBytes, draftAnswerProblemV4, isLegacyQuestionAnswer, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
-import type { DraftSchemaVersion, PracticeAnswer, PracticeAttempt } from '../../models/draft-v4'
+import { answerQuizDraftV4, draftAnswerMapBytes, draftAnswerProblemV4, isLegacyQuestionAnswer, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
+import { answerQuizDraftV5, draftAnswerMapBytesV5, draftAnswerProblemV5, promoteQuizDraftV5, requiresV5Draft } from '../../lib/draft-v5'
+import type { DraftSchemaVersion, PracticeAnswer, PracticeAnswerV5, PracticeAttempt } from '../../models/draft-v4'
 import type { Quiz } from '../../models/quiz'
 import type { AnswerOutcome, SubmitProgress, SubmitStage } from './attempt-context'
 import type { PracticeRepository } from './practice-context'
@@ -11,6 +12,9 @@ import { PersistenceError, type RemoteVersion } from './repositories'
 import { sameAttempt } from './sync'
 
 interface StoreValue { id: string; attempt: PracticeAttempt; version: RemoteVersion; recoveryExpectedVersion?: string }
+
+const isSchema2Answer = (answer: PracticeAnswerV5): answer is PracticeAnswer =>
+  answer.type !== 'calculation' || !('pages' in answer)
 
 function nextClientTime(startedAt: string, updatedAt: string): string {
   return new Date(Math.max(Date.now(), Date.parse(startedAt) + 1, Date.parse(updatedAt) + 1)).toISOString()
@@ -24,14 +28,13 @@ export const STALE_NOT_SUBMITTED_NOTICE = `${STALE_DRAFT_NOTICE}作答尚未提�
 export const DRAFT_FULL_NOTICE = '整份作答已達雲端草稿的大小上限，剛才的變更沒有套用。請先復原或清除部分手寫筆畫（任何一題皆可）再繼續。'
 
 /**
- * Draft schema is decided once from the EXACT revision and the server marker. A server schema-2
- * draft is always schema 2; a v4-capable revision promotes a schema-1 draft in memory only.
+ * Draft schema is decided once from the EXACT revision and server marker. Paged-capable revisions
+ * use schema 3 and promote older in-progress drafts in memory; historical submissions stay intact.
  */
 export function draftSchemaFor(record: PracticeRecord, quiz: Quiz): DraftSchemaVersion {
-  const capable = requiresV4Draft(quiz)
-  // Marker 2 on a non-capable exact revision is impossible configuration: never treat it as schema 2.
-  if (record.schemaVersion === 2 && !capable) throw new PersistenceError('invalid')
-  return capable ? 2 : 1
+  const capable = requiresV5Draft(quiz)
+  if (record.schemaVersion > 1 && !capable) throw new PersistenceError('invalid')
+  return capable ? 3 : 1
 }
 
 /**
@@ -44,6 +47,25 @@ export function effectiveRemoteAttempt(record: PracticeRecord, quiz: Quiz, schem
   if (schema === 1) {
     if (record.schemaVersion !== 1 || attempt.schemaVersion !== 1) throw new PersistenceError('invalid')
     return attempt
+  }
+  if (schema === 3) {
+    if (record.schemaVersion === 3) {
+      if (attempt.schemaVersion !== 3) throw new PersistenceError('invalid')
+      return attempt
+    }
+    if (record.schemaVersion === 2 && attempt.schemaVersion === 2) {
+      if (attempt.status === 'submitted') return attempt
+      const promoted = promoteQuizDraftV5(attempt, quiz)
+      if (!promoted) throw new PersistenceError('invalid')
+      return promoted
+    }
+    if (record.schemaVersion === 1 && attempt.schemaVersion === 1) {
+      if (attempt.status === 'submitted') return attempt
+      const promoted = promoteQuizDraftV5(attempt, quiz)
+      if (!promoted) throw new PersistenceError('invalid')
+      return promoted
+    }
+    throw new PersistenceError('invalid')
   }
   if (record.schemaVersion === 2) {
     if (attempt.schemaVersion !== 2) throw new PersistenceError('invalid')
@@ -62,11 +84,20 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   const quiz = initial.quiz
   const schema = draftSchemaFor(initial, quiz)
   const v4Cache = cache.forV4()
+  const v5Cache = cache.forV5()
   const remoteAttempt = (record: PracticeRecord) => effectiveRemoteAttempt(record, quiz, schema)
 
   function reconcile(record: PracticeRecord): StoreValue {
     if (schema === 1) return cache.reconcile(record)
     const remote = remoteAttempt(record)
+    if (schema === 3) {
+      if (remote.schemaVersion === 3 && remote.status === 'in-progress') {
+        return v5Cache.reconcile(record, remote)
+      }
+      const local = (() => { try { return v5Cache.read(record.id, quiz) } catch { return null } })()
+      if (local) { v5Cache.archive(local, '其他裝置或分頁已提交'); v5Cache.removeDraft(local) }
+      return { id: record.id, attempt: remote, version: record.version }
+    }
     if (remote.schemaVersion === 2) return v4Cache.reconcile(record, remote)
     // Only a submitted schema-1 record reaches here: keep any local v4 draft as recovery evidence.
     const local = (() => { try { return v4Cache.read(record.id, quiz) } catch { return null } })()
@@ -75,14 +106,16 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   }
   function writeCache(next: StoreValue) {
     const attempt = next.attempt
-    if (attempt.schemaVersion === 2) v4Cache.write({ ...next, attempt })
-    else if (schema === 1) cache.write({ ...next, attempt })
+    if (attempt.schemaVersion === 3 && attempt.status === 'in-progress') v5Cache.write({ ...next, attempt })
+    else if (attempt.schemaVersion === 2) v4Cache.write({ ...next, attempt })
+    else if (schema === 1 && attempt.schemaVersion === 1) cache.write({ ...next, attempt })
     // A schema-2 store never writes a schema-1 attempt into either namespace.
   }
   function archiveCache(next: StoreValue, reason: string) {
     const attempt = next.attempt
-    if (attempt.schemaVersion === 2) v4Cache.archive({ ...next, attempt }, reason)
-    else cache.archive({ ...next, attempt }, reason)
+    if (attempt.schemaVersion === 3 && attempt.status === 'in-progress') v5Cache.archive({ ...next, attempt }, reason)
+    else if (attempt.schemaVersion === 2) v4Cache.archive({ ...next, attempt }, reason)
+    else if (attempt.schemaVersion === 1) cache.archive({ ...next, attempt }, reason)
   }
 
   let value: StoreValue = { id: initial.id, attempt: remoteAttempt(initial), version: initial.version }
@@ -92,7 +125,8 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   let remoteRecord = initial
   let dirty = !sameAttempt(value.attempt, remoteAttempt(initial))
   // Size of the answers as the save path measures it; schema-1 drafts have no aggregate cap.
-  const draftBytes = (attempt: PracticeAttempt) => attempt.schemaVersion === 2 ? draftAnswerMapBytes(attempt.answers) : 0
+  const draftBytes = (attempt: PracticeAttempt) => attempt.schemaVersion === 3 ? draftAnswerMapBytesV5(attempt.answers)
+    : attempt.schemaVersion === 2 ? draftAnswerMapBytes(attempt.answers) : 0
   let snapshot = { attempt: value.attempt, attemptId: initial.id, notice, syncing: false, submitting: false,
     submitProgress: null as SubmitProgress | null, legacy: false,
     draftSchema: schema, pendingSubmission: value.attempt.status === 'submitted' && remoteRecord.row.status !== 'submitted',
@@ -132,7 +166,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         const incoming = await repo.loadAttempt(initial.id)
         if (!active) return
         if (!incoming || !incoming.attempt || !incoming.quiz) throw new PersistenceError('conflict')
-        if (schema === 1 && incoming.schemaVersion === 2) {
+        if (schema < incoming.schemaVersion) {
           // Another (newer) client promoted this draft. Never downgrade: keep local work, stop syncing.
           schemaChanged = true
           archiveCache(value, '雲端草稿已升級為新的作答格式')
@@ -154,14 +188,14 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
             persist(); emit()
           } else {
             const staleLocalWork = dirty
-            if (schema === 2) {
-              // Make sure the stale draft is in the v4 cache; its reconcile archives it once and keeps the
-              // newer server draft active (never rebound to the new CAS, never auto-saved over it).
+            if (schema > 1) {
+              // Keep stale local work in its versioned cache; reconcile archives it and keeps the new
+              // server generation active without rebinding to its CAS token.
               if (staleLocalWork) persist()
             } else if (staleLocalWork) archiveCache(value, '同步時發現另一個草稿版本')
             value = reconcile(incoming)
             dirty = !sameAttempt(value.attempt, remote)
-            if (schema === 2 && staleLocalWork) snapshot = { ...snapshot, notice: STALE_DRAFT_NOTICE }
+            if (schema > 1 && staleLocalWork) snapshot = { ...snapshot, notice: STALE_DRAFT_NOTICE }
             emit()
           }
           // The server moved to a new generation: every earlier send expects an older one and fails its CAS.
@@ -190,14 +224,18 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
   try { snapshot.legacy = schema === 1 && cache.storage().getItem(attemptKey(quiz.id)) !== null } catch { /* Storage unavailable. */ }
   if (dirty) timer = setTimeout(() => { void flush() }, delay)
 
-  function nextAttempt(questionId: string, answer: PracticeAnswer): PracticeAttempt {
+  function nextAttempt(questionId: string, answer: PracticeAnswerV5): PracticeAttempt {
     const current = value.attempt
     const now = nextClientTime(current.startedAt, current.updatedAt)
     if (current.schemaVersion === 2) {
+      if (!isSchema2Answer(answer)) return current
       return current.status === 'in-progress' ? answerQuizDraftV4(quiz, current, questionId, answer, now) : current
     }
+    if (current.schemaVersion === 3) {
+      return current.status === 'in-progress' ? answerQuizDraftV5(quiz, current, questionId, answer, now) : current
+    }
     // Schema 1 keeps its historical reducer and only ever accepts legacy answer shapes.
-    if (schema !== 1 || !isLegacyQuestionAnswer(answer)) return current
+    if (schema !== 1 || !isSchema2Answer(answer) || !isLegacyQuestionAnswer(answer)) return current
     return reduceAttempt(quiz, current, { type: 'answer', questionId, answer, now })
   }
 
@@ -211,13 +249,15 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
      * Synchronous: the result says whether the draft now holds this answer. An editor must not keep
      * showing input that was not accepted, because formal submission serializes this draft only.
      */
-    answer(questionId: string, answer: PracticeAnswer): AnswerOutcome {
+    answer(questionId: string, answer: PracticeAnswerV5): AnswerOutcome {
       if (!active || submitting || schemaChanged || value.attempt.status !== 'in-progress') return 'rejected'
       const current = value.attempt
       const next = nextAttempt(questionId, answer)
       if (next === current) {
-        const problem = current.schemaVersion === 2 && current.status === 'in-progress'
-          ? draftAnswerProblemV4(quiz, current, questionId, answer) : 'invalid'
+        const problem = current.schemaVersion === 3 && current.status === 'in-progress'
+          ? draftAnswerProblemV5(quiz, current, questionId, answer)
+          : current.schemaVersion === 2 && current.status === 'in-progress'
+            ? isSchema2Answer(answer) ? draftAnswerProblemV4(quiz, current, questionId, answer) : 'invalid' : 'invalid'
         if (problem !== 'draft-oversized') return problem === 'oversized' ? 'limit' : 'rejected'
         // Typed and choice answers have no notice of their own, so the page says it as well.
         snapshot = { ...snapshot, notice: DRAFT_FULL_NOTICE }; emit()
@@ -252,7 +292,7 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
           return null
         }
         // An explicit submit of an in-memory promoted draft performs the first v4 save (marker 1 -> 2).
-        if (value.attempt.schemaVersion === 2 && remoteRecord.schemaVersion === 1) dirty = true
+        if (value.attempt.schemaVersion > remoteRecord.schemaVersion) dirty = true
         await flush()
         if (remoteRecord.row.status === 'submitted') {
           if (remoteRecord.row.submission_request_id === submissionRequestId) {
@@ -272,11 +312,13 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         if (incoming?.row.status === 'submitted' && incoming.row.submission_request_id === submissionRequestId) {
           if (incoming.attempt?.status !== 'submitted') throw new SubmissionError('unavailable')
           value = reconcile(incoming)
-          remoteRecord = incoming; dirty = false; persist(); emit()
+          // Reconciliation archives/removes the local draft. A submitted attempt is not a draft
+          // cache entry and must not be written back through the in-progress cache codec.
+          remoteRecord = incoming; dirty = false; emit()
           return initial.id
         }
         if (!incoming || incoming.row.status !== 'draft' || !incoming.attempt) throw new SubmissionError('conflict')
-        if (schema === 1 && incoming.schemaVersion === 2) { schemaChanged = true; throw new SubmissionError('conflict') }
+        if (schema < incoming.schemaVersion) { schemaChanged = true; throw new SubmissionError('conflict') }
         if (value.version.updatedAt !== incoming.version.updatedAt || !sameAttempt(value.attempt, remoteAttempt(incoming))) {
           value = reconcile(incoming)
           dirty = !sameAttempt(value.attempt, remoteAttempt(incoming))
@@ -296,7 +338,8 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
             const final = await repo.loadAttempt(initial.id).catch(() => null)
             if (final?.attempt?.status === 'submitted' && final.schemaVersion === incoming.schemaVersion) {
               value = reconcile(final)
-              remoteRecord = final; dirty = false; persist(); emit()
+              // Reconciliation archives/removes the local draft. Keep finalized evidence remote.
+              remoteRecord = final; dirty = false; emit()
             }
             return initial.id
           }
@@ -323,8 +366,9 @@ export function createPracticeStore(initial: PracticeRecord, repo: PracticeRepos
         if (!incoming || incoming.row.status !== 'draft' || incoming.version.updatedAt !== value.version.updatedAt) throw new PersistenceError('conflict')
         await repo.deleteDraft(incoming)
         const attempt = value.attempt
-        if (attempt.schemaVersion === 2) v4Cache.removeDraft({ ...value, attempt })
-        else cache.removeDraft({ ...value, attempt })
+        if (attempt.schemaVersion === 3 && attempt.status === 'in-progress') v5Cache.removeDraft({ ...value, attempt })
+        else if (attempt.schemaVersion === 2) v4Cache.removeDraft({ ...value, attempt })
+        else if (attempt.schemaVersion === 1) cache.removeDraft({ ...value, attempt })
         active = false
         return true
       } catch (error) { snapshot = { ...snapshot, notice: problem(error) }; emit(); return false }

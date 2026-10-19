@@ -4,10 +4,10 @@ import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
-import { gradeQuizV4 } from '../../lib/grading'
+import { promoteQuizDraftV5 } from '../../lib/draft-v5'
+import { gradeQuizV5 } from '../../lib/grading'
 import { STROKE_SAMPLE_MAX_SEGMENT } from '../../lib/stroke-sampling'
-import type { QuizAttempt, TrustedRubricJudgment } from '../../models/attempt'
+import type { TrustedRubricJudgment } from '../../models/attempt'
 import type { DrawingStroke } from '../../models/drawing'
 import { ResultPage } from '../../pages/ResultPage'
 import { PracticeContext } from './practice-context'
@@ -66,7 +66,7 @@ function pointer(type: string, x: number, y: number) {
   Object.defineProperties(event, { pointerId: { value: 9 }, isPrimary: { value: true } })
   fireEvent(handCanvas(), event)
 }
-const handCanvas = () => document.querySelector('canvas[aria-describedby="answer-q_hand-drawing-instructions"]')!
+const handCanvas = () => document.getElementById('heading-q_hand')?.closest('section')?.querySelector('canvas') as HTMLCanvasElement
 /**
  * One completed pen gesture on its own row; returns the stroke the canvas must hold for it.
  * The moves zigzag by four units, so none of them is within the stroke sampler's tolerance of its
@@ -96,16 +96,16 @@ function renderApp(server: Server, result = <ResultPage />) {
 function finalizing(server: Server) {
   server.submitBehavior.mockImplementation(async (row, requestId) => {
     const attempt = row.record.attempt!
-    if (attempt.schemaVersion !== 2 || attempt.status !== 'in-progress') throw new Error('expected a v4 draft')
+    if (attempt.schemaVersion !== 3 || attempt.status !== 'in-progress') throw new Error('expected a v5 draft')
     const rubric: TrustedRubricJudgment[] = ['q_text', 'q_hand', 'q_draw'].map((questionId) => {
       const question = v4Quiz.questions.find((item) => item.id === questionId)!
       return { questionId, questionType: question.type as 'calculation' | 'drawing', answerHash: 'c'.repeat(64),
         source: 'system', status: 'unanswered', score: 0, maxScore: question.points, criteria: [] }
     })
-    const result = gradeQuizV4(v4Quiz, attempt.answers, [{ questionId: 'q_fill', source: 'rule', status: 'unanswered', reason: null }], rubric)
+    const result = gradeQuizV5(v4Quiz, attempt.answers, [{ questionId: 'q_fill', source: 'rule', status: 'unanswered', reason: null }], rubric)
     const now = '2026-10-02T09:00:00.000Z'
     row.record.attempt = { ...attempt, status: 'submitted', submittedAt: now, result }
-    row.record.row = { ...row.record.row, status: 'submitted', grading_version: 'ai-grading-v4', submission_request_id: requestId,
+    row.record.row = { ...row.record.row, status: 'submitted', grading_version: 'ai-grading-v5', submission_request_id: requestId,
       submitted_at: now, updated_at: now }
     row.record.version = { id: row.record.id, updatedAt: now }
     return { state: 'submitted', result }
@@ -114,7 +114,10 @@ function finalizing(server: Server) {
 }
 const serverRow = (server: Server) => [...server.rows.values()][0]
 function handAnswer(attempt: { answers: Record<string, unknown> } | null | undefined) {
-  return attempt?.answers.q_hand as { mode: string; text: string; strokes: DrawingStroke[] } | undefined
+  const answer = attempt?.answers.q_hand as { type: 'calculation'; mode: string; text: string; strokes?: DrawingStroke[];
+    pages?: DrawingStroke[][] } | undefined
+  if (!answer) return undefined
+  return { type: answer.type, mode: answer.mode, text: answer.text, strokes: answer.pages?.flat() ?? answer.strokes ?? [] }
 }
 const pointCount = (strokes: DrawingStroke[]) => strokes.reduce((sum, item) => sum + item.points.length, 0)
 async function startHandwriting(user: ReturnType<typeof userEvent.setup>) {
@@ -130,14 +133,14 @@ const submitted = (server: Server) => waitFor(() => expect(serverRow(server).rec
 const savedStroke = (row: number, points = 2): DrawingStroke => ({ tool: 'pen', color: '#202b38', width: 4,
   points: Array.from({ length: points }, (_, step) => ({ x: 10 + step * 7, y: 10 + (row % 500) })) })
 /**
- * Puts a schema-2 draft with handwriting for q_hand on the server before the page loads, so a test can
+ * Puts a schema-3 draft with handwriting for q_hand on the server before the page loads, so a test can
  * start just below a stored-drawing limit. The strokes at the limit are still drawn with pointer events.
  */
 async function seedHandwriting(server: Server, strokes: DrawingStroke[]) {
   const draft = await server.repo.getOrCreateDraft(v4Quiz)
-  const promoted = upgradeLegacyQuizDraftV4(draft.attempt as QuizAttempt, v4Quiz)!
+  const promoted = promoteQuizDraftV5(draft.attempt, v4Quiz)!
   server.serverEdit(draft.id, { ...promoted, updatedAt: '2026-10-02T00:30:00.000Z',
-    answers: { q_hand: { type: 'calculation', mode: 'drawing', text: '', strokes } } })
+    answers: { ...promoted.answers, q_hand: { type: 'calculation', mode: 'drawing', text: '', pages: [strokes] } } })
   return strokes
 }
 /** Waits for the page to restore the seeded handwriting and returns once the q_hand canvas shows that many strokes. */
@@ -160,15 +163,15 @@ describe('submit boundary: the submitted drawing is the completed drawing on the
     expect(painted).toBe(3)
     // The 800 ms autosave has not fired: the server still holds no draft answers (draft and formal
     // submission are separate contracts; an unsynchronized draft must not make the submission stale).
-    expect(server.v4Saves).toHaveLength(0)
+    expect(server.v5Saves).toHaveLength(0)
     await pressSubmit(user)
     await submitted(server)
     expect(server.submits).toHaveLength(1)
     // The CAS that was submitted is the generation of the save that carried the three strokes.
-    expect(handAnswer(server.v4Saves.at(-1)!.attempt)!.strokes).toEqual(drawn)
+    expect(handAnswer(server.v5Saves.at(-1)!.attempt)!.strokes).toEqual(drawn)
     expect(handAnswer(serverRow(server).record.attempt)).toEqual({ type: 'calculation', mode: 'drawing', text: '', strokes: drawn })
     // The result view reconstructs the same three strokes.
-    expect(await screen.findByRole('img', { name: '已提交的繪圖答案' })).toBeInTheDocument()
+    expect(await screen.findByRole('img', { name: '第 1 頁手寫作答' })).toBeInTheDocument()
     expect(painted).toBe(3)
   })
 
@@ -208,7 +211,7 @@ describe('submit boundary: the submitted drawing is the completed drawing on the
     release!() // the older save completes only now
     await submitted(server)
     // The older completion did not roll the draft back: a second save carried the newer drawing.
-    expect(server.v4Saves.map((item) => handAnswer(item.attempt)!.strokes.length)).toEqual([2, 3])
+    expect(server.v5Saves.map((item) => handAnswer(item.attempt)!.strokes.length)).toEqual([2, 3])
     expect(handAnswer(serverRow(server).record.attempt)!.strokes).toEqual([...early, last])
   })
 
@@ -226,7 +229,7 @@ describe('submit boundary: the submitted drawing is the completed drawing on the
     await startHandwriting(user)
     const early = [draw(0), draw(60)]
     await user.click(screen.getByRole('button', { name: '重試同步' }))
-    await waitFor(() => expect(server.v4Saves).toHaveLength(1))
+    await waitFor(() => expect(server.v5Saves).toHaveLength(1))
     const last = draw(120)
     expect(painted).toBe(3)
     await pressSubmit(user)
@@ -269,8 +272,8 @@ describe('submit boundary: the submitted drawing is the completed drawing on the
     await pressSubmit(user)
     await submitted(server)
     const answers = serverRow(server).record.attempt!.answers
-    expect(answers.q_hand).toEqual({ type: 'calculation', mode: 'text', text: 'x = 3', strokes: kept })
-    expect(answers.q_text).toEqual({ type: 'calculation', mode: 'text', text: 'x = 2', strokes: [] })
+    expect(answers.q_hand).toEqual({ type: 'calculation', mode: 'text', text: 'x = 3', pages: [kept] })
+    expect(answers.q_text).toEqual({ type: 'calculation', mode: 'text', text: 'x = 2', pages: [] })
   })
 
   it('a gesture still in progress at submit is completed and submitted; later events of that pointer add nothing', async () => {
@@ -374,7 +377,7 @@ describe('the canvas never shows ink the answer did not accept', () => {
     expect(shown.every((point) => point.y === 150)).toBe(true)
     expect(pointCount(answer.strokes)).toBeLessThanOrEqual(MAX_POINTS)
     // The save that the submission was bound to carried the same strokes.
-    expect(handAnswer(server.v4Saves.at(-1)!.attempt)!.strokes).toEqual(answer.strokes)
+    expect(handAnswer(server.v5Saves.at(-1)!.attempt)!.strokes).toEqual(answer.strokes)
   })
 
   it('takes no ink while a submission is in flight; after that submission fails the canvas and the next submission agree', async () => {

@@ -23,7 +23,7 @@ export default {
         return data as unknown as DraftAttemptSnapshot | null
       },
       async saveDraft(input) {
-        const { data, error } = await admin.rpc('save_quiz_attempt_v4', {
+        const { data, error } = await admin.rpc(input.answerSchemaVersion === 3 ? 'save_quiz_attempt_v5' : 'save_quiz_attempt_v4', {
           p_user_id: input.userId, p_attempt_id: input.attemptId,
           p_expected_updated_at: input.expectedUpdatedAt, p_client_updated_at: input.clientUpdatedAt,
           p_answers: input.answers,
@@ -31,10 +31,11 @@ export default {
         if (error?.code === '40001') throw new DraftSaveConflict()
         if (error || !Array.isArray(data) || data.length !== 1 || !draftRecord(data[0])) throw new Error('Draft save unavailable')
         const row = data[0]
-        if (row.id !== input.attemptId || row.answer_schema_version !== 2 || !validDraftTimestamp(row.updated_at)) {
+        if (row.id !== input.attemptId || row.answer_schema_version !== input.answerSchemaVersion
+          || !validDraftTimestamp(row.updated_at)) {
           throw new Error('Draft metadata unavailable')
         }
-        return { attemptId: input.attemptId, updatedAt: row.updated_at, answerSchemaVersion: 2 }
+        return { attemptId: input.attemptId, updatedAt: row.updated_at, answerSchemaVersion: input.answerSchemaVersion }
       },
     })(request)
   }),

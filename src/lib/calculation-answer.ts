@@ -1,11 +1,14 @@
-import { DRAWING_LIMITS, parseStoredDrawing } from '../../supabase/functions/_shared/drawing-raster.ts'
-import type { CalculationAnswerMode, CalculationAnswerV4, LegacyCalculationAnswer } from '../models/attempt.ts'
+import { DRAWING_LIMITS, DrawingRasterError, parseStoredDrawing, parseStoredDrawingPages } from '../../supabase/functions/_shared/drawing-raster.ts'
+import type { CalculationAnswerMode, CalculationAnswerV4, CalculationAnswerV5, LegacyCalculationAnswer } from '../models/attempt.ts'
 import type { DrawingStroke } from '../models/drawing.ts'
 import type { CalculationQuestion, DrawingConfig } from '../models/quiz.ts'
 
 export type ActiveCalculationAnswer =
   | { type: 'calculation'; mode: 'text'; text: string }
   | { type: 'calculation'; mode: 'drawing'; strokes: DrawingStroke[] }
+export type ActiveCalculationAnswerV5 =
+  | { type: 'calculation'; mode: 'text'; text: string }
+  | { type: 'calculation'; mode: 'drawing'; pages: DrawingStroke[][] }
 
 const record = (value: unknown): value is Record<string, unknown> =>
   value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -55,6 +58,30 @@ export function isCalculationAnswerV4(value: unknown, question: CalculationQuest
   return isSupportedDrawingConfig(question.drawing) && validStrokes(value.strokes, question.drawing)
 }
 
+/** Strict schema-3 answer parser. Drawing pages are independently parsed and share one aggregate budget. */
+export function normalizeCalculationAnswerV5(value: unknown, question: Pick<CalculationQuestion, 'drawing'>): CalculationAnswerV5 {
+  if (!record(value) || !exactKeys(value, ['type', 'mode', 'text', 'pages']) || value.type !== 'calculation'
+    || (value.mode !== 'text' && value.mode !== 'drawing') || typeof value.text !== 'string'
+    || !Array.isArray(value.pages)) throw new DrawingRasterError('invalid')
+  if (value.text.length > 100000) throw new DrawingRasterError('oversized')
+  if (question.drawing === undefined) {
+    if (value.mode !== 'text' || value.pages.length !== 0) throw new DrawingRasterError('invalid')
+    return { type: 'calculation', mode: 'text', text: value.text, pages: [] }
+  }
+  if (!isSupportedDrawingConfig(question.drawing)) throw new DrawingRasterError('invalid')
+  const pages = parseStoredDrawingPages(value.pages, question.drawing)
+  return { type: 'calculation', mode: value.mode, text: value.text, pages }
+}
+
+/** Validates both active and inactive buffers against the exact calculation revision. */
+export function isCalculationAnswerV5(value: unknown, question: Pick<CalculationQuestion, 'drawing'>): value is CalculationAnswerV5 {
+  try { normalizeCalculationAnswerV5(value, question); return true } catch { return false }
+}
+
+export function getCalculationActiveModeV5(value: unknown, question: Pick<CalculationQuestion, 'drawing'>): CalculationAnswerMode | null {
+  return isCalculationAnswerV5(value, question) ? value.mode : null
+}
+
 /** Draft-only, in-memory adapter. Callers must keep historical submitted answers unchanged. */
 export function normalizeLegacyCalculationDraft(value: unknown): CalculationAnswerV4 | null {
   return isLegacyCalculationAnswer(value)
@@ -74,4 +101,12 @@ export function projectActiveCalculationAnswer(value: unknown, question: Calcula
   if (value.mode === 'text') return { type: 'calculation', mode: 'text', text: value.text }
   return { type: 'calculation', mode: 'drawing',
     strokes: value.strokes.map((stroke) => ({ ...stroke, points: stroke.points.map((point) => ({ ...point })) })) }
+}
+
+/** Schema-3 semantic projection. It preserves page boundaries and excludes the inactive buffer. */
+export function projectActiveCalculationAnswerV5(value: unknown, question: Pick<CalculationQuestion, 'drawing'>): ActiveCalculationAnswerV5 | null {
+  if (!isCalculationAnswerV5(value, question)) return null
+  if (value.mode === 'text') return { type: 'calculation', mode: 'text', text: value.text }
+  return { type: 'calculation', mode: 'drawing', pages: value.pages.map((page) =>
+    page.map((stroke) => ({ ...stroke, points: stroke.points.map((point) => ({ ...point })) }))) }
 }

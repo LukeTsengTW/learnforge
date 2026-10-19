@@ -4,7 +4,7 @@ import { inflateSync } from 'node:zlib'
 import { describe, expect, it } from 'vitest'
 import { DRAWING_STORED_WIDTH_MIN, DRAWING_STORED_WIDTH_MAX, type DrawingStroke } from '../../models/drawing'
 import { DrawingRasterError, DRAWING_LIMITS, encodeDrawingPng, isMeaningfullyNonBlank,
-  parseStoredDrawing, rasterDrawingPixels, rasterizeStoredDrawing } from '../../../supabase/functions/_shared/drawing-raster'
+  DRAWING_PAGE_LIMIT, parseStoredDrawing, rasterDrawingPixels, rasterizeStoredDrawing, rasterizeStoredDrawingPages } from '../../../supabase/functions/_shared/drawing-raster'
 
 const config = { width: 100, height: 100 }
 const stroke = (color: DrawingStroke['color'] = '#202b38', width = 4,
@@ -55,6 +55,17 @@ describe('Edge drawing rasterization and PNG', () => {
     expect(DRAWING_LIMITS.maxStrokes).toBeLessThan(65536)
     expect(DRAWING_LIMITS.maxStrokes * 2).toBeLessThanOrEqual(DRAWING_LIMITS.maxPoints)
   })
+  it('keeps the latest schema-3 SQL page and aggregate stroke/point ceilings aligned', () => {
+    const directory = new URL('../../../supabase/migrations/', import.meta.url)
+    const definitions = readdirSync(directory).filter(name => name.endsWith('.sql')).sort().flatMap(name => {
+      const source = readFileSync(new URL(name, directory), 'utf8')
+      return source.match(/create function private\.v5_drawing_pages_shape_valid\([\s\S]*?end \$\$;/gi) ?? []
+    })
+    const latest = definitions.at(-1) ?? ''
+    expect(latest.match(/if v_pages > (\d+) then return false/)?.slice(1).map(Number)).toEqual([DRAWING_PAGE_LIMIT])
+    expect(latest.match(/if v_strokes > (\d+) or v_points > (\d+) then return false/)?.slice(1).map(Number))
+      .toEqual([DRAWING_LIMITS.maxStrokes, DRAWING_LIMITS.maxPoints])
+  })
   it('accepts every drawing the previous limits accepted: 256 strokes and 6000 unrounded points', () => {
     const large = { width: 1200, height: 900 }
     const unrounded = (index: number) => ({ x: 100.12345678901234 + (index % 900), y: 50.98765432109876 + (index % 700) })
@@ -68,6 +79,21 @@ describe('Edge drawing rasterization and PNG', () => {
     expect(pixel(pixels, 10, 10)).toEqual([255, 255, 255, 255])
     expect(isMeaningfullyNonBlank(pixels, 100, 100)).toBe(false)
     expect(decodeRgba(await encodeDrawingPng(config, pixels))).toEqual(pixels)
+  })
+  it('rasterizes every saved page in order and preserves a blank page beside meaningful work', async () => {
+    const result = await rasterizeStoredDrawingPages([[stroke()], []], config)
+    expect(result.pngs).toHaveLength(2)
+    expect(result.pngs[0].length).toBeGreaterThan(0)
+    expect(result.pngs[1].length).toBeGreaterThan(0)
+    expect(result.aggregateBytes).toBe(result.pngs.reduce((sum, png) => sum + png.length, 0))
+    expect(pixel(decodeRgba(result.pngs[0]), 50, 10)[0]).toBeLessThan(255)
+    expect(pixel(decodeRgba(result.pngs[1]), 50, 10)).toEqual([255, 255, 255, 255])
+  })
+  it('rejects an all-blank page set and invalid or over-limit page collections', async () => {
+    await expect(rasterizeStoredDrawingPages([[], []], config)).rejects.toMatchObject({ kind: 'blank' })
+    await expect(rasterizeStoredDrawingPages([], config)).rejects.toMatchObject({ kind: 'invalid' })
+    await expect(rasterizeStoredDrawingPages(Array.from({ length: DRAWING_PAGE_LIMIT + 1 }, () => [stroke()]), config))
+      .rejects.toMatchObject({ kind: 'oversized' })
   })
   it.each([
     ['black', '#202b38', [32, 43, 56, 255]],

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { decodeQuizDraftV4, upgradeLegacyQuizDraftV4 } from './draft-v4'
+import * as draftV5Module from './draft-v5'
 import { createAttempt } from './attempt'
 import { decodeAttempt } from './attempt-storage'
 import { gradeQuiz } from './grading'
@@ -7,6 +8,13 @@ import type { QuizAttempt } from '../models/attempt'
 import type { Quiz } from '../models/quiz'
 import { quizCatalog } from '../features/quiz/quiz-loader'
 vi.mock('../features/quiz/quiz-loader', async (importOriginal) => (await import('../test-fixtures/fixture-quizzes.test-helper')).withFixtureQuizzes(await importOriginal<typeof import('../features/quiz/quiz-loader')>()))
+
+const v5DraftApi = draftV5Module as unknown as {
+  decodeQuizDraftV5?: (raw: string, quiz: Quiz) => unknown
+  promoteQuizDraftV5?: (attempt: unknown, quiz: Quiz) => unknown
+}
+const decodeV5 = (raw: string, target: Quiz) => v5DraftApi.decodeQuizDraftV5?.(raw, target) ?? null
+const promoteV5 = (attempt: unknown, target: Quiz) => v5DraftApi.promoteQuizDraftV5?.(attempt, target) ?? null
 
 // The text-only historical revision; `future` below is a synthetic capable copy of it.
 const quiz = quizCatalog.getQuizRevision('demo', 'v1-7d7c900e')!
@@ -117,5 +125,41 @@ describe('pure legacy draft promotion', () => {
     // A hybrid schema-1 object must not be accepted as a legacy calculation merely by reading it.
     expect(upgradeLegacyQuizDraftV4(legacy as unknown as QuizAttempt, quiz)).toBeNull()
     expect(upgradeLegacyQuizDraftV4(createAttempt(quiz, now), future)).toBeNull()
+  })
+})
+
+describe('schema-3 draft decoding and schema-2 promotion', () => {
+  const v5 = { schemaVersion: 3, quizId: future.id, quizRevision: future.revision,
+    status: 'in-progress', startedAt: now, updatedAt: now,
+    answers: { q6: { type: 'calculation', mode: 'drawing', text: 'retained', pages: [[], [stroke]] } } }
+
+  it('decodes strict schema-3 drafts for the exact revision and rejects invalid page counts', () => {
+    expect(decodeV5(JSON.stringify(v5), future)).toEqual(v5)
+    expect(decodeV5(JSON.stringify({ ...v5, answers: { q6: { ...v5.answers.q6, pages: Array.from({ length: 7 }, () => []) } } }), future)).toBeNull()
+    expect(decodeV5(JSON.stringify(v5), quiz)).toBeNull()
+    expect(decodeV5(JSON.stringify({ ...v5, answers: { q6: { ...v5.answers.q6, png: 'client image' } } }), future)).toBeNull()
+  })
+
+  it('promotes a schema-2 draft losslessly into one page and repeats idempotently', () => {
+    const old = { ...base, quizRevision: future.revision, answers: {
+      q1: { type: 'single', optionId: 'a' },
+      q6: { type: 'calculation', mode: 'drawing', text: '  keep text  ', strokes: [stroke] },
+    } }
+    const raw = JSON.stringify(old)
+    const promoted = promoteV5(old, future)
+    expect(promoted).toEqual({ ...old, schemaVersion: 3, answers: {
+      ...old.answers, q6: { type: 'calculation', mode: 'drawing', text: '  keep text  ', pages: [[stroke]] },
+    } })
+    expect(promoteV5(promoted, future)).toEqual(promoted)
+    expect(JSON.stringify(old)).toBe(raw)
+  })
+
+  it('promotes legacy in-progress drafts but never rewrites a submitted schema-2 attempt', () => {
+    const legacy = { schemaVersion: 1, quizId: future.id, quizRevision: future.revision, status: 'in-progress',
+      startedAt: now, updatedAt: now, answers: { q6: { type: 'calculation', text: 'legacy text' } } }
+    expect(promoteV5(legacy, future)).toEqual({ ...legacy, schemaVersion: 3, answers: {
+      q6: { type: 'calculation', mode: 'text', text: 'legacy text', pages: [[]] },
+    } })
+    expect(promoteV5({ ...base, quizRevision: future.revision, status: 'submitted', submittedAt: now, result: {} }, future)).toBeNull()
   })
 })

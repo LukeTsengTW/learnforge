@@ -1,11 +1,13 @@
 import type { GradingVersion, QuizAttempt, TrustedFillJudgment, TrustedRubricJudgment } from '../../models/attempt'
 import type { DraftSchemaVersion, PracticeAttempt, QuizAttemptV4 } from '../../models/draft-v4'
+import type { QuizAttemptV5 } from '../../models/draft-v5'
 import type { Quiz } from '../../models/quiz'
 import type { Database, Json } from '../../types/database.types'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
 import { decodeDraftAnswersV4, requiresV4Draft } from '../../lib/draft-v4'
-import { gradeQuizV3, gradeQuizV4, gradeQuizWithFillJudgments } from '../../lib/grading'
+import { decodeDraftAnswersV5, requiresV5Draft } from '../../lib/draft-v5'
+import { gradeQuizV3, gradeQuizV4, gradeQuizV5, gradeQuizWithFillJudgments } from '../../lib/grading'
 import { isCanonicalV4Score } from '../../lib/v4-score'
 import { GRADING_VERSION } from '../../models/grading-version'
 
@@ -95,10 +97,12 @@ export function trustedFillJudgments(row: AttemptRow, judgments: JudgmentRow[], 
   }))
 }
 export function trustedRubricJudgments(row: AttemptRow, judgments: RubricJudgmentRow[], userId: string,
-  judgeVersion: typeof GRADING_VERSION.aiGradingV3 | typeof GRADING_VERSION.aiGradingV4 = GRADING_VERSION.aiGradingV3): TrustedRubricJudgment[] {
-  // v4 evidence additionally follows the 8-decimal canonical score contract. The browser never
+  judgeVersion: typeof GRADING_VERSION.aiGradingV3 | typeof GRADING_VERSION.aiGradingV4
+    | typeof GRADING_VERSION.aiGradingV5 = GRADING_VERSION.aiGradingV3): TrustedRubricJudgment[] {
+  // v4/v5 evidence follows the 8-decimal canonical score contract. The browser never
   // recomputes PostgreSQL's answer hash; it validates only the hash format and binding fields.
-  if (judgeVersion === GRADING_VERSION.aiGradingV4 && judgments.some((judgment) => !isCanonicalV4Score(judgment.score)
+  if ((judgeVersion === GRADING_VERSION.aiGradingV4 || judgeVersion === GRADING_VERSION.aiGradingV5)
+    && judgments.some((judgment) => !isCanonicalV4Score(judgment.score)
     || !isCanonicalV4Score(judgment.max_score) || !Array.isArray(judgment.criteria)
     || judgment.criteria.some((criterion: unknown) => typeof criterion !== 'object' || criterion === null
       || !isCanonicalV4Score((criterion as Record<string, unknown>).awardedScore)
@@ -145,6 +149,7 @@ export function answerSchemaVersion(row: AttemptRowWithSchema): DraftSchemaVersi
   const value = row.answer_schema_version
   if (value === undefined || value === 1) return 1
   if (value === 2) return 2
+  if (value === 3) return 3
   throw new PersistenceError('invalid')
 }
 
@@ -155,8 +160,50 @@ export interface StoredPracticeAttempt { attempt: PracticeAttempt; version: Remo
 export function fromDatabasePractice(row: AttemptRowWithSchema, answers: AnswerRow[], quiz: Quiz, userId: string,
   judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []): StoredPracticeAttempt {
   if (answerSchemaVersion(row) === 2) return fromDatabaseV4(row, answers, quiz, userId, judgments, rubricJudgments)
+  if (answerSchemaVersion(row) === 3) return fromDatabaseV5(row, answers, quiz, userId, judgments, rubricJudgments)
   const stored = fromDatabase(row, answers, quiz, userId, judgments, rubricJudgments)
   return { attempt: stored.attempt, version: stored.version ?? { id: row.id, updatedAt: row.updated_at } }
+}
+
+/** Schema-3 draft and immutable submitted-attempt reader. */
+export function fromDatabaseV5(row: AttemptRowWithSchema, answers: AnswerRow[], quiz: Quiz, userId: string,
+  judgments: JudgmentRow[] = [], rubricJudgments: RubricJudgmentRow[] = []):
+  StoredPracticeAttempt & { attempt: QuizAttemptV5 } {
+  if (answerSchemaVersion(row) !== 3 || !requiresV5Draft(quiz) || row.user_id !== userId
+    || !['draft', 'submitted'].includes(row.status)
+    || row.quiz_id !== quiz.id || row.quiz_revision !== quiz.revision
+    || answers.some((answer) => answer.user_id !== userId || answer.attempt_id !== row.id)
+    || new Set(answers.map((answer) => answer.question_id)).size !== answers.length
+    || !Number.isFinite(Date.parse(row.updated_at)) || !Number.isFinite(Date.parse(row.started_at))
+    || !Number.isFinite(Date.parse(row.client_updated_at))
+    || Date.parse(row.client_updated_at) < Date.parse(row.started_at)
+  ) {
+    throw new PersistenceError('invalid')
+  }
+  const decoded = decodeDraftAnswersV5(quiz, Object.fromEntries(answers.map((answer) => [answer.question_id, answer.answer])))
+  if (!decoded) throw new PersistenceError('invalid')
+  const version = { id: row.id, updatedAt: row.updated_at }
+  if (row.status === 'draft') {
+    if (row.grading_version !== GRADING_VERSION.deterministicV1 || row.submission_request_id !== null) throw new PersistenceError('invalid')
+    return { attempt: { schemaVersion: 3, quizId: quiz.id, quizRevision: quiz.revision, status: 'in-progress',
+      startedAt: row.started_at, updatedAt: row.client_updated_at, answers: decoded }, version }
+  }
+  if (row.grading_version !== GRADING_VERSION.aiGradingV5 || !row.submitted_at
+    || Date.parse(row.submitted_at) < Date.parse(row.started_at) || !row.submission_request_id) throw new PersistenceError('invalid')
+  try {
+    const fill = trustedFillJudgments(row, judgments, userId, GRADING_VERSION.aiGradingV5)
+    const rubric = trustedRubricJudgments(row, rubricJudgments, userId, GRADING_VERSION.aiGradingV5)
+    const result = gradeQuizV5(quiz, decoded, fill, rubric)
+    const partialCount = (row as AttemptRow & { partial_count?: number }).partial_count
+    if (partialCount !== result.partialCount || row.deterministic_score !== result.score
+      || row.deterministic_max_score !== result.maxScore || row.correct_count !== result.correctCount
+      || row.incorrect_count !== result.incorrectCount || row.unanswered_count !== result.unansweredCount) {
+      throw new PersistenceError('invalid')
+    }
+    return { attempt: { schemaVersion: 3, quizId: quiz.id, quizRevision: quiz.revision, status: 'submitted',
+      startedAt: row.started_at, updatedAt: row.client_updated_at, submittedAt: row.submitted_at,
+      answers: decoded, result }, version }
+  } catch { throw new PersistenceError('invalid') }
 }
 
 /**

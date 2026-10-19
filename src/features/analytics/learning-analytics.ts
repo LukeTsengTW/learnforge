@@ -1,4 +1,4 @@
-import { gradeQuiz, gradeQuizV3, gradeQuizV4, gradeQuizWithFillJudgments } from '../../lib/grading'
+import { gradeQuiz, gradeQuizV3, gradeQuizV4, gradeQuizV5, gradeQuizWithFillJudgments } from '../../lib/grading'
 import type { AnalyticsAttempt, LearningAnalytics, ObjectiveOccurrence, ReviewItem,
   SubjectStats, TagStats, TopicSignal, QuestionTypeStats, WeeklyTrendPoint } from '../../models/analytics'
 import { isObjectiveQuestion, QUESTION_TYPE, type Quiz } from '../../models/quiz'
@@ -34,7 +34,7 @@ function deriveOccurrences(records: AnalyticsAttempt[]) {
   const occurrences: ObjectiveOccurrence[] = []
   const validAttempts: AnalyticsAttempt[] = []
   let unavailableHistoryCount = 0, malformedAttemptCount = 0, manualQuestionSubmissions = 0
-  const gradingVersionCounts = { deterministicV1: 0, semanticFillV2: 0, aiGradingV3: 0, aiGradingV4: 0 }
+  const gradingVersionCounts = { deterministicV1: 0, semanticFillV2: 0, aiGradingV3: 0, aiGradingV4: 0, aiGradingV5: 0 }
   let totalScoreEarned = 0, totalScoreAvailable = 0
   for (const record of records) {
     if (record.status !== 'submitted') continue
@@ -51,6 +51,8 @@ function deriveOccurrences(records: AnalyticsAttempt[]) {
             ? gradeQuizV3(record.quiz, record.answers, record.fillJudgments ?? [], record.rubricJudgments ?? [])
             : record.gradingVersion === GRADING_VERSION.aiGradingV4 && record.answersV4
               ? gradeQuizV4(record.quiz, record.answersV4, record.fillJudgments ?? [], record.rubricJudgments ?? [])
+              : record.gradingVersion === GRADING_VERSION.aiGradingV5 && record.answersV5
+                ? gradeQuizV5(record.quiz, record.answersV5, record.fillJudgments ?? [], record.rubricJudgments ?? [])
               : (() => { throw new Error('Unknown grading version') })()
       const next: ObjectiveOccurrence[] = []
       record.quiz.questions.forEach((question, questionIndex) => {
@@ -71,7 +73,8 @@ function deriveOccurrences(records: AnalyticsAttempt[]) {
       if (record.gradingVersion === GRADING_VERSION.deterministicV1) gradingVersionCounts.deterministicV1++
       else if (record.gradingVersion === GRADING_VERSION.semanticFillV2) gradingVersionCounts.semanticFillV2++
       else if (record.gradingVersion === GRADING_VERSION.aiGradingV3) gradingVersionCounts.aiGradingV3++
-      else gradingVersionCounts.aiGradingV4++
+      else if (record.gradingVersion === GRADING_VERSION.aiGradingV4) gradingVersionCounts.aiGradingV4++
+      else gradingVersionCounts.aiGradingV5++
     } catch { malformedAttemptCount++ }
   }
   return { occurrences, validAttempts, unavailableHistoryCount, malformedAttemptCount, manualQuestionSubmissions,

@@ -1,8 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DRAFT_V4_LIMITS, draftAnswersBytes } from '../../../supabase/functions/_shared/draft-v4'
+import { DRAFT_V5_LIMITS } from '../../../supabase/functions/_shared/draft-v5'
 import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { drawingCapacity, drawingUsage, ORDINARY_STROKE_BYTES, ORDINARY_STROKE_POINTS } from '../../lib/drawing-capacity'
-import type { PracticeAnswer } from '../../models/draft-v4'
+import { draftAnswerMapBytesV5 } from '../../lib/draft-v5'
+import type { PracticeAnswerV5, PracticeAttempt } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
 import type { Quiz } from '../../models/quiz'
 import { LocalPracticeCache } from './practice-cache'
@@ -19,10 +20,14 @@ const hand = v4Quiz.questions.find((question) => question.id === 'q_hand')!
 /** Twenty handwriting-capable calculation questions: long typed answers reach the size cap. */
 const quiz: Quiz = { ...v4Quiz, id: 'capacity-synthetic', revision: 'c1',
   questions: Array.from({ length: 20 }, (_, index) => ({ ...hand, id: `c${String(index + 1).padStart(2, '0')}`, drawing: { width: 1200, height: 900 } })) }
-const CAP = DRAFT_V4_LIMITS.maxAnswerBytes
+const CAP = DRAFT_V5_LIMITS.maxAnswerBytes
 const config = { width: 1200, height: 900 }
-const typed = (chars: number, cjk = true): PracticeAnswer => ({ type: 'calculation', mode: 'text', text: (cjk ? '題' : 'x').repeat(chars), strokes: [] })
-const written = (strokes: DrawingStroke[]): PracticeAnswer => ({ type: 'calculation', mode: 'drawing', text: '', strokes })
+const typed = (chars: number, cjk = true): PracticeAnswerV5 => ({ type: 'calculation', mode: 'text', text: (cjk ? '題' : 'x').repeat(chars), pages: [[]] })
+const written = (strokes: DrawingStroke[]): PracticeAnswerV5 => ({ type: 'calculation', mode: 'drawing', text: '', pages: [strokes] })
+const answerBytes = (attempt: PracticeAttempt) => {
+  if (attempt.schemaVersion !== 3) throw new Error('Expected a schema-3 draft')
+  return draftAnswerMapBytesV5(attempt.answers)
+}
 const id = (index: number) => quiz.questions[index].id
 /** The longest stroke the capacity line keeps room for, with coordinates that take the most bytes. */
 const longestOrdinaryStroke = (width = 100): DrawingStroke => ({ tool: 'eraser', color: '#202b38', width,
@@ -55,7 +60,7 @@ describe('the store takes an update only while the whole draft can still be save
     expect(bytes()).toBe(2)
     expect(store.answer(id(0), typed(1234))).toBe('accepted')
     expect(store.answer(id(1), written([longestOrdinaryStroke(4)]))).toBe('accepted')
-    expect(bytes()).toBe(draftAnswersBytes(store.getSnapshot().attempt.answers))
+    expect(bytes()).toBe(answerBytes(store.getSnapshot().attempt))
   })
 
   it('refuses the update that would pass the cap as draft-limit, says so on the page, and keeps the draft as it was', async () => {
@@ -76,9 +81,9 @@ describe('the store takes an update only while the whole draft can still be save
     expect(store.getSnapshot().notice).toBeNull()
     // Everything the store accepted is saved by the next synchronization.
     await store.retry()
-    expect(server.v4Saves).toHaveLength(1)
+    expect(server.v5Saves).toHaveLength(1)
     expect(store.getSnapshot().notice).toBeNull()
-    expect(draftAnswersBytes(row().record.attempt!.answers)).toBe(bytes())
+    expect(answerBytes(row().record.attempt!)).toBe(bytes())
     expect(bytes()).toBeLessThanOrEqual(CAP)
     store.stop()
   })

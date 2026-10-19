@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { PracticeAnswer } from '../../models/draft-v4'
+import type { PracticeAnswerV5 } from '../../models/draft-v4'
 import type { CalculationQuestion } from '../../models/quiz'
 import type { PendingInputFlush } from './attempt-context'
 import { FORMAL_TEXT_LIMIT_NOTICE, QuestionInput } from './QuestionInput'
@@ -34,10 +34,10 @@ function pointer(element: Element, type: string, x: number, y: number) {
 }
 
 function Harness({ question, schema, initial, onChange, register }: {
-  question: CalculationQuestion; schema: 1 | 2; initial?: PracticeAnswer
-  onChange: (answer: PracticeAnswer) => void; register?: (flush: PendingInputFlush) => () => void
+  question: CalculationQuestion; schema: 1 | 2; initial?: PracticeAnswerV5
+  onChange: (answer: PracticeAnswerV5) => void; register?: (flush: PendingInputFlush) => () => void
 }) {
-  const [answer, setAnswer] = useState<PracticeAnswer | undefined>(initial)
+  const [answer, setAnswer] = useState<PracticeAnswerV5 | undefined>(initial)
   return <QuestionInput question={question} answer={answer} draftSchema={schema} registerPendingFlush={register}
     onChange={(next) => { setAnswer(next); onChange(next); return 'accepted' }} />
 }

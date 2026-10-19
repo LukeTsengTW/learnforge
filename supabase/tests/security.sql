@@ -1037,6 +1037,83 @@ do $$ declare a uuid:=current_setting('test.v12_attempt')::uuid; begin
   begin update public.attempts set partial_count=0 where id=a; raise exception 'FAIL submitted attempt mutation'; exception when check_violation then null; end;
 end $$;
 reset role;
+-- M5 schema-3 draft storage: exact nested shape and one aggregate resource ceiling across pages.
+do $$ declare
+  def text;
+  fn regprocedure:=to_regprocedure('public.save_quiz_attempt_v5(uuid,uuid,timestamptz,timestamptz,jsonb)');
+  v_stroke jsonb;
+  v_strokes jsonb;
+  v_points jsonb;
+  v_pages jsonb;
+  v_drawing jsonb := '{"width":400,"height":300}'::jsonb;
+begin
+  select pg_get_constraintdef(oid) into def from pg_constraint
+    where conrelid='public.attempts'::regclass and conname='attempts_answer_schema_version_check';
+  if def not like '%3%' or def not like '%2%' or def not like '%1%' then raise exception 'FAIL schema-3 marker constraint'; end if;
+  select pg_get_constraintdef(oid) into def from pg_constraint
+    where conrelid='public.attempts'::regclass and conname='attempts_grading_version_check';
+  if def not like '%ai-grading-v5%' then raise exception 'FAIL v5 grading version constraint'; end if;
+  if fn is null or not has_function_privilege('service_role',fn,'EXECUTE')
+    or has_function_privilege('anon',fn,'EXECUTE') or has_function_privilege('authenticated',fn,'EXECUTE') then
+    raise exception 'FAIL v5 draft RPC grants'; end if;
+  if has_function_privilege('anon','private.v5_calculation_shape_valid(jsonb)','EXECUTE')
+    or has_function_privilege('authenticated','private.v5_calculation_shape_valid(jsonb)','EXECUTE')
+    or has_function_privilege('anon','private.v5_active_answer(jsonb)','EXECUTE')
+    or has_function_privilege('authenticated','private.v5_active_answer(jsonb)','EXECUTE')
+    or has_function_privilege('anon','private.rubric_answer_hash_v5(jsonb)','EXECUTE')
+    or has_function_privilege('authenticated','private.rubric_answer_hash_v5(jsonb)','EXECUTE') then
+    raise exception 'FAIL v5 helper grants'; end if;
+  if not private.v5_drawing_pages_shape_valid('[[]]'::jsonb)
+    or private.v5_drawing_pages_shape_valid('[[],[],[],[],[],[],[]]'::jsonb)
+    or not private.v5_calculation_shape_valid('{"type":"calculation","mode":"text","text":"x","pages":[[]]}'::jsonb)
+    or private.v5_calculation_shape_valid('{"type":"calculation","mode":"text","text":"x","pages":[[]],"png":"x"}'::jsonb)
+    or private.v5_calculation_shape_valid('{"type":"calculation","mode":"drawing","text":"","pages":[]}'::jsonb)
+    or not private.v5_calculation_shape_valid('{"type":"calculation","mode":"drawing","text":"","pages":[[]]}'::jsonb) then
+    raise exception 'FAIL schema-3 exact shape or page count'; end if;
+  if not private.v5_drawing_pages_config_valid('[[]]'::jsonb,v_drawing)
+    or private.v5_drawing_pages_config_valid('[]'::jsonb,v_drawing) then
+    raise exception 'FAIL drawing-capable schema-3 answers require a page while pure-text answers may omit pages'; end if;
+  v_stroke := jsonb_build_object('tool','pen','color','#202b38','width',4,
+    'points',jsonb_build_array(jsonb_build_object('x',10,'y',20)));
+  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,8000);
+  v_pages := jsonb_build_array(v_strokes,v_strokes);
+  if not private.v5_drawing_pages_shape_valid(v_pages) then raise exception 'FAIL aggregate 16000 stroke ceiling'; end if;
+  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,8001);
+  if private.v5_drawing_pages_shape_valid(jsonb_build_array(v_strokes,
+    (select jsonb_agg(v_stroke) from generate_series(1,8000)))) then
+    raise exception 'FAIL aggregate stroke ceiling across pages'; end if;
+  select jsonb_agg(v_stroke) into v_strokes from generate_series(1,257);
+  if not private.v5_drawing_pages_config_valid(jsonb_build_array(v_strokes),v_drawing) then
+    raise exception 'FAIL V5 page accepts 257 strokes'; end if;
+  v_stroke := jsonb_set(v_stroke,'{width}','100');
+  if not private.v5_drawing_pages_config_valid(jsonb_build_array(jsonb_build_array(v_stroke)),v_drawing) then
+    raise exception 'FAIL V5 page accepts width 100'; end if;
+  select jsonb_agg(jsonb_build_object('x',200,'y',150)) into v_points from generate_series(1,6001);
+  v_stroke := jsonb_set(v_stroke,'{width}','4');
+  v_stroke := jsonb_set(v_stroke,'{points}',v_points);
+  if not private.v5_drawing_pages_config_valid(jsonb_build_array(jsonb_build_array(v_stroke)),v_drawing) then
+    raise exception 'FAIL V5 page accepts 6001 points'; end if;
+  if private.v5_drawing_pages_config_valid(jsonb_build_array(jsonb_build_array(v_stroke)),
+    '{"width":100,"height":100}'::jsonb) then
+    raise exception 'FAIL V5 page coordinates must fit the configured drawing'; end if;
+  if private.rubric_answer_hash_v5('{"type":"calculation","mode":"text","text":"x","pages":[[]]}'::jsonb)
+    <> private.rubric_answer_hash_v5('{"type":"calculation","mode":"text","text":"x","pages":[]}'::jsonb)
+    or private.rubric_answer_hash_v5('{"type":"calculation","mode":"text","text":"x","pages":[]}'::jsonb)
+      = private.rubric_answer_hash_v4('{"type":"calculation","mode":"text","text":"x","strokes":[]}'::jsonb)
+    or private.rubric_answer_hash_v5('{"type":"calculation","mode":"drawing","text":"inactive","pages":[[],[]]}'::jsonb)
+      = private.rubric_answer_hash_v5('{"type":"calculation","mode":"drawing","text":"inactive","pages":[[]]}'::jsonb) then
+    raise exception 'FAIL v5 domain-separated active-mode and ordered-page answer identity'; end if;
+  select jsonb_agg(jsonb_build_object('x',10,'y',20)) into v_points from generate_series(1,16000);
+  v_stroke := jsonb_set(v_stroke,'{points}',v_points);
+  if not private.v5_drawing_pages_shape_valid(jsonb_build_array(jsonb_build_array(v_stroke),jsonb_build_array(v_stroke))) then
+    raise exception 'FAIL aggregate 32000 point ceiling'; end if;
+  select jsonb_agg(jsonb_build_object('x',10,'y',20)) into v_points from generate_series(1,16001);
+  v_stroke := jsonb_set(v_stroke,'{points}',v_points);
+  if private.v5_drawing_pages_shape_valid(jsonb_build_array(jsonb_build_array(v_stroke),jsonb_build_array(v_stroke))) then
+    raise exception 'FAIL aggregate point ceiling across pages'; end if;
+end $$;
+
+reset role;
 select set_config('request.jwt.claims', jsonb_build_object('sub', current_setting('test.user_b'), 'role', 'authenticated')::text, true);
 set local role authenticated;
 do $$ begin
@@ -1199,20 +1276,24 @@ set local role postgres;
 do $$ declare def text; fn text; begin
   select pg_get_constraintdef(oid) into def from pg_constraint
     where conrelid='public.attempts'::regclass and conname='attempts_grading_version_check';
-  if def not like '%ai-grading-v3%' or def not like '%ai-grading-v4%' or def not like '%deterministic-v1%'
+  if def not like '%ai-grading-v3%' or def not like '%ai-grading-v4%' or def not like '%ai-grading-v5%' or def not like '%deterministic-v1%'
     or def not like '%semantic-fill-v2%' then raise exception 'FAIL attempts grading version constraint'; end if;
   select pg_get_constraintdef(oid) into def from pg_constraint
     where conrelid='public.fill_judgments'::regclass and conname='fill_judgments_judge_version_check';
-  if def not like '%ai-grading-v4%' or def not like '%ai-grading-v3%' then raise exception 'FAIL fill judge version'; end if;
+  if def not like '%ai-grading-v4%' or def not like '%ai-grading-v3%' or def not like '%ai-grading-v5%' then raise exception 'FAIL fill judge version'; end if;
   foreach fn in array array['public.rubric_judgments','private.rubric_judge_cache','private.rubric_judge_calls'] loop
     select pg_get_constraintdef(c.oid) into def from pg_constraint c
       where c.conrelid=fn::regclass and c.conname=split_part(fn,'.',2)||'_judge_version_check';
-    if def not like '%ai-grading-v3%' or def not like '%ai-grading-v4%' then raise exception 'FAIL % judge version', fn; end if;
+    if def not like '%ai-grading-v3%' or def not like '%ai-grading-v4%' or def not like '%ai-grading-v5%' then
+      raise exception 'FAIL % judge version', fn; end if;
   end loop;
   foreach fn in array array[
     'public.claim_rubric_judgment_v4(uuid,uuid,timestamptz,uuid,text,text,text,text,numeric,boolean)',
     'public.finalize_ai_grading_v4_submission(uuid,uuid,timestamptz,uuid,text,text,jsonb,jsonb,jsonb,jsonb)',
-    'public.rubric_answer_hashes_v4(uuid,uuid)'] loop
+    'public.rubric_answer_hashes_v4(uuid,uuid)',
+    'public.claim_rubric_judgment_v5(uuid,uuid,timestamptz,uuid,text,text,text,text,numeric,boolean)',
+    'public.finalize_ai_grading_v5_submission(uuid,uuid,timestamptz,uuid,text,text,jsonb,jsonb,jsonb,jsonb)',
+    'public.rubric_answer_hashes_v5(uuid,uuid)'] loop
     if to_regprocedure(fn) is null or not has_function_privilege('service_role',fn,'EXECUTE')
       or has_function_privilege('anon',fn,'EXECUTE') or has_function_privilege('authenticated',fn,'EXECUTE')
       or (select proacl from pg_proc where oid=to_regprocedure(fn)) is null
@@ -1221,7 +1302,8 @@ do $$ declare def text; fn text; begin
   end loop;
   foreach fn in array array['private.v4_is_blank_text(text)','private.v4_active_answer(jsonb)',
     'private.rubric_answer_hash_v4(jsonb)','private.v4_strokes_shape_valid(jsonb,jsonb)',
-    'private.v4_calculation_shape_valid(jsonb)'] loop
+    'private.v4_calculation_shape_valid(jsonb)','private.v5_active_answer(jsonb)',
+    'private.rubric_answer_hash_v5(jsonb)','private.v5_drawing_pages_config_valid(jsonb,jsonb)'] loop
     if has_function_privilege('anon',fn,'EXECUTE') or has_function_privilege('authenticated',fn,'EXECUTE') then
       raise exception 'FAIL v4 private helper grant %', fn; end if;
   end loop;
@@ -1858,5 +1940,54 @@ do $$ begin
     raise exception 'FAIL foreign v4 evidence read'; end if;
 end $$;
 reset role;
+do $$ declare owner_id uuid:=current_setting('test.user_a')::uuid; a public.attempts; begin
+  insert into public.attempts(user_id,quiz_id,quiz_revision,status,started_at,client_updated_at)
+    values(owner_id,'m6-v5-finalize','fixture-v1','draft',clock_timestamp(),clock_timestamp()) returning * into a;
+  perform set_config('test.m6_v5_attempt',a.id::text,true);
+end $$;
+set local role service_role;
+do $$ declare
+  owner_id uuid:=current_setting('test.user_a')::uuid;
+  a public.attempts;
+  saved public.attempts;
+  submission_id uuid:=gen_random_uuid();
+  rubric_input jsonb;
+  hashes jsonb;
+  question_set jsonb:='[{"questionId":"q_hand","type":"calculation","points":4,
+    "referenceAnswer":"x=2","solution":"x=2","drawing":{"width":800,"height":600},
+    "rubric":[{"criterionId":"r1","maxScore":4}]}]'::jsonb;
+  result jsonb:='{"score":0,"maxScore":4,"correctCount":0,"partialCount":0,"incorrectCount":0,
+    "unansweredCount":1,"manualCount":0,"questions":[{"questionId":"q_hand","type":"calculation",
+      "status":"unanswered","score":0,"maxScore":4}]}'::jsonb;
+  claim jsonb;
+begin
+  select * into a from public.attempts where id=current_setting('test.m6_v5_attempt')::uuid;
+  select * into a from public.save_quiz_attempt_v5(owner_id,a.id,a.updated_at,a.client_updated_at,
+    '{"q_hand":{"type":"calculation","mode":"drawing","text":"inactive","pages":[[],[]]}}'::jsonb);
+  claim:=public.claim_rubric_judgment_v5(owner_id,a.id,a.updated_at,submission_id,a.quiz_id,a.quiz_revision,
+    'q_hand','calculation',4,true);
+  if claim->>'state' <> 'unanswered' or claim->>'answerHash' is distinct from private.rubric_answer_hash_v5(
+    '{"type":"calculation","mode":"drawing","text":"inactive","pages":[[],[]]}'::jsonb) then
+    raise exception 'FAIL v5 claim or page-aware answer identity'; end if;
+  rubric_input:=jsonb_build_array(jsonb_build_object('questionId','q_hand','questionType','calculation',
+    'answerHash',claim->>'answerHash','source','system','status','unanswered','score',0,'maxScore',4,'criteria','[]'::jsonb));
+  select * into saved from public.finalize_ai_grading_v5_submission(owner_id,a.id,a.updated_at,submission_id,
+    a.quiz_id,a.quiz_revision,result,'[]'::jsonb,rubric_input,question_set);
+  if saved.status <> 'submitted' or saved.answer_schema_version <> 3 or saved.grading_version <> 'ai-grading-v5'
+    or saved.submission_request_id <> submission_id or saved.deterministic_score <> 0
+    or (select count(*) from public.rubric_judgments where attempt_id=a.id and judge_version='ai-grading-v5') <> 1
+    or (select answer_hash from public.rubric_judgments where attempt_id=a.id and question_id='q_hand')
+      <> claim->>'answerHash'
+    or current_setting('learnforge.v5_finalization',true) is distinct from '' then
+    raise exception 'FAIL atomic v5 page-aware finalization'; end if;
+  select * into saved from public.finalize_ai_grading_v5_submission(owner_id,a.id,a.updated_at,submission_id,
+    a.quiz_id,a.quiz_revision,result,'[]'::jsonb,rubric_input,question_set);
+  if saved.id <> a.id or saved.grading_version <> 'ai-grading-v5' then raise exception 'FAIL v5 same-request replay'; end if;
+  hashes:=public.rubric_answer_hashes_v5(owner_id,a.id);
+  if hashes->>'missing' is distinct from private.rubric_answer_hash_v5(null)
+    or hashes->'answers'->>'q_hand' is distinct from claim->>'answerHash' then
+    raise exception 'FAIL v5 submitted answer hash replay lookup'; end if;
+end $$;
+reset role;
 rollback;
-select 'PASS: practice, v1/v2/v3 grading, atomic rubric finalization, AI usage isolation, recovery, rate limits, session binding and RLS automation' as verification;
+select 'PASS: practice, v1/v2/v3/v4/v5 grading, atomic page-aware rubric finalization, AI usage isolation, recovery, rate limits, session binding and RLS automation' as verification;

@@ -2,13 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { reduceAttempt } from '../../lib/attempt'
 import { upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
 import type { QuizAttempt } from '../../models/attempt'
-import { LocalPracticeCache, LocalPracticeCacheV4, practiceCacheKey, practiceCacheKeyV4 } from './practice-cache'
+import { LocalPracticeCache, LocalPracticeCacheV4, practiceCacheKey, practiceCacheKeyV4, practiceCacheKeyV5 } from './practice-cache'
 import { listPracticeBackups, restorePracticeBackup } from './practice-recovery'
 import { createPracticeStore } from './practice-store'
 import { PersistenceError } from './repositories'
 import { createV4MemoryRepository, memoryStorage, pen, v3Quiz, v4Catalog, v4Quiz } from './practice-v4.test-helper'
 
 const handDraw = (text = 'inactive') => ({ type: 'calculation' as const, mode: 'drawing' as const, text, strokes: [pen()] })
+const handDrawV5 = (text = 'inactive') => ({ type: 'calculation' as const, mode: 'drawing' as const, text, pages: [[pen()]] })
 /** Storage-compatible map for the recovery API (which expects the Storage key/length surface). */
 function browserLike() {
   const base = memoryStorage()
@@ -51,7 +52,7 @@ describe('M5 schema-2 local cache namespace', () => {
     expect(storage.getItem(`${practiceCacheKeyV4('a', record.id)}:recovery:migration`)).toBe('{"cacheVersion":4,"broken":')
   })
 
-  it('promotes a matching schema-1 local draft into the v4 namespace and retains the original as evidence', async () => {
+  it('promotes a matching schema-1 local draft into the schema-3 namespace and retains the original as evidence', async () => {
     const server = createV4MemoryRepository('a')
     const record = await server.repo.getOrCreateDraft(v4Quiz)
     const storage = memoryStorage(), cache = new LocalPracticeCache('a', () => storage)
@@ -60,34 +61,34 @@ describe('M5 schema-2 local cache namespace', () => {
     cache.write({ id: record.id, attempt: local, version: record.version })
     const v3Bytes = storage.getItem(practiceCacheKey('a', record.id))
     const store = createPracticeStore(record, server.repo, cache, 60_000)
-    expect(store.getSnapshot().attempt.answers.q_hand).toEqual({ type: 'calculation', mode: 'text', text: 'offline typed', strokes: [] })
-    expect(storage.getItem(practiceCacheKeyV4('a', record.id))).toContain('offline typed')
+    expect(store.getSnapshot().attempt.answers.q_hand).toEqual({ type: 'calculation', mode: 'text', text: 'offline typed', pages: [[]] })
+    expect(storage.getItem(practiceCacheKeyV5('a', record.id))).toContain('offline typed')
     expect(storage.getItem(practiceCacheKey('a', record.id))).toBe(v3Bytes)
     await store.retry()
-    expect(server.v4Saves).toHaveLength(1)
+    expect(server.v5Saves).toHaveLength(1)
     expect(server.v3Saves).toHaveLength(0)
     store.stop()
   })
 
-  it('never lets schema-1 local data replace a server marker-2 draft', async () => {
+  it('never lets schema-1 local data replace a server marker-3 draft', async () => {
     const server = createV4MemoryRepository('a')
     const record = await server.repo.getOrCreateDraft(v4Quiz)
     const storage = memoryStorage(), cache = new LocalPracticeCache('a', () => storage)
     const first = createPracticeStore(record, server.repo, cache, 60_000)
-    first.answer('q_hand', handDraw('server v4'))
+    first.answer('q_hand', handDrawV5('server v5'))
     await first.retry(); first.stop()
-    storage.removeItem(practiceCacheKeyV4('a', record.id))
+    storage.removeItem(practiceCacheKeyV5('a', record.id))
     const stale = reduceAttempt(v4Quiz, record.attempt as QuizAttempt, { type: 'answer', questionId: 'q_hand',
       answer: { type: 'calculation', text: 'stale schema-1 local' }, now: '2099-01-01T00:00:00.000Z' })
     cache.write({ id: record.id, attempt: stale, version: record.version })
     const reloaded = createPracticeStore((await server.repo.loadAttempt(record.id))!, server.repo, cache, 60_000)
-    expect(reloaded.getSnapshot().attempt.answers.q_hand).toEqual(handDraw('server v4'))
+    expect(reloaded.getSnapshot().attempt.answers.q_hand).toEqual(handDrawV5('server v5'))
     reloaded.stop()
   })
 })
 
 describe('M5 recovery', () => {
-  it('lists schema-2 backups with their marker and restores them only through the v4 writer', async () => {
+  it('lists schema-2 backups with their marker and restores them through the schema-3 writer', async () => {
     const server = createV4MemoryRepository('a')
     const record = await server.repo.getOrCreateDraft(v4Quiz)
     const storage = browserLike()
@@ -101,12 +102,12 @@ describe('M5 recovery', () => {
     expect(storage.getItem(backup.key)).not.toBeNull()
     const store = createPracticeStore((await server.repo.loadAttempt(record.id))!, server.repo, new LocalPracticeCache('a', () => storage), 60_000)
     await store.retry()
-    expect(server.v4Saves.at(-1)?.attempt.answers.q_hand).toEqual(handDraw('recovered'))
+    expect(server.v5Saves.at(-1)?.attempt.answers.q_hand).toEqual(handDrawV5('recovered'))
     expect(server.v3Saves).toHaveLength(0)
     store.stop()
   })
 
-  it('promotes a schema-1 backup for a v4-capable revision and refuses schema-1 restore over a marker-2 draft', async () => {
+  it('promotes a schema-1 backup for a schema-3 revision and refuses schema-1 restore over a marker-2 draft', async () => {
     const server = createV4MemoryRepository('a')
     const record = await server.repo.getOrCreateDraft(v4Quiz)
     const storage = browserLike(), legacy = new LocalPracticeCache('a', () => storage)
@@ -116,7 +117,7 @@ describe('M5 recovery', () => {
     const [backup] = listPracticeBackups('a', storage)
     expect(backup.schemaVersion).toBe(1)
     await restorePracticeBackup('a', backup.key, storage, server.repo, v4Catalog)
-    expect(storage.getItem(practiceCacheKeyV4('a', record.id))).toContain('legacy backup')
+    expect(storage.getItem(practiceCacheKeyV5('a', record.id))).toContain('legacy backup')
 
     const textOnly = createV4MemoryRepository('a')
     const draft = await textOnly.repo.getOrCreateDraft(v3Quiz)
@@ -151,7 +152,7 @@ describe('M5 recovery', () => {
     new LocalPracticeCacheV4('a', () => storage).archive({ id: record.id, attempt: v4Backup, version: { id: record.id, updatedAt: currentVersion } })
     const v4Key = listPracticeBackups('a', storage).find((item) => item.schemaVersion === 2)!.key
     expect(await restorePracticeBackup('a', v4Key, storage, server.repo, v4Catalog)).toBe(v4Quiz.id)
-    expect(storage.getItem(practiceCacheKeyV4('a', record.id))).toContain('v4 backup')
+    expect(storage.getItem(practiceCacheKeyV5('a', record.id))).toContain('v4 backup')
   })
 
   it('keeps malformed or wrong-revision v4 backups and rejects them', async () => {

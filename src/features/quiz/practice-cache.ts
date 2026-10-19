@@ -1,7 +1,9 @@
 import { decodeAttempt } from '../../lib/attempt-storage'
 import { decodeQuizDraftV4, requiresV4Draft, upgradeLegacyQuizDraftV4 } from '../../lib/draft-v4'
+import { decodeQuizDraftV5, promoteQuizDraftV5, requiresV5Draft } from '../../lib/draft-v5'
 import type { QuizAttempt } from '../../models/attempt'
 import type { QuizAttemptV4, QuizDraftV4 } from '../../models/draft-v4'
+import type { QuizDraftV5 } from '../../models/draft-v5'
 import type { Quiz } from '../../models/quiz'
 import { resolveAttemptConflict, sameAttempt } from './sync'
 import { cacheKey, PersistenceError, type RemoteVersion, type StoragePort } from './repositories'
@@ -15,8 +17,98 @@ export const draftIndexKey = (userId: string, quizId: string) => `learnforge:dra
  * older already-open tab cannot overwrite (or downgrade) a schema-2 local draft.
  */
 export const practiceCacheKeyV4 = (userId: string, attemptId: string) => `learnforge:attempt:v4:${userId}:${attemptId}`
+/** Separate schema-3 namespace prevents older tabs from overwriting page-aware cache entries. */
+export const practiceCacheKeyV5 = (userId: string, attemptId: string) => `learnforge:attempt:v5:${userId}:${attemptId}`
 export const STALE_V4_DRAFT_REASON = '雲端草稿已由其他分頁或裝置更新；此本機版本未自動套用'
+export const STALE_V5_DRAFT_REASON = '雲端草稿已由其他分頁或裝置更新；此本機版本未自動套用'
 export interface CachedPracticeV4 { id: string; attempt: QuizAttemptV4; version: RemoteVersion; recoveryExpectedVersion?: string }
+
+export interface CachedPracticeV5 { id: string; attempt: QuizDraftV5; version: RemoteVersion; recoveryExpectedVersion?: string }
+
+export class LocalPracticeCacheV5 {
+  readonly userId: string
+  readonly storage: () => StoragePort
+  constructor(userId: string, storage: () => StoragePort = () => window.localStorage) { this.userId = userId; this.storage = storage }
+  private key(id: string) { return practiceCacheKeyV5(this.userId, id) }
+  private backup(key: string, raw: string) {
+    const backupKey = `${key}:recovery:migration`
+    if (this.storage().getItem(backupKey) === null) this.storage().setItem(backupKey, raw)
+  }
+  private envelope(value: CachedPracticeV5) {
+    return { cacheVersion: 5, ownerId: this.userId, id: value.id, version: value.version, attempt: value.attempt,
+      ...(value.recoveryExpectedVersion ? { recoveryExpectedVersion: value.recoveryExpectedVersion } : {}) }
+  }
+  read(id: string, quiz: Quiz): CachedPracticeV5 | null {
+    if (!requiresV5Draft(quiz)) throw new PersistenceError('invalid')
+    const raw = this.storage().getItem(this.key(id))
+    if (!raw) return null
+    try {
+      const value = JSON.parse(raw) as Record<string, unknown> & { version?: { id?: unknown; updatedAt?: unknown } }
+      if (value.cacheVersion !== 5 || value.ownerId !== this.userId || value.id !== id
+        || value.version?.id !== id || typeof value.version.updatedAt !== 'string'
+        || !Number.isFinite(Date.parse(value.version.updatedAt))) throw new Error('Invalid cache envelope')
+      const attempt = decodeQuizDraftV5(JSON.stringify(value.attempt), quiz)
+      if (!attempt) throw new Error('Invalid schema-3 draft')
+      return { id, attempt, version: { id, updatedAt: value.version.updatedAt },
+        ...(typeof value.recoveryExpectedVersion === 'string' ? { recoveryExpectedVersion: value.recoveryExpectedVersion } : {}) }
+    } catch {
+      this.backup(this.key(id), raw)
+      throw new PersistenceError('invalid')
+    }
+  }
+  write(value: CachedPracticeV5): void {
+    if (value.version.id !== value.id || value.attempt.schemaVersion !== 3 || value.attempt.status !== 'in-progress') {
+      throw new PersistenceError('invalid')
+    }
+    this.storage().setItem(this.key(value.id), JSON.stringify(this.envelope(value)))
+  }
+  archive(value: CachedPracticeV5, reason = '同步版本衝突'): void {
+    this.storage().setItem(`${this.key(value.id)}:recovery:${crypto.randomUUID()}`,
+      JSON.stringify({ ...this.envelope(value), recovery: { savedAt: new Date().toISOString(), reason } }))
+  }
+  removeDraft(value: CachedPracticeV5): void {
+    if (value.attempt.status !== 'in-progress') throw new PersistenceError('invalid')
+    this.storage().removeItem(this.key(value.id))
+  }
+  /** Forward-promote a same-generation legacy or v4 cache; source namespaces remain intact for recovery. */
+  promoteOlder(record: PracticeRecord, quiz: Quiz): CachedPracticeV5 | null {
+    if (![1, 2].includes(record.schemaVersion) || !requiresV5Draft(quiz)) return null
+    let source: { attempt: unknown; version: RemoteVersion; recoveryExpectedVersion?: string } | null
+    try {
+      source = record.schemaVersion === 1
+        ? new LocalPracticeCache(this.userId, this.storage).read(record.id, quiz)
+        : new LocalPracticeCacheV4(this.userId, this.storage).read(record.id, quiz)
+    } catch { return null }
+    if (!source || source.version.id !== record.id || source.version.updatedAt !== record.version.updatedAt) return null
+    const promoted = promoteQuizDraftV5(source.attempt, quiz)
+    if (!promoted) return null
+    const value = { id: record.id, attempt: promoted, version: source.version,
+      ...(source.recoveryExpectedVersion ? { recoveryExpectedVersion: source.recoveryExpectedVersion } : {}) }
+    this.write(value)
+    return value
+  }
+  reconcile(record: PracticeRecord, remoteAttempt: QuizDraftV5): CachedPracticeV5 {
+    if (!record.quiz || !requiresV5Draft(record.quiz) || remoteAttempt.schemaVersion !== 3) throw new PersistenceError('invalid')
+    const remote: CachedPracticeV5 = { id: record.id, attempt: remoteAttempt, version: record.version }
+    const local = this.read(record.id, record.quiz) ?? this.promoteOlder(record, record.quiz)
+    if (!local) { this.write(remote); return remote }
+    if (local.recoveryExpectedVersion && local.recoveryExpectedVersion !== record.version.updatedAt) {
+      this.archive(local, '還原後雲端已有較新版本，已停止自動套用')
+      this.removeDraft(local); this.write(remote); return remote
+    }
+    if (local.version.updatedAt !== record.version.updatedAt) {
+      if (!sameAttempt(local.attempt, remoteAttempt)) this.archive(local, STALE_V5_DRAFT_REASON)
+      this.write(remote); return remote
+    }
+    if (resolveAttemptConflict(local.attempt, remoteAttempt) === 'local') {
+      if (!sameAttempt(local.attempt, remoteAttempt)) this.archive(remote)
+      const winning = { ...local, version: record.version }
+      this.write(winning); return winning
+    }
+    if (!sameAttempt(local.attempt, remoteAttempt)) this.archive(local)
+    this.write(remote); return remote
+  }
+}
 
 export class LocalPracticeCacheV4 {
   readonly userId: string
@@ -191,6 +283,8 @@ export class LocalPracticeCache {
   }
   /** Schema-2 adapter sharing this account's storage; it never touches the v3 namespace except to read for promotion. */
   forV4(): LocalPracticeCacheV4 { return new LocalPracticeCacheV4(this.userId, this.storage) }
+  /** Page-aware drafts use a separate namespace while retaining v1/v4 data as recovery sources. */
+  forV5(): LocalPracticeCacheV5 { return new LocalPracticeCacheV5(this.userId, this.storage) }
   reconcile(record: PracticeRecord): CachedPractice {
     const attempt = record.attempt
     if (!record.quiz || !attempt || attempt.schemaVersion !== 1) throw new PersistenceError('invalid')

@@ -1,5 +1,5 @@
 import type { QuestionGrade } from '../../models/attempt'
-import type { PracticeAnswer } from '../../models/draft-v4'
+import type { PracticeAnswerV5 } from '../../models/draft-v4'
 import { isObjectiveQuestion, type Question } from '../../models/quiz'
 import type { PracticeRecord } from './practice-repository'
 import { GRADING_VERSION } from '../../models/grading-version'
@@ -7,7 +7,7 @@ import { GRADING_VERSION } from '../../models/grading-version'
 export interface MistakeOccurrence {
   record: PracticeRecord
   question: Question
-  answer: PracticeAnswer | undefined
+  answer: PracticeAnswerV5 | undefined
   grade: QuestionGrade
   index: number
 }
@@ -23,6 +23,7 @@ export function deriveMistakes(records: PracticeRecord[]): MistakeOccurrence[] {
       // the objective review queue (analytics) remains objective-only.
       const officialRubric = record.row.grading_version === GRADING_VERSION.aiGradingV3
         || record.row.grading_version === GRADING_VERSION.aiGradingV4
+        || record.row.grading_version === GRADING_VERSION.aiGradingV5
       if (grade && ((isObjectiveQuestion(question) && grade.status === 'incorrect')
         || (officialRubric && (grade.status === 'incorrect' || grade.status === 'partial')))) {
         mistakes.push({ record, question, answer: record.attempt!.answers[question.id], grade, index })

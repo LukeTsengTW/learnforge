@@ -16,6 +16,10 @@ export const DRAWING_LIMITS = {
   maxGeometryPixels: 25_000_000,
   maxPngBytes: 2_000_000,
 } as const
+/** Product limit for independent logical pages in one calculation answer. */
+export const DRAWING_PAGE_LIMIT = 6
+/** Bound the provider image payload to six pages at the per-page PNG ceiling. */
+export const DRAWING_PAGES_MAX_PNG_BYTES = DRAWING_LIMITS.maxPngBytes * DRAWING_PAGE_LIMIT
 
 export class DrawingRasterError extends Error {
   readonly kind: 'invalid' | 'oversized' | 'blank'
@@ -80,6 +84,42 @@ export function parseStoredDrawing(raw: unknown, config: DrawingConfig): Drawing
     strokes.push({ tool: value.tool, color: value.color as DrawingStroke['color'], width: value.width, points })
   }
   return strokes
+}
+
+/**
+ * Parses schema-3 calculation pages under the same whole-answer budgets as one stored drawing.
+ * Each page is independently raster-safe, while strokes, points and geometry are also summed
+ * across every page to prevent a six-fold resource increase.
+ */
+export function parseStoredDrawingPages(raw: unknown, config: DrawingConfig): DrawingStroke[][] {
+  if (!Array.isArray(raw) || raw.length === 0) throw new DrawingRasterError('invalid')
+  if (raw.length > DRAWING_PAGE_LIMIT) throw new DrawingRasterError('oversized')
+  for (let index = 0; index < raw.length; index++) {
+    if (!Object.hasOwn(raw, index)) throw new DrawingRasterError('invalid')
+  }
+  let strokesTotal = 0, pointsTotal = 0, geometryTotal = 0
+  return raw.map((page) => {
+    if (!Array.isArray(page)) throw new DrawingRasterError('invalid')
+    for (const stroke of page) {
+      if (!record(stroke) || Reflect.ownKeys(stroke).length !== 4
+        || !['tool', 'color', 'width', 'points'].every((key) => Object.hasOwn(stroke, key))
+        || !Array.isArray(stroke.points)) throw new DrawingRasterError('invalid')
+      for (const point of stroke.points) {
+        if (!record(point) || Reflect.ownKeys(point).length !== 2
+          || !Object.hasOwn(point, 'x') || !Object.hasOwn(point, 'y')) throw new DrawingRasterError('invalid')
+      }
+    }
+    const parsed = parseStoredDrawing({ type: 'drawing', strokes: page }, config)
+    strokesTotal += parsed.length
+    if (strokesTotal > DRAWING_LIMITS.maxStrokes) throw new DrawingRasterError('oversized')
+    for (const stroke of parsed) {
+      pointsTotal += stroke.points.length
+      if (pointsTotal > DRAWING_LIMITS.maxPoints) throw new DrawingRasterError('oversized')
+      geometryTotal += strokeGeometryPixels(stroke.points, stroke.width, config)
+      if (geometryTotal > DRAWING_LIMITS.maxGeometryPixels) throw new DrawingRasterError('oversized')
+    }
+    return parsed
+  })
 }
 
 function distanceSquared(px: number, py: number, ax: number, ay: number, bx: number, by: number) {
@@ -214,4 +254,24 @@ export async function rasterizeStoredDrawing(raw: unknown, config: DrawingConfig
   const pixels = rasterDrawingPixels(config, strokes)
   if (!isMeaningfullyNonBlank(pixels, config.width, config.height)) throw new DrawingRasterError('blank')
   return { png: await encodeDrawingPng(config, pixels), pixels }
+}
+
+/** Raster every schema-3 page in order; blank pages remain white images when another page has ink. */
+export async function rasterizeStoredDrawingPages(raw: unknown, config: DrawingConfig) {
+  const pages = parseStoredDrawingPages(raw, config)
+  const pngs: Uint8Array[] = []
+  let aggregateBytes = 0
+  let hasInk = false
+  // Keep only one full RGBA canvas alive at a time. The returned PNGs are bounded independently
+  // and as a whole before they can be sent to the provider.
+  for (const strokes of pages) {
+    const pixels = rasterDrawingPixels(config, strokes)
+    hasInk ||= isMeaningfullyNonBlank(pixels, config.width, config.height)
+    const png = await encodeDrawingPng(config, pixels)
+    aggregateBytes += png.length
+    if (aggregateBytes > DRAWING_PAGES_MAX_PNG_BYTES) throw new DrawingRasterError('oversized')
+    pngs.push(png)
+  }
+  if (!hasInk) throw new DrawingRasterError('blank')
+  return { pngs, aggregateBytes }
 }

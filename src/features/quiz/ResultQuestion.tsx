@@ -1,7 +1,7 @@
 import { Markdown } from '../../components/Markdown'
 import { GRADE_STATUS, type GradingVersion, type QuestionGrade } from '../../models/attempt'
-import type { PracticeAnswer } from '../../models/draft-v4'
-import { isLegacyQuestionAnswer } from '../../lib/draft-v4'
+import type { PracticeAnswerV5 } from '../../models/draft-v4'
+import { isLegacyQuestionAnswerV5 } from '../../lib/draft-v5'
 import { QUESTION_LABEL, QUESTION_TYPE, type Question } from '../../models/quiz'
 import { hasAnswer } from '../../lib/grading'
 import { isOfficialRubricVersion } from '../../models/grading-version'
@@ -18,12 +18,19 @@ const STATUS_LABEL = {
   [GRADE_STATUS.unanswered]: '− 未作答', [GRADE_STATUS.manual]: '自行對照',
 }
 
-function StudentAnswer({ question, answer }: { question: Question; answer: PracticeAnswer | undefined }) {
+function StudentAnswer({ question, answer }: { question: Question; answer: PracticeAnswerV5 | undefined }) {
   if (!answer || !hasAnswer(answer)) return <p className="muted">未作答</p>
   if (answer.type === 'drawing' && question.type === 'drawing') return <DrawingPreview config={question.drawing} strokes={answer.strokes} id={question.id} />
   if (answer.type === 'calculation' && answer.mode === 'drawing') {
     // Handwritten calculation: render ONLY the active strokes with the exact calculation drawing config.
     if (question.type !== 'calculation' || !question.drawing) return <p className="muted">手寫作答無法顯示。</p>
+    const drawingConfig = question.drawing
+    if (!('strokes' in answer)) return <div className="student-calculation student-handwriting student-paged-handwriting">
+      {answer.pages.map((strokes, pageIndex) => <section className="student-handwriting-page" key={`${question.id}-page-${pageIndex + 1}`}>
+        <h4>第 {pageIndex + 1} 頁手寫作答</h4>
+        <DrawingPreview config={drawingConfig} strokes={strokes} id={`${question.id}-page-${pageIndex + 1}`}
+          label={`第 ${pageIndex + 1} 頁手寫作答`} exportLabel={`匯出第 ${pageIndex + 1} 頁手寫 PNG`} />
+      </section>)}</div>
     return <div className="student-calculation student-handwriting">
       <DrawingPreview config={question.drawing} strokes={answer.strokes} id={question.id} /></div>
   }
@@ -56,7 +63,7 @@ function CorrectAnswer({ question }: { question: Question }) {
 }
 
 export function ResultQuestion({ question, answer, grade, index, idPrefix = '', aiTutor, gradingVersion }: {
-  question: Question; answer: PracticeAnswer | undefined; grade: QuestionGrade; index: number; idPrefix?: string
+  question: Question; answer: PracticeAnswerV5 | undefined; grade: QuestionGrade; index: number; idPrefix?: string
   aiTutor?: AiTutorState; gradingVersion?: GradingVersion
 }) {
   const isOfficialRubric = isOfficialRubricVersion(gradingVersion)
@@ -67,7 +74,7 @@ export function ResultQuestion({ question, answer, grade, index, idPrefix = '', 
     ? grade : null
   const handwriting = answer?.type === 'calculation' && answer.mode === 'drawing'
   // Personal advisory controls only exist for historical non-official versions and legacy answer shapes.
-  const legacyAnswer = isLegacyQuestionAnswer(answer) ? answer : undefined
+  const legacyAnswer = isLegacyQuestionAnswerV5(answer) ? answer : undefined
   const aiFeatures: TutorFeature[] = question.type === 'drawing' ? []
     : handwriting ? ['explain_solution']
       : grade.status === GRADE_STATUS.incorrect ? ['explain_mistake', 'explain_solution'] : ['explain_solution']

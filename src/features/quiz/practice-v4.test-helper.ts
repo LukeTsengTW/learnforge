@@ -2,6 +2,7 @@ import { vi } from 'vitest'
 import { createAttempt } from '../../lib/attempt'
 import { decodeAttempt } from '../../lib/attempt-storage'
 import { decodeQuizDraftV4 } from '../../lib/draft-v4'
+import { decodeQuizDraftV5 } from '../../lib/draft-v5'
 import type { GradeResult } from '../../models/attempt'
 import type { DraftSchemaVersion, PracticeAttempt } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
@@ -94,6 +95,21 @@ export function submittedV4Rows(userId = 'student', attemptId = '00000000-0000-4
   return { row, fill, rubric, answers }
 }
 
+/** Schema-3 counterpart with answer pages kept in their persisted order. */
+export function submittedV5Rows(userId = 'student', attemptId = '00000000-0000-4000-8000-0000000000a5') {
+  const base = submittedV4Rows(userId, attemptId, { gradingVersion: 'ai-grading-v5', schema: 3 })
+  const answers = {
+    ...base.answers,
+    q_text: { type: 'calculation', mode: 'text', text: ACTIVE_TEXT, pages: [] },
+    q_hand: { type: 'calculation', mode: 'drawing', text: INACTIVE_TEXT, pages: [[pen(150)], [], [pen(250)]] },
+  }
+  base.row.answers = Object.entries(answers).map(([question_id, answer], index) => ({ id: `ans-${index}`, attempt_id: attemptId,
+    user_id: userId, question_id, answer, created_at: base.row.submitted_at, updated_at: base.row.submitted_at }))
+  base.fill.forEach((judgment) => { judgment.judge_version = 'ai-grading-v5' })
+  base.rubric.forEach((judgment) => { judgment.judge_version = 'ai-grading-v5' })
+  return { ...base, answers }
+}
+
 export function memoryStorage() {
   const data = new Map<string, string>()
   return { data, getItem: (key: string) => data.get(key) ?? null,
@@ -112,6 +128,7 @@ export function createV4MemoryRepository(userId: string) {
   const clone = <T>(value: T) => structuredClone(value)
   const v3Saves: { id: string; attempt: PracticeAttempt }[] = []
   const v4Saves: { id: string; expectedUpdatedAt: string; attempt: PracticeAttempt }[] = []
+  const v5Saves: { id: string; expectedUpdatedAt: string; attempt: PracticeAttempt }[] = []
   const submits: { id: string; expectedUpdatedAt: string; requestId: string; gradingVersion: GradingVersion }[] = []
   const submitBehavior = vi.fn<(row: ServerRow, requestId: string) => Promise<FormalSubmission>>(async (row, requestId) => {
     const quiz = row.record.quiz!
@@ -119,11 +136,11 @@ export function createV4MemoryRepository(userId: string) {
       correctCount: 0, partialCount: 0, incorrectCount: 0, unansweredCount: quiz.questions.length, manualCount: 0, questions: [] }
     const now = timestamp()
     const attempt = row.record.attempt!
-    row.record.attempt = attempt.schemaVersion === 2
-      ? { ...attempt, status: 'submitted', submittedAt: now, answers: clone(attempt.answers), result }
-      : { ...attempt, schemaVersion: 1, status: 'submitted', submittedAt: now, answers: clone(attempt.answers), result } as PracticeAttempt
+    row.record.attempt = attempt.schemaVersion === 1
+      ? { ...attempt, schemaVersion: 1, status: 'submitted', submittedAt: now, answers: clone(attempt.answers), result }
+      : { ...attempt, status: 'submitted', submittedAt: now, answers: clone(attempt.answers), result } as PracticeAttempt
     row.record.row = { ...row.record.row, status: 'submitted', submitted_at: now, updated_at: now, submission_request_id: requestId,
-      grading_version: row.schemaVersion === 2 ? 'ai-grading-v4' : 'ai-grading-v3' }
+      grading_version: row.schemaVersion === 3 ? 'ai-grading-v5' : row.schemaVersion === 2 ? 'ai-grading-v4' : 'ai-grading-v3' }
     row.record.version = { id: row.record.id, updatedAt: now }
     return { state: 'submitted', result }
   })
@@ -154,10 +171,14 @@ export function createV4MemoryRepository(userId: string) {
         // save_quiz_attempt_v3 never overwrites a schema-2 draft.
         if (row.schemaVersion !== 1 || !decodeAttempt(JSON.stringify(attempt), quiz)) throw new PersistenceError('conflict')
         v3Saves.push({ id: record.id, attempt: clone(attempt) })
-      } else {
+      } else if (attempt.schemaVersion === 2) {
         if (!decodeQuizDraftV4(JSON.stringify(attempt), quiz)) throw new PersistenceError('invalid')
         v4Saves.push({ id: record.id, expectedUpdatedAt: record.version.updatedAt, attempt: clone(attempt) })
         row.schemaVersion = 2
+      } else {
+        if (!decodeQuizDraftV5(JSON.stringify(attempt), quiz)) throw new PersistenceError('invalid')
+        v5Saves.push({ id: record.id, expectedUpdatedAt: record.version.updatedAt, attempt: clone(attempt) })
+        row.schemaVersion = 3
       }
       const now = timestamp()
       row.record.attempt = clone(attempt)
@@ -197,5 +218,5 @@ export function createV4MemoryRepository(userId: string) {
     row.record.version = { id, updatedAt: now }
     return now
   }
-  return { repo, rows, v3Saves, v4Saves, submits, submitBehavior, serverEdit }
+  return { repo, rows, v3Saves, v4Saves, v5Saves, submits, submitBehavior, serverEdit }
 }

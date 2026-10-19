@@ -38,6 +38,7 @@ export function HistoryPage() {
         <div className="history-score"><strong>{result?.score ?? (record.row.grading_version === GRADING_VERSION.deterministicV1 ? record.row.deterministic_score : null) ?? '—'} / {result?.maxScore ?? (record.row.grading_version === GRADING_VERSION.deterministicV1 ? record.row.deterministic_max_score : null) ?? '—'}</strong>
           {result && <span>{record.row.grading_version === GRADING_VERSION.aiGradingV3
             || record.row.grading_version === GRADING_VERSION.aiGradingV4
+            || record.row.grading_version === GRADING_VERSION.aiGradingV5
             ? `正確 ${result.correctCount} · 部分得分 ${result.partialCount} · 錯誤 ${result.incorrectCount} · 未作答 ${result.unansweredCount}`
             : `正確 ${result.correctCount} · 錯誤 ${result.incorrectCount} · 未作答 ${result.unansweredCount}`}</span>}
           {!result && <span>無法安全重現正式分數，請稍後重試</span>}</div>

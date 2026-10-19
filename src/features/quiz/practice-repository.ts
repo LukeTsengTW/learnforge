@@ -2,9 +2,11 @@ import { FunctionsHttpError } from '@supabase/supabase-js'
 import type { AppSupabase } from '../../lib/supabase'
 import { decodeAttempt } from '../../lib/attempt-storage'
 import { decodeQuizDraftV4, requiresV4Draft } from '../../lib/draft-v4'
+import { decodeQuizDraftV5, requiresV5Draft } from '../../lib/draft-v5'
 import type { AnswerMap, GradeResult } from '../../models/attempt'
 import type { AnalyticsAttempt } from '../../models/analytics'
 import type { DraftAnswerMapV4, DraftSchemaVersion, PracticeAttempt } from '../../models/draft-v4'
+import type { DraftAnswerMapV5 } from '../../models/draft-v5'
 import type { Quiz } from '../../models/quiz'
 import { GRADING_VERSION, type GradingVersion } from '../../models/grading-version'
 import type { Database } from '../../types/database.types'
@@ -23,7 +25,7 @@ export interface PracticeRecord {
   quiz: Quiz | null
   attempt: PracticeAttempt | null
   version: RemoteVersion
-  /** Server-owned answer schema marker (1 legacy/v3, 2 multimodal/v4). */
+  /** Server-owned answer schema marker (1 legacy/v3, 2 multimodal/v4, 3 paged/v5). */
   schemaVersion: DraftSchemaVersion
 }
 export interface DraftReference { id: string; quizId: string; revision: string; updatedAt: string }
@@ -35,10 +37,10 @@ export class SubmissionError extends Error {
   constructor(kind: SubmissionError['kind']) { super(kind); this.kind = kind }
 }
 const OFFICIAL_JUDGMENT_VERSIONS: readonly string[] = [GRADING_VERSION.semanticFillV2, GRADING_VERSION.aiGradingV3,
-  GRADING_VERSION.aiGradingV4]
+  GRADING_VERSION.aiGradingV4, GRADING_VERSION.aiGradingV5]
 /** Local response consistency only; the browser never sends a grading version. */
 export const expectedGradingVersion = (schema: DraftSchemaVersion): GradingVersion =>
-  schema === 2 ? GRADING_VERSION.aiGradingV4 : GRADING_VERSION.aiGradingV3
+  schema === 3 ? GRADING_VERSION.aiGradingV5 : schema === 2 ? GRADING_VERSION.aiGradingV4 : GRADING_VERSION.aiGradingV3
 
 async function edgeErrorStatus(error: unknown): Promise<{ status: number | null; code: unknown }> {
   // Only an HTTP error carries a trusted function status; relay and fetch failures are unavailable.
@@ -81,7 +83,7 @@ export function mapPracticeRecord(row: JoinedRow, userId: string, catalog: QuizC
 }
 
 /** Legacy-safe projection used only for objective occurrences (calculation answers are excluded). */
-function objectiveAnswerMap(answers: DraftAnswerMapV4): AnswerMap {
+function objectiveAnswerMap(answers: DraftAnswerMapV4 | DraftAnswerMapV5): AnswerMap {
   return Object.fromEntries(Object.entries(answers).filter(([, answer]) => answer.type !== 'calculation')) as AnswerMap
 }
 
@@ -103,6 +105,12 @@ export function mapAnalyticsRecord(row: AttemptRow, answers: AnswerRow[], userId
     if (stored.attempt.schemaVersion === 2) {
       if (version !== GRADING_VERSION.aiGradingV4) throw new PersistenceError('invalid')
       return { ...base, quiz, answers: objectiveAnswerMap(stored.attempt.answers), answersV4: stored.attempt.answers,
+        gradingVersion: version, fillJudgments: trustedFillJudgments(row, judgments, userId, version),
+        rubricJudgments: trustedRubricJudgments(row, rubricJudgments, userId, version), gradeResult: stored.attempt.result }
+    }
+    if (stored.attempt.schemaVersion === 3) {
+      if (version !== GRADING_VERSION.aiGradingV5) throw new PersistenceError('invalid')
+      return { ...base, quiz, answers: objectiveAnswerMap(stored.attempt.answers), answersV5: stored.attempt.answers,
         gradingVersion: version, fillJudgments: trustedFillJudgments(row, judgments, userId, version),
         rubricJudgments: trustedRubricJudgments(row, rubricJudgments, userId, version), gradeResult: stored.attempt.result }
     }
@@ -188,6 +196,7 @@ export class SupabasePracticeRepository {
   async saveDraft(record: PracticeRecord, attempt: PracticeAttempt): Promise<StoredPracticeAttempt> {
     if (attempt.status !== 'in-progress' || !record.quiz || record.id !== record.version.id || attempt.quizId !== record.row.quiz_id
       || attempt.quizRevision !== record.row.quiz_revision) throw new PersistenceError('invalid')
+    if (attempt.schemaVersion === 3) return this.saveDraftV5(record, record.quiz, attempt)
     if (attempt.schemaVersion === 2) return this.saveDraftV4(record, record.quiz, attempt)
     // A server schema-2 draft is never written through the legacy v3 writer (no downgrade).
     if (record.schemaVersion !== 1 || !decodeAttempt(JSON.stringify(attempt), record.quiz)) throw new PersistenceError('invalid')
@@ -198,6 +207,31 @@ export class SupabasePracticeRepository {
     const row = data?.[0]
     if (!row || row.id !== record.id || row.user_id !== this.userId || row.quiz_revision !== attempt.quizRevision) throw new PersistenceError('invalid')
     return { attempt, version: { id: row.id, updatedAt: row.updated_at } }
+  }
+
+  /**
+   * Schema-3 drafts are saved through the same authenticated CAS endpoint with an explicit target
+   * schema. The server derives ownership and exact-revision capability independently.
+   */
+  private async saveDraftV5(record: PracticeRecord, quiz: Quiz, attempt: Extract<PracticeAttempt, { schemaVersion: 3 }> ):
+    Promise<StoredPracticeAttempt> {
+    if (record.schemaVersion > 3 || attempt.status !== 'in-progress' || !requiresV5Draft(quiz)
+      || !decodeQuizDraftV5(JSON.stringify(attempt), quiz)
+      || !validDraftTimestamp(record.version.updatedAt) || !validDraftTimestamp(attempt.updatedAt)) {
+      throw new PersistenceError('invalid')
+    }
+    const body = { answerSchemaVersion: 3, attemptId: record.id, expectedUpdatedAt: record.version.updatedAt,
+      clientUpdatedAt: attempt.updatedAt, answers: attempt.answers }
+    const { data, error } = await this.client.functions.invoke('save-quiz-draft', { body })
+    if (error) {
+      const { status } = await edgeErrorStatus(error)
+      throw new PersistenceError(status === 409 ? 'conflict' : status === 400 || status === 413 ? 'invalid' : 'unavailable')
+    }
+    if (!draftRecord(data) || !draftExactKeys(data, ['attemptId', 'updatedAt', 'answerSchemaVersion'])
+      || data.attemptId !== record.id || data.answerSchemaVersion !== 3 || !validDraftTimestamp(data.updatedAt)) {
+      throw new PersistenceError('invalid')
+    }
+    return { attempt, version: { id: record.id, updatedAt: data.updatedAt } }
   }
 
   /**

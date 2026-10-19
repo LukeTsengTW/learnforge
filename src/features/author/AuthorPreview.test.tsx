@@ -4,12 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import type { PracticeAnswerMap } from '../../models/draft-v4'
+import type { PracticeAnswerMapV5 } from '../../models/draft-v4'
 import { requiresV4Draft } from '../../lib/draft-v4'
-import { projectActiveCalculationAnswer } from '../../lib/calculation-answer'
+import { requiresV5Draft } from '../../lib/draft-v5'
+import { projectActiveCalculationAnswerV5 } from '../../lib/calculation-answer'
 import { quizCatalog, bundledQuizSources } from '../quiz/quiz-loader'
 import { AuthorPreview } from './AuthorPreview'
 import { AuthorPage } from './AuthorPage'
+import { v4Quiz } from '../quiz/practice-v4.test-helper'
 
 const midterm = quizCatalog.getQuizRevision('discrete-math', '2')!
 const legacy = quizCatalog.getQuizRevision('discrete-math', '1')!
@@ -55,7 +57,7 @@ function draw(canvas: HTMLElement) {
 }
 
 function Harness({ quiz = midterm }: { quiz?: typeof midterm }) {
-  const [answers, setAnswers] = useState<PracticeAnswerMap>({})
+  const [answers, setAnswers] = useState<PracticeAnswerMapV5>({})
   return <><AuthorPreview quiz={quiz} mode="student" answers={answers}
     onAnswer={(id, answer) => setAnswers((current) => ({ ...current, [id]: answer }))} />
     <output data-testid="answers">{JSON.stringify(answers)}</output></>
@@ -64,7 +66,7 @@ function Harness({ quiz = midterm }: { quiz?: typeof midterm }) {
 async function fillBoth(user: ReturnType<typeof userEvent.setup>) {
   fireEvent.change(card().getByRole('textbox', { name: '你的推導過程' }), { target: { value: text } })
   await user.click(card().getByRole('radio', { name: '手寫' }))
-  draw(card().getByRole('img', { name: '繪圖作答區' }))
+  draw(card().getByRole('img', { name: '第 1 頁手寫作答區' }))
   expect(card().getByRole('button', { name: '復原' })).toBeEnabled()
 }
 
@@ -76,6 +78,16 @@ async function load(user: ReturnType<typeof userEvent.setup>, revision: '1' | '2
 }
 
 describe('Author preview calculation capability', () => {
+  it('uses the schema-3 paged editor for a handwriting-capable student preview', async () => {
+    expect(requiresV5Draft(v4Quiz)).toBe(true)
+    render(<Harness quiz={v4Quiz} />)
+    const view = card('q_hand')
+    await userEvent.click(view.getByRole('radio', { name: '手寫' }))
+    expect(view.getByRole('button', { name: '新增一頁' })).toBeInTheDocument()
+    await userEvent.click(view.getByRole('button', { name: '新增一頁' }))
+    expect(view.getByRole('status', { name: '手寫頁面狀態' })).toHaveTextContent('第 2 頁，共 2 頁')
+  })
+
   it('keeps schema-1 calculations as legacy textareas without mode selectors', () => {
     expect(requiresV4Draft(legacy)).toBe(false)
     render(<AuthorPreview quiz={legacy} mode="student" answers={{}} onAnswer={() => {}} />)
@@ -85,15 +97,16 @@ describe('Author preview calculation capability', () => {
     }
   })
 
-  it.each(calculationIds)('uses canonical schema-2 capability for existing %s', async (id) => {
-    expect(requiresV4Draft(midterm)).toBe(true)
+  it.each(calculationIds)('uses the paged editor for drawing-capable calculation %s', async (id) => {
+    expect(requiresV5Draft(midterm)).toBe(true)
     render(<Harness />)
     expect(card(id).getByRole('radio', { name: '打字' })).toBeChecked()
     expect(card(id).getByRole('textbox', { name: '你的推導過程' })).toHaveValue('')
     await userEvent.click(card(id).getByRole('radio', { name: '手寫' }))
-    const canvas = card(id).getByRole('img', { name: '繪圖作答區' })
+    const canvas = card(id).getByRole('img', { name: '第 1 頁手寫作答區' })
     expect(canvas).toHaveAttribute('width', '1200')
     expect(canvas).toHaveAttribute('height', '900')
+    expect(card(id).getByRole('button', { name: '新增一頁' })).toBeInTheDocument()
     expect(card(id).queryByRole('textbox')).toBeNull()
   })
 
@@ -104,8 +117,9 @@ describe('Author preview calculation capability', () => {
     expect(view.getByRole('textbox', { name: '你的推導過程' })).toHaveValue('')
     fireEvent.click(view.getByRole('radio', { name: '手寫' }))
     expect(view.getByRole('radio', { name: '手寫' })).toBeChecked()
-    expect(view.getByRole('img', { name: '繪圖作答區' })).toHaveAttribute('width', '1200')
-    expect(view.getByRole('img', { name: '繪圖作答區' })).toHaveAttribute('height', '900')
+    expect(view.getByRole('img', { name: '第 1 頁手寫作答區' })).toHaveAttribute('width', '1200')
+    expect(view.getByRole('img', { name: '第 1 頁手寫作答區' })).toHaveAttribute('height', '900')
+    expect(view.getByRole('button', { name: '新增一頁' })).toBeInTheDocument()
     expect(view.queryByRole('textbox')).toBeNull()
   })
 
@@ -115,22 +129,23 @@ describe('Author preview calculation capability', () => {
     await fillBoth(user)
     const drawn = JSON.parse(screen.getByTestId('answers').textContent!).q2
     expect(drawn).toMatchObject({ type: 'calculation', mode: 'drawing', text })
-    expect(drawn.strokes).toHaveLength(1)
+    expect(drawn.pages).toHaveLength(1)
+    expect(drawn.pages[0]).toHaveLength(1)
     expect(card('q3').getByRole('textbox')).toHaveValue('')
     await user.click(card().getByRole('radio', { name: '打字' }))
     expect(card().getByRole('textbox')).toHaveValue(text)
     expect(JSON.parse(screen.getByTestId('answers').textContent!).q2).toEqual({ ...drawn, mode: 'text' })
     const question = midterm.questions.find((q) => q.id === 'q2')!
     if (question.type !== 'calculation') throw new Error('Expected calculation')
-    expect(projectActiveCalculationAnswer({ ...drawn, mode: 'text' }, question)).toEqual({ type: 'calculation', mode: 'text', text })
+    expect(projectActiveCalculationAnswerV5({ ...drawn, mode: 'text' }, question)).toEqual({ type: 'calculation', mode: 'text', text })
     await user.click(card().getByRole('radio', { name: '手寫' }))
     expect(JSON.parse(screen.getByTestId('answers').textContent!).q2).toEqual(drawn)
-    expect(projectActiveCalculationAnswer(drawn, question)).toEqual({ type: 'calculation', mode: 'drawing', strokes: drawn.strokes })
+    expect(projectActiveCalculationAnswerV5(drawn, question)).toEqual({ type: 'calculation', mode: 'drawing', pages: drawn.pages })
     expect(card().getByRole('button', { name: '復原' })).toBeEnabled()
   })
 
   it.each(['text', 'drawing'] as const)('Answer Preview shows only the active %s buffer and retains local/manual grading', (mode) => {
-    const answers: PracticeAnswerMap = {
+    const answers: PracticeAnswerMapV5 = {
       q2: { type: 'calculation', mode, text: 'VISIBLE_ONLY_WHEN_TEXT_ACTIVE', strokes: [stroke] },
       'q1-i': { type: 'single', optionId: 'c' },
     }
@@ -151,7 +166,7 @@ describe('Author preview calculation capability', () => {
     await load(user, '2', sourceControls)
     await fillBoth(user)
     await user.click(previewControls.getByRole('button', { name: 'Answer Preview' }))
-    expect(card().getByRole('img', { name: '已提交的繪圖答案' })).toBeInTheDocument()
+    expect(card().getByRole('img', { name: '第 1 頁手寫作答' })).toBeInTheDocument()
     expect(document.querySelector('#author-question-q2 .student-answer')).not.toHaveTextContent('我的推導')
     await user.click(previewControls.getByRole('button', { name: 'Student Preview' }))
     expect(card().getByRole('radio', { name: '手寫' })).toBeChecked()

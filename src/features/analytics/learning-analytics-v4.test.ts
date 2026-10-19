@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
 import { mapAnalyticsRecord } from '../quiz/practice-repository'
 import type { JudgmentRow, RubricJudgmentRow } from '../quiz/repositories'
-import { submittedV4Rows, v4Catalog } from '../quiz/practice-v4.test-helper'
+import { submittedV4Rows, submittedV5Rows, v4Catalog } from '../quiz/practice-v4.test-helper'
 import { buildLearningAnalytics } from './learning-analytics'
 
 function analyticsRecord(fixture = submittedV4Rows()) {
+  return mapAnalyticsRecord(fixture.row as never, fixture.row.answers as never, 'student', v4Catalog,
+    fixture.fill as unknown as JudgmentRow[], fixture.rubric as unknown as RubricJudgmentRow[])
+}
+function analyticsRecordV5(fixture = submittedV5Rows()) {
   return mapAnalyticsRecord(fixture.row as never, fixture.row.answers as never, 'student', v4Catalog,
     fixture.fill as unknown as JudgmentRow[], fixture.rubric as unknown as RubricJudgmentRow[])
 }
@@ -12,7 +16,8 @@ function analyticsRecord(fixture = submittedV4Rows()) {
 describe('M5 analytics for ai-grading-v4', () => {
   it('counts v4 explicitly, includes rubric scores overall and keeps objective accuracy objective-only', () => {
     const analytics = buildLearningAnalytics([analyticsRecord()], false, () => null)
-    expect(analytics.gradingVersionCounts).toEqual({ deterministicV1: 0, semanticFillV2: 0, aiGradingV3: 0, aiGradingV4: 1 })
+    expect(analytics.gradingVersionCounts).toEqual({ deterministicV1: 0, semanticFillV2: 0, aiGradingV3: 0,
+      aiGradingV4: 1, aiGradingV5: 0 })
     expect(analytics.totalScoreEarned).toBe(5.8)
     expect(analytics.totalScoreAvailable).toBe(12)
     // Objective statistics use only single/multiple/true-false/fill (q_single incorrect, q_fill correct).
@@ -38,5 +43,17 @@ describe('M5 analytics for ai-grading-v4', () => {
     expect(analytics.gradingVersionCounts.aiGradingV4).toBe(0)
     expect(analytics.gradingVersionCounts.aiGradingV3).toBe(0)
     expect(analytics.reviewQueue).toEqual([])
+  })
+})
+
+describe('M6 analytics for ai-grading-v5', () => {
+  it('regrades from stored v5 evidence while preserving ordered pages for rubric scoring', () => {
+    const analytics = buildLearningAnalytics([analyticsRecordV5()], false, () => null)
+    expect(analytics.gradingVersionCounts).toEqual({ deterministicV1: 0, semanticFillV2: 0, aiGradingV3: 0,
+      aiGradingV4: 0, aiGradingV5: 1 })
+    expect(analytics.totalScoreEarned).toBe(5.8)
+    expect(analytics.totalScoreAvailable).toBe(12)
+    expect(analytics.malformedAttemptCount).toBe(0)
+    expect(analytics.reviewQueue.map((item) => item.questionId)).toEqual(['q_single'])
   })
 })

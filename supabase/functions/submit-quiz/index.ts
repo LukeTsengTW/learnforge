@@ -3,7 +3,7 @@ import type { Database, Json } from '../../../src/types/database.types.ts'
 import { GRADING_VERSION } from '../../../src/models/grading-version.ts'
 import { createOpenAIFillProvider } from '../_shared/semantic-fill.ts'
 import { createOpenAISubmissionCalculationProvider,
-  createOpenAISubmissionCalculationV4Provider } from '../_shared/calculation-grading.ts'
+  createOpenAISubmissionCalculationV4Provider, createOpenAISubmissionCalculationV5Provider } from '../_shared/calculation-grading.ts'
 import { createOpenAISubmissionDrawingProvider } from '../_shared/drawing-analysis.ts'
 import { submissionRubricPayload, type SubmissionRubricJudgment } from '../_shared/submission-rubric.ts'
 import { createSubmitQuizHandler, SubmissionConflict, type AnswerHashesV4, type AttemptSnapshot,
@@ -133,6 +133,33 @@ export default {
           if (error?.code === '40001') throw new SubmissionConflict()
           if (error) throw new Error('V4 finalization failed')
           return finalizedRow(data, input, GRADING_VERSION.aiGradingV4)
+        },
+      },
+      v5: {
+        calculationProvider: key ? createOpenAISubmissionCalculationV5Provider(key) : null,
+        async claimRubric(input) {
+          const { data, error } = await untypedAdmin.rpc('claim_rubric_judgment_v5', {
+            p_user_id: input.userId, p_attempt_id: input.attemptId,
+            p_expected_updated_at: input.expectedUpdatedAt, p_request_id: input.requestId,
+            p_quiz_id: input.quizId, p_quiz_revision: input.quizRevision,
+            p_question_id: input.questionId, p_question_type: input.questionType, p_max_score: input.maxScore,
+            p_system_unanswered: input.systemUnanswered,
+          })
+          if (error || !data || typeof data !== 'object') throw new Error('V5 rubric claim failed')
+          return data as RubricClaimResult
+        },
+        async loadAnswerHashes(attemptId) {
+          const { data, error } = await untypedAdmin.rpc('rubric_answer_hashes_v5', {
+            p_user_id: userId, p_attempt_id: attemptId,
+          })
+          if (error || !data || typeof data !== 'object') throw new Error('V5 answer identity unavailable')
+          return data as AnswerHashesV4
+        },
+        async finalize(input) {
+          const { data, error } = await untypedAdmin.rpc('finalize_ai_grading_v5_submission', finalizeArgs(input))
+          if (error?.code === '40001') throw new SubmissionConflict()
+          if (error) throw new Error('V5 finalization failed')
+          return finalizedRow(data, input, GRADING_VERSION.aiGradingV5)
         },
       },
     })(request)

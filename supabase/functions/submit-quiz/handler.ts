@@ -1,21 +1,25 @@
-import { gradeQuizV3, gradeQuizV4 } from '../../../src/lib/grading.ts'
+import { gradeQuizV3, gradeQuizV4, gradeQuizV5 } from '../../../src/lib/grading.ts'
 import { isV4BlankText } from '../../../src/lib/v4-blank.ts'
 import type { AnswerMap, GradeResult, TrustedFillJudgment, TrustedRubricJudgment } from '../../../src/models/attempt.ts'
 import type { DraftAnswerMapV4 } from '../../../src/models/draft-v4.ts'
+import type { DraftAnswerMapV5 } from '../../../src/models/draft-v5.ts'
 import type { Quiz, Question } from '../../../src/models/quiz.ts'
 import { AiProviderError, type ProviderUsage } from '../_shared/ai-provider.ts'
-import { DrawingRasterError, rasterizeStoredDrawing } from '../_shared/drawing-raster.ts'
+import { DrawingRasterError, rasterizeStoredDrawing, rasterizeStoredDrawingPages } from '../_shared/drawing-raster.ts'
 import { tutorContext, TutorInputError, readBoundedJson, type TutorQuestionContext } from '../_shared/ai-tutor.ts'
 import { answerHash, normalizeStoredAnswers, parseFillJudgment, parseFillVerdict,
   parseSubmissionInput, ruleFillStatus, type FillJudgment, type FillProvider, type StoredAnswerRow,
   type SubmissionInput } from '../_shared/semantic-fill.ts'
 import { GRADING_ANSWER_MAX_BYTES, type SubmissionCalculationProvider,
-  type SubmissionCalculationV4Provider } from '../_shared/calculation-grading.ts'
+  type SubmissionCalculationV4Provider, type SubmissionCalculationV5Provider } from '../_shared/calculation-grading.ts'
 import { canonicalizeSubmissionRubricV4, isCanonicalSubmissionRubricContextV4,
   isCanonicalSubmissionRubricV4 } from '../_shared/submission-rubric-v4.ts'
 import type { SubmissionDrawingProvider } from '../_shared/drawing-analysis.ts'
 import { DraftValidationError, normalizeDraftAnswersV4, requiresV4DraftContext,
   type DraftQuestionContext } from '../_shared/draft-v4.ts'
+import { normalizeDraftAnswersV5, requiresV5DraftContext } from '../_shared/draft-v5.ts'
+import { canonicalizeSubmissionRubricV5, isCanonicalSubmissionRubricContextV5,
+  isCanonicalSubmissionRubricV5 } from '../_shared/submission-rubric-v5.ts'
 import { parseStoredSubmissionRubricJudgment, type SubmissionRubricJudgment,
   type SubmissionRubricProviderResult, type SubmissionRubricQuestionType } from '../_shared/submission-rubric.ts'
 import { GRADING_VERSION } from '../../../src/models/grading-version.ts'
@@ -113,6 +117,13 @@ export interface SubmissionBackendV4 {
   loadAnswerHashes(attemptId: string): Promise<AnswerHashesV4>
   finalize(input: FinalizeSubmissionInput): Promise<boolean>
 }
+/** Schema-3 contract. Page-aware identities and ordered multi-image input use separate v5 RPCs. */
+export interface SubmissionBackendV5 {
+  calculationProvider: SubmissionCalculationV5Provider | null
+  claimRubric(input: RubricClaimInput): Promise<RubricClaimResult>
+  loadAnswerHashes(attemptId: string): Promise<AnswerHashesV4>
+  finalize(input: FinalizeSubmissionInput): Promise<boolean>
+}
 
 export class SubmissionConflict extends Error {}
 export interface SubmissionBackend {
@@ -133,6 +144,7 @@ export interface SubmissionBackend {
   failRubric(claimToken: string, errorCode: string): Promise<void>
   finalize(input: FinalizeSubmissionInput): Promise<boolean>
   v4?: SubmissionBackendV4
+  v5?: SubmissionBackendV5
 }
 interface SubmissionContextLookup { listRevision(quizId: string, revision: string): readonly TutorQuestionContext[] }
 
@@ -217,7 +229,8 @@ function trustedFillJudgments(fillJudgments: readonly FillJudgment[]): TrustedFi
 }
 
 function trustedPersistedRubric(row: PersistedRubricJudgment, question: TutorQuestionContext,
-  version: typeof GRADING_VERSION.aiGradingV3 | typeof GRADING_VERSION.aiGradingV4 = GRADING_VERSION.aiGradingV3): TrustedRubricJudgment | null {
+  version: typeof GRADING_VERSION.aiGradingV3 | typeof GRADING_VERSION.aiGradingV4
+    | typeof GRADING_VERSION.aiGradingV5 = GRADING_VERSION.aiGradingV3): TrustedRubricJudgment | null {
   if (row.judge_version !== version
     || (row.question_type !== 'calculation' && row.question_type !== 'drawing')
     || !/^[a-f0-9]{64}$/.test(row.answer_hash)
@@ -249,6 +262,14 @@ function isCanonicalV4Judgment(judgment: SubmissionRubricJudgment | TrustedRubri
     'answerHash', 'source', 'status', 'model', 'reasoningEffort'].includes(key)))
   return (judgment.questionType === 'calculation' || judgment.questionType === 'drawing')
     && isCanonicalSubmissionRubricV4(output as never, question, judgment.questionType)
+}
+
+/** v5 uses the same fixed rubric score grammar but validates page-aware answer identity separately. */
+function isCanonicalV5Judgment(judgment: SubmissionRubricJudgment | TrustedRubricJudgment, question: TutorQuestionContext): boolean {
+  const output = Object.fromEntries(Object.entries(judgment).filter(([key]) => !['questionId', 'questionType',
+    'answerHash', 'source', 'status', 'model', 'reasoningEffort'].includes(key)))
+  return (judgment.questionType === 'calculation' || judgment.questionType === 'drawing')
+    && isCanonicalSubmissionRubricV5(output as never, question, judgment.questionType)
 }
 
 function resultMatchesAttempt(result: GradeResult, attempt: AttemptSnapshot): boolean {
@@ -340,6 +361,18 @@ function strictV4Answers(questions: readonly TutorQuestionContext[], rows: reado
     raw[row.question_id] = row.answer
   }
   return normalizeDraftAnswersV4(draftContexts(questions), raw, false)
+}
+
+/** Strict schema-3 read of persisted rows; all pages and inactive data are checked again at submit. */
+function strictV5Answers(questions: readonly TutorQuestionContext[], rows: readonly StoredAnswerRow[]): DraftAnswerMapV5 {
+  const raw: Record<string, unknown> = {}
+  for (const row of rows) {
+    if (!isRecord(row) || typeof row.question_id !== 'string' || Object.hasOwn(raw, row.question_id)) {
+      throw new DraftValidationError('invalid')
+    }
+    raw[row.question_id] = row.answer
+  }
+  return normalizeDraftAnswersV5(draftContexts(questions), raw)
 }
 
 async function submitV3(backend: SubmissionBackend, input: SubmissionInput, attempt: AttemptSnapshot,
@@ -628,6 +661,159 @@ async function submitV4(backend: SubmissionBackend, v4: SubmissionBackendV4, inp
   return json({ attemptId: attempt.id, gradingVersion: GRADING_VERSION.aiGradingV4, result, cached: false })
 }
 
+async function submitV5(backend: SubmissionBackend, v5: SubmissionBackendV5, input: SubmissionInput,
+  attempt: AttemptSnapshot, questions: readonly TutorQuestionContext[]): Promise<Response> {
+  if (!requiresV5DraftContext(questions)) return unavailable()
+  const quiz = exactQuiz(questions, attempt.quiz_id, attempt.quiz_revision)
+  if (questions.some((question) => (question.type === 'calculation' || question.type === 'drawing')
+    && !isCanonicalSubmissionRubricContextV5(question))) return unavailable()
+
+  let answers: DraftAnswerMapV5
+  try { answers = strictV5Answers(questions, attempt.answers) }
+  catch (error) {
+    if (error instanceof DraftValidationError) return attempt.status === 'draft' ? invalidAnswers() : unavailable()
+    throw error
+  }
+  const textOf = (questionId: string) => {
+    const answer = answers[questionId]
+    return answer?.type === 'fill' ? answer.text : undefined
+  }
+
+  if (attempt.status === 'submitted') {
+    const [persistedFill, persistedRubric, hashes] = await Promise.all([
+      backend.loadFinalFillJudgments(attempt.id), backend.loadFinalRubricJudgments(attempt.id),
+      v5.loadAnswerHashes(attempt.id),
+    ])
+    if (!isRecord(hashes) || !isRecord(hashes.answers) || typeof hashes.missing !== 'string' || !HASH.test(hashes.missing)) {
+      return unavailable()
+    }
+    const fillJudgments = await persistedFillJudgments(persistedFill, questions, textOf, GRADING_VERSION.aiGradingV5)
+    if (!fillJudgments) return unavailable()
+    const rubricJudgments: TrustedRubricJudgment[] = []
+    for (const row of persistedRubric) {
+      const question = questions.find((item) => item.questionId === row.question_id)
+      if (!question) return unavailable()
+      const expectedHash = answers[question.questionId] === undefined ? hashes.missing : hashes.answers[question.questionId]
+      const judgment = trustedPersistedRubric(row, question, GRADING_VERSION.aiGradingV5)
+      if (!judgment || typeof expectedHash !== 'string' || judgment.answerHash !== expectedHash
+        || (judgment.source === 'ai' && !isCanonicalV5Judgment(judgment, question))) return unavailable()
+      rubricJudgments.push(judgment)
+    }
+    const result = gradeQuizV5(quiz, answers, trustedFillJudgments(fillJudgments), rubricJudgments)
+    if (!resultMatchesAttempt(result, attempt)) return unavailable()
+    return json({ attemptId: attempt.id, gradingVersion: GRADING_VERSION.aiGradingV5, result, cached: true })
+  }
+
+  // Only active text is measured against the formal provider ceiling. Inactive text in drawing mode
+  // and all page strokes are validated under their own draft/raster resource limits.
+  const encoder = new TextEncoder()
+  for (const question of questions) {
+    const answer = answers[question.questionId]
+    if (question.type === 'calculation' && answer?.type === 'calculation' && answer.mode === 'text'
+      && !isV4BlankText(answer.text) && encoder.encode(answer.text).length > GRADING_ANSWER_MAX_BYTES) {
+      return invalidAnswers()
+    }
+  }
+
+  const fillJudgments = await judgeFills(backend, input, attempt, questions, textOf, ruleFillStatusV4)
+  if (fillJudgments instanceof Response) return fillJudgments
+  const rubricJudgments: TrustedRubricJudgment[] = []
+  const systemJudgment = (question: TutorQuestionContext, hash: string): TrustedRubricJudgment => ({
+    questionId: question.questionId, questionType: question.type as SubmissionRubricQuestionType,
+    answerHash: hash, source: 'system', status: 'unanswered', score: 0, maxScore: question.points!, criteria: [] })
+
+  for (const question of questions) {
+    if (question.type !== 'calculation' && question.type !== 'drawing') continue
+    const answer = answers[question.questionId]
+    if (answer && answer.type !== question.type) return unavailable()
+    const calculation = answer?.type === 'calculation' ? answer : null
+    const claimInput = { userId: backend.userId, attemptId: attempt.id, expectedUpdatedAt: input.expectedUpdatedAt,
+      requestId: input.requestId, quizId: attempt.quiz_id, quizRevision: attempt.quiz_revision,
+      questionId: question.questionId, questionType: question.type, maxScore: question.points! }
+
+    if (question.type === 'calculation' && (!calculation
+      || (calculation.mode === 'text' && isV4BlankText(calculation.text)))) {
+      const claim = await v5.claimRubric({ ...claimInput, systemUnanswered: true })
+      if (claim.state === 'conflict') return conflict()
+      if (claim.state !== 'unanswered' || !claim.answerHash || !HASH.test(claim.answerHash)) return unavailable()
+      rubricJudgments.push(systemJudgment(question, claim.answerHash))
+      continue
+    }
+
+    const claim = await v5.claimRubric({ ...claimInput, systemUnanswered: false })
+    if (claim.state === 'conflict') return conflict()
+    if (claim.state === 'in_progress') return json({ code: 'in_progress' }, 202)
+    if (claim.state === 'limited') return unavailable()
+    if (claim.state === 'cached') {
+      if (!claim.answerHash || !HASH.test(claim.answerHash)) return unavailable()
+      const cached = parseStoredSubmissionRubricJudgment(claim.response, question, question.type)
+      if (!cached || cached.answerHash !== claim.answerHash || !isCanonicalV5Judgment(cached, question)) return unavailable()
+      rubricJudgments.push({ ...cached, source: 'ai', status: rubricStatus(cached.score, cached.maxScore),
+        model: 'gpt-6-luna', reasoningEffort: 'medium' })
+      continue
+    }
+    if (claim.state !== 'claimed' || !claim.claimToken || !claim.answerHash || !HASH.test(claim.answerHash)) return unavailable()
+    const claimToken = claim.claimToken
+    let drawingPng: Uint8Array | null = null
+    let pagePngs: Uint8Array[] | null = null
+    try {
+      if (question.type === 'drawing') {
+        drawingPng = (await rasterizeStoredDrawing(answer ?? { type: 'drawing', strokes: [] }, question.drawing!)).png
+      } else if (calculation!.mode === 'drawing') {
+        if (!question.drawing) throw new DrawingRasterError('invalid')
+        // The server validates/rasterizes every saved page and keeps its order for the provider call.
+        pagePngs = (await rasterizeStoredDrawingPages(calculation!.pages, question.drawing)).pngs
+      }
+    } catch (error) {
+      await backend.failRubric(claimToken, error instanceof DrawingRasterError ? `raster_${error.kind}` : 'raster_failed')
+        .catch(() => undefined)
+      if (error instanceof DrawingRasterError && error.kind === 'blank') {
+        rubricJudgments.push(systemJudgment(question, claim.answerHash))
+        continue
+      }
+      return unavailable()
+    }
+
+    let generate: (() => Promise<SubmissionRubricProviderResult>) | null = null
+    if (question.type === 'drawing') {
+      if (backend.drawingProvider) generate = () => backend.drawingProvider!.generate(question, drawingPng!)
+    } else if (v5.calculationProvider) {
+      const provider = v5.calculationProvider
+      generate = calculation!.mode === 'text'
+        ? () => provider.generateText(question, calculation!.text)
+        : () => provider.generateDrawingPages(question, pagePngs!)
+    }
+    if (!generate) {
+      await backend.failRubric(claimToken, 'provider_unavailable').catch(() => undefined)
+      return unavailable()
+    }
+    try {
+      const judged = await generate()
+      const output = canonicalizeSubmissionRubricV5(judged.output, question, question.type)
+      if (!output) throw new AiProviderError('malformed')
+      const judgment: SubmissionRubricJudgment = { questionId: question.questionId, questionType: question.type,
+        answerHash: claim.answerHash, ...output }
+      if (!await backend.completeRubric(claimToken, judgment, judged.responseId, judged.usage)) {
+        throw new AiProviderError('malformed')
+      }
+      rubricJudgments.push({ ...judgment, source: 'ai', status: rubricStatus(judgment.score, judgment.maxScore),
+        model: 'gpt-6-luna', reasoningEffort: 'medium' })
+    } catch (failure) {
+      await backend.failRubric(claimToken, failure instanceof AiProviderError ? failure.code : 'server_error')
+        .catch(() => undefined)
+      return unavailable()
+    }
+  }
+
+  const result = gradeQuizV5(quiz, answers, trustedFillJudgments(fillJudgments), rubricJudgments)
+  const finalized = await v5.finalize({ userId: backend.userId, attemptId: attempt.id,
+    expectedUpdatedAt: input.expectedUpdatedAt, requestId: input.requestId,
+    quizId: attempt.quiz_id, quizRevision: attempt.quiz_revision, result, fillJudgments, rubricJudgments,
+    questions: canonicalManifest(quiz, true) })
+  if (!finalized) return conflict()
+  return json({ attemptId: attempt.id, gradingVersion: GRADING_VERSION.aiGradingV5, result, cached: false })
+}
+
 export function createSubmitQuizHandler(backend: SubmissionBackend, lookup: SubmissionContextLookup = tutorContext) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'POST') return json({ code: 'method_not_allowed' }, 405)
@@ -644,7 +830,8 @@ export function createSubmitQuizHandler(backend: SubmissionBackend, lookup: Subm
         return json({ code: 'attempt_unavailable' }, 404)
       }
       if (attempt.status === 'submitted' && ((attempt.grading_version !== GRADING_VERSION.aiGradingV3
-        && attempt.grading_version !== GRADING_VERSION.aiGradingV4)
+        && attempt.grading_version !== GRADING_VERSION.aiGradingV4
+        && attempt.grading_version !== GRADING_VERSION.aiGradingV5)
         || attempt.submission_request_id !== input.requestId)) return conflict()
       if (attempt.status === 'draft' && attempt.updated_at !== input.expectedUpdatedAt) return conflict()
       if (attempt.status !== 'draft' && attempt.status !== 'submitted') return conflict()
@@ -652,16 +839,19 @@ export function createSubmitQuizHandler(backend: SubmissionBackend, lookup: Subm
       // Server-owned dispatch: draft schema selects the contract; submitted rows replay their own version.
       const contract = attempt.status === 'submitted'
         ? attempt.grading_version === GRADING_VERSION.aiGradingV3 && attempt.answer_schema_version === 1 ? 'v3'
-          : attempt.grading_version === GRADING_VERSION.aiGradingV4 && attempt.answer_schema_version === 2 ? 'v4' : null
-        : attempt.answer_schema_version === 1 ? 'v3' : attempt.answer_schema_version === 2 ? 'v4' : null
+          : attempt.grading_version === GRADING_VERSION.aiGradingV4 && attempt.answer_schema_version === 2 ? 'v4'
+            : attempt.grading_version === GRADING_VERSION.aiGradingV5 && attempt.answer_schema_version === 3 ? 'v5' : null
+        : attempt.answer_schema_version === 1 ? 'v3' : attempt.answer_schema_version === 2 ? 'v4'
+          : attempt.answer_schema_version === 3 ? 'v5' : null
       if (!contract) return unavailable()
 
       const questions = lookup.listRevision(attempt.quiz_id, attempt.quiz_revision)
       if (!questions.length || questions.some((question, index) => question.questionIndex !== index
         || question.quizId !== attempt.quiz_id || question.revision !== attempt.quiz_revision)) return unavailable()
       if (contract === 'v3') return await submitV3(backend, input, attempt, questions)
-      if (!backend.v4) return unavailable()
-      return await submitV4(backend, backend.v4, input, attempt, questions)
+      if (contract === 'v4') return backend.v4
+        ? await submitV4(backend, backend.v4, input, attempt, questions) : unavailable()
+      return backend.v5 ? await submitV5(backend, backend.v5, input, attempt, questions) : unavailable()
     } catch (error) {
       if (error instanceof SubmissionConflict) return conflict()
       return unavailable()

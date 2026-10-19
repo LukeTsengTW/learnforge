@@ -1,8 +1,8 @@
 import { DRAWING_LIMITS } from '../../../supabase/functions/_shared/drawing-raster'
 import { describe, expect, it } from 'vitest'
-import type { PracticeAnswer } from '../../models/draft-v4'
+import type { PracticeAnswerV5 } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
-import { LocalPracticeCache, practiceCacheKeyV4, STALE_V4_DRAFT_REASON } from './practice-cache'
+import { LocalPracticeCache, practiceCacheKeyV5, STALE_V5_DRAFT_REASON } from './practice-cache'
 import { createPracticeStore, STALE_DRAFT_NOTICE } from './practice-store'
 import { createV4MemoryRepository, memoryStorage, v4Quiz } from './practice-v4.test-helper'
 
@@ -15,9 +15,9 @@ const strokes = (count: number, points = 2): DrawingStroke[] => Array.from({ len
   tool: 'pen', color: '#202b38', width: 4,
   points: Array.from({ length: points }, (_, step) => ({ x: 10 + (step % 700), y: 10 + (row % 500) })) }))
 const MAX_STROKES = DRAWING_LIMITS.maxStrokes, MAX_POINTS = DRAWING_LIMITS.maxPoints
-const hand = (drawn: DrawingStroke[], text = ''): PracticeAnswer => ({ type: 'calculation', mode: 'drawing', text, strokes: drawn })
+const hand = (drawn: DrawingStroke[], text = ''): PracticeAnswerV5 => ({ type: 'calculation', mode: 'drawing', text, pages: [drawn] })
 const handStrokes = (attempt: { answers: Record<string, unknown> } | null | undefined) =>
-  (attempt?.answers.q_hand as { strokes: DrawingStroke[] } | undefined)?.strokes ?? []
+  (attempt?.answers.q_hand as { pages: DrawingStroke[][] } | undefined)?.pages.flat() ?? []
 
 async function environment() {
   const server = createV4MemoryRepository('student')
@@ -25,7 +25,7 @@ async function environment() {
   const storage = memoryStorage()
   const store = createPracticeStore(initial, server.repo, new LocalPracticeCache('student', () => storage), 60_000)
   const staleBackups = () => [...storage.data.entries()].filter(([key, value]) =>
-    key.startsWith(`${practiceCacheKeyV4('student', initial.id)}:recovery:`) && value.includes(STALE_V4_DRAFT_REASON))
+    key.startsWith(`${practiceCacheKeyV5('student', initial.id)}:recovery:`) && value.includes(STALE_V5_DRAFT_REASON))
   return { server, initial, storage, store, staleBackups, row: () => server.rows.get(initial.id)! }
 }
 
@@ -67,7 +67,7 @@ describe('answer updates have a synchronous outcome', () => {
 
 describe('an older save of this store never rolls newer local work back', () => {
   it('adopts its own save when the server applied it but the response was lost, then saves and submits the newer drawing', async () => {
-    const { store, server, initial, staleBackups, row } = await environment()
+    const { store, server, initial, storage, staleBackups, row } = await environment()
     const save = server.repo.saveDraft
     let lose = true
     server.repo.saveDraft = async (...args) => {
@@ -81,12 +81,13 @@ describe('an older save of this store never rolls newer local work back', () => 
     expect(handStrokes(row().record.attempt)).toHaveLength(2)
     store.answer('q_hand', hand(strokes(3)))
     expect(await store.submit()).toBe(initial.id)
-    expect(server.v4Saves.map((item) => handStrokes(item.attempt).length)).toEqual([2, 3])
+    expect(server.v5Saves.map((item) => handStrokes(item.attempt).length)).toEqual([2, 3])
     expect(server.submits).toHaveLength(1)
     expect(server.submits[0].expectedUpdatedAt).not.toBe(initial.version.updatedAt)
     expect(handStrokes(row().record.attempt)).toHaveLength(3)
     expect(store.getSnapshot().notice).toBeNull()
     expect(staleBackups()).toHaveLength(0)
+    expect(storage.getItem(practiceCacheKeyV5('student', initial.id))).toBeNull()
     store.stop()
   })
 
@@ -134,9 +135,9 @@ describe('an older save of this store never rolls newer local work back', () => 
       answers: { q_hand: hand(strokes(1), 'other device') } } as typeof initial.attempt
     server.serverEdit(initial.id, other!)
     store.answer('q_hand', hand(strokes(3)))
-    const savesBefore = server.v4Saves.length
+    const savesBefore = server.v5Saves.length
     await store.retry()
-    expect(server.v4Saves).toHaveLength(savesBefore)
+    expect(server.v5Saves).toHaveLength(savesBefore)
     expect(row().record.attempt!.answers.q_hand).toEqual(hand(strokes(1), 'other device'))
     expect(store.getSnapshot().attempt.answers.q_hand).toEqual(hand(strokes(1), 'other device'))
     expect(store.getSnapshot().notice).toBe(STALE_DRAFT_NOTICE)

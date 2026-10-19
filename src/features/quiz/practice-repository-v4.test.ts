@@ -6,7 +6,7 @@ import type { AppSupabase } from '../../lib/supabase'
 import type { QuizDraftV4 } from '../../models/draft-v4'
 import { mapAnalyticsRecord, mapPracticeRecord, SupabasePracticeRepository, type PracticeRecord } from './practice-repository'
 import type { JudgmentRow, RubricJudgmentRow } from './repositories'
-import { INACTIVE_TEXT, pen, submittedV4Rows, v3Quiz, v4Catalog, v4Quiz } from './practice-v4.test-helper'
+import { INACTIVE_TEXT, pen, submittedV4Rows, submittedV5Rows, v3Quiz, v4Catalog, v4Quiz } from './practice-v4.test-helper'
 
 const userId = 'student'
 const attemptId = '00000000-0000-4000-8000-0000000000c1'
@@ -149,12 +149,11 @@ describe('M5 submitted v4 reconstruction from persisted evidence', () => {
     ['aggregate mismatch', () => { const f = submittedV4Rows(); f.row.deterministic_score = 99; return f }],
     ['schema 2 with ai-grading-v3', () => submittedV4Rows(userId, undefined, { gradingVersion: 'ai-grading-v3' })],
     ['schema 1 with ai-grading-v4', () => submittedV4Rows(userId, undefined, { schema: 1 })],
-    ['unknown grading version', () => submittedV4Rows(userId, undefined, { gradingVersion: 'ai-grading-v5' })],
+    ['unknown grading version', () => submittedV4Rows(userId, undefined, { gradingVersion: 'ai-grading-v6' })],
     ['unknown schema marker', () => submittedV4Rows(userId, undefined, { schema: 3 })],
   ])('treats %s as unavailable without inventing a result', (_label, build) => {
     const fixture = build()
-    if (fixture.row.answer_schema_version === 3) expect(() => map(fixture)).toThrow()
-    else expect(map(fixture).attempt).toBeNull()
+    expect(map(fixture).attempt).toBeNull()
   })
 
   it('maps analytics with the full v4 answers and a legacy-safe objective projection', () => {
@@ -169,7 +168,7 @@ describe('M5 submitted v4 reconstruction from persisted evidence', () => {
 
   it('loads fill and rubric evidence for ai-grading-v4 and none for an unknown version', async () => {
     const fixture = submittedV4Rows()
-    const unknown = submittedV4Rows(userId, '00000000-0000-4000-8000-0000000000d4', { gradingVersion: 'ai-grading-v5' })
+    const unknown = submittedV4Rows(userId, '00000000-0000-4000-8000-0000000000d4', { gradingVersion: 'ai-grading-v6' })
     const tables: Record<string, unknown[]> = { fill_judgments: fixture.fill, rubric_judgments: fixture.rubric }
     const queried: string[][] = []
     const builder = (table: string) => {
@@ -183,5 +182,41 @@ describe('M5 submitted v4 reconstruction from persisted evidence', () => {
     expect(queried).toEqual([['fill_judgments', fixture.row.id], ['rubric_judgments', fixture.row.id]])
     expect(page.records[0].attempt?.status).toBe('submitted')
     expect(page.records[1].attempt).toBeNull()
+  })
+})
+
+describe('M6 submitted v5 reconstruction from persisted evidence', () => {
+  const map = (fixture = submittedV5Rows()) => mapPracticeRecord(fixture.row as never, userId, v4Catalog,
+    fixture.fill as unknown as JudgmentRow[], fixture.rubric as unknown as RubricJudgmentRow[])
+
+  it('recomposes an immutable schema-3 result and retains every page boundary in history', () => {
+    const loaded = map()
+    expect(loaded.schemaVersion).toBe(3)
+    expect(loaded.attempt).toMatchObject({ schemaVersion: 3, status: 'submitted', result: { maxScore: 12 } })
+    if (loaded.attempt?.status !== 'submitted' || loaded.attempt.schemaVersion !== 3) throw new Error('expected submitted v5')
+    expect(loaded.attempt.answers.q_hand).toEqual({ type: 'calculation', mode: 'drawing', text: INACTIVE_TEXT,
+      pages: [[pen(150)], [], [pen(250)]] })
+    expect(loaded.attempt.result.questions.find((grade) => grade.questionId === 'q_hand'))
+      .toMatchObject({ type: 'calculation', source: 'ai', status: 'partial', score: 0.3 })
+  })
+
+  it.each([
+    ['schema 3 with v4 provenance', (f: ReturnType<typeof submittedV5Rows>) => { f.row.grading_version = 'ai-grading-v4' }],
+    ['v4 judgments on v5 attempt', (f: ReturnType<typeof submittedV5Rows>) => { f.rubric[0].judge_version = 'ai-grading-v4' }],
+    ['aggregate mismatch', (f: ReturnType<typeof submittedV5Rows>) => { f.row.deterministic_score = 99 }],
+  ])('rejects %s without inventing a result', (_label, mutate) => {
+    const fixture = submittedV5Rows()
+    mutate(fixture)
+    expect(map(fixture).attempt).toBeNull()
+  })
+
+  it('maps analytics with the full ordered schema-3 answer and objective-only projection', () => {
+    const fixture = submittedV5Rows()
+    const analytics = mapAnalyticsRecord(fixture.row as never, fixture.row.answers as never, userId, v4Catalog,
+      fixture.fill as unknown as JudgmentRow[], fixture.rubric as unknown as RubricJudgmentRow[])
+    expect(analytics.gradingVersion).toBe('ai-grading-v5')
+    expect(analytics.answersV5?.q_hand).toMatchObject({ mode: 'drawing', pages: [[pen(150)], [], [pen(250)]] })
+    expect(Object.keys(analytics.answers ?? {}).sort()).toEqual(['q_draw', 'q_fill', 'q_single'])
+    expect(analytics.rubricJudgments).toHaveLength(3)
   })
 })

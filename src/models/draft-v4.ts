@@ -1,4 +1,6 @@
 import type { CalculationAnswerV4, GradeResult, QuestionAnswer, QuizAttempt } from './attempt.ts'
+import type { CalculationAnswerV5 } from './attempt.ts'
+import type { QuizAttemptV5 } from './draft-v5.ts'
 
 export type DraftQuestionAnswerV4 = Exclude<QuestionAnswer, { type: 'calculation' }> | CalculationAnswerV4
 export type DraftAnswerMapV4 = Record<string, DraftQuestionAnswerV4>
@@ -32,7 +34,9 @@ export interface SubmittedQuizAttemptV4 {
 
 export type QuizAttemptV4 = QuizDraftV4 | SubmittedQuizAttemptV4
 /** Client-facing union; schema 1 remains the explicit historical QuizAttempt. */
-export type PracticeAttempt = QuizAttempt | QuizAttemptV4
+export type PracticeAttempt = QuizAttempt | QuizAttemptV4 | QuizAttemptV5
 export type PracticeAnswer = QuestionAnswer | CalculationAnswerV4
 export type PracticeAnswerMap = Record<string, PracticeAnswer>
-export type DraftSchemaVersion = 1 | 2
+export type PracticeAnswerV5 = PracticeAnswer | CalculationAnswerV5
+export type PracticeAnswerMapV5 = Record<string, PracticeAnswerV5>
+export type DraftSchemaVersion = 1 | 2 | 3

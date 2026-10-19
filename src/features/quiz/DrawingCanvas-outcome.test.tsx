@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
 import type { DrawingStroke } from '../../models/drawing'
-import type { PracticeAnswerMap } from '../../models/draft-v4'
+import type { PracticeAnswerMapV5 } from '../../models/draft-v4'
 import { AuthorPreview } from '../author/AuthorPreview'
 import type { AnswerOutcome } from './attempt-context'
 import { DRAWING_LIMIT_NOTICES, DrawingCanvas, type DrawingCanvasHandle } from './DrawingCanvas'
@@ -136,15 +136,15 @@ describe('DrawingCanvas keeps only accepted ink', () => {
 
 describe('Author Preview owner', () => {
   it('reports accepted for every answer, so preview ink accumulates and is never refused', () => {
-    const answers: PracticeAnswerMap[] = []
+    const answers: PracticeAnswerMapV5[] = []
     function Preview() {
-      const [state, setState] = useState<PracticeAnswerMap>({})
+      const [state, setState] = useState<PracticeAnswerMapV5>({})
       return <AuthorPreview quiz={v4Quiz} mode="student" answers={state}
         onAnswer={(id, answer) => { const next = { ...state, [id]: answer }; answers.push(next); setState(next) }} />
     }
     render(<Preview />)
     fireEvent.click(screen.getByRole('radio', { name: '手寫' }))
-    const hand = document.querySelector('canvas[aria-describedby="answer-q_hand-drawing-instructions"]')!
+    const hand = screen.getByRole('img', { name: '第 1 頁手寫作答區' })
     const fire = (type: string, x: number, y: number) => {
       const event = new MouseEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0 })
       Object.defineProperties(event, { pointerId: { value: 4 }, isPrimary: { value: true } })
@@ -152,7 +152,7 @@ describe('Author Preview owner', () => {
     }
     for (const y of [100, 200, 300]) { fire('pointerdown', 10, y); fire('pointerup', 400, y) }
     const answer = answers.at(-1)!.q_hand
-    expect(answer.type === 'calculation' && answer.mode === 'drawing' ? answer.strokes : []).toHaveLength(3)
+    expect(answer.type === 'calculation' && answer.mode === 'drawing' && 'pages' in answer ? answer.pages[0] : []).toHaveLength(3)
     expect(screen.queryByRole('alert')).toBeNull()
   })
 })

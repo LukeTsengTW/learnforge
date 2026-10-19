@@ -10,7 +10,7 @@ import { PracticeContext } from './features/quiz/practice-context'
 import { createV4MemoryRepository } from './features/quiz/practice-v4.test-helper'
 import { quizCatalog } from './features/quiz/quiz-loader'
 
-// Real bundled catalog and routes (no catalog mock): the shipped, v4-capable discrete-math/2 revision.
+// Real bundled catalog and routes (no catalog mock): the shipped paged-handwriting discrete-math/2 revision.
 type Server = ReturnType<typeof createV4MemoryRepository>
 function TestApp({ server }: { server: Server }) {
   return <AuthContext.Provider value={{ account: { id: 'test', username: 'student' }, loading: false, error: null, service: null, refresh: async () => {} }}>
@@ -26,7 +26,7 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
 
 describe('shipped discrete-math/2 through the real catalog', () => {
-  it('opens the current revision, offers q2 handwriting and saves the first edit as schema 2', async () => {
+  it('opens the current revision, offers q2 handwriting and saves the first edit as schema 3', async () => {
     expect(quizCatalog.getCurrentQuiz('discrete-math')?.revision).toBe('2')
     const server = createV4MemoryRepository('test'), user = userEvent.setup()
     render(<TestApp server={server} />)
@@ -37,17 +37,17 @@ describe('shipped discrete-math/2 through the real catalog', () => {
 
     const [row] = [...server.rows.values()]
     expect(row.record.row).toMatchObject({ quiz_id: 'discrete-math', quiz_revision: '2', status: 'draft' })
-    // The five calculation questions declare handwriting; the server draft is still marker 1 until the first save.
+    // The five calculation questions declare handwriting; the server draft stays marker 1 until its first save.
     const [mode] = screen.getAllByRole('group', { name: '本題作答方式' })
     expect(within(mode).getByRole('radio', { name: '打字' })).toBeChecked()
     expect(within(mode).getByRole('radio', { name: '手寫' })).not.toBeChecked()
     expect(row.schemaVersion).toBe(1)
 
     await user.type(screen.getAllByRole('textbox', { name: '你的推導過程' })[0], 'x = 3')
-    await waitFor(() => expect(server.v4Saves.at(-1)?.attempt.answers.q2)
-      .toEqual({ type: 'calculation', mode: 'text', text: 'x = 3', strokes: [] }), { timeout: 5000 })
+    await waitFor(() => expect(server.v5Saves.at(-1)?.attempt.answers.q2)
+      .toEqual({ type: 'calculation', mode: 'text', text: 'x = 3', pages: [[]] }), { timeout: 5000 })
     expect(server.v3Saves).toEqual([])
-    expect(server.v4Saves.at(-1)?.attempt.schemaVersion).toBe(2)
-    expect(server.rows.get(row.record.id)?.schemaVersion).toBe(2)
+    expect(server.v5Saves.at(-1)?.attempt.schemaVersion).toBe(3)
+    expect(server.rows.get(row.record.id)?.schemaVersion).toBe(3)
   })
 })

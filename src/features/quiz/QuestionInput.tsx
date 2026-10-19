@@ -2,12 +2,15 @@ import { useEffect, useRef } from 'react'
 import { Markdown } from '../../components/Markdown'
 import { QUESTION_TYPE, type CalculationQuestion, type Question } from '../../models/quiz'
 import type { CalculationAnswerV4 } from '../../models/attempt'
-import type { DraftSchemaVersion, PracticeAnswer } from '../../models/draft-v4'
+import type { CalculationAnswerV5 } from '../../models/attempt'
+import type { DraftSchemaVersion, PracticeAnswerV5 } from '../../models/draft-v4'
 import type { DrawingStroke } from '../../models/drawing'
 import { emptyCalculationAnswerV4 } from '../../lib/draft-v4'
+import { emptyCalculationAnswerV5 } from '../../lib/draft-v5'
 import { isV4BlankText } from '../../lib/v4-blank'
 import { GRADING_ANSWER_MAX_BYTES } from '../../../supabase/functions/_shared/calculation-grading.ts'
 import { CalculationAnswerEditor, type CalculationAnswerEditorHandle } from './CalculationAnswerEditor'
+import { PagedCalculationAnswerEditor, type PagedCalculationAnswerEditorHandle } from './PagedCalculationAnswerEditor'
 import { DrawingCanvas } from './DrawingCanvas'
 import type { AnswerOutcome, PendingInputFlush } from './attempt-context'
 
@@ -17,15 +20,15 @@ export const FORMAL_TEXT_LIMIT_NOTICE = '目前打字作答超過正式評分的
 const EMPTY_STROKES: DrawingStroke[] = []
 
 /** Full v4 value for the editor; a legacy-shaped value is shown as text without changing storage. */
-function calculationValueV4(answer: PracticeAnswer | undefined): CalculationAnswerV4 {
+function calculationValueV4(answer: PracticeAnswerV5 | undefined): CalculationAnswerV4 {
   if (answer?.type !== 'calculation') return emptyCalculationAnswerV4()
-  if (answer.mode === 'text' || answer.mode === 'drawing') return answer
+  if ('strokes' in answer && (answer.mode === 'text' || answer.mode === 'drawing')) return answer
   return { ...emptyCalculationAnswerV4(), text: answer.text }
 }
 
 function CalculationV4Input({ id, question, answer, onChange, registerPendingFlush }: {
-  id: string; question: CalculationQuestion; answer: PracticeAnswer | undefined
-  onChange: (answer: PracticeAnswer) => AnswerOutcome; registerPendingFlush?: (flush: PendingInputFlush) => () => void
+  id: string; question: CalculationQuestion; answer: PracticeAnswerV5 | undefined
+  onChange: (answer: PracticeAnswerV5) => AnswerOutcome; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
   const editor = useRef<CalculationAnswerEditorHandle>(null)
   useEffect(() => registerPendingFlush?.(() => editor.current?.flushPendingInput() ?? 'accepted'), [registerPendingFlush])
@@ -39,8 +42,35 @@ function CalculationV4Input({ id, question, answer, onChange, registerPendingFlu
   </div>
 }
 
+/** Schema-3 adapter. It promotes only an in-memory preview value; persisted drafts use the strict decoder. */
+function calculationValueV5(answer: PracticeAnswerV5 | undefined, question: CalculationQuestion): CalculationAnswerV5 {
+  const empty = emptyCalculationAnswerV5(question.drawing !== undefined)
+  if (answer?.type !== 'calculation') return empty
+  if (question.drawing === undefined) return { ...empty, text: answer.text }
+  if ('pages' in answer) return answer
+  if ('strokes' in answer && (answer.mode === 'text' || answer.mode === 'drawing') && Array.isArray(answer.strokes)) {
+    return { type: 'calculation', mode: answer.mode, text: answer.text, pages: [answer.strokes] }
+  }
+  return { ...empty, text: answer.text }
+}
+
+function CalculationV5Input({ id, question, answer, onChange, registerPendingFlush }: {
+  id: string; question: CalculationQuestion; answer: PracticeAnswerV5 | undefined
+  onChange: (answer: PracticeAnswerV5) => AnswerOutcome; registerPendingFlush?: (flush: PendingInputFlush) => () => void
+}) {
+  const editor = useRef<PagedCalculationAnswerEditorHandle>(null)
+  useEffect(() => registerPendingFlush?.(() => editor.current?.flushPendingInput() ?? 'accepted'), [registerPendingFlush])
+  const value = calculationValueV5(answer, question)
+  const overLimit = value.mode === 'text' && !isV4BlankText(value.text)
+    && new TextEncoder().encode(value.text).length > GRADING_ANSWER_MAX_BYTES
+  return <div><p className="field-note">{V3_RUBRIC_NOTICE}</p>
+    <PagedCalculationAnswerEditor ref={editor} id={id} question={question} value={value} onChange={onChange} />
+    {overLimit && <p className="field-note notice warning" role="status">{FORMAL_TEXT_LIMIT_NOTICE}</p>}
+  </div>
+}
+
 export function QuestionInput({ question, answer, onChange, draftSchema = 1, registerPendingFlush }: {
-  question: Question; answer: PracticeAnswer | undefined; onChange: (answer: PracticeAnswer) => AnswerOutcome
+  question: Question; answer: PracticeAnswerV5 | undefined; onChange: (answer: PracticeAnswerV5) => AnswerOutcome
   draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
   const id = `answer-${question.id}`
@@ -83,6 +113,8 @@ export function QuestionInput({ question, answer, onChange, draftSchema = 1, reg
         <p className="field-note" id={`${id}-match`}>先依{question.match === 'exact' ? '精確' : '不區分大小寫'}規則比對；未符合時會由 AI 判斷語意，影響正式分數。</p>
       </div>
     case QUESTION_TYPE.calculation:
+      if (draftSchema === 3) return <CalculationV5Input id={id} question={question} answer={answer} onChange={onChange}
+        registerPendingFlush={registerPendingFlush} />
       if (draftSchema === 2) return <CalculationV4Input id={id} question={question} answer={answer} onChange={onChange}
         registerPendingFlush={registerPendingFlush} />
       return <div className="text-answer"><p className="field-note">{V3_RUBRIC_NOTICE}</p>
