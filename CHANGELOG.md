@@ -1,12 +1,12 @@
 # Changelog
 
-## 1.20.0 — Multi-page handwriting (local implementation candidate; release gates pending)
+## 1.20.0 — Multi-page handwriting (production runtime candidate acceptance snapshot)
 
 - Add ordered pages to calculation handwriting, with isolated undo/redo per page, page navigation, add/delete confirmation, page-local mode and recovery, and multi-page PNG export.
 - Introduce draft schema 3 while retaining schema 1/2 read, recovery, migration, and submitted-history behavior.
 - Add versioned V5 validation, rasterization, grading, idempotent submission, rubric claims/finalization, and analytics paths for ordered page images.
 - Additive Supabase migrations and local security regressions cover page shape, dimensions, aggregate limits, and schema compatibility. No quiz-bank source content changed.
-- This entry records the local candidate only. Production migration, Edge deployment, provider canary, Pages, CI, public smoke, tag, and GitHub Release are not yet claimed; see [v1.20.0 delivery](docs/v1.20.0-delivery.md).
+- Runtime candidate `fed21f4a06038c39d128fd628a450b922290cace` passed exact-SHA CI [39244024391](https://github.com/LukeTsengTW/learnforge/actions/runs/39244024391), exact-candidate Pages [39248662680](https://github.com/LukeTsengTW/learnforge/actions/runs/39248662680), canonical public smoke, and one bounded synthetic handwriting canary (two pages, question 1 scored 14/14; five questions left unanswered). Production migrations and the two impacted Edge Functions are recorded in [v1.20.0 delivery](docs/v1.20.0-delivery.md). Final closure SHA and published tag/release are linked from the [v1.20.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.20.0).
 
 ## 1.19.0 — 2021／2023／2024 離散數學期中考題庫（production acceptance snapshot before closure）
 

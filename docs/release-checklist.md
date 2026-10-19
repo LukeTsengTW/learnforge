@@ -1,6 +1,24 @@
 # Release checklist
 
-## v1.20.0 Multi-page handwriting — local implementation checkpoint
+## v1.20.0 Multi-page handwriting — production acceptance snapshot before closure
+
+This dated snapshot records production acceptance for runtime candidate `fed21f4a06038c39d128fd628a450b922290cace` (2026-10-19, Asia/Taipei), before the docs-only closure commit. The candidate is on `master` and passed exact-SHA CI, the Pages workflow, canonical public smoke, and one bounded synthetic handwriting canary. The closure SHA, final manifest, annotated tag, and published GitHub Release are linked from the [v1.20.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.20.0) and [live release manifest](https://luketsengtw.github.io/learnforge/release.json).
+
+- [x] Core implementation: ordered calculation handwriting pages, per-page undo/redo, page navigation/add/delete, recovery and PNG export, schema-3 draft contract, and V5 server-side submission/grading/history/analytics path.
+- [x] Independent Stage 1 integration, Stage 3 UI, and Stage 4 backend reviews: PASS, zero blockers/should-fix/nits. Stage 0 source review: N/A because no quiz-bank content changed. Stage 2 documentation and Stage 5 candidate review follow-ups: PASS.
+- [x] Local gates: 123 files / 1,883 tests; TypeScript, lint, quiz/context checks, Edge import check, production and Pages-base builds, production dependency audit, SQL regression suite, and diff check passed. Existing DrawingCanvas lint warnings and the large-chunk advisory remain.
+- [x] `release:classify` / `release:check` / exact-SHA preflight on the runtime candidate passed; classifier: `security-ai`, Risk C, `providerCanaryRequired=true`.
+- [x] Exact-candidate CI [39244024391](https://github.com/LukeTsengTW/learnforge/actions/runs/39244024391): `master`, push, SHA `fed21f4a06038c39d128fd628a450b922290cace`, completed-success.
+- [x] Production migration history lists both additive migrations locally and remotely: `20261019000000_paged_handwriting_schema3.sql` and `20261019010000_paged_handwriting_submission_v5.sql`.
+- [x] Only the two import-graph-impacted Edge Functions were deployed. `save-quiz-draft`: ACTIVE v16, `verify_jwt=true`, digest `4a94e933df0a2433e9bbdf866c345523654b0fb111398c591013e855bea719c6`. `submit-quiz`: ACTIVE v18, `verify_jwt=false`, digest `28c644dd9ebc4caa0a85b4b9d30ca7e1c6c36b7d014f98fa1c4ecbbd2e3a99cb`.
+- [x] Exact-candidate Pages deployment [39248662680](https://github.com/LukeTsengTW/learnforge/actions/runs/39248662680) completed-success for the same SHA and `/learnforge/` base path.
+- [x] Canonical public smoke passed: production root and manifest HTTP 200; manifest identity `learnforge` / `1.20.0` / candidate SHA; 5 static assets checked.
+- [x] Production browser canary used a confirmed synthetic account and synthetic answers only. One calculation question was handwritten across two pages, submitted once, and scored 14/14 with high confidence; the other five questions remained unanswered. The result page displayed both handwritten answer pages and the rubric breakdown. No real learner data was used.
+- [ ] Docs-only closure commit / push; exact closure-SHA CI and Pages deployment; final public smoke and manifest parity; annotated `v1.20.0` tag; GitHub Release; and final release-closure review.
+
+## Historical v1.20.0 local implementation checkpoint (superseded above)
+
+The following checklist is a historical record from before production acceptance. Its pending release-gate items are superseded by the dated snapshot above and do not describe current status.
 
 This checkpoint is dated 2026-10-19 (Asia/Taipei). It is not production acceptance. The local `master` and candidate branch `codex/v1.20.0-paged-handwriting` are at `aef16cdff880714b153dbc8237f2169234ea906d`; `origin/master` remains at base `2faf57ac9a089f1af79fd6c160eeb0dd58a0d661`. The implementation commit is `7ec6f5c5bf2fb56dc7ca821b586b64ec099735b`, followed by the whitespace-only migration fix. These commits are local and have not been pushed. The package and lockfile are set to `1.20.0`. The exact-SHA preflight on `aef16cd` passed and confirmed the local and remote `v1.20.0` tag absent. This documentation update creates a new candidate SHA, so candidate checks must be repeated before pushing.
 
