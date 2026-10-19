@@ -1,5 +1,17 @@
 # Release checklist
 
+## v1.20.1 — production version label correction
+
+This patch corrects the site header, which still displayed `v1.19.0` in the v1.20.0 production bundle. The live v1.20.0 manifest identified version `1.20.0` and closure SHA `d670b45c18976f051939b9dcba1fa7a2134d982d`; inspection found the entry bundle still contained the hard-coded label. The v1.20.0 tag and GitHub Release remain immutable.
+
+- [x] Source fix: inject `package.json` version into the Vite build and use it in the header.
+- [x] Patch version set to `1.20.1`; no quiz, database, Supabase Edge Function, or runtime API changes.
+- [ ] Final patch review; release classification, local release checks, and exact-SHA preflight.
+- [ ] Push candidate to `master`; exact-SHA CI passes.
+- [ ] Deploy exact candidate SHA to Pages; verify manifest identity and canonical public smoke.
+- [ ] Record deployment evidence in the v1.20.1 delivery note; push docs closure and verify its exact-SHA CI and Pages deployment.
+- [ ] Final public smoke and manifest parity; create immutable annotated `v1.20.1` tag and GitHub Release; verify tag points to the deployed closure SHA.
+
 ## v1.20.0 Multi-page handwriting — production acceptance snapshot before closure
 
 This dated snapshot records production acceptance for runtime candidate `fed21f4a06038c39d128fd628a450b922290cace` (2026-10-19, Asia/Taipei), before the docs-only closure commit. The candidate is on `master` and passed exact-SHA CI, the Pages workflow, canonical public smoke, and one bounded synthetic handwriting canary. The closure SHA, final manifest, annotated tag, and published GitHub Release are linked from the [v1.20.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.20.0) and [live release manifest](https://luketsengtw.github.io/learnforge/release.json).

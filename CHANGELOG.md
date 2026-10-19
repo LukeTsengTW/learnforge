@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.20.1 — derive the displayed version from the release
+
+- Fix the site header version label to use the version from `package.json` at build time. The v1.20.0 bundle had retained a hard-coded `v1.19.0` label even though its release manifest reported `1.20.0`.
+- No quiz content, database schema, Edge Function, or runtime API behavior changed.
+
 ## 1.20.0 — Multi-page handwriting (production runtime candidate acceptance snapshot)
 
 - Add ordered pages to calculation handwriting, with isolated undo/redo per page, page navigation, add/delete confirmation, page-local mode and recovery, and multi-page PNG export.
