@@ -1,20 +1,21 @@
 # Release checklist
 
-## v1.21.0 — economics release preparation
+## v1.21.0 — production acceptance snapshot before closure
 
-This 2026-10-20 (Asia/Taipei) checkpoint records completed local work before the candidate commit. It does not claim production acceptance; later candidate/closure evidence will supersede this status. See [delivery](v1.21.0-delivery.md) for all 41 derivations and source discrepancies.
+This dated snapshot records 2026-10-20 (Asia/Taipei) acceptance of runtime candidate `da013a05e26febe92b956c09161c675b3dc5cb3e`, before the docs-only closure commit. It ends at Stage 7. Final closure SHA, exact closure CI/Pages/smoke, annotated tag and formal publication are recorded by the [v1.21.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.21.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.21.0-delivery.md) for all 41 derivations, source discrepancies and precise proof boundaries.
 
 - [x] Quiz metadata: `economics-ch1-4-exercises/1`, 經濟學, 41 single-choice questions / 41 points / 90 minutes; chapter counts 8 / 10 / 13 / 10.
-- [x] Fresh independent Stage 1 baseline, Stage 2 content, Stage 3 integration and Stage 4 local-browser reviews PASS. The milk-question visible-letter issue was corrected and re-reviewed: current options A/B/C, correct B, explicit original-letter mapping.
+- [x] Fresh independent Stage 1–7 reviews PASS, including content/integration/browser follow-ups. The milk-question visible-letter issue was corrected and re-reviewed: current options A/B/C, correct B, explicit original-letter mapping.
 - [x] Source inventory: 11 current quizzes / 13 revisions / 211 questions and contexts. Original 170 contexts have unchanged serialized hash `ef83b87e46c1b453466529a96a0c8ecc292c74899d8abffdee2caa00d69cd317`; other 12 quiz revision files unchanged.
-- [x] Pre-version local release gates: 124 files / 1,889 tests, lint, quiz/context/Edge import validation, Pages-base build, manifest, audit (0 vulnerabilities), diff check. Existing three DrawingCanvas lint warnings and build chunk advisory remain.
+- [x] Version-prep and exact-candidate source-bound local release gates: 124 files / 1,889 tests, lint, quiz/context/Edge import validation, Pages-base build, manifest, audit (0 vulnerabilities), diff check. Existing three DrawingCanvas lint warnings and build chunk advisory remain. One local App timeout was isolated (12/12 focused), followed by a full default-suite PASS without source/assertion/timeout changes; candidate CI passed on its first attempt.
 - [x] Real local browser flows: Library subject filter, all 41 inputs, progress/navigation, deterministic 39/41 for two intentional source-key mistakes, all solutions, fresh reload; widths 1440/768/360/345. No production writes/provider calls; AdGuard injection failures recorded as environment noise.
 - [x] Feature version `1.21.0` in package and both lockfile roots; no dependency change. README/CHANGELOG/delivery prepared; `.env.local` and local-only artifacts excluded from Git.
-- [x] Classifier: `security-ai`, Risk C, `providerCanaryRequired=false`. No migration. Import graph requires only `ai-tutor`, `ai-grade`, `ai-drawing`, `ai-responses`, `save-quiz-draft`, `submit-quiz`; preserve existing JWT settings (only `save-quiz-draft=true`). Deploy these before Pages; verify all six +1 and other five unchanged.
-- [ ] Refresh source-bound release checks after final version/docs edits; fresh Stage 5 release-prep review.
-- [ ] Candidate commit/push, clean exact-SHA preflight and CI, six Edge deployments with metadata readback, exact-SHA Pages; fresh Stage 6 identity review.
-- [ ] Candidate manifest/public smoke and production read-only browser acceptance, responsive views and fresh reload; fresh Stage 7 review. Any authenticated flow requires human login; no credential extraction or unguarded production submission.
-- [ ] Docs-only closure, exact closure-SHA CI/Pages/smoke, annotated immutable tag, formal GitHub Release and final Stage 8 review.
+- [x] Classifier: `security-ai`, Risk C, `providerCanaryRequired=false`; no migration. Only six import-graph consumers deployed, ACTIVE and +1: `ai-tutor` 28, `ai-grade` 30, `ai-drawing` 30, `ai-responses` 32, `save-quiz-draft` 17, `submit-quiz` 19. JWT preserved (only draft=true); other five full metadata unchanged. CI completed before Edge updates, all before Pages dispatch.
+- [x] Clean candidate commit/push and exact-SHA preflight; first-attempt CI [39414271143](https://github.com/LukeTsengTW/learnforge/actions/runs/39414271143) and Pages [39415090253](https://github.com/LukeTsengTW/learnforge/actions/runs/39415090253) succeeded. Source-bound report fingerprint `9ead0d76fc3d6029249df0b67939a92c0aa899d4621ca87034c1882bbd902250` matched the candidate.
+- [x] Canonical public smoke: root and manifest HTTP 200, exact `learnforge / 1.21.0 / candidate SHA`, five assets checked; Stage 6 reviewer independently repeated it and live Edge metadata verification.
+- [x] Production public read-only browser: visible version/Library filter, 41 navigation buttons, 41 actual radio choices, 39 correct / 2 intentional source-key errors / 0 unanswered, 41 nonempty solutions; 1440/768/360/345 and fresh reload. Console/page/HTTP/failed/blocked/non-GET events all zero. No login or production draft/submission/provider call; no valid-JWT runtime claim. Stage 7 reviewer checked all eight screenshots and exact raw Results/JSON.
+
+Snapshot boundary: the checklist above records completed candidate acceptance. The final Release and manifest links carry the subsequent docs-only closure identity and final review rather than embedding a self-referential commit SHA in this source file.
 
 ## v1.20.1 — production version label correction
 
