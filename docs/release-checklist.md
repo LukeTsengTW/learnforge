@@ -1,5 +1,21 @@
 # Release checklist
 
+## v1.21.0 — economics release preparation
+
+This 2026-10-20 (Asia/Taipei) checkpoint records completed local work before the candidate commit. It does not claim production acceptance; later candidate/closure evidence will supersede this status. See [delivery](v1.21.0-delivery.md) for all 41 derivations and source discrepancies.
+
+- [x] Quiz metadata: `economics-ch1-4-exercises/1`, 經濟學, 41 single-choice questions / 41 points / 90 minutes; chapter counts 8 / 10 / 13 / 10.
+- [x] Fresh independent Stage 1 baseline, Stage 2 content, Stage 3 integration and Stage 4 local-browser reviews PASS. The milk-question visible-letter issue was corrected and re-reviewed: current options A/B/C, correct B, explicit original-letter mapping.
+- [x] Source inventory: 11 current quizzes / 13 revisions / 211 questions and contexts. Original 170 contexts have unchanged serialized hash `ef83b87e46c1b453466529a96a0c8ecc292c74899d8abffdee2caa00d69cd317`; other 12 quiz revision files unchanged.
+- [x] Pre-version local release gates: 124 files / 1,889 tests, lint, quiz/context/Edge import validation, Pages-base build, manifest, audit (0 vulnerabilities), diff check. Existing three DrawingCanvas lint warnings and build chunk advisory remain.
+- [x] Real local browser flows: Library subject filter, all 41 inputs, progress/navigation, deterministic 39/41 for two intentional source-key mistakes, all solutions, fresh reload; widths 1440/768/360/345. No production writes/provider calls; AdGuard injection failures recorded as environment noise.
+- [x] Feature version `1.21.0` in package and both lockfile roots; no dependency change. README/CHANGELOG/delivery prepared; `.env.local` and local-only artifacts excluded from Git.
+- [x] Classifier: `security-ai`, Risk C, `providerCanaryRequired=false`. No migration. Import graph requires only `ai-tutor`, `ai-grade`, `ai-drawing`, `ai-responses`, `save-quiz-draft`, `submit-quiz`; preserve existing JWT settings (only `save-quiz-draft=true`). Deploy these before Pages; verify all six +1 and other five unchanged.
+- [ ] Refresh source-bound release checks after final version/docs edits; fresh Stage 5 release-prep review.
+- [ ] Candidate commit/push, clean exact-SHA preflight and CI, six Edge deployments with metadata readback, exact-SHA Pages; fresh Stage 6 identity review.
+- [ ] Candidate manifest/public smoke and production read-only browser acceptance, responsive views and fresh reload; fresh Stage 7 review. Any authenticated flow requires human login; no credential extraction or unguarded production submission.
+- [ ] Docs-only closure, exact closure-SHA CI/Pages/smoke, annotated immutable tag, formal GitHub Release and final Stage 8 review.
+
 ## v1.20.1 — production version label correction
 
 This is the production-acceptance snapshot for runtime candidate `423eeb7b5b3a2b643f7df39162281cf202088d73`, before the docs-only closure commit. It corrects the site header, which still displayed `v1.19.0` in the v1.20.0 production bundle. The live v1.20.0 manifest identified version `1.20.0` and closure SHA `d670b45c18976f051939b9dcba1fa7a2134d982d`; inspection found the entry bundle still contained the hard-coded label. The v1.20.0 tag and GitHub Release remain immutable.

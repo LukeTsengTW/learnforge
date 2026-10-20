@@ -126,8 +126,9 @@ describe.each(midterms)('$year Discrete Mathematics midterm', (spec) => {
 
 describe('Discrete Mathematics midterm context integration', () => {
   it('adds 25 canonical contexts while preserving all 145 previously shipped contexts byte-for-byte', () => {
-    const existing = AI_QUIZ_CONTEXT.filter((context) => !midtermIds.has(context.quizId))
-    expect(AI_QUIZ_CONTEXT).toHaveLength(170)
+    const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== 'economics-ch1-4-exercises'
+      && !midtermIds.has(context.quizId))
+    expect(AI_QUIZ_CONTEXT).toHaveLength(211)
     expect(existing).toHaveLength(145)
     expect(sha(existing)).toBe('8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368')
     for (const spec of midterms) {

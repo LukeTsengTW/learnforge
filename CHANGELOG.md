@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.21.0 — Economics chapters 1–4
+
+- Add `economics-ch1-4-exercises`, revision 1: 經濟學第 1～4 章習題, 41 single-choice questions / 41 points / 90 minutes, in chapter order 8 / 10 / 13 / 10.
+- Review all 41 questions against the ten supplied source images. Correct printed ch3-q1 to A and ch4-q5 to D; disclose duplicate removal and original-to-current lettering for ch2-q1 (current B), editorial assumptions, and finite-change elasticity/shutdown clarifications in the questions and solutions. See the complete per-question audit in [delivery](docs/v1.21.0-delivery.md).
+- Generate 41 canonical AI contexts (211 total); retain the original 170 serialized entries and all unrelated quiz revisions unchanged. Update catalog/filter regression contracts without reducing historical fingerprint coverage. No schema, provider, model or grading-logic change.
+- Local verification: 124 test files / 1,889 tests; all ten release gates; real Library/Author and memory-repository practice/result flows at 1440 / 768 / 360 / 345 px. Deployment and production evidence will be recorded separately in the delivery report.
+
 ## 1.20.1 — derive the displayed version from the release
 
 - Fix the site header version label to use the version from `package.json` at build time. The v1.20.0 bundle had retained a hard-coded `v1.19.0` label even though its release manifest reported `1.20.0`.

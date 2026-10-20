@@ -9512,5 +9512,1276 @@ export const AI_QUIZ_CONTEXT = [
         "description": "正確使用容斥符號並算出 $1330-1144+60=246$，所有條件均被計入。"
       }
     ]
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q1",
+    "questionIndex": 0,
+    "type": "single",
+    "prompt": "### 第 1 章 第 1 題\n小華休閒 1 小時的機會成本是 200 元，因此小華的時薪為何？",
+    "hint": null,
+    "solution": "休閒 1 小時的機會成本是放棄工作 1 小時可取得的工資。既然機會成本為 200 元，小華的時薪就是 200 元，因此選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "250 元"
+      },
+      {
+        "id": "b",
+        "content": "200 元"
+      },
+      {
+        "id": "c",
+        "content": "150 元"
+      },
+      {
+        "id": "d",
+        "content": "100 元"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q2",
+    "questionIndex": 1,
+    "type": "single",
+    "prompt": "### 第 1 章 第 2 題\n某甲大學畢業除了選擇就讀研究所外，他亦可選擇當證券營業員、銀行行員或公務員。假設當公務員的一年薪水為 60 萬元，銀行行員薪水為 48 萬元，證券營業員薪水為 50 萬元，若其選擇念研究所，則機會成本為何？\n\n**編輯補充：** 本題僅比較就學所放棄的年薪，不計題目未提供的學費等其他成本。",
+    "hint": null,
+    "solution": "機會成本取「被放棄的最佳替代方案」之價值。三個工作中最高年薪為公務員 60 萬元，因此念研究所的機會成本為 60 萬元，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "8 萬元"
+      },
+      {
+        "id": "b",
+        "content": "48 萬元"
+      },
+      {
+        "id": "c",
+        "content": "60 萬元"
+      },
+      {
+        "id": "d",
+        "content": "68 萬元"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q3",
+    "questionIndex": 2,
+    "type": "single",
+    "prompt": "### 第 1 章 第 3 題\n阿呆在速食店工作時薪 100 元，為了與女友共度情人節，阿呆向店長請假 3 小時，花 200 元買了一束玫瑰花，並請女友吃法式西餐用掉 1,000 元，阿呆過情人節的經濟成本是多少？",
+    "hint": null,
+    "solution": "經濟成本包含外顯成本與機會成本。外顯支出為 $200+1000=1200$ 元；請假 3 小時放棄的工資為 $3\\times100=300$ 元。因此總經濟成本為 $1200+300=1500$ 元，選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "1,300 元"
+      },
+      {
+        "id": "b",
+        "content": "1,500 元"
+      },
+      {
+        "id": "c",
+        "content": "1,000 元"
+      },
+      {
+        "id": "d",
+        "content": "300 元"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q4",
+    "questionIndex": 3,
+    "type": "single",
+    "prompt": "### 第 1 章 第 4 題\n日本樂桃航空飛行「臺北－大阪」航線，平均一個位子的成本是 3,000 元。若飛機即將起飛，而有 10 個空位未售出，阿基師願付 2,000 元買候補機位，請問在樂桃航空不會提供任何餐點的情況下，是否該出售空位給阿基師？\n\n**編輯補充：** 假設多載一名乘客的其他邊際成本可忽略，且不會排擠其他乘客的購票機會。",
+    "hint": null,
+    "solution": "飛機即將起飛時，座位與多數固定成本已經發生，決策應比較多載一名乘客的邊際成本與 2,000 元的邊際收益，而不是比較 3,000 元平均成本。題目又說不提供餐點，額外服務成本很低，因此應出售空位，選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "不應該"
+      },
+      {
+        "id": "b",
+        "content": "應該"
+      },
+      {
+        "id": "c",
+        "content": "不知道"
+      },
+      {
+        "id": "d",
+        "content": "無法判斷"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q5",
+    "questionIndex": 4,
+    "type": "single",
+    "prompt": "### 第 1 章 第 5 題\n關於經濟學的敘述，下列何者錯誤？",
+    "hint": null,
+    "solution": "經濟學研究稀少資源下的選擇與配置，效率是重要分析面向；公平與效率都可能被討論，但不能說經濟學只追求公平而「不是」效率。因此錯誤的是 (d)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "經濟學是一門社會科學"
+      },
+      {
+        "id": "b",
+        "content": "經濟學通常是在其他條件不變下進行分析"
+      },
+      {
+        "id": "c",
+        "content": "經濟學是教導如何在資源有限下進行選擇"
+      },
+      {
+        "id": "d",
+        "content": "經濟學追求資源的公平分配，而不是效率分配"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q6",
+    "questionIndex": 5,
+    "type": "single",
+    "prompt": "### 第 1 章 第 6 題\n「天下沒有白吃的午餐」，這句話是指哪一種原理原則？",
+    "hint": null,
+    "solution": "資源具有稀少性，因此取得某項利益通常必須放棄其他可能性；也就是人們面臨取捨（trade-off）。因此選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "商品是稀少的"
+      },
+      {
+        "id": "b",
+        "content": "人們面臨取捨"
+      },
+      {
+        "id": "c",
+        "content": "家計單位面臨許多決策"
+      },
+      {
+        "id": "d",
+        "content": "大家必須賺錢"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q7",
+    "questionIndex": 6,
+    "type": "single",
+    "prompt": "### 第 1 章 第 7 題\n在市場經濟中，下列哪一項政府職能直接建立市場交易所需的財產權制度基礎？",
+    "hint": null,
+    "solution": "市場交易需要可執行的財產權與契約制度，因此選 (d)。編輯修訂：原題只問「需要政府的原因之一」，社會福利與公共服務也可能成立；本版明確限定財產權制度基礎，避免多個選項都可作答，未改動選項或答案。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "對消費者購買的商品課稅"
+      },
+      {
+        "id": "b",
+        "content": "提供貧弱者社會福利"
+      },
+      {
+        "id": "c",
+        "content": "提供郵政與垃圾處理"
+      },
+      {
+        "id": "d",
+        "content": "落實財產權"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch1-q8",
+    "questionIndex": 7,
+    "type": "single",
+    "prompt": "### 第 1 章 第 8 題\n一木匠每週可生產 100 張桌子，且銷售後可賺取利潤。他考慮擴充生產規模來製造更多桌子，請問他是否該擴張？",
+    "hint": null,
+    "solution": "是否擴產應看額外生產一張桌子的邊際成本（MC）與額外銷售一張桌子的邊際收入（MR）。若 $MR>MC$，擴產可增加利潤；若 $MR<MC$，則不應擴產。因此選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "是，因為生產桌子可以賺錢"
+      },
+      {
+        "id": "b",
+        "content": "否，因為他無法賣出額外的桌子"
+      },
+      {
+        "id": "c",
+        "content": "必須視生產的邊際成本與銷售的邊際收入而定"
+      },
+      {
+        "id": "d",
+        "content": "必須視生產的平均成本與銷售的平均收入而定"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q1",
+    "questionIndex": 8,
+    "type": "single",
+    "prompt": "### 第 2 章 第 1 題\n考慮鮮乳市場，下列哪一個事件將使鮮乳供給曲線向左平移？\n\n**編輯處理：** 原書選項 (a) 與 (c) 完全重複。刪除原 (a) 後，將原 (b)、(c)、(d) 依序重編為本版 (a)、(b)、(c)。",
+    "hint": null,
+    "solution": "供給曲線向左表示在各價格下可供應的數量減少。天氣炎熱使乳牛泌乳量減少，本版正確答案為 (b)；本版 (a) 表示供給增加，本版 (c) 的鮮乳本身價格下降只造成沿供給曲線移動。原圖的 (a) 與 (c) 完全相同且都正確，原書答案鍵標 (c)。本版刪除重複的原 (a)，再把原 (b)、(c)、(d) 依序重編為 (a)、(b)、(c)，使作答與結果畫面的代號一致；因此原書正確的 (c) 對應本版的 (b)。未猜測或捏造原作者的干擾選項。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "天氣寒冷，乳牛食量大增，泌乳量豐富"
+      },
+      {
+        "id": "b",
+        "content": "天氣炎熱，乳牛的泌乳量減少"
+      },
+      {
+        "id": "c",
+        "content": "國際奶粉庫存充足，造成鮮乳價格下跌"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q10",
+    "questionIndex": 17,
+    "type": "single",
+    "prompt": "### 第 2 章 第 10 題\n家樂福發現同樣價格下跌 10%，衛生紙的銷貨收入減少，手機的銷貨收入增加，下列何者錯誤？\n\n**編輯補充：** 其他條件不變，兩者均沿各自向下傾斜的需求曲線移動；彈性採此次價格變動區間的中點法弧彈性絕對值。(a)、(d) 經編輯修訂，以避免有限變動近似與不同商品座標尺度造成的歧義。",
+    "hint": null,
+    "solution": "設數量增幅為 $g$，降價後總收益與原總收益之比為 $0.9(1+g)$。衛生紙收入下降推出 $g<1/9$，手機收入上升推出 $g>1/9$。中點法弧彈性為 $E=19g/(2+g)$，所以衛生紙 $E<1$、手機 $E>1$，錯誤的是 (c)。在各自標準化的座標上，兩者價格變動同為 0.1，手機數量增幅較大，故割線斜率絕對值較小，(d) 成立。原 (a) 的「小於 10%」並非有限降價 10% 的必然結論；例如數量增加 11% 時，收入仍降為原來的 $0.9\\times1.11=0.999$。原 (d) 未限定尺度，也不能直接由彈性比較推得原始需求曲線較平坦。本版明示這兩項編輯修訂，保留原答案 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "衛生紙數量增加小於原數量的 $\\frac{100}{9}\\%$（約 11.11%）"
+      },
+      {
+        "id": "b",
+        "content": "衛生紙需求彈性小於手機需求彈性"
+      },
+      {
+        "id": "c",
+        "content": "手機需求彈性小於 1"
+      },
+      {
+        "id": "d",
+        "content": "各以降價前價格與數量標準化為 1 時，在此次變動區間手機需求曲線的割線較平坦"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q2",
+    "questionIndex": 9,
+    "type": "single",
+    "prompt": "### 第 2 章 第 2 題\n下列何者會造成番茄醬均衡價格上升和其均衡數量下降？",
+    "hint": null,
+    "solution": "番茄是番茄醬的重要投入。番茄價格上升使番茄醬的生產成本上升，供給曲線左移，均衡價格上升、均衡數量下降，因此選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "番茄價格下跌"
+      },
+      {
+        "id": "b",
+        "content": "番茄價格上升"
+      },
+      {
+        "id": "c",
+        "content": "芥末為番茄醬替代品，芥末價格上升"
+      },
+      {
+        "id": "d",
+        "content": "薯條為番茄醬互補品，薯條價格上升"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q3",
+    "questionIndex": 10,
+    "type": "single",
+    "prompt": "### 第 2 章 第 3 題\n大發百貨公司舉辦服飾類商品的換季促銷，所有過季的服飾一律打三折，但是購買的人反而減少，這是因為：",
+    "hint": null,
+    "solution": "即使價格大幅下降，過季使消費者對該服飾本身的需求下降，因此整條需求曲線向左移；這是需求的改變，不只是沿需求曲線移動。故選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "需求線右移"
+      },
+      {
+        "id": "b",
+        "content": "需求線左移"
+      },
+      {
+        "id": "c",
+        "content": "供給線右移"
+      },
+      {
+        "id": "d",
+        "content": "供給線左移"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q4",
+    "questionIndex": 11,
+    "type": "single",
+    "prompt": "### 第 2 章 第 4 題\n假設疫苗市場需求價格彈性為 0.7，如果技術進步使疫苗生產成本下跌，相對於技術進步前，技術進步後，下列敘述何者正確？\n\n**編輯補充：** 其他供需條件不變，相關價格區間的需求價格彈性絕對值皆為 0.7；「收益」指總收益，不是利潤。",
+    "hint": null,
+    "solution": "技術進步使供給增加、均衡價格下降。需求價格彈性絕對值為 $0.7<1$，屬缺乏彈性；在需求缺乏彈性時，價格下降造成的數量增加比例較小，因此總收益 $P\\times Q$ 下降。故選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "疫苗生產者收益增加"
+      },
+      {
+        "id": "b",
+        "content": "疫苗生產者收益不變"
+      },
+      {
+        "id": "c",
+        "content": "疫苗生產者收益減少"
+      },
+      {
+        "id": "d",
+        "content": "無法判斷疫苗生產者總收益增加或減少"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q5",
+    "questionIndex": 12,
+    "type": "single",
+    "prompt": "### 第 2 章 第 5 題\n假如蘋果是柳橙的替代品，則蘋果相對於柳橙的交叉價格彈性是：",
+    "hint": null,
+    "solution": "替代品的價格與另一商品的需求量同方向變動。例如柳橙價格上升會提高蘋果需求，所以交叉價格彈性為正，選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "負的"
+      },
+      {
+        "id": "b",
+        "content": "正的"
+      },
+      {
+        "id": "c",
+        "content": "零"
+      },
+      {
+        "id": "d",
+        "content": "不一定"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q6",
+    "questionIndex": 13,
+    "type": "single",
+    "prompt": "### 第 2 章 第 6 題\n萬安每次去夜市買燒酒螺，無論價格如何變動，他一定購買 200 元，表示萬安對燒酒螺需求價格彈性絕對值為：",
+    "hint": null,
+    "solution": "無論價格如何變動，總支出 $P\\times Q$ 都固定為 200 元。需求曲線上總支出保持不變代表單位彈性，因此需求價格彈性絕對值為 1，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "0"
+      },
+      {
+        "id": "b",
+        "content": "1/200"
+      },
+      {
+        "id": "c",
+        "content": "1"
+      },
+      {
+        "id": "d",
+        "content": "200"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q7",
+    "questionIndex": 14,
+    "type": "single",
+    "prompt": "### 第 2 章 第 7 題\n關於豬肉供給彈性，下列敘述何者正確？",
+    "hint": null,
+    "solution": "時間越長，生產者越能調整飼養規模、設備與投入，因此供給量對價格變化通常更有反應。故長期供給彈性通常大於短期供給彈性，選 (a)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "長期供給彈性大於短期供給彈性"
+      },
+      {
+        "id": "b",
+        "content": "長期供給彈性等於短期供給彈性"
+      },
+      {
+        "id": "c",
+        "content": "長期供給彈性小於短期供給彈性"
+      },
+      {
+        "id": "d",
+        "content": "長短期供給彈性無法比較"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q8",
+    "questionIndex": 15,
+    "type": "single",
+    "prompt": "### 第 2 章 第 8 題\n蘋果汁的市場需求函數為 $Q_D=2,000-50P$，若目前蘋果汁一瓶的售價為 30 元，則蘋果汁的需求價格彈性為：",
+    "hint": null,
+    "solution": "當 $P=30$ 時，$Q=2000-50(30)=500$。點彈性的絕對值為 $|\\frac{dQ}{dP}\\frac{P}{Q}|=50\\times\\frac{30}{500}=3$。因 $3>1$，需求富有彈性，因此選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "缺乏彈性（inelastic）"
+      },
+      {
+        "id": "b",
+        "content": "單位彈性（unitary elastic）"
+      },
+      {
+        "id": "c",
+        "content": "富有彈性（elastic）"
+      },
+      {
+        "id": "d",
+        "content": "完全彈性（perfectly elastic）"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch2-q9",
+    "questionIndex": 16,
+    "type": "single",
+    "prompt": "### 第 2 章 第 9 題\n在臺灣，很多商家都採「薄利多銷」的策略，這些商家產品的需求彈性應為何？\n\n**編輯補充：** 本題把「薄利多銷」限定為在其他條件不變下，藉由降價增加總銷貨收入，彈性指相關區間的需求價格弧彈性絕對值。",
+    "hint": null,
+    "solution": "「薄利多銷」表示降價後銷售量增加的比例足以使總收益上升，這發生在需求富有彈性時，即需求價格彈性絕對值大於 1，因此選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "小於 1"
+      },
+      {
+        "id": "b",
+        "content": "大於 1"
+      },
+      {
+        "id": "c",
+        "content": "等於 1"
+      },
+      {
+        "id": "d",
+        "content": "任意值"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q1",
+    "questionIndex": 18,
+    "type": "single",
+    "prompt": "### 第 3 章 第 1 題\n假設大雄消費各種蘋果數量下的邊際效用都為正值，但隨著蘋果消費數量增加，邊際效用下降。大雄消費蘋果的總效用隨著蘋果消費數量增加而：",
+    "hint": null,
+    "solution": "邊際效用（MU）是多消費一單位所增加的總效用。只要每一單位的 MU 仍為正，即使 MU 逐步下降，總效用仍會持續增加，只是增加速度變慢。因此正確答案為 (a)。原書頁尾答案鍵標示 (d)，但這與題幹「邊際效用都為正值」直接矛盾；來源頁面也有手寫註記指出答案應為 (a)，本題以經濟學定義修正為 (a)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "增加"
+      },
+      {
+        "id": "b",
+        "content": "下降"
+      },
+      {
+        "id": "c",
+        "content": "不變"
+      },
+      {
+        "id": "d",
+        "content": "資訊不足，無法判斷"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q10",
+    "questionIndex": 27,
+    "type": "single",
+    "prompt": "### 第 3 章 第 10 題\n某應考人每天必須用 6 小時唸國文、英文、經濟學。每科第 1～6 小時所獲得的邊際效用依序如下。在最適時，他一天應該念幾小時經濟學？\n\n**編輯補充：** 假設各科效用可加總，讀書時間以整小時分配。\n\n- 國文：20、16、10、5、2、0。\n- 英文：15、12、9、6、3、1。\n- 經濟學：25、22、18、14、8、2。",
+    "hint": null,
+    "solution": "把 6 小時依序配置給目前邊際效用最高的科目。可選到的前 6 個邊際效用為：經濟學 25、經濟學 22、國文 20、經濟學 18、國文 16、英文 15。因此經濟學共分配 3 小時，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "5 小時"
+      },
+      {
+        "id": "b",
+        "content": "4 小時"
+      },
+      {
+        "id": "c",
+        "content": "3 小時"
+      },
+      {
+        "id": "d",
+        "content": "2 小時"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q11",
+    "questionIndex": 28,
+    "type": "single",
+    "prompt": "### 第 3 章 第 11 題\n在長期，A 廠商生產 30 單位產量的總成本為 1,050 元，生產 40 單位產量的總成本為 1,200 元，則 A 廠商處於：",
+    "hint": null,
+    "solution": "產量 30 時長期平均總成本為 $1050/30=35$；產量 40 時為 $1200/40=30$。隨產量增加，長期平均成本下降，表示存在規模經濟，因此選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "規模不經濟（diseconomies of scale）"
+      },
+      {
+        "id": "b",
+        "content": "固定規模經濟（constant economies of scale）"
+      },
+      {
+        "id": "c",
+        "content": "規模經濟（economies of scale）"
+      },
+      {
+        "id": "d",
+        "content": "資訊不足，無法回答"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q12",
+    "questionIndex": 29,
+    "type": "single",
+    "prompt": "### 第 3 章 第 12 題\n當一個廠商的長期平均總成本大於長期邊際成本，此廠商處於：",
+    "hint": null,
+    "solution": "當邊際成本低於平均成本時，新增產量會把平均成本往下拉，因此長期平均總成本正在下降。長期平均成本下降對應規模經濟，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "規模不經濟"
+      },
+      {
+        "id": "b",
+        "content": "固定規模經濟"
+      },
+      {
+        "id": "c",
+        "content": "規模經濟"
+      },
+      {
+        "id": "d",
+        "content": "資訊不足，無法判斷"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q13",
+    "questionIndex": 30,
+    "type": "single",
+    "prompt": "### 第 3 章 第 13 題\n假設江記華隆肉乾專賣店的固定成本為 1,000 元，每單位產量的邊際成本為 100 元，則江記華隆生產 500 單位產量的平均總成本為：",
+    "hint": null,
+    "solution": "邊際成本每單位固定為 100 元，因此 500 單位的變動成本為 $100\\times500=50,000$ 元。總成本為 $50,000+1,000=51,000$ 元，平均總成本為 $51,000/500=102$ 元，選 (d)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "99 元"
+      },
+      {
+        "id": "b",
+        "content": "100 元"
+      },
+      {
+        "id": "c",
+        "content": "101 元"
+      },
+      {
+        "id": "d",
+        "content": "102 元"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q2",
+    "questionIndex": 19,
+    "type": "single",
+    "prompt": "### 第 3 章 第 2 題\n假設小強多消費一塊蛋糕所得到的邊際效用為 3 單位，且一塊蛋糕的價格為 4 元。下列敘述何者正確？",
+    "hint": null,
+    "solution": "邊際效用的單位與價格的元不同，不能直接用 $3<4$ 決定購買。還要知道預算、其他商品的每元邊際效用及下一塊蛋糕的邊際效用，故選 (d)。編輯修訂：原 (b)「這塊蛋糕的機會成本為 4 元」可被解讀為以貨幣衡量的放棄購買力，不能一概判錯；本版將 (b) 明確改為錯誤的跨單位比較，避免它與 (d) 同時可成立。原 (c) 也無法由目前正的邊際效用推出。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "這塊蛋糕是追求效用最大的小強所消費的最後一塊蛋糕"
+      },
+      {
+        "id": "b",
+        "content": "因為 $3<4$，不必考慮其他商品或預算就可確定不應再購買蛋糕"
+      },
+      {
+        "id": "c",
+        "content": "若小強繼續消費蛋糕，則其總效用會下降"
+      },
+      {
+        "id": "d",
+        "content": "資訊不足，所以無法回答小強是否會再買一塊蛋糕"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q3",
+    "questionIndex": 20,
+    "type": "single",
+    "prompt": "### 第 3 章 第 3 題\n小齊追求效用極大，且將所有預算用來消費鹹酥雞與可樂兩種商品。若在某時點他從鹹酥雞所得到的邊際效用是 4，從可樂得到的邊際效用是 3；而鹹酥雞價格是 5，可樂的價格是 2，則接下來他會如何調整消費行為？",
+    "hint": null,
+    "solution": "鹹酥雞的每元邊際效用為 $4/5=0.8$，可樂為 $3/2=1.5$。為提高總效用，應把支出由每元邊際效用較低的鹹酥雞移向較高的可樂，因此減少鹹酥雞、增加可樂，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "增加鹹酥雞的消費量，同時減少可樂的消費量"
+      },
+      {
+        "id": "b",
+        "content": "同時增加鹹酥雞與可樂消費量"
+      },
+      {
+        "id": "c",
+        "content": "減少鹹酥雞消費量，同時增加可樂消費量"
+      },
+      {
+        "id": "d",
+        "content": "此時已是最適，不會再做調整"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q4",
+    "questionIndex": 21,
+    "type": "single",
+    "prompt": "### 第 3 章 第 4 題\n如果一個人以自己的房子經營公司，沒有計算房租和自己的薪水，扣除所有會計帳面的外顯成本之後，有 3 萬元的會計利潤；但是這個人如果不經營自己的公司，而受雇於他人，可以賺取 2 萬元的薪水，房屋出租也可以獲取 2 萬元的租金，這個人經營公司的經濟利潤為多少？",
+    "hint": null,
+    "solution": "經濟利潤要再扣除隱含成本。放棄的薪水與租金共 $2+2=4$ 萬元，所以經濟利潤為 $3-4=-1$ 萬元，即賠 1 萬元，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "賺 1 萬元"
+      },
+      {
+        "id": "b",
+        "content": "賺 2 萬元"
+      },
+      {
+        "id": "c",
+        "content": "賠 1 萬元"
+      },
+      {
+        "id": "d",
+        "content": "賠 2 萬元"
+      }
+    ],
+    "correctOptionId": "c"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q5",
+    "questionIndex": 22,
+    "type": "single",
+    "prompt": "### 第 3 章 第 5 題\n書豪逛夜市吃了 3 個小酥餅和喝了 2 杯珍珠奶茶而達到最大效用。書豪消費第 1 杯和第 2 杯珍奶的邊際效用分別為 50 單位和 20 單位；吃第 1 個和第 2 個小酥餅的邊際效用分別為 20 與 15 單位。1 個小酥餅價格是 20 元，1 杯珍珠奶茶是 40 元。請問第 3 個小酥餅的邊際效用為何？\n\n**編輯補充：** 本題採可分割消費的內點最適模型，表述中的最後消費單位代表該消費量處的邊際效用，且兩商品的每元邊際效用相等。",
+    "hint": null,
+    "solution": "依本題明示的可分割、內點最適假設，$MU/20=20/40$，所以 $MU=10$，選 (d)。編輯補充此假設是因為若商品只能整份購買，離散效用極大不保證最後單位的 $MU/P$ 恰好相等，原題資訊本身不足以唯一推出 10。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "25"
+      },
+      {
+        "id": "b",
+        "content": "15"
+      },
+      {
+        "id": "c",
+        "content": "20"
+      },
+      {
+        "id": "d",
+        "content": "10"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q6",
+    "questionIndex": 23,
+    "type": "single",
+    "prompt": "### 第 3 章 第 6 題\n下列何者是隱含成本的例子？",
+    "hint": null,
+    "solution": "隱含成本是使用自有資源時放棄的機會成本，通常沒有實際現金支出。自營業者放棄替別人工作可得到的薪資正是隱含成本；工資、借款利息與購料都屬外顯支出。因此選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "部分工時勞工的薪水"
+      },
+      {
+        "id": "b",
+        "content": "自營業者若替別人工作所獲得的薪資"
+      },
+      {
+        "id": "c",
+        "content": "企業貸款支付的利息"
+      },
+      {
+        "id": "d",
+        "content": "現在購買原料而在稍後使用的成本"
+      },
+      {
+        "id": "e",
+        "content": "以上皆是"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q7",
+    "questionIndex": 24,
+    "type": "single",
+    "prompt": "### 第 3 章 第 7 題\n以下是樂陞勞動雇用量與總產量之關係。下列敘述何者正確？\n\n**編輯補充：** 技術與其他生產要素固定，只調整勞動投入；未僱用勞動時總產量為 0。\n\n- 勞動雇用量 1、2、3、4、5、6、7、8、9。\n- 對應總產量依序為 8、26、42、57、70、82、92、100、107。",
+    "hint": null,
+    "solution": "依 $Q(0)=0$，各新增一位勞工的邊際產量為 8、18、16、15、13、12、10、8、7，自第 3 位勞工起逐次下降。其他投入固定而只增加勞動，是短期生產下的邊際產量遞減，因此選 (b)。原表沒有寫明其他投入固定，單憑一列勞動與產量資料不能推出短期；本版明示補充固定投入與零勞動產量假設，數據與答案均保留。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "此表資料顯示邊際產量遞減現象，所以是長期生產行為"
+      },
+      {
+        "id": "b",
+        "content": "此表資料顯示邊際產量遞減現象，所以是短期生產行為"
+      },
+      {
+        "id": "c",
+        "content": "此表資料並沒有邊際產量遞減現象，所以是長期生產行為"
+      },
+      {
+        "id": "d",
+        "content": "此表資料並沒有邊際產量遞減現象，所以是短期生產行為"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q8",
+    "questionIndex": 25,
+    "type": "single",
+    "prompt": "### 第 3 章 第 8 題\n假設 A 公司雇用 2 單位員工的總成本為 100 元，雇用 3 位員工的總成本為 120 元。若 A 公司的每位員工變動成本與所雇員工數無關，則 A 公司的固定成本為何？",
+    "hint": null,
+    "solution": "多雇用 1 位員工使總成本由 100 增至 120 元，因此每位員工的變動成本為 20 元。雇用 2 位時變動成本為 40 元，所以固定成本為 $100-40=60$ 元，選 (b)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "40 元"
+      },
+      {
+        "id": "b",
+        "content": "60 元"
+      },
+      {
+        "id": "c",
+        "content": "80 元"
+      },
+      {
+        "id": "d",
+        "content": "100 元"
+      }
+    ],
+    "correctOptionId": "b"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch3-q9",
+    "questionIndex": 26,
+    "type": "single",
+    "prompt": "### 第 3 章 第 9 題\n當邊際成本隨產量增加而遞增時，其平均變動成本：",
+    "hint": null,
+    "solution": "平均變動成本（AVC）的方向取決於邊際成本（MC）相對於 AVC 的位置：$MC<AVC$ 時 AVC 下降，$MC>AVC$ 時 AVC 上升。即使 MC 本身正在遞增，也可能仍低於 AVC 或已高於 AVC，因此 AVC 可能上升也可能下降，選 (d)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "必隨產量增加而增加"
+      },
+      {
+        "id": "b",
+        "content": "必隨產量增加而減少"
+      },
+      {
+        "id": "c",
+        "content": "不隨產量改變而改變"
+      },
+      {
+        "id": "d",
+        "content": "可能隨產量增加而增加或減少"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q1",
+    "questionIndex": 31,
+    "type": "single",
+    "prompt": "### 第 4 章 第 1 題\n如果一家廠商是市場價格接受者，當其總收入不足以支付固定成本時，下列敘述何者正確？",
+    "hint": null,
+    "solution": "固定成本在短期即使停產也要負擔。價格接受者短期是否繼續生產，關鍵是總收入能否至少支付變動成本（等價於價格是否不低於平均變動成本）。因此選 (d)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "應該繼續生產更多的產量，只要平均固定成本降低夠低就可以獲利"
+      },
+      {
+        "id": "b",
+        "content": "短期應該歇業，直到有辦法使平均收入超過平均固定成本再開始營業"
+      },
+      {
+        "id": "c",
+        "content": "只要平均固定成本低於平均變動成本，短期就應該繼續生產"
+      },
+      {
+        "id": "d",
+        "content": "只要總收入足以支付變動成本，短期就應該繼續生產"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q10",
+    "questionIndex": 40,
+    "type": "single",
+    "prompt": "### 第 4 章 第 10 題\n假設某完全競爭廠商的短期邊際成本函數 $SMC=6+2q$，$q$ 為可連續調整的產量，且 $VC(0)=0$。其短期停產價格門檻（可使最適正產量出現之價格的下界）為多少？",
+    "hint": null,
+    "solution": "由 $SMC=dVC/dq=6+2q$ 及 $VC(0)=0$ 得 $VC=6q+q^2$，因此 $AVC=6+q$。當 $q\\to0^+$ 時其下界為 6，停產價格門檻選 (d)。更精確地，$P>6$ 時最適產量為 $q=(P-6)/2>0$；$P=6$ 時最適產量為 0，並不會嚴格生產正產量。原題「至少多少才願意生產」混淆下界與可達到的正產量，本版明示連續產量、零產量變動成本與門檻的意義，保留原數值答案。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "2"
+      },
+      {
+        "id": "b",
+        "content": "3"
+      },
+      {
+        "id": "c",
+        "content": "4"
+      },
+      {
+        "id": "d",
+        "content": "6"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q2",
+    "questionIndex": 32,
+    "type": "single",
+    "prompt": "### 第 4 章 第 2 題\n假設某完全競爭市場處於長期均衡，價格等於 12 元，市場需求永久性增加，則下列敘述何者正確？\n\n**編輯補充：** 假設產業長期成本條件不變、可自由進出；選項中的廠商數目比較新舊長期均衡，短期既有廠商數目固定。",
+    "hint": null,
+    "solution": "短期廠商數目固定，需求增加先使價格上升並產生經濟利潤；長期新廠商進入，廠商數目增加。依明示的成本不變假設，長期價格回到 12 元，低於短期高點，故選 (a)。編輯補充用來釐清原選項沒有區分的進入時點及長期成本條件；原「$12」也改寫為「12 元」，避免被當成未閉合的數學標記。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "短期市場價格上漲，而廠商數目增加，且長期價格低於該短期價格"
+      },
+      {
+        "id": "b",
+        "content": "短期市場價格上漲，而廠商數目增加，且長期價格高於該短期價格"
+      },
+      {
+        "id": "c",
+        "content": "短期市場價格上漲，而廠商數目不變，且長期價格等於該短期價格"
+      },
+      {
+        "id": "d",
+        "content": "短期市場價格下跌，而廠商數目減少，且長期價格高於該短期價格"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q3",
+    "questionIndex": 33,
+    "type": "single",
+    "prompt": "### 第 4 章 第 3 題\n關於獨占廠商，下列敘述何者正確？",
+    "hint": null,
+    "solution": "獨占廠商的最適產量由邊際收益與邊際成本共同決定，且市場價格再由需求曲線決定；同一個價格不會對應一條獨立於需求的供給關係。因此獨占廠商沒有像完全競爭廠商那樣的供給曲線，選 (d)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "其供給曲線是負斜率"
+      },
+      {
+        "id": "b",
+        "content": "其供給曲線是整條邊際成本線"
+      },
+      {
+        "id": "c",
+        "content": "其供給曲線是高於平均成本線以上的邊際成本線"
+      },
+      {
+        "id": "d",
+        "content": "沒有供給線"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q4",
+    "questionIndex": 34,
+    "type": "single",
+    "prompt": "### 第 4 章 第 4 題\n獨占者實施差別訂價時，下列敘述何者正確？",
+    "hint": null,
+    "solution": "差別訂價讓獨占者依消費者願付價格收取不同價格，可把原本屬於消費者的部分剩餘轉為廠商利潤。因此選 (a)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "將消費者剩餘轉變成經濟利潤"
+      },
+      {
+        "id": "b",
+        "content": "將生產者剩餘轉變成經濟利潤"
+      },
+      {
+        "id": "c",
+        "content": "對所有消費者索取相同價格"
+      },
+      {
+        "id": "d",
+        "content": "產量低於執行單一定價時"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q5",
+    "questionIndex": 35,
+    "type": "single",
+    "prompt": "### 第 4 章 第 5 題\n臺灣的早餐店市場結構為：",
+    "hint": null,
+    "solution": "依一般微觀經濟學分類，早餐店有許多業者，且餐點、地點、品牌與服務具有差異，較符合壟斷性競爭，故選 (d)。原書頁尾答案鍵標 (b)，但題幹並未給定產品完全同質等完全競爭假設，本版以概念正確性優先修正答案。OpenStax《Principles of Microeconomics 3e》10.1 將販售差異化餐點的餐廳作為壟斷性競爭例子；本題依此定義分類，並非對所有早餐店作實證市場界定。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "獨占市場"
+      },
+      {
+        "id": "b",
+        "content": "完全競爭市場"
+      },
+      {
+        "id": "c",
+        "content": "寡占市場"
+      },
+      {
+        "id": "d",
+        "content": "壟斷性競爭市場"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q6",
+    "questionIndex": 36,
+    "type": "single",
+    "prompt": "### 第 4 章 第 6 題\n假設廠商 1 及廠商 2 可採用的策略為廣告（A）及不廣告（NA）。報酬（單位：千元）如下：若雙方都廣告，報酬為 $(10,10)$；廠商 1 廣告、廠商 2 不廣告時為 $(35,5)$；廠商 1 不廣告、廠商 2 廣告時為 $(5,35)$；雙方都不廣告時為 $(20,20)$。純粹策略的納許均衡為：",
+    "hint": null,
+    "solution": "對廠商 1 而言，廠商 2 廣告時，廣告的 10 大於不廣告的 5；廠商 2 不廣告時，廣告的 35 大於不廣告的 20，所以廣告是廠商 1 的優勢策略。廠商 2 對稱地也以廣告為優勢策略。因此唯一的純策略納許均衡是 $(A,A)$，選 (a)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "廠商 1 廣告，且廠商 2 廣告"
+      },
+      {
+        "id": "b",
+        "content": "廠商 1 廣告，且廠商 2 不廣告"
+      },
+      {
+        "id": "c",
+        "content": "廠商 1 不廣告，且廠商 2 廣告"
+      },
+      {
+        "id": "d",
+        "content": "廠商 1 不廣告，且廠商 2 不廣告"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q7",
+    "questionIndex": 37,
+    "type": "single",
+    "prompt": "### 第 4 章 第 7 題\n假設小米與三星兩家可採用的策略為廣告（A）及不廣告（NA），報酬如下：小米 A、三星 A 為 $(120,130)$；小米 A、三星 NA 為 $(140,100)$；小米 NA、三星 A 為 $(100,140)$；小米 NA、三星 NA 為 $(90,90)$。則純粹策略（pure strategy）的納許均衡為何？",
+    "hint": null,
+    "solution": "小米面對三星 A 時，A 的 120 大於 NA 的 100；面對三星 NA 時，A 的 140 大於 NA 的 90，因此 A 是小米的優勢策略。三星同理：面對小米 A 時 $130>100$，面對小米 NA 時 $140>90$，A 也是其優勢策略。故納許均衡為 $(A,A)$，選 (a)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "小米、三星均為 A"
+      },
+      {
+        "id": "b",
+        "content": "小米、三星均為 NA"
+      },
+      {
+        "id": "c",
+        "content": "小米為 A、三星為 NA"
+      },
+      {
+        "id": "d",
+        "content": "小米為 NA、三星為 A"
+      }
+    ],
+    "correctOptionId": "a"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q8",
+    "questionIndex": 38,
+    "type": "single",
+    "prompt": "### 第 4 章 第 8 題\n當賽局達到納許均衡時，下列敘述何者正確？\n\n**編輯補充：** 本題的「劣勢策略」指嚴格劣勢策略，即在對手每一種策略下都嚴格較差；不指弱劣勢策略。",
+    "hint": null,
+    "solution": "給定對手的策略，每位參賽者目前都採最佳回應，無法單方面改變策略來提高報酬，因此選 (d)。報酬不必相等，優勢策略均衡也可能是納許均衡。嚴格劣勢策略不可能是最佳回應；弱劣勢策略在部分對手策略下可能並列最佳回應。原 (b) 未區分嚴格與弱劣勢，本版補上定義以維持單選性。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "所有參賽者得到的報酬都相等"
+      },
+      {
+        "id": "b",
+        "content": "還是可能有參賽者會採取劣勢策略"
+      },
+      {
+        "id": "c",
+        "content": "這個均衡不可能同時是優勢策略均衡"
+      },
+      {
+        "id": "d",
+        "content": "給定對手的策略，每一位參賽者採取對自己最有利的策略"
+      }
+    ],
+    "correctOptionId": "d"
+  },
+  {
+    "quizId": "economics-ch1-4-exercises",
+    "revision": "1",
+    "questionId": "ch4-q9",
+    "questionIndex": 39,
+    "type": "single",
+    "prompt": "### 第 4 章 第 9 題\n在壟斷性競爭市場，不同廠商所生產的產品為：",
+    "hint": null,
+    "solution": "壟斷性競爭的關鍵之一是產品差異化，因此各廠商產品彼此可替代但不是完全相同，即屬不完全替代品，選 (c)。",
+    "rubric": [],
+    "points": 1,
+    "options": [
+      {
+        "id": "a",
+        "content": "同質"
+      },
+      {
+        "id": "b",
+        "content": "完全替代"
+      },
+      {
+        "id": "c",
+        "content": "不完全替代"
+      },
+      {
+        "id": "d",
+        "content": "完全互補"
+      }
+    ],
+    "correctOptionId": "c"
   }
 ] as const
