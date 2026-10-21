@@ -1,21 +1,21 @@
 # Release checklist
 
-## v1.22.0 — release preparation
+## v1.22.0 — production acceptance snapshot before closure
 
-2026-10-21 Asia/Taipei. Source `1ee6f4b1ef90f8d51e1bb5bd760efbc788a996a8`; live latest formal Release is v1.21.0 at 76abab8bb025b052bb08b360f05205f42e79db4d. Select next minor 1.22.0 for the chapter expansion; package/lock roots agree, dependencies unchanged.
+This dated 2026-10-21 Asia/Taipei snapshot ends after Stage 8 acceptance of runtime candidate 8dffba62aedeecd1a563892fa8a2b4e6d05443e0. Source: 1ee6f4b1ef90f8d51e1bb5bd760efbc788a996a8. Prior immutable v1.21.0 closure: 76abab8bb025b052bb08b360f05205f42e79db4d. Package/lock roots are 1.22.0; dependencies are unchanged. Final closure SHA, exact CI/Pages/smoke, annotated tag, formal publication and final independent audit are carried by the [v1.22.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.22.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.22.0-delivery.md) and the [11-question content audit](economics-ch5-content-review.md).
 
-- [x] Safe fast-forward, clean initial checkout and preserved other branches/worktrees; source parser/context CI failure reproduced.
-- [x] Independent Stage 1–5 reviews PASS: baseline, all 11 content questions, revision/history semantics, integration and actual local browser acceptance. Content corrections and original q3 d→current c mapping are documented.
-- [x] Revision 2 current 52/52/120; revision 1 archived but exactly addressable 41/41/90. Old 41 question blocks and all 211 prior serialized contexts unchanged; total contexts 263.
-- [x] 126 test files / 1,903 tests and all ten local release gates; four actual viewport widths plus mobile navigation and q1/q2/q4 text/math proof. Temporary local Vitest workers=2; no test/config weakening.
-- [x] Classifier security-ai / Risk C. Runtime import graph reaches generated canonical context through `_shared/ai-tutor.ts` for exactly ai-tutor, ai-grade, ai-drawing, ai-responses, save-quiz-draft and submit-quiz. Deploy all six after exact candidate CI and before Pages. JWT: save-quiz-draft true; other five false. Preserve unrelated five deployed functions.
-- [x] No migrations or provider/model/grading-logic changes; classifier providerCanaryRequired=false. Local synthetic browser acceptance produced no production write or provider call.
-- [ ] Fresh Stage 6 preparation review.
-- [ ] Candidate commit/push, exact CI, required Edge readback and exact Pages/smoke, fresh identity review.
-- [ ] Public production browser acceptance, fresh production review.
-- [ ] Docs-only closure, exact closure CI/Pages/smoke, annotated tag, formal Release and fresh final independent audit.
+- [x] Safe fast-forward and clean initial checkout; other branches/worktrees preserved. Reproduced source CI failure and regenerated the missing canonical contexts.
+- [x] Fresh independent Stages 1–8 PASS: baseline, all 11 content questions, promotion/history, integration, actual local browser, version/risk, exact candidate identity and production browser.
+- [x] Revision 2 is current, 52/52/120; revision 1 remains addressable, 41/41/90. All 41 old question blocks and 211 prior serialized contexts remain unchanged. Total 263 contexts, 11 current quizzes /14 revisions. Printed q3 original d→current c and every added assumption are visible.
+- [x] Exact candidate clean 18-file scope, credential matches 0; 126 files /1,903 tests and all 10 local gates passed, audit 0. Source fingerprint 9f969f97feacba564db9c907623c9b54962ab054cca2271ff466ccbe0cc81de0. Temporary local workers=2/empty Turnstile key; no assertion/timeout/config weakening. Existing three lint warnings and chunk advisory remain.
+- [x] Local actual Library/practice/result: 52 selections, two intentional errors scored 50/52, 52 solutions; 345px heading focus/navigation, targeted 3/52, rendered q2/q4 formulas. Widths 1440/768/360/345 had no overflow, clipping or KaTeX errors. Known local AdGuard noise and driver retries are disclosed.
+- [x] Classifier security-ai /Risk C; providerCanaryRequired=false; no migration/provider/model/grading-logic change. Exactly six AST consumers deployed after CI and before Pages: tutor 29, grade 31, drawing 31, responses 33, draft 18, submit 20. All ACTIVE, digests changed; JWT draft=true, other five=false. Five unrelated full metadata records unchanged.
+- [x] Normal candidate push and exact clean/tag-absent preflight; first-attempt [CI 39526888708](https://github.com/LukeTsengTW/learnforge/actions/runs/39526888708) and [Pages 39527406382](https://github.com/LukeTsengTW/learnforge/actions/runs/39527406382) succeeded. Canonical public smoke: exact app/version/candidate, root+manifest 200, five assets, correct base/project. Source-bound report passed.
+- [x] Production actual public AuthorPreview: Library 11/economics 1, title 1–5, current 2, 52/52/120, archived 1; 52 IDs /207 radios, all 52 choices graded 52/52, 52 nonempty solutions. All 11 new questions, especially q3/5/9/10/11, four widths in Student+Answer modes, actual mobile navigation, q2/q4 math and 15 inspected screenshots.
+- [x] Explicit fresh reload rebuilt Library and current revision 2 with 52 questions. Source hash b965bc00430e0e0e025bc2b02af405b6e3f119b2cff8a13c7ade1216d6e096a1 equals candidate. Cache-busted manifest/assets returned 200. Final console/page/blocked/non-GET/failed/HTTP arrays are empty. Existing mobile version-label hiding caused one driver assertion failure; diagnosis and retry passed without product changes.
+- [x] No production attempt, draft, provider call or credential exposure. Public non-destructive fallback is explicitly permitted; no authentication, valid-JWT, context-execution or physical-device claim. Missing RTK.md reference is disclosed.
 
-This is preparation evidence, not a production-completion claim. [Delivery](v1.22.0-delivery.md) records identity boundaries and final publication evidence when available.
+Snapshot boundary: completed candidate acceptance is recorded above. The subsequent docs-only closure rechecks exact local gates, CI, Pages and public smoke; its immutable tag/Release and final review are auditable at the external identity links, without a self-referential commit hash in this source file.
 
 ## v1.21.0 — production acceptance snapshot before closure
 
