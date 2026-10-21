@@ -1,19 +1,23 @@
 # Release checklist
 
-## v1.23.0 — release preparation
+## v1.23.0 — production acceptance snapshot before closure
 
-Source content commit a68e9112869626f4803aba331ee0a897b69f2cd8; prior immutable v1.22.0 closure7c12d8d085ae7be8fcf8aa513cfd32cf1e974cbd. New complete current quiz follows the recent minor-version convention. Package and both lock roots are1.23.0; dependencies unchanged. See [delivery](v1.23.0-delivery.md) and [PPT audit](digital-systems-ch1-content-review.md). This section records preparation, not deployment.
+This dated **2026-10-21, Asia/Taipei** snapshot ends after Stage 7 acceptance of runtime candidate `0d19f57af8ce4708881b78e9811d1a3c5e9b9388`. Source: `a68e9112869626f4803aba331ee0a897b69f2cd8`. Prior immutable v1.22.0 closure: `7c12d8d085ae7be8fcf8aa513cfd32cf1e974cbd`. Package and both lock roots are 1.23.0; dependencies are unchanged. Final closure SHA, exact CI/Pages/smoke, annotated tag, formal publication and final independent audit are carried by the [v1.23.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.23.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.23.0-delivery.md) and [PPT audit](digital-systems-ch1-content-review.md).
 
-- [x] Git baseline safely fast-forwarded; unrelated branches/worktrees/local configuration preserved.
-- [x] Independent Stages0–4 PASS. All50 actual slides inspected;42questions/206points/170minutes;26labelled Example units,3worked groups,17Practice Exercises; all discrepancies documented.
-- [x] 12current quizzes/15revisions/233current questions/305contexts;14prior sources and263prior contexts unchanged. All42 new canonical entries generated through the official generator.
-- [x] Integration full suite127files/1,911tests and ten gates passed; actual local Library/Author Preview across1440/768/360/345,42answers/solutions and267formulas, real text/canvas input and fresh reload. No weakened assertions/timeouts/workers.
-- [x] Working-tree classification security-ai/RiskC, providerCanaryRequired=false. Actual runtime AST graph identifies exactly ai-tutor,ai-grade,ai-drawing,ai-responses,save-quiz-draft,submit-quiz. No migration/provider/model/grading-logic change. Existing ignored.env.local is unchanged and excluded from Git; no credential contents exposed.
-- [x] First candidate bdd1adc751430003dbd4575920ffb1cdbce10d2f had successful CI but repeated local App timing failures, so it was not accepted for deployment. Minimal pure-Markdown memoization removes repeated parsing during answer updates; unchanged full suite and four-width browser/source-edit checks pass. New exact-candidate gates/review are required before deployment.
-- [x] Version-preparation final gates and independent Stage5 review PASS; the later rendering remediation is separately reviewed before the replacement candidate.
-- [ ] Clean exact candidate commit/push/preflight/CI and independent Stage6 review.
-- [ ] Six necessary Edge updates with metadata/JWT/digest readback, exact-SHA Pages, canonical public smoke/source-bound report and four-width production acceptance; independent Stage7 review.
-- [ ] Separate docs-only closure, exact closure CI/Pages/smoke, unique annotated tag/GitHub Release and final independent review.
+- [x] Safe Git baseline/fast-forward; unrelated branches, worktrees, stash and local configuration preserved.
+- [x] All 50 actual slides inspected; 26 labelled Example units, three concrete worked groups and 17 Practice Exercises form 42 questions / 206 points / 170 minutes. Source discrepancies, inclusion decisions and corrected answers are auditable.
+- [x] 12 current quizzes / 15 revisions / 233 current questions / 305 all-revision contexts. All 14 previous source revisions and 263 previous serialized contexts unchanged; exactly 42 new contexts generated officially.
+- [x] Original and replacement full verification retained: 127 files / 1,911 tests, all ten canonical gates, audit zero. No assertion, timeout, worker or test weakening.
+- [x] First candidate `bdd1adc751430003dbd4575920ffb1cdbce10d2f` passed its CI but failed repeated local App timing checks and was not deployed. Minimal pure-Markdown memoization resolves repeated parsing; unchanged full suite, four-width rendering and real source-edit/restore invalidation pass.
+- [x] Clean accepted candidate `0d19f57…`, exact-SHA/tag-absent preflight, matching fingerprint `6263508339d01371f87ba0e925289480b29717a3458b6e514bb67aada82a4c84`; own first-attempt [CI 39624051770](https://github.com/LukeTsengTW/learnforge/actions/runs/39624051770) completed-success.
+- [x] Risk C / security-ai, providerCanaryRequired=false. Exactly six runtime AST consumers deployed after CI and before Pages: tutor 29→30, grade 31→32, drawing 31→32, responses 33→34, draft 18→19 and submit 20→21. All ACTIVE, changed digests, unchanged JWT settings (draft=true, others=false); five unrelated full metadata records identical.
+- [x] Single exact-candidate [Pages 39625526311](https://github.com/LukeTsengTW/learnforge/actions/runs/39625526311), attempt 1, build/deploy completed-success. Canonical public smoke passed with root/manifest 200, exact app/version/SHA/base/project and five assets; independent all seven HTML asset reads 200. Source-bound report passed.
+- [x] Actual local and production Library/Author Preview at 1440/768/360/345: exact title/subject/revision/current/42/206/170, 42 unique navigation/cards/answers/solutions, 267 formulas, real text/canvas input, first/middle/last navigation and fresh reload. No syntax leak, KaTeX error, overflow or clipping.
+- [x] Production source SHA256 `84b196d2e7c24c7df27e6a4bd0e6f2f29ce6c018249f5ac2cb47b78cceec852e` matches audited Git at all widths, fresh reload and independent live bundle extraction. Console errors/warnings, page errors, failed/HTTP/non-read-method requests all empty.
+- [x] Independent Stages 0–7 final PASS; Stage 1 precise source-expansion NIT corrected and re-reviewed; Stage 6 remediation and replacement exact-candidate reviews both PASS. No open BLOCKER/SHOULD-FIX/NIT.
+- [x] No production learner attempt, draft, submission, provider call or database change. Credentialless OPTIONS/GET proves routing only. No authenticated/valid-JWT/provider or physical-device claim. Ignored local configuration was not displayed/staged; missing RTK.md reference and existing nonfatal warnings are disclosed.
+
+Snapshot boundary: completed candidate acceptance is recorded above. The separate docs-only closure rechecks its own exact local gates, CI, Pages and public smoke without another Edge deployment because runtime sources are unchanged. Its immutable tag/Release and final review are auditable at the external identity links, without a self-referential commit hash in this source file. Older release sections retain their historical meaning.
 
 ## v1.22.0 — production acceptance snapshot before closure
 
