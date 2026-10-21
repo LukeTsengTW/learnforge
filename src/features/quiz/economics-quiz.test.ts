@@ -10,7 +10,7 @@ import type { AnswerMap } from '../../models/attempt'
 import { QuestionInput } from './QuestionInput'
 import { ResultQuestion } from './ResultQuestion'
 
-const quiz = quizCatalog.getCurrentQuiz('economics-ch1-4-exercises')!
+const quiz = quizCatalog.getQuizRevision('economics-ch1-4-exercises', '1')!
 const reviewedKeys = [
   ['b', 'c', 'b', 'b', 'd', 'b', 'd', 'c'],
   ['b', 'b', 'b', 'c', 'b', 'c', 'a', 'c', 'b', 'c'],
@@ -21,10 +21,10 @@ const reviewedKeys = [
 afterEach(cleanup)
 
 describe('reviewed economics quiz publication', () => {
-  it('adds exactly 41 canonical contexts while preserving all 170 previously shipped contexts', () => {
+  it('retains all 41 historical canonical contexts and all 170 other shipped contexts', () => {
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== quiz.id)
-    const added = AI_QUIZ_CONTEXT.filter((context) => context.quizId === quiz.id)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(211)
+    const added = AI_QUIZ_CONTEXT.filter((context) => context.quizId === quiz.id && context.revision === '1')
+    expect(AI_QUIZ_CONTEXT).toHaveLength(263)
     expect(existing).toHaveLength(170)
     expect(createHash('sha256').update(JSON.stringify(existing)).digest('hex'))
       .toBe('ef83b87e46c1b453466529a96a0c8ecc292c74899d8abffdee2caa00d69cd317')
@@ -33,11 +33,13 @@ describe('reviewed economics quiz publication', () => {
     expect(new Set(added.map(({ questionId }) => questionId))).toEqual(new Set(quiz.questions.map(({ id }) => id)))
   })
 
-  it('publishes one current 41-point revision in the original chapter order', () => {
+  it('retains the historical chapter order alongside one current 52-point revision', () => {
     const entries = quizCatalog.current.filter(({ quiz }) => quiz.id === 'economics-ch1-4-exercises')
     expect(entries).toHaveLength(1)
-    expect(entries[0]).toMatchObject({ questionCount: 41, totalPoints: 41, maxPoints: 41,
-      quiz: { revision: '1', current: true, subject: '經濟學', estimatedMinutes: 90 } })
+    expect(entries[0]).toMatchObject({ questionCount: 52, totalPoints: 52, maxPoints: 52,
+      quiz: { revision: '2', current: true, subject: '經濟學', estimatedMinutes: 120 } })
+    expect(quiz).toMatchObject({ revision: '1', current: false, estimatedMinutes: 90 })
+    expect(quiz.questions).toHaveLength(41)
     expect(quiz.questions.map(({ id }) => id)).toEqual(reviewedKeys.flatMap((keys, chapter) =>
       keys.map((_, index) => `ch${chapter + 1}-q${index + 1}`)))
     expect(quiz.questions.every(({ type, points }) => type === 'single' && points === 1)).toBe(true)

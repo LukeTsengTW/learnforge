@@ -1,5 +1,22 @@
 # Release checklist
 
+## v1.22.0 — release preparation
+
+2026-10-21 Asia/Taipei. Source `1ee6f4b1ef90f8d51e1bb5bd760efbc788a996a8`; live latest formal Release is v1.21.0 at 76abab8bb025b052bb08b360f05205f42e79db4d. Select next minor 1.22.0 for the chapter expansion; package/lock roots agree, dependencies unchanged.
+
+- [x] Safe fast-forward, clean initial checkout and preserved other branches/worktrees; source parser/context CI failure reproduced.
+- [x] Independent Stage 1–5 reviews PASS: baseline, all 11 content questions, revision/history semantics, integration and actual local browser acceptance. Content corrections and original q3 d→current c mapping are documented.
+- [x] Revision 2 current 52/52/120; revision 1 archived but exactly addressable 41/41/90. Old 41 question blocks and all 211 prior serialized contexts unchanged; total contexts 263.
+- [x] 126 test files / 1,903 tests and all ten local release gates; four actual viewport widths plus mobile navigation and q1/q2/q4 text/math proof. Temporary local Vitest workers=2; no test/config weakening.
+- [x] Classifier security-ai / Risk C. Runtime import graph reaches generated canonical context through `_shared/ai-tutor.ts` for exactly ai-tutor, ai-grade, ai-drawing, ai-responses, save-quiz-draft and submit-quiz. Deploy all six after exact candidate CI and before Pages. JWT: save-quiz-draft true; other five false. Preserve unrelated five deployed functions.
+- [x] No migrations or provider/model/grading-logic changes; classifier providerCanaryRequired=false. Local synthetic browser acceptance produced no production write or provider call.
+- [ ] Fresh Stage 6 preparation review.
+- [ ] Candidate commit/push, exact CI, required Edge readback and exact Pages/smoke, fresh identity review.
+- [ ] Public production browser acceptance, fresh production review.
+- [ ] Docs-only closure, exact closure CI/Pages/smoke, annotated tag, formal Release and fresh final independent audit.
+
+This is preparation evidence, not a production-completion claim. [Delivery](v1.22.0-delivery.md) records identity boundaries and final publication evidence when available.
+
 ## v1.21.0 — production acceptance snapshot before closure
 
 This dated snapshot records 2026-10-20 (Asia/Taipei) acceptance of runtime candidate `da013a05e26febe92b956c09161c675b3dc5cb3e`, before the docs-only closure commit. It ends at Stage 7. Final closure SHA, exact closure CI/Pages/smoke, annotated tag and formal publication are recorded by the [v1.21.0 GitHub Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.21.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.21.0-delivery.md) for all 41 derivations, source discrepancies and precise proof boundaries.

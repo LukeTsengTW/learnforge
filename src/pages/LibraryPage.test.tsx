@@ -212,7 +212,7 @@ describe('Quiz Library search and filters', () => {
   it.each([
     ['科目', '離散數學', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
       countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
-    ['題型', QUESTION_TYPE.single, inCatalogOrder(midterm2023Title, midterm2024Title, midtermTitle, '經濟學第 1～4 章習題')],
+    ['題型', QUESTION_TYPE.single, inCatalogOrder(midterm2023Title, midterm2024Title, midtermTitle, '經濟學第 1～5 章習題')],
     ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
       countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
     ['標籤', 'combinatorics', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle)],

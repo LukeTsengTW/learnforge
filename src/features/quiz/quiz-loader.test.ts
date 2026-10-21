@@ -20,7 +20,7 @@ describe('bundled quiz catalog', () => {
       'discrete-math-exercises-2026', 'discrete-math-midterm-2021', 'discrete-math-midterm-2023',
       'discrete-math-midterm-2024', 'economics-ch1-4-exercises'])
     // discrete-math and the Chapter 5 family each keep an archived revision 1 next to the current one.
-    expect(Object.keys(bundledQuizSources)).toHaveLength(13)
+    expect(Object.keys(bundledQuizSources)).toHaveLength(14)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()

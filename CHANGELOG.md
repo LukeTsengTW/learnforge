@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.22.0 — Economics chapters 1–5
+
+- Promote `economics-ch1-4-exercises/2`: 經濟學第 1～5 章習題, 52 single-choice questions / 52 points / 120 minutes, distribution 8 / 10 / 13 / 10 / 11. Archive current flag only for revision 1; all 41 historical question blocks remain exact and old attempts/results/drafts retain their stored revision.
+- Independently audit the 11 new questions against p11–p13 and primary references. Preserve the disclosed original q3 d→current c mapping; clarify Pareto, externality/tax conditions, fixed-baseline reduction subsidies, the core Coase conclusion, idealized fire protection, congested open Wi-Fi and reported versus true WTP. See the [complete audit](docs/economics-ch5-content-review.md).
+- Generate 52 new canonical revision 2 contexts (263 total), retaining all previous 211 serialized entries exactly. Add 14 revision/history/content/UI/context regression cases; retain historical assertions and fingerprints.
+- Local verification: 126 files / 1,903 tests, all ten release gates, audit 0; actual memory-repository practice/result flow at 1440 / 768 / 360 / 345 px, all 52 radios, intentional two-error score 50/52 and 52 solutions. Supplemental mobile navigation and rendered q2/q4 formulas passed. Local AdGuard-only blocked-resource noise and evidence-driver retries are disclosed.
+- Release preparation snapshot: candidate/CI, six context-dependent Edge deployments, exact-SHA Pages, production acceptance and closure publication remain gated. No dependency, schema, provider/model or grading-logic change. See [delivery](docs/v1.22.0-delivery.md).
+
 ## 1.21.0 — Economics chapters 1–4
 
 - Add `economics-ch1-4-exercises`, revision 1: 經濟學第 1～4 章習題, 41 single-choice questions / 41 points / 90 minutes, in chapter order 8 / 10 / 13 / 10.

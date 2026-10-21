@@ -113,7 +113,7 @@ describe('Chapter 8 inclusion-exclusion examples', () => {
     const midtermIds = new Set(['discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024'])
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== 'economics-ch1-4-exercises'
       && context.quizId !== id && !midtermIds.has(context.quizId))
-    expect(AI_QUIZ_CONTEXT).toHaveLength(211)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(263)
     expect(existing).toHaveLength(133)
     expect(AI_QUIZ_CONTEXT.filter((context) => context.quizId === id && context.revision === '1')).toHaveLength(12)
     expect(sha(existing)).toBe('8b45ac7c7f2eb147a88d34ec15d51dc3a80439458772b29d33e1e42e50328e7d')
