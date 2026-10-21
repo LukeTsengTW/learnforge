@@ -9,7 +9,8 @@ Source content commit a68e9112869626f4803aba331ee0a897b69f2cd8; prior immutable 
 - [x] 12current quizzes/15revisions/233current questions/305contexts;14prior sources and263prior contexts unchanged. All42 new canonical entries generated through the official generator.
 - [x] Integration full suite127files/1,911tests and ten gates passed; actual local Library/Author Preview across1440/768/360/345,42answers/solutions and267formulas, real text/canvas input and fresh reload. No weakened assertions/timeouts/workers.
 - [x] Working-tree classification security-ai/RiskC, providerCanaryRequired=false. Actual runtime AST graph identifies exactly ai-tutor,ai-grade,ai-drawing,ai-responses,save-quiz-draft,submit-quiz. No migration/provider/model/grading-logic change. Existing ignored.env.local is unchanged and excluded from Git; no credential contents exposed.
-- [ ] Version-preparation final gates and independent Stage5 review.
+- [x] First candidate bdd1adc751430003dbd4575920ffb1cdbce10d2f had successful CI but repeated local App timing failures, so it was not accepted for deployment. Minimal pure-Markdown memoization removes repeated parsing during answer updates; unchanged full suite and four-width browser/source-edit checks pass. New exact-candidate gates/review are required before deployment.
+- [x] Version-preparation final gates and independent Stage5 review PASS; the later rendering remediation is separately reviewed before the replacement candidate.
 - [ ] Clean exact candidate commit/push/preflight/CI and independent Stage6 review.
 - [ ] Six necessary Edge updates with metadata/JWT/digest readback, exact-SHA Pages, canonical public smoke/source-bound report and four-width production acceptance; independent Stage7 review.
 - [ ] Separate docs-only closure, exact closure CI/Pages/smoke, unique annotated tag/GitHub Release and final independent review.
