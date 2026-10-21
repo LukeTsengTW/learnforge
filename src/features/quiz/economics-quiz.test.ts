@@ -22,9 +22,10 @@ afterEach(cleanup)
 
 describe('reviewed economics quiz publication', () => {
   it('retains all 41 historical canonical contexts and all 170 other shipped contexts', () => {
-    const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== quiz.id)
+    const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== quiz.id
+      && context.quizId !== 'digital-systems-ch1-textbook')
     const added = AI_QUIZ_CONTEXT.filter((context) => context.quizId === quiz.id && context.revision === '1')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(263)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(305)
     expect(existing).toHaveLength(170)
     expect(createHash('sha256').update(JSON.stringify(existing)).digest('hex'))
       .toBe('ef83b87e46c1b453466529a96a0c8ecc292c74899d8abffdee2caa00d69cd317')

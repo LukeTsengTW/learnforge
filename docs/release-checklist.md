@@ -1,5 +1,19 @@
 # Release checklist
 
+## v1.23.0 — release preparation
+
+Source content commit a68e9112869626f4803aba331ee0a897b69f2cd8; prior immutable v1.22.0 closure7c12d8d085ae7be8fcf8aa513cfd32cf1e974cbd. New complete current quiz follows the recent minor-version convention. Package and both lock roots are1.23.0; dependencies unchanged. See [delivery](v1.23.0-delivery.md) and [PPT audit](digital-systems-ch1-content-review.md). This section records preparation, not deployment.
+
+- [x] Git baseline safely fast-forwarded; unrelated branches/worktrees/local configuration preserved.
+- [x] Independent Stages0–4 PASS. All50 actual slides inspected;42questions/206points/170minutes;26labelled Example units,3worked groups,17Practice Exercises; all discrepancies documented.
+- [x] 12current quizzes/15revisions/233current questions/305contexts;14prior sources and263prior contexts unchanged. All42 new canonical entries generated through the official generator.
+- [x] Integration full suite127files/1,911tests and ten gates passed; actual local Library/Author Preview across1440/768/360/345,42answers/solutions and267formulas, real text/canvas input and fresh reload. No weakened assertions/timeouts/workers.
+- [x] Working-tree classification security-ai/RiskC, providerCanaryRequired=false. Actual runtime AST graph identifies exactly ai-tutor,ai-grade,ai-drawing,ai-responses,save-quiz-draft,submit-quiz. No migration/provider/model/grading-logic change. Existing ignored.env.local is unchanged and excluded from Git; no credential contents exposed.
+- [ ] Version-preparation final gates and independent Stage5 review.
+- [ ] Clean exact candidate commit/push/preflight/CI and independent Stage6 review.
+- [ ] Six necessary Edge updates with metadata/JWT/digest readback, exact-SHA Pages, canonical public smoke/source-bound report and four-width production acceptance; independent Stage7 review.
+- [ ] Separate docs-only closure, exact closure CI/Pages/smoke, unique annotated tag/GitHub Release and final independent review.
+
 ## v1.22.0 — production acceptance snapshot before closure
 
 This dated 2026-10-21 Asia/Taipei snapshot ends after Stage 8 acceptance of runtime candidate 8dffba62aedeecd1a563892fa8a2b4e6d05443e0. Source: 1ee6f4b1ef90f8d51e1bb5bd760efbc788a996a8. Prior immutable v1.21.0 closure: 76abab8bb025b052bb08b360f05205f42e79db4d. Package/lock roots are 1.22.0; dependencies are unchanged. Final closure SHA, exact CI/Pages/smoke, annotated tag, formal publication and final independent audit are carried by the [v1.22.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.22.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.22.0-delivery.md) and the [11-question content audit](economics-ch5-content-review.md).

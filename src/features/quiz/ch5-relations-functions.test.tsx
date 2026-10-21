@@ -428,10 +428,10 @@ describe('PDF-backed Chapter 5 relations and functions practice', () => {
     const chapter7 = 'discrete-math-ch7-relations-second-examples'
     const chapter8 = 'discrete-math-ch8-inclusion-exclusion-examples'
     const later = new Set([chapter8, 'discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024',
-      'economics-ch1-4-exercises'])
+      'economics-ch1-4-exercises', 'digital-systems-ch1-textbook'])
     const all = Object.values(bundledQuizSources).map((source) => parseQuiz(source, true)).filter((q) => !later.has(q.id))
     const contexts = AI_QUIZ_CONTEXT.filter((c) => !later.has(String(c.quizId)))
-    // Later Chapter 8, midterm and economics families stay outside this inventory; Chapter 7 is excluded from older hashes below.
+    // Later Chapter 8, midterm, economics and digital-systems families stay outside this inventory; Chapter 7 is excluded from older hashes below.
     expect(all).toHaveLength(12)
     expect(quizCatalog.current.filter(({ quiz }) => !later.has(quiz.id))).toHaveLength(9)
     expect(quizCatalog.errors).toEqual([])

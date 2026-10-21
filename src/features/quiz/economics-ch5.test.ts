@@ -24,9 +24,11 @@ afterEach(cleanup)
 
 describe('reviewed economics chapter 5 integration', () => {
   it('adds 52 canonical revision 2 contexts while preserving all old 211 serialized contexts', () => {
-    const old = AI_QUIZ_CONTEXT.filter(c => !(c.quizId === quiz.id && c.revision === '2'))
+    // Preserve this release's historical cohort; the later digital-systems family has its own full-baseline guard.
+    const old = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch1-textbook'
+      && !(c.quizId === quiz.id && c.revision === '2'))
     const added = AI_QUIZ_CONTEXT.filter(c => c.quizId === quiz.id && c.revision === '2')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(263)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(305)
     expect(old).toHaveLength(211)
     expect(createHash('sha256').update(JSON.stringify(old)).digest('hex'))
       .toBe('bdaeada2f602763420ac69034aac12fb86c0c442bc1313daab65cb791fb7bfd2')

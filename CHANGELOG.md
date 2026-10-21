@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.23.0 — Digital systems Chapter 1 textbook exercises
+
+- Add current `digital-systems-ch1-textbook/1`, 【課本題目】數位系統導論 - Chapter 1: 42 calculation questions /206 points /170 minutes, including 40 optional handwriting questions under the existing v4 contract. This complete new current quiz follows the established minor-release convention; no dependency or schema upgrade.
+- Render and inspect all 50 source PPT slides. Map 26 labelled Example units, three concrete worked groups and 17 Practice Exercises into 42 questions. Restore the omitted slide9 arithmetic, slide17 grouping conversions and slide45 10-bit register example; retain the slide34 BCD worked group. See the [complete source crosswalk and exclusions](docs/digital-systems-ch1-content-review.md).
+- Correct source base-5 and octal-expansion errors, Practice1.3 (135→10000111) and Practice1.14 signed arithmetic. Preserve the Practice1.7 translator correction; explicitly distinguish nonterminating octal prefixes from equality, standard BCD0001 0000 from the slide abbreviation, unsigned complement widths and the voltage diagram's stated conditions.
+- Generate exactly42 new canonical contexts (305 total), retaining all263 prior serialized entries and all14 prior source revisions unchanged. Update catalog and historical-cohort inventory tests while retaining their original assertions; add full-baseline/content/render/context regressions.
+- Local integration:127 test files /1,911 tests, all ten release gates, all42 student/answer cards and267 KaTeX formulas at1440/768/360/345px, real text and canvas input, first/middle/last navigation and fresh reload. Existing local Vite DevTools-shim warning is disclosed. Release preparation and subsequent exact candidate/production evidence are tracked in [delivery](docs/v1.23.0-delivery.md); no production result is claimed by this preparation entry.
+
 ## 1.22.0 — Economics chapters 1–5
 
 - Promote `economics-ch1-4-exercises/2`: 經濟學第 1～5 章習題, 52 single-choice questions / 52 points / 120 minutes, distribution 8 / 10 / 13 / 10 / 11. Archive current flag only for revision 1; all 41 historical question blocks remain exact and old attempts/results/drafts retain their stored revision.
