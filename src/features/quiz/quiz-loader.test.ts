@@ -11,16 +11,16 @@ import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-hel
 const sources = { ...bundledQuizSources, ...fixtureQuizSources }
 const fixtureCatalog = createQuizCatalog(sources)
 describe('bundled quiz catalog', () => {
-  it('publishes exactly the twelve current quizzes and none of the removed ones', () => {
+  it('publishes exactly the thirteen current quizzes and none of the removed ones', () => {
     expect(quizCatalog.errors).toEqual([])
-    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['digital-systems-ch1-textbook', 'discrete-math',
+    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook', 'discrete-math',
       'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-ch5-relations-functions-examples',
       'discrete-math-ch7-relations-second-examples',
       'discrete-math-ch8-inclusion-exclusion-examples',
       'discrete-math-exercises-2026', 'discrete-math-midterm-2021', 'discrete-math-midterm-2023',
       'discrete-math-midterm-2024', 'economics-ch1-4-exercises'])
     // discrete-math and the Chapter 5 family each keep an archived revision 1 next to the current one.
-    expect(Object.keys(bundledQuizSources)).toHaveLength(15)
+    expect(Object.keys(bundledQuizSources)).toHaveLength(16)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()

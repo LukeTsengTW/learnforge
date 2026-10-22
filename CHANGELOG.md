@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.24.0 — Digital systems Chapter 2 textbook exercises
+
+- Add current `digital-systems-ch2-textbook/1`, 【課本題目】數位系統導論 - Chapter 2: 26 calculation questions / 122 points / 115 minutes, all with optional handwriting under the existing v4 contract. This complete new current quiz follows the minor-release convention of 1.23.0; no dependency or schema upgrade.
+- Render and inspect all 66 source PPT slides in PowerPoint, with the circuit slides re-exported at 4000 px to trace every gate input. Examples 2.1–2.5, the unnumbered Examples on slides 5–6, 20, 22–25 and 41, the worked calculations on slides 36–37 and 40, and Practice Exercises 2.1–2.14 map to 25 questions; the omitted slide 43/45 worked example (F₃ = AB + C(D + E) = AB + CD + CE with its three- and two-level implementations) is added as q26 in slide order. See the [complete source crosswalk and exclusions](docs/digital-systems-ch2-content-review.md).
+- Correct the slide answers of Practice Exercise 2.7 (Π(0,4,6) with M₆, not M₇) and 2.11 (Π(0,1,4,6): M₁ instead of M₅), and follow the slide annotations for Practice Exercises 2.3 (swapped AND labels), 2.4 (final gate NOR, not XOR) and 2.12 (ACD, not ACD′). Circuit diagrams are described in text and match the original wiring. Every Boolean answer is verified by exhaustive truth tables.
+- Generate exactly 26 new canonical contexts (331 total), retaining all 305 prior serialized entries and all 15 prior source revisions unchanged. Update catalog and historical-cohort inventory tests while retaining their original assertions; add full-baseline/content/render/context regressions.
+- Local integration: 128 test files / 1,918 tests; all 26 student/answer cards and 532 KaTeX formulas at 1440/768/360/345 px without overflow, real text and canvas input, navigation and fresh reload. Release preparation and subsequent exact candidate/production evidence are tracked in the v1.24.0 delivery record; no production result is claimed by this preparation entry.
+
 ## 1.23.0 — Digital systems Chapter 1 textbook exercises
 
 - Add current `digital-systems-ch1-textbook/1`, 【課本題目】數位系統導論 - Chapter 1: 42 calculation questions /206 points /170 minutes, including 40 optional handwriting questions under the existing v4 contract. This complete new current quiz follows the established minor-release convention; no dependency or schema upgrade.

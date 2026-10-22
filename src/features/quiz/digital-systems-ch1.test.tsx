@@ -8,6 +8,8 @@ import { validateV4Publication } from '../../lib/scored-rubric'
 import { bundledQuizSources, quizCatalog } from './quiz-loader'
 
 const id = 'digital-systems-ch1-textbook'
+// The later Chapter 2 family has its own full-baseline guard in digital-systems-ch2.test.tsx.
+const later = 'digital-systems-ch2-textbook'
 const quiz = quizCatalog.getCurrentQuiz(id)!
 const sha = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const question = (questionId: string) => {
@@ -42,15 +44,15 @@ describe('source-audited digital systems chapter 1 integration', () => {
 
   it('preserves all fourteen prior source revisions and all 263 prior canonical contexts', () => {
     const priorSources = Object.entries(bundledQuizSources)
-      .filter(([file]) => !file.includes(`/${id}/`))
+      .filter(([file]) => !file.includes(`/${id}/`) && !file.includes(`/${later}/`))
       .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')])
       .sort(([a], [b]) => a.localeCompare(b))
     expect(priorSources).toHaveLength(14)
     expect(sha(priorSources)).toBe('5c6047807151b538788521a5dbc13ec5227a5e88e6ea40d0bdd39096d6ac2e14')
-    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id)
+    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== later)
     expect(priorContexts).toHaveLength(263)
     expect(sha(priorContexts)).toBe('9898ee86b5422e9ce095a0e3f6972905dcebbce53dba4afb9ca1ec0fc6a14c41')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(305)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(331)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

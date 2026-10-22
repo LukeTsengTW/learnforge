@@ -48,6 +48,7 @@ const relationsFunctionsTitle = '離散數學第五章：關係和函數－例�
 const chapter7Title = '離散數學第七章：關係－第二回－例題練習'
 const chapter8Title = '離散數學第八章：包含及互斥原理－例題練習'
 const digitalSystemsTitle = '【課本題目】數位系統導論 - Chapter 1'
+const digitalSystems2Title = '【課本題目】數位系統導論 - Chapter 2'
 const bundledTitles = originalCatalog.map(({ quiz }) => quiz.title)
 const inCatalogOrder = (...titles: string[]) => bundledTitles.filter((title) => titles.includes(title))
 
@@ -91,6 +92,17 @@ describe('Quiz Library search and filters', () => {
     expect(within(card).getByText('約 170 分鐘')).toBeInTheDocument()
     expect(within(card).getByRole('link', { name: /開始練習/ }))
       .toHaveAttribute('href', '/quiz/digital-systems-ch1-textbook')
+  })
+
+  it('shows the audited digital systems chapter 2 quiz with its current metadata and link', () => {
+    renderLibrary(originalCatalog)
+    const card = screen.getByRole('heading', { name: digitalSystems2Title, level: 2 }).closest('article')!
+    expect(within(card).getByText('數位系統導論')).toBeInTheDocument()
+    expect(within(card).getByText('26 題')).toBeInTheDocument()
+    expect(within(card).getByText('總分 122 分')).toBeInTheDocument()
+    expect(within(card).getByText('約 115 分鐘')).toBeInTheDocument()
+    expect(within(card).getByRole('link', { name: /開始練習/ }))
+      .toHaveAttribute('href', '/quiz/digital-systems-ch2-textbook')
   })
 
   it('shows the real bundled midterm facts and current quiz link', () => {
@@ -224,10 +236,10 @@ describe('Quiz Library search and filters', () => {
   it.each([
     ['科目', '離散數學', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
       countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title)],
-    ['科目', '數位系統導論', [digitalSystemsTitle]],
+    ['科目', '數位系統導論', inCatalogOrder(digitalSystemsTitle, digitalSystems2Title)],
     ['題型', QUESTION_TYPE.single, inCatalogOrder(midterm2023Title, midterm2024Title, midtermTitle, '經濟學第 1～5 章習題')],
     ['題型', QUESTION_TYPE.calculation, inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle,
-      countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title, digitalSystemsTitle)],
+      countingTitle, exercisesTitle, setTheoryTitle, relationsFunctionsTitle, chapter7Title, chapter8Title, digitalSystemsTitle, digitalSystems2Title)],
     ['標籤', 'combinatorics', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title, midtermTitle)],
     ['標籤', 'inclusion-exclusion', inCatalogOrder(midterm2021Title, midterm2023Title, midterm2024Title,
       midtermTitle, exercisesTitle, setTheoryTitle, chapter8Title)],

@@ -1751,6 +1751,1183 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Example：identity element 與 inverse（投影片第 5–6 頁）\n考慮整數集合 $I=\\{\\ldots,-3,-2,-1,0,1,2,3,\\ldots\\}$ 與二元運算子 $+$：\n\n(a) 寫出 $I$ 對 $+$ 的 identity element，並說明理由。\n\n(b) 說明為何不含 $0$ 的自然數集合 $N$ 對 $+$ 沒有 identity element。\n\n(c) 在 $I$ 中，以 $e=0$ 為 identity，元素 $a$ 對 $+$ 的 inverse 是什麼？",
+    "hint": null,
+    "solution": "identity element 的定義是存在 $e\\in S$，使所有 $x\\in S$ 皆有 $e*x=x*e=x$。整數加法中 $0$ 滿足此條件；而 $e+x=x$ 只有 $e=0$ 一個解，故排除 $0$ 的 $N$ 找不到 identity。inverse 的定義是對每個 $x$ 存在 $y$ 使 $x*y=e$；加法中取 $y=-a$ 即得 $a+(-a)=0=e$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) 正確指出 identity 為 $0$ 並用 $x+0=0+x=x$ 說明。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確說明 identity 必為 $0$ 而 $0\\notin N$。"
+      },
+      {
+        "score": 1,
+        "description": "(c) 正確寫出 inverse 為 $-a$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) identity element 為 $0$，因為對任意 $x\\in I$，$x+0=0+x=x$。\n\n(b) 若 $e$ 對 $+$ 為 identity，必須對所有 $x$ 滿足 $e+x=x$，因此 $e=0$；但 $N$ 不含 $0$，所以沒有 identity element。\n\n(c) inverse 為 $-a$，因為 $a+(-a)=0$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) 正確指出 identity 為 $0$ 並用 $x+0=0+x=x$ 說明。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 正確說明 identity 必為 $0$ 而 $0\\notin N$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(c) 正確寫出 inverse 為 $-a$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### Examples：運算子優先順序（投影片第 20 頁）\n布林運算的優先順序為：括號、NOT、AND、OR。依此順序，分別寫出下列兩式的求值步驟：\n\n(a) $xy'+z$\n\n(b) $(xy+z)'$",
+    "hint": null,
+    "solution": "(a) 式中沒有括號，NOT 優先於 AND、AND 優先於 OR，所以順序為 $y'\\rightarrow xy'\\rightarrow xy'+z$。\n\n(b) 括號最優先；括號內同樣先 AND 後 OR，得到 $xy+z$ 後再取補數。注意 $(xy+z)'$ 不等於 $x'y'+z'$，補數作用於整個括號。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) 順序為 NOT → AND → OR。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 順序為括號內 AND → OR，最後整體 NOT。"
+      }
+    ],
+    "points": 2,
+    "referenceAnswer": "(a) 先求 $y'$，再算 AND 得 $xy'$，最後與 $z$ 做 OR。\n\n(b) 先算括號內：先 AND 得 $xy$，再與 $z$ 做 OR 得 $xy+z$，最後對整個括號取 NOT。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) 順序為 NOT → AND → OR。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 順序為括號內 AND → OR，最後整體 NOT。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.1（投影片第 21 頁）\n使用布林代數的基本定理與公設，化簡下列布林式：\n\n$$F=x'y'z+xyz+x'yz+xy'z$$",
+    "hint": null,
+    "solution": "四項皆含 $z$，提出 $z$：\n\n$F=z(x'y'+xy+x'y+xy')$。\n\n括號內兩兩合併：$x'y'+x'y=x'(y'+y)=x'$，$xy+xy'=x(y+y')=x$，所以括號內為 $x'+x=1$。\n\n因此 $F=z\\cdot1=z$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確使用分配律與 $y+y'=1$ 合併各項。"
+      },
+      {
+        "score": 1,
+        "description": "得到括號內為 $x+x'=1$。"
+      },
+      {
+        "score": 1,
+        "description": "最後答案為 $F=z$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=z$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確使用分配律與 $y+y'=1$ 合併各項。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "得到括號內為 $x+x'=1$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "最後答案為 $F=z$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.2（投影片第 21 頁）\n寫出布林式 $F=x'y'z$ 的真值表。",
+    "hint": null,
+    "solution": "$F=x'y'z$ 為三個 literal 的 AND，只有在 $x'=1$、$y'=1$、$z=1$，也就是 $x=0,y=0,z=1$ 時 $F=1$；其餘 7 列皆為 $0$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "列出 $x,y,z$ 的全部 8 種組合。"
+      },
+      {
+        "score": 2,
+        "description": "只有 $x=0,y=0,z=1$ 一列 $F=1$，其餘為 $0$。"
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&0\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&0\\\\\n1&1&1&0\n\\end{array}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "列出 $x,y,z$ 的全部 8 種組合。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "只有 $x=0,y=0,z=1$ 一列 $F=1$，其餘為 $0$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Examples：$F_1$、$F_2$ 的真值表與閘級實作（投影片第 22–25 頁）\n投影片給定兩個布林函數：\n\n$$F_1=x+y'z,\\qquad F_2=x'y'z+x'yz+xy'$$\n\n(a) 寫出 $F_1$ 與 $F_2$ 的真值表（Table 2.2）。\n\n(b) 以布林代數將 $F_2$ 化簡為兩項的 sum of products。\n\n(c) 說明 $F_1$ 的邏輯圖（Figure 2.1）需要哪些邏輯閘，以及各閘的輸入與輸出。",
+    "hint": null,
+    "solution": "(a) $F_1$ 在 $x=1$ 的四列為 $1$，另外在 $y=0,z=1$ 時也為 $1$。$F_2$ 中 $x'y'z$、$x'yz$、$xy'$ 分別對應 $001$、$011$、$100$ 與 $101$。\n\n(b) $F_2=x'y'z+x'yz+xy'=x'z(y'+y)+xy'=x'z+xy'$。對應 Figure 2.2：原式 (a) 需要三個 AND 閘，化簡後 (b) 只需兩個 2-input AND 與一個 2-input OR。\n\n(c) 依 Figure 2.1，$x$ 直接接到 OR 閘，$y$ 經 inverter 後與 $z$ 送入 AND 閘，AND 輸出再接到 OR 閘的另一個輸入。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) $F_1$ 欄正確：$0,1,0,0,1,1,1,1$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) $F_2$ 欄正確：$0,1,0,1,1,1,0,0$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確化簡為 $xy'+x'z$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) 正確描述 inverter、AND、OR 三個閘及其連接。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a)\n\n$$\n\\begin{array}{ccc|cc}\nx & y & z & F_1 & F_2\\\\\\hline\n0&0&0&0&0\\\\\n0&0&1&1&1\\\\\n0&1&0&0&0\\\\\n0&1&1&0&1\\\\\n1&0&0&1&1\\\\\n1&0&1&1&1\\\\\n1&1&0&1&0\\\\\n1&1&1&1&0\n\\end{array}\n$$\n\n(b) $F_2=xy'+x'z$。\n\n(c) 一個 inverter 由 $y$ 產生 $y'$；一個 2-input AND 輸入 $y'$、$z$，輸出 $y'z$；一個 2-input OR 輸入 $x$ 與 $y'z$，輸出 $F_1$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) $F_1$ 欄正確：$0,1,0,0,1,1,1,1$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) $F_2$ 欄正確：$0,1,0,1,1,1,0,0$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確化簡為 $xy'+x'z$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(c) 正確描述 inverter、AND、OR 三個閘及其連接。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### Example 2.1（投影片第 27 頁）\n將下列布林函數化簡為最少 literal 數：\n\n(1) $x(x'+y)$\n\n(2) $x+x'y$\n\n(3) $(x+y)(x+y')$\n\n(4) $xy+x'z+yz$\n\n(5) $(x+y)(x'+z)(y+z)$",
+    "hint": null,
+    "solution": "(1) $x(x'+y)=xx'+xy=0+xy=xy$。\n\n(2) 使用 $+$ 對 $\\cdot$ 的分配律：$x+x'y=(x+x')(x+y)=1\\cdot(x+y)=x+y$。\n\n(3) $(x+y)(x+y')=x+xy+xy'+yy'=x(1+y+y')=x$。\n\n(4) $xy+x'z+yz=xy+x'z+yz(x+x')=xy+x'z+xyz+x'yz=xy(1+z)+x'z(1+y)=xy+x'z$（consensus theorem）。\n\n(5) 為 (4) 的 dual：將 AND/OR 互換即得 $(x+y)(x'+z)(y+z)=(x+y)(x'+z)$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(1) 得到 $xy$。"
+      },
+      {
+        "score": 2,
+        "description": "(2) 得到 $x+y$。"
+      },
+      {
+        "score": 2,
+        "description": "(3) 得到 $x$。"
+      },
+      {
+        "score": 2,
+        "description": "(4) 透過乘上 $x+x'$ 等步驟得到 $xy+x'z$。"
+      },
+      {
+        "score": 2,
+        "description": "(5) 以 duality 或代數得到 $(x+y)(x'+z)$。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(1) $xy$\n\n(2) $x+y$\n\n(3) $x$\n\n(4) $xy+x'z$\n\n(5) $(x+y)(x'+z)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(1) 得到 $xy$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(2) 得到 $x+y$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(3) 得到 $x$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(4) 透過乘上 $x+x'$ 等步驟得到 $xy+x'z$。"
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "(5) 以 duality 或代數得到 $(x+y)(x'+z)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### Example 2.2（投影片第 29 頁）\n反覆套用 DeMorgan 定理，求下列函數的補數：\n\n(a) $F_1=x'yz'+x'y'z$\n\n(b) $F_2=x(y'z'+yz)$",
+    "hint": null,
+    "solution": "(a) $F_1'=(x'yz'+x'y'z)'=(x'yz')'(x'y'z)'=(x+y'+z)(x+y+z')$。\n\n(b) $F_2'=[x(y'z'+yz)]'=x'+(y'z'+yz)'=x'+(y'z')'(yz)'=x'+(y+z)(y'+z')$。\n\n展開 $(y+z)(y'+z')=yy'+yz'+zy'+zz'=yz'+y'z$，所以 $F_2'=x'+yz'+y'z$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) 正確套用 DeMorgan 得到 $(x+y'+z)(x+y+z')$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到 $x'+(y+z)(y'+z')$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 展開為 $x'+yz'+y'z$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $F_1'=(x+y'+z)(x+y+z')$\n\n(b) $F_2'=x'+yz'+y'z$（等價於 $x'+(y+z)(y'+z')$）",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) 正確套用 DeMorgan 得到 $(x+y'+z)(x+y+z')$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 正確得到 $x'+(y+z)(y'+z')$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(b) 展開為 $x'+yz'+y'z$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Example 2.3（投影片第 30 頁）\n以「先取 dual，再把每個 literal 取補數」的方法，求 Example 2.2 中兩個函數的補數：\n\n(a) $F_1=x'yz'+x'y'z$\n\n(b) $F_2=x(y'z'+yz)$\n\n請同時寫出各函數的 dual。",
+    "hint": null,
+    "solution": "dual 是把 AND 與 OR 互換（若有 $0$、$1$ 也互換），literal 本身不變。對 dual 再把每個 literal 取補數，結果等於原函數的補數，這正是一般化 DeMorgan 定理。所得結果與 Example 2.2 相同。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) 正確寫出 dual $(x'+y+z')(x'+y'+z)$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確得到 $F_1'=(x+y'+z)(x+y+z')$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確寫出 dual $x+(y'+z')(y+z)$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確得到 $F_2'=x'+(y+z)(y'+z')$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) dual 為 $(x'+y+z')(x'+y'+z)$；每個 literal 取補數得 $F_1'=(x+y'+z)(x+y+z')$。\n\n(b) dual 為 $x+(y'+z')(y+z)$；每個 literal 取補數得 $F_2'=x'+(y+z)(y'+z')$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) 正確寫出 dual $(x'+y+z')(x'+y'+z)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確得到 $F_1'=(x+y'+z)(x+y+z')$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(b) 正確寫出 dual $x+(y'+z')(y+z)$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確得到 $F_2'=x'+(y+z)(y'+z')$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.3（投影片第 31 頁）\n畫出布林函數 $F=x'y+xy'$ 的邏輯圖，並標示每個 AND 閘的輸出。",
+    "hint": null,
+    "solution": "$F$ 為兩個乘積項的 OR，因此為 AND–OR 兩級電路，另以 inverter 產生補數輸入。投影片答案圖中兩個 AND 閘的輸出標示 $x'y$ 與 $xy'$ 互相標反了（上方 AND 實際接 $x$ 與 $y'$，應為 $xy'$），投影片已註明「這兩組符號標示必須對調」；作答時每個 AND 的標示必須與其實際輸入一致。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "以 inverter 產生 $x'$ 與 $y'$。"
+      },
+      {
+        "score": 2,
+        "description": "兩個 AND 閘輸入正確，且輸出標示與輸入一致（$x'y$、$xy'$）。"
+      },
+      {
+        "score": 1,
+        "description": "以 OR 閘合併兩個 AND 輸出得到 $F$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$x$、$y$ 各接一個 inverter 得到 $x'$、$y'$；第一個 2-input AND 輸入 $x'$ 與 $y$，輸出 $x'y$；第二個 2-input AND 輸入 $x$ 與 $y'$，輸出 $xy'$；兩個 AND 輸出送入 2-input OR，輸出 $F$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "以 inverter 產生 $x'$ 與 $y'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "兩個 AND 閘輸入正確，且輸出標示與輸入一致（$x'y$、$xy'$）。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "以 OR 閘合併兩個 AND 輸出得到 $F$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.4（投影片第 32 頁）\nFigure PE2.4 的邏輯圖（依投影片更正後的閘符號）如下：\n\n- $x$、$y$ 各接一個 inverter，得到 $x'$、$y'$。\n- 第一個 2-input AND 閘輸入 $x$ 與 $y'$，輸出 $xy'$。\n- 第二個 2-input AND 閘輸入 $x'$ 與 $y$，輸出 $x'y$。\n- 兩個 AND 輸出送入一個 2-input **NOR** 閘，輸出為 $F$。\n\n此邏輯圖實作的布林式為何？請化簡為 sum of products。",
+    "hint": null,
+    "solution": "NOR 輸出為兩輸入 OR 的補數：$F=(x'y+xy')'$。\n\n套用 DeMorgan：$F=(x'y)'(xy')'=(x+y')(x'+y)=xx'+xy+x'y'+yy'=xy+x'y'$。\n\n投影片原圖最後一級畫成 XOR 符號，投影片已註明「這個邏輯閘符號有誤」並改為 NOR；本題依更正後的 NOR 出題，與投影片 Answer 一致。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確寫出 $F=(x'y+xy')'$。"
+      },
+      {
+        "score": 2,
+        "description": "以 DeMorgan 化簡得到 $xy+x'y'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=(x'y+xy')'=xy+x'y'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確寫出 $F=(x'y+xy')'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "以 DeMorgan 化簡得到 $xy+x'y'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.5（投影片第 33 頁）\n寫出 Practice Exercise 2.4 的邏輯圖（Figure PE2.4，兩個 AND 閘輸出 $xy'$、$x'y$ 送入 NOR 閘）所實作的真值表。",
+    "hint": null,
+    "solution": "$F=xy+x'y'$，只有 $x=y$ 時為 $1$，即 equivalence（XNOR）函數。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "列出 $x,y$ 的 4 種組合。"
+      },
+      {
+        "score": 2,
+        "description": "$F$ 欄依序為 $1,0,0,1$。"
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$$\n\\begin{array}{cc|c}\nx & y & F\\\\\\hline\n0&0&1\\\\\n0&1&0\\\\\n1&0&0\\\\\n1&1&1\n\\end{array}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "列出 $x,y$ 的 4 種組合。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F$ 欄依序為 $1,0,0,1$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.6（投影片第 33 頁）\n求布林函數 $F=A'BC'+A'B'C$ 的補數。",
+    "hint": null,
+    "solution": "$F'=(A'BC')'(A'B'C)'=(A+B'+C)(A+B+C')$。\n\n利用 $(A+X)(A+Y)=A+XY$：$F'=A+(B'+C)(B+C')$。\n\n展開 $(B'+C)(B+C')=B'B+B'C'+CB+CC'=BC+B'C'$，所以 $F'=A+BC+B'C'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確套用 DeMorgan 得到 $(A+B'+C)(A+B+C')$。"
+      },
+      {
+        "score": 2,
+        "description": "化簡為 $A+BC+B'C'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F'=A+BC+B'C'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確套用 DeMorgan 得到 $(A+B'+C)(A+B+C')$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "化簡為 $A+BC+B'C'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Worked examples：Table 2.4 的 minterm 與 maxterm 表示（投影片第 36–37 頁）\n三變數函數 $f_1$、$f_2$ 的真值表如下（Table 2.4）：\n\n$$\n\\begin{array}{ccc|cc}\nx & y & z & f_1 & f_2\\\\\\hline\n0&0&0&0&0\\\\\n0&0&1&1&0\\\\\n0&1&0&0&0\\\\\n0&1&1&0&1\\\\\n1&0&0&1&0\\\\\n1&0&1&0&1\\\\\n1&1&0&0&1\\\\\n1&1&1&1&1\n\\end{array}\n$$\n\n(a) 將 $f_1$、$f_2$ 寫成 sum of minterms（同時寫出乘積項與 $m_i$ 記號）。\n\n(b) 將 $f_1'$ 寫成 sum of minterms。\n\n(c) 將 $f_1$、$f_2$ 寫成 product of maxterms（同時寫出和項與 $M_i$ 記號）。",
+    "hint": null,
+    "solution": "函數值為 $1$ 的列對應 minterm；值為 $0$ 的列即補數的 minterm。由 $f_1=(f_1')'$ 與 DeMorgan，$m_j'=M_j$，所以 $f_1$ 等於所有 $0$ 列 maxterm 的乘積。$f_2$ 的 $0$ 列為 $0,1,2,4$，故為 $M_0M_1M_2M_4$。maxterm 中變數值為 $0$ 時寫原變數、為 $1$ 時寫補數。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) $f_1=m_1+m_4+m_7$、$f_2=m_3+m_5+m_6+m_7$，乘積項正確。"
+      },
+      {
+        "score": 1,
+        "description": "(b) $f_1'=m_0+m_2+m_3+m_5+m_6$。"
+      },
+      {
+        "score": 3,
+        "description": "(c) $f_1=M_0M_2M_3M_5M_6$、$f_2=M_0M_1M_2M_4$，和項正確。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $f_1=x'y'z+xy'z'+xyz=m_1+m_4+m_7$；$f_2=x'yz+xy'z+xyz'+xyz=m_3+m_5+m_6+m_7$。\n\n(b) $f_1'=x'y'z'+x'yz'+x'yz+xy'z+xyz'=m_0+m_2+m_3+m_5+m_6$。\n\n(c) $f_1=(x+y+z)(x+y'+z)(x+y'+z')(x'+y+z')(x'+y'+z)=M_0M_2M_3M_5M_6$；$f_2=(x+y+z)(x+y+z')(x+y'+z)(x'+y+z)=M_0M_1M_2M_4$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) $f_1=m_1+m_4+m_7$、$f_2=m_3+m_5+m_6+m_7$，乘積項正確。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) $f_1'=m_0+m_2+m_3+m_5+m_6$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(c) $f_1=M_0M_2M_3M_5M_6$、$f_2=M_0M_1M_2M_4$，和項正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### Example 2.4（投影片第 38 頁）\n將布林函數 $F=A+B'C$ 表示為 sum of minterms，並以 $\\Sigma$ 記號寫出結果。",
+    "hint": null,
+    "solution": "對缺少的變數乘上 $(v+v')$ 展開：\n\n$A=A(B+B')=AB+AB'=AB(C+C')+AB'(C+C')=ABC+ABC'+AB'C+AB'C'$；\n\n$B'C=(A+A')B'C=AB'C+A'B'C$。\n\n合併並去除重複的 $AB'C$：$F=A'B'C+AB'C'+AB'C+ABC'+ABC$。亦可先建立真值表（Table 2.5），讀出 $F=1$ 的列為 $1,4,5,6,7$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確乘上 $(B+B')$、$(C+C')$、$(A+A')$ 展開。"
+      },
+      {
+        "score": 1,
+        "description": "合併重複項，列出 5 個 minterm。"
+      },
+      {
+        "score": 2,
+        "description": "寫出 $\\Sigma(1,4,5,6,7)$。"
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "$F=A'B'C+AB'C'+AB'C+ABC'+ABC=m_1+m_4+m_5+m_6+m_7$，即 $F(A,B,C)=\\Sigma(1,4,5,6,7)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確乘上 $(B+B')$、$(C+C')$、$(A+A')$ 展開。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "合併重複項，列出 5 個 minterm。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "寫出 $\\Sigma(1,4,5,6,7)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### Example 2.5（投影片第 39 頁）\n將布林函數 $F=xy+x'z$ 表示為 product of maxterms，並以 $\\Pi$ 記號寫出結果。",
+    "hint": null,
+    "solution": "以 $+$ 對 $\\cdot$ 的分配律轉成 OR 項的乘積：\n\n$F=(xy+x')(xy+z)=(x+x')(y+x')(x+z)(y+z)=(x'+y)(x+z)(y+z)$。\n\n對每個 OR 項補上缺少的變數：\n\n$x'+y=x'+y+zz'=(x'+y+z)(x'+y+z')$，\n\n$x+z=x+z+yy'=(x+y+z)(x+y'+z)$，\n\n$y+z=y+z+xx'=(x+y+z)(x'+y+z)$。\n\n合併並去除重複項得 $M_0M_2M_4M_5$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確以分配律得到 $(x'+y)(x+z)(y+z)$。"
+      },
+      {
+        "score": 1,
+        "description": "正確補上缺少變數並去除重複。"
+      },
+      {
+        "score": 2,
+        "description": "寫出 $\\Pi(0,2,4,5)$。"
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "$F=(x+y+z)(x+y'+z)(x'+y+z)(x'+y+z')=M_0M_2M_4M_5$，即 $F(x,y,z)=\\Pi(0,2,4,5)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確以分配律得到 $(x'+y)(x+z)(y+z)$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確補上缺少變數並去除重複。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "寫出 $\\Pi(0,2,4,5)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### Worked example：標準式之間的轉換（投影片第 40 頁）\n已知 $F(A,B,C)=\\Sigma(1,4,5,6,7)$。\n\n(a) 以 $\\Sigma$ 記號寫出 $F'$。\n\n(b) 以 $\\Pi$ 記號將 $F$ 寫成 product of maxterms，並寫出各 maxterm。",
+    "hint": null,
+    "solution": "$F'$ 由 $F$ 未列出的 minterm 組成。由 DeMorgan，$F=(m_0+m_2+m_3)'=m_0'\\cdot m_2'\\cdot m_3'=M_0M_2M_3$。一般規則：互換 $\\Sigma$ 與 $\\Pi$，並列出原式中缺少的編號。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) $F'=\\Sigma(0,2,3)$。"
+      },
+      {
+        "score": 2,
+        "description": "(b) $F=\\Pi(0,2,3)$，且三個 maxterm 正確。"
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "(a) $F'(A,B,C)=\\Sigma(0,2,3)=m_0+m_2+m_3$。\n\n(b) $F=M_0M_2M_3=\\Pi(0,2,3)=(A+B+C)(A+B'+C)(A+B'+C')$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) $F'=\\Sigma(0,2,3)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) $F=\\Pi(0,2,3)$，且三個 maxterm 正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### Example：$F=xy+x'z$ 的兩種標準式（投影片第 41 頁）\n對 $F=xy+x'z$：\n\n(a) 寫出真值表（Table 2.6）。\n\n(b) 以 $\\Sigma$ 記號寫出 $F$ 的 sum of minterms。\n\n(c) 以 $\\Pi$ 記號寫出 $F$ 的 product of maxterms，並以 $\\Sigma$ 記號寫出 $F'$。",
+    "hint": null,
+    "solution": "$xy=1$ 對應 $110$、$111$；$x'z=1$ 對應 $001$、$011$，所以 minterm 為 $1,3,6,7$。其餘 $0,2,4,5$ 為 $F=0$ 的列，即 maxterm 編號，也是 $F'$ 的 minterm 編號。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) 真值表 $F$ 欄為 $0,1,0,1,0,0,1,1$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) $\\Sigma(1,3,6,7)$。"
+      },
+      {
+        "score": 2,
+        "description": "(c) $\\Pi(0,2,4,5)$ 與 $F'=\\Sigma(0,2,4,5)$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a)\n\n$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&1\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&1\\\\\n1&1&1&1\n\\end{array}\n$$\n\n(b) $F(x,y,z)=\\Sigma(1,3,6,7)$。\n\n(c) $F(x,y,z)=\\Pi(0,2,4,5)$；$F'=\\Sigma(0,2,4,5)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) 真值表 $F$ 欄為 $0,1,0,1,0,0,1,1$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) $\\Sigma(1,3,6,7)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) $\\Pi(0,2,4,5)$ 與 $F'=\\Sigma(0,2,4,5)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.7（投影片第 42 頁）\n求 $F(x,y,z)=\\Sigma(1,2,3,5,7)$ 的 product of maxterms 表示式，並寫出 $F'$。",
+    "hint": null,
+    "solution": "$F$ 的 $0$ 列為 $0,4,6$，所以 $F'=\\Sigma(0,4,6)$，$F=M_0M_4M_6$。\n\n$M_0$：$000\\Rightarrow x+y+z$；$M_4$：$100\\Rightarrow x'+y+z$；$M_6$：$110\\Rightarrow x'+y'+z$。\n\n投影片答案誤植：Answer 將最後一個因式寫成 $(x'+y'+z')$，那是 $M_7$；但 $7$ 屬於 $F$ 的 minterm（$F(1,1,1)=1$），若乘上 $M_7$ 會使 $F(1,1,1)=0$。正確應為 $M_6=(x'+y'+z)$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確寫出 $F'=\\Sigma(0,4,6)$。"
+      },
+      {
+        "score": 3,
+        "description": "正確寫出 $(x+y+z)(x'+y+z)(x'+y'+z)$，即 $\\Pi(0,4,6)$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F'=\\Sigma(0,4,6)$；$F=\\Pi(0,4,6)=(x+y+z)(x'+y+z)(x'+y'+z)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確寫出 $F'=\\Sigma(0,4,6)$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "正確寫出 $(x+y+z)(x'+y+z)(x'+y'+z)$，即 $\\Pi(0,4,6)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q19",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.8（投影片第 42 頁）\n求 $F(x,y,z)=\\Pi(1,3,4,6)$ 的 sum of minterms 表示式。",
+    "hint": null,
+    "solution": "$\\Pi$ 列出的是 $F=0$ 的列；其餘 $0,2,5,7$ 為 $F=1$ 的列。對應 minterm：$000\\Rightarrow x'y'z'$，$010\\Rightarrow x'yz'$，$101\\Rightarrow xy'z$，$111\\Rightarrow xyz$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確得到 $\\Sigma(0,2,5,7)$。"
+      },
+      {
+        "score": 2,
+        "description": "四個 minterm 乘積項正確。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F(x,y,z)=\\Sigma(0,2,5,7)=x'y'z'+x'yz'+xy'z+xyz$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確得到 $\\Sigma(0,2,5,7)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "四個 minterm 乘積項正確。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q20",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.9（投影片第 42 頁）\n找出下列真值表中 $F$ 的 minterm 與 maxterm，分別以 $\\Sigma$ 與 $\\Pi$ 表示。\n\n$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&1\\\\\n1&0&0&1\\\\\n1&0&1&0\\\\\n1&1&0&1\\\\\n1&1&1&0\n\\end{array}\n$$",
+    "hint": null,
+    "solution": "$F=1$ 的列為 $001,011,100,110$，即 $1,3,4,6$；$F=0$ 的列為 $000,010,101,111$，即 $0,2,5,7$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "minterm 為 $\\Sigma(1,3,4,6)$。"
+      },
+      {
+        "score": 2,
+        "description": "maxterm 為 $\\Pi(0,2,5,7)$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=\\Sigma(1,3,4,6)=\\Pi(0,2,5,7)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "minterm 為 $\\Sigma(1,3,4,6)$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "maxterm 為 $\\Pi(0,2,5,7)$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q21",
+    "questionIndex": 21,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.10（投影片第 46 頁）\n將四變數布林函數 $F(A,B,C,D)=A+B'C+AD$ 表示為 sum of minterms。",
+    "hint": null,
+    "solution": "$A=1$ 時 $F=1$，對應 $1000$ 至 $1111$，即 $8$ 至 $15$。\n\n$B'C$ 在 $A=0$ 時新增 $0010$、$0011$，即 $2,3$（$A=1$ 的部分已包含）。\n\n$AD$ 已被 $A$ 吸收，不新增 minterm。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確得到 $A$ 對應的 $8$–$15$。"
+      },
+      {
+        "score": 1,
+        "description": "正確得到 $B'C$ 新增的 $2,3$。"
+      },
+      {
+        "score": 1,
+        "description": "寫出完整的 $\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F(A,B,C,D)=\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確得到 $A$ 對應的 $8$–$15$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "正確得到 $B'C$ 新增的 $2,3$。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "寫出完整的 $\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q22",
+    "questionIndex": 22,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.11（投影片第 46 頁）\n將布林函數 $F=x'y+xz$ 表示為 product of maxterms。",
+    "hint": null,
+    "solution": "$x'y=1$ 對應 $010$、$011$；$xz=1$ 對應 $101$、$111$。因此 $F=\\Sigma(2,3,5,7)$，$F=0$ 的列為 $0,1,4,6$：\n\n$M_0=x+y+z$，$M_1=x+y+z'$，$M_4=x'+y+z$，$M_6=x'+y'+z$。\n\n投影片答案誤植：Answer 寫成 $(x+y+z)(x'+y'+z)(x'+y+z)(x'+y+z')$，其中 $(x'+y+z')=M_5$；但 $x=1,y=0,z=1$ 時 $xz=1$，$F=1$，不可能含 $M_5$。缺少的應為 $M_1=(x+y+z')$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "正確找出 $F=0$ 的列為 $0,1,4,6$。"
+      },
+      {
+        "score": 2,
+        "description": "四個 maxterm 和項正確，含 $M_1$ 而非 $M_5$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F(x,y,z)=\\Pi(0,1,4,6)=(x+y+z)(x+y+z')(x'+y+z)(x'+y'+z)$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "正確找出 $F=0$ 的列為 $0,1,4,6$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "四個 maxterm 和項正確，含 $M_1$ 而非 $M_5$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q23",
+    "questionIndex": 23,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.12（投影片第 46–47 頁）\n畫出實作布林函數 $F=BC'+AB+ACD$ 的兩級（two-level）邏輯圖，並標示每個 AND 閘的輸出。",
+    "hint": null,
+    "solution": "sum of products 直接對應 AND–OR 兩級電路：每個乘積項一個 AND 閘，再由一個 OR 閘合併（補數輸入假設可由 inverter 提供，不計入級數）。投影片答案圖第三個 AND 閘的輸出誤標為 $ACD'$，但其輸入接的是 $A$、$C$、$D$ 原變數，投影片已註明應改為 $ACD$。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確提供 $C'$。"
+      },
+      {
+        "score": 2,
+        "description": "三個 AND 閘輸入與輸出標示正確（$BC'$、$AB$、$ACD$）。"
+      },
+      {
+        "score": 1,
+        "description": "以 3-input OR 合併得到 $F$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "以 inverter 由 $C$ 產生 $C'$；第一級為三個 AND 閘：2-input AND（$B$、$C'$）輸出 $BC'$，2-input AND（$A$、$B$）輸出 $AB$，3-input AND（$A$、$C$、$D$）輸出 $ACD$；第二級為一個 3-input OR，輸入三個 AND 輸出，輸出 $F$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確提供 $C'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "三個 AND 閘輸入與輸出標示正確（$BC'$、$AB$、$ACD$）。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "以 3-input OR 合併得到 $F$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q24",
+    "questionIndex": 24,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.13（投影片第 60 頁）\n不經化簡，畫出對應下列布林式的邏輯圖：\n\n$$F=D+BC+(D+C')(A'+C)$$",
+    "hint": null,
+    "solution": "依式子的結構逐項對應閘：括號內的和項用 OR，括號間的乘積用 AND，最外層三項相加用 OR。題目要求不化簡，因此必須保留 $(D+C')(A'+C)$ 這個 OR–AND 子電路，不能先化簡整個式子。",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "正確產生 $A'$、$C'$ 並實作 $BC$。"
+      },
+      {
+        "score": 2,
+        "description": "正確實作 $D+C'$、$A'+C$ 及其 AND。"
+      },
+      {
+        "score": 2,
+        "description": "以 3-input OR 合併 $D$、$BC$、$(D+C')(A'+C)$ 得到 $F$，且未化簡原式。"
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "以 inverter 產生 $A'$、$C'$；2-input AND（$B$、$C$）輸出 $BC$；2-input OR（$D$、$C'$）輸出 $D+C'$；2-input OR（$A'$、$C$）輸出 $A'+C$；2-input AND 合併兩個 OR 輸出得 $(D+C')(A'+C)$；最後 3-input OR 輸入 $D$、$BC$ 與 $(D+C')(A'+C)$，輸出 $F$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "正確產生 $A'$、$C'$ 並實作 $BC$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "正確實作 $D+C'$、$A'+C$ 及其 AND。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "以 3-input OR 合併 $D$、$BC$、$(D+C')(A'+C)$ 得到 $F$，且未化簡原式。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q25",
+    "questionIndex": 25,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.14（投影片第 61 頁）\n實作布林函數 $F=xz+x'z'+x'y$：\n\n(a) 只使用 NAND 閘與 inverter。\n\n(b) 只使用 NOR 閘與 inverter。\n\n請寫出推導用的布林式，並說明各閘的輸入與輸出。",
+    "hint": null,
+    "solution": "(a) 對 sum of products 取兩次補數：$F=(F')'=[(xz)'(x'z')'(x'y)']'$，即 NAND–NAND 兩級結構。\n\n(b) $F'=(xz)'(x'z')'(x'y)'=(x'+z')(x+z)(x+y')$。再取補數：$F=[(x'+z')(x+z)(x+y')]'=(x'+z')'+(x+z)'+(x+y')'$。三個 NOR 輸出的 OR 以「NOR 後接 inverter」實作。\n\n亦可驗證：$F=0$ 的列為 $1,4,6$，$F'=x'y'z+xy'z'+xyz'$ 與 $(x'+z')(x+z)(x+y')$ 在 8 種輸入下一致。其他等價且只使用 NOR 閘與 inverter 的實作（例如由 $F=(x'+z)(x+y+z')$ 做 NOR–NOR）也正確。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確寫出 $F=[(xz)'(x'z')'(x'y)']'$。"
+      },
+      {
+        "score": 2,
+        "description": "(a) 正確描述 NAND–NAND 結構與 inverter。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確寫出 $F'=(x'+z')(x+z)(x+y')$ 與 $F=(x'+z')'+(x+z)'+(x+y')'$，或其他等價 NOR 形式。"
+      },
+      {
+        "score": 2,
+        "description": "(b) 正確描述只用 NOR 與 inverter 的電路。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $F=[(xz)'(x'z')'(x'y)']'$：三個 2-input NAND 分別輸出 $(xz)'$、$(x'z')'$、$(x'y)'$，再送入一個 3-input NAND 輸出 $F$；$x'$、$z'$ 由 inverter 產生。\n\n(b) $F'=(x'+z')(x+z)(x+y')$，因此 $F=(x'+z')'+(x+z)'+(x+y')'$：三個 2-input NOR 分別輸出 $(x'+z')'$、$(x+z)'$、$(x+y')'$，再送入 3-input NOR 後接一個 inverter 得到 $F$；$x'$、$y'$、$z'$ 由 inverter 產生。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確寫出 $F=[(xz)'(x'z')'(x'y)']'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) 正確描述 NAND–NAND 結構與 inverter。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) 正確寫出 $F'=(x'+z')(x+z)(x+y')$ 與 $F=(x'+z')'+(x+z)'+(x+y')'$，或其他等價 NOR 形式。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(b) 正確描述只用 NOR 與 inverter 的電路。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "1",
+    "questionId": "q26",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### Worked example：$F_3$ 的三級與兩級實作（投影片第 43、45 頁）\n投影片以 $F_3=AB+C(D+E)$ 比較非標準形式與 sum of products 的實作（Figure 2.4）：\n\n(a) 以分配律將 $F_3$ 化為 sum of products。\n\n(b) 分別說明直接依 $AB+C(D+E)$ 實作（Figure 2.4(a)）與依 (a) 的 sum of products 實作（Figure 2.4(b)）時，各需要哪些閘、各閘的輸入為何，以及兩者各為幾級電路。",
+    "hint": null,
+    "solution": "由 $\\cdot$ 對 $+$ 的分配律，$C(D+E)=CD+CE$，所以 $F_3=AB+CD+CE$，為 sum of products。\n\n原式中 $C$ 與 $(D+E)$ 之間多一層 AND：由 $D$ 或 $E$ 到輸出要依序經過 OR、AND、OR 三個閘，因此 Figure 2.4(a) 是三級實作（兩個 AND、兩個 OR）。化成 sum of products 後，每個乘積項各用一個 AND，再由一個 OR 合併，任何輸入到輸出都只經過兩個閘，因此 Figure 2.4(b) 是兩級實作（三個 AND、一個 3-input OR）。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 正確得到 $F_3=AB+CD+CE$。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確描述三級實作的四個閘與連接。"
+      },
+      {
+        "score": 1,
+        "description": "(b) 正確描述兩級實作（三個 AND 加一個 3-input OR）並指出兩者的級數。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) $F_3=AB+CD+CE$。\n\n(b) Figure 2.4(a)：2-input AND（$A$、$B$）輸出 $AB$；2-input OR（$D$、$E$）輸出 $D+E$；2-input AND（$C$ 與 $D+E$）輸出 $C(D+E)$；2-input OR（$AB$ 與 $C(D+E)$）輸出 $F_3$，為三級電路。Figure 2.4(b)：三個 2-input AND 分別輸入 $A,B$、$C,D$、$C,E$，輸出 $AB$、$CD$、$CE$，再送入一個 3-input OR 輸出 $F_3$，為兩級電路。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 正確得到 $F_3=AB+CD+CE$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) 正確描述三級實作的四個閘與連接。"
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "(b) 正確描述兩級實作（三個 AND 加一個 3-input OR）並指出兩者的級數。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-ch1-counting-examples",
     "revision": "1",
     "questionId": "q01",
