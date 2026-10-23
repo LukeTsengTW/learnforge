@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.26.1 — Explicit Chapter 3 Example tasks in revision 2
+
+- Preserve published `digital-systems-ch3-textbook/1` from v1.26.0 as historical, changing only `current` to false. Publish revision 2 as the sole current revision: the same 24 questions, IDs/order, 152 points, 135 minutes and 1200×900 handwriting metadata.
+- Add concise, source-context-derived English task instructions to expression-only Examples q01/q02/q03/q09/q14/q16/q18/q19/q21/q22/q24, after independently rechecking all 58 rendered PPT slides and continuations. These are task clarifications rather than verbatim source quotes or solution hints. Slides 24–25 support q14's SOP and POS forms; slides 49–50 support q24's AOI/OAI scope.
+- Preserve every Boolean formula, Practice Exercise prompt, answer, solution, rubric, point value and figure. Retain PE 3.7's prime-implicant correction, PE 3.8's truth-table labels and PE 3.11's missing `+` correction.
+- Official generation adds 24 revision-2 contexts while retaining all 423 historical contexts exactly: **447 contexts / 20 revisions / 14 current quizzes / 283 current questions**. Keep all prior exact-hash protections and add immutable v1.26.0 source/context checks.
+- Local content/integration evidence: each revision passes 510 mathematical assertions; both revisions pass 674 strict KaTeX formulas in total; 121 targeted tests pass; Library/practice/student/answer previews, typing, handwriting and figures pass at 1440/768/390/345 px. Independent Stage 1 and Stage 2 reviews PASS with no candidate wording changes. Final full gates and exact-SHA CI/deployment/reviewer identities are recorded in [delivery](docs/v1.26.1-delivery.md) and the [formal Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.26.1).
+- Production functional verification is explicitly user-owned. Codex performs no production browser smoke, login, attempt, submission, typing/handwriting test, live Edge call, learner-data write or provider canary. This release-specific exception leaves permanent tooling and CI unchanged.
+
 ## 1.26.0 — Source-audited digital systems Chapter 3
 
 - Publish `digital-systems-ch3-textbook/1`, **【課本題目】數位系統導論 - Chapter 3**: 24 calculation questions, 152 points, 135 minutes, all with text entry and 1200×900 handwriting. Independently inspect all 58 source slides: 13 Examples and 11 Practice Exercises, including every continuation.

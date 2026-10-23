@@ -19,8 +19,8 @@ describe('bundled quiz catalog', () => {
       'discrete-math-ch8-inclusion-exclusion-examples',
       'discrete-math-exercises-2026', 'discrete-math-midterm-2021', 'discrete-math-midterm-2023',
       'discrete-math-midterm-2024', 'economics-ch1-4-exercises'])
-    // discrete-math, Chapter 5 and digital-systems Chapters 1/2 retain revision 1; Chapter 3 adds one revision.
-    expect(Object.keys(bundledQuizSources)).toHaveLength(19)
+    // discrete-math, Chapter 5 and digital-systems Chapters 1/2/3 retain historical revisions.
+    expect(Object.keys(bundledQuizSources)).toHaveLength(20)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()
