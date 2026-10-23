@@ -25,7 +25,8 @@ describe('reviewed economics quiz publication', () => {
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== quiz.id
       && context.quizId !== 'digital-systems-ch1-textbook' && context.quizId !== 'digital-systems-ch2-textbook')
     const added = AI_QUIZ_CONTEXT.filter((context) => context.quizId === quiz.id && context.revision === '1')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
     expect(existing).toHaveLength(170)
     expect(createHash('sha256').update(JSON.stringify(existing)).digest('hex'))
       .toBe('ef83b87e46c1b453466529a96a0c8ecc292c74899d8abffdee2caa00d69cd317')

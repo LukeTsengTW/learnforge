@@ -8,7 +8,7 @@ import { validateV4Publication } from '../../lib/scored-rubric'
 import { bundledQuizSources, quizCatalog } from './quiz-loader'
 
 const id = 'digital-systems-ch2-textbook'
-const quiz = quizCatalog.getCurrentQuiz(id)!
+const quiz = quizCatalog.getQuizRevision(id, '1')!
 const sha = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const question = (questionId: string) => {
   const result = quiz.questions.find(q => q.id === questionId)
@@ -22,7 +22,7 @@ afterEach(cleanup)
 
 describe('source-audited digital systems chapter 2 integration', () => {
   it('publishes the complete source order, scored rubric and v4 handwriting metadata', () => {
-    expect(quiz).toMatchObject({ id, revision: '1', current: true,
+    expect(quiz).toMatchObject({ id, revision: '1', current: false,
       title: '【課本題目】數位系統導論 - Chapter 2', subject: '數位系統導論', estimatedMinutes: 115 })
     expect(quizCatalog.current.filter(entry => entry.quiz.id === id)).toHaveLength(1)
     expect(quizCatalog.current.find(entry => entry.quiz.id === id))
@@ -44,15 +44,19 @@ describe('source-audited digital systems chapter 2 integration', () => {
 
   it('preserves all fifteen prior source revisions and all 305 prior canonical contexts', () => {
     const priorSources = Object.entries(bundledQuizSources)
-      .filter(([file]) => !file.includes(`/${id}/`))
-      .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')])
+      .filter(([file]) => !file.includes(`/${id}/`) && !file.endsWith('/digital-systems-ch1-textbook/v2.quiz.md'))
+      // The original baseline contained Chapter 1 revision 1 as current.
+      .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')
+        .replace(/(id="digital-systems-ch1-textbook"[^\n]*current=")false"/, '$1true"')])
       .sort(([a], [b]) => a.localeCompare(b))
     expect(priorSources).toHaveLength(15)
     expect(sha(priorSources)).toBe('6b840830fe31f2edcdebabc3feb374d77dff9820d3bc952675f47dc590a3cfa8')
-    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id)
+    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id
+      && !(c.quizId === 'digital-systems-ch1-textbook' && c.revision === '2'))
     expect(priorContexts).toHaveLength(305)
     expect(sha(priorContexts)).toBe('e840396c9f3d8cc3a43664b24fa7ad83762b902b764d31b5c0ff663adaa46db4')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT.filter(c => !(['digital-systems-ch1-textbook', id].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

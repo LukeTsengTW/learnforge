@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.25.0 — Source-faithful digital systems revisions and quiz figures
+
+- Publish Chapter 1 and Chapter 2 revision 2 using the slides' English wording, source derivations and concise English scored rubrics. Preserve metadata, IDs/order, 206/122 points and handwriting; archive revision 1 without changing its question content.
+- Redraw ten SVGs from all 116 inspected source pages. Correct source numerical/complement/maxterm errors and the annotated PE 2.3/2.4/2.12 gates and labels. Keep correction explanations only in the content-review documents.
+- Resolve same-quiz `figures/` references through Vite to hashed assets under `/learnforge/`. Reject external, traversal, malformed and missing references during quiz checks. External Author imports display a safe missing-image notice. AI receives canonical text only; provider, grading, raster and prompt behavior remain unchanged.
+- Generate 68 new exact-revision contexts, retaining all 331 historical entries: 399 contexts, 18 revisions and 13 current quizzes. Full local and production acceptance evidence is recorded as it executes in [delivery](docs/v1.25.0-delivery.md).
+
 ## 1.24.0 — Digital systems Chapter 2 textbook exercises
 
 - Add current `digital-systems-ch2-textbook/1`, 【課本題目】數位系統導論 - Chapter 2: 26 calculation questions / 122 points / 115 minutes, all with optional handwriting under the existing v4 contract. This complete new current quiz follows the minor-release convention of 1.23.0; no dependency or schema upgrade.

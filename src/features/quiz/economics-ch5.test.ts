@@ -28,7 +28,8 @@ describe('reviewed economics chapter 5 integration', () => {
     const old = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch1-textbook' && c.quizId !== 'digital-systems-ch2-textbook'
       && !(c.quizId === quiz.id && c.revision === '2'))
     const added = AI_QUIZ_CONTEXT.filter(c => c.quizId === quiz.id && c.revision === '2')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
     expect(old).toHaveLength(211)
     expect(createHash('sha256').update(JSON.stringify(old)).digest('hex'))
       .toBe('bdaeada2f602763420ac69034aac12fb86c0c442bc1313daab65cb791fb7bfd2')

@@ -1751,6 +1751,1630 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Example\n\nExpand $7,329$ as a decimal number.",
+    "hint": null,
+    "solution": "$7,329=7\\times10^3+3\\times10^2+2\\times10^1+9\\times10^0$.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$7\\times10^3+3\\times10^2+2\\times10^1+9\\times10^0$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$7,329=7\\times10^3+3\\times10^2+2\\times10^1+9\\times10^0$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$7\\times10^3+3\\times10^2+2\\times10^1+9\\times10^0$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### Example\n\nConvert to decimal:\n\n(a) $(11010.11)_2$\n\n(b) $(4021.2)_5$\n\n(c) $(127.4)_8$\n\n(d) $(B65F)_{16}$",
+    "hint": null,
+    "solution": "(a) $(11010.11)_2=1\\times2^4+1\\times2^3+0\\times2^2+1\\times2^1+0\\times2^0+1\\times2^{-1}+1\\times2^{-2}=(26.75)_{10}$.\n\n(b) $(4021.2)_5=4\\times5^3+0\\times5^2+2\\times5^1+1\\times5^0+2\\times5^{-1}=(511.4)_{10}$.\n\n(c) $(127.4)_8=1\\times8^2+2\\times8^1+7\\times8^0+4\\times8^{-1}=(87.5)_{10}$.\n\n(d) $(B65F)_{16}=11\\times16^3+6\\times16^2+5\\times16^1+15\\times16^0=(46,687)_{10}$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 26.75."
+      },
+      {
+        "score": 2,
+        "description": "(b) 511.4."
+      },
+      {
+        "score": 2,
+        "description": "(c) 87.5."
+      },
+      {
+        "score": 2,
+        "description": "(d) 46,687."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $(26.75)_{10}$\n\n(b) $(511.4)_{10}$\n\n(c) $(87.5)_{10}$\n\n(d) $(46,687)_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 26.75."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 511.4."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 87.5."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) 46,687."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Example\n\nConvert $(110101)_2$ to decimal.",
+    "hint": null,
+    "solution": "$(110101)_2=32+16+4+1=(53)_{10}$.",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$(53)_{10}$."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$(110101)_2=(53)_{10}$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$(53)_{10}$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.1\n\nWhat is the decimal value of $1\\times2^4+0\\times2^3+1\\times2^2+0\\times2^1+1\\times2^0$?",
+    "hint": null,
+    "solution": "21",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "21."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "21",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "21."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q05",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### Example 1.1\n\nConvert decimal 41 to binary.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{r|r}\n\\text{Integer}&\\text{Remainder}\\\\\\hline\n41&\\\\\n20&1\\\\\n10&0\\\\\n5&0\\\\\n2&1\\\\\n1&0\\\\\n0&1\n\\end{array}\n$$\n\n$101001=\\text{answer}$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$(101001)_2$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(41)_{10}=(101001)_2$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$(101001)_2$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q06",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### Example 1.2\n\nConvert decimal 153 to octal.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{r|r}\n\\text{Integer}&\\text{Remainder}\\\\\\hline\n153&\\\\\n19&1\\\\\n2&3\\\\\n0&2\n\\end{array}\n$$\n\n$=(231)_8$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$(231)_8$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(153)_{10}=(231)_8$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$(231)_8$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q07",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Example 1.3\n\nConvert $(0.6875)_{10}$ to binary.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{rcl}\n0.6875\\times2&=&1+0.3750\\\\\n0.3750\\times2&=&0+0.7500\\\\\n0.7500\\times2&=&1+0.5000\\\\\n0.5000\\times2&=&1+0.0000\n\\end{array}\n$$\n\n$(0.6875)_{10}=(0.1011)_2$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$(0.1011)_2$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(0.6875)_{10}=(0.1011)_2$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$(0.1011)_2$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q08",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Example 1.4\n\nConvert $(0.513)_{10}$ to octal.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\n0.513\\times8&=4.104\\\\\n0.104\\times8&=0.832\\\\\n0.832\\times8&=6.656\\\\\n0.656\\times8&=5.248\\\\\n0.248\\times8&=1.984\\\\\n0.984\\times8&=7.872\n\\end{aligned}\n$$\n\n$(0.513)_{10}=(0.406517\\ldots)_8$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "Fractional digits 406517."
+      },
+      {
+        "score": 1,
+        "description": "Continuation after the sixth digit."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(0.513)_{10}=(0.406517\\ldots)_8$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "Fractional digits 406517."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Continuation after the sixth digit."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q09",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.2\n\nConvert $(117.23)_{10}$ to octal.",
+    "hint": null,
+    "solution": "$(117.23)_{10}=(165.1656\\ldots)_8$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Integer digits 165."
+      },
+      {
+        "score": 1,
+        "description": "Fractional digits 1656."
+      },
+      {
+        "score": 1,
+        "description": "Continuation after the fourth fractional digit."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(117.23)_{10}=(165.1656\\ldots)_8$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Integer digits 165."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Fractional digits 1656."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "Continuation after the fourth fractional digit."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q10",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### Example\n\nFind the 9's complement of (a) 546700 and (b) 012398.",
+    "hint": null,
+    "solution": "The 9's complement of 546700 is $999999-546700=453299$.\n\nThe 9's complement of 012398 is $999999-012398=987601$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 453299."
+      },
+      {
+        "score": 2,
+        "description": "(b) 987601."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) 453299\n\n(b) 987601",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 453299."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 987601."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q11",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Example\n\nFind the 1's complement of (a) 1011000 and (b) 0101101.",
+    "hint": null,
+    "solution": "The 1's complement of 1011000 is 0100111.\n\nThe 1's complement of 0101101 is 1010010.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 0100111."
+      },
+      {
+        "score": 2,
+        "description": "(b) 1010010."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) 0100111\n\n(b) 1010010",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 0100111."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 1010010."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q12",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.3\n\nFind the binary representation of $135_{10}$.",
+    "hint": null,
+    "solution": "$135_{10}=1000\\ 0111_2$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "10000111 in base 2."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$135_{10}=1000\\ 0111_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "10000111 in base 2."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q13",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.4\n\nFind the octal representation of $(135)_{10}$.",
+    "hint": null,
+    "solution": "$135_{10}=207_8$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "207 in base 8."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$135_{10}=207_8$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "207 in base 8."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q14",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### Example: Base-10\n\nFind the 10's complement of (a) 012398 and (b) 246700, and the 2's complement of (c) 1101100 and (d) 0110111.",
+    "hint": null,
+    "solution": "The 10's complement of 012398 is 987602.\n\nThe 10's complement of 246700 is 753300.\n\nThe 2's complement of 1101100 is 0010100.\n\nThe 2's complement of 0110111 is 1001001.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 987602."
+      },
+      {
+        "score": 2,
+        "description": "(b) 753300."
+      },
+      {
+        "score": 2,
+        "description": "(c) 0010100."
+      },
+      {
+        "score": 2,
+        "description": "(d) 1001001."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) 987602\n\n(b) 753300\n\n(c) 0010100\n\n(d) 1001001",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 987602."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 753300."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 0010100."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) 1001001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q15",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.5\n\nFind (a) the diminished radix (9's) complement and (b) the radix (10's) complement of $135_{10}$.",
+    "hint": null,
+    "solution": "(a) 9's complement: $864_{10}$\n\n(b) 10's complement: $865_{10}$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 864."
+      },
+      {
+        "score": 2,
+        "description": "(b) 865."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "(a) 9's complement: $864_{10}$\n\n(b) 10's complement: $865_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 864."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 865."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q16",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### Example 1.5\n\nUsing 10's complement, subtract $72532-3250$.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nM&=72532\\\\\n\\text{10's complement of }N&=96750\\\\\n\\text{Sum}&=169282\\\\\n\\text{Discard end carry }10^5&=-100000\\\\\n\\text{Answer}&=69282\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "10's complement of N: 96750."
+      },
+      {
+        "score": 2,
+        "description": "Sum: 169282."
+      },
+      {
+        "score": 2,
+        "description": "Answer: 69282."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "69282",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "10's complement of N: 96750."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Sum: 169282."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "Answer: 69282."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q17",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### Example 1.6\n\nUsing 10's complement, subtract $3250-72532$.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nM&=03250\\\\\n\\text{10's complement of }N&=27468\\\\\n\\text{Sum}&=30718\n\\end{aligned}\n$$\n\nThere is no end carry.\n\nTherefore, the answer is $-(\\text{10's complement of }30718)=-69282$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "10's complement of N: 27468."
+      },
+      {
+        "score": 2,
+        "description": "Sum: 30718; no end carry."
+      },
+      {
+        "score": 2,
+        "description": "Answer: −69282."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "−69282",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "10's complement of N: 27468."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Sum: 30718; no end carry."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "Answer: −69282."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q18",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### Example 1.7\n\nGiven the two binary numbers $X=1010100$ and $Y=1000011$, perform the subtraction (a) $X-Y$ and (b) $Y-X$ by using 2's complement.",
+    "hint": null,
+    "solution": "(a)\n$$\n\\begin{aligned}\nX&=1010100\\\\\n\\text{2's complement of }Y&=0111101\\\\\n\\text{Sum}&=10010001\\\\\n\\text{Discard end carry }2^7&=-10000000\\\\\nX-Y&=0010001\n\\end{aligned}\n$$\n\n(b)\n$$\n\\begin{aligned}\nY&=1000011\\\\\n\\text{2's complement of }X&=0101100\\\\\n\\text{Sum}&=1101111\n\\end{aligned}\n$$\n\nThere is no end carry. Therefore, the answer is $Y-X=-(\\text{2's complement of }1101111)=-0010001$.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 0010001."
+      },
+      {
+        "score": 4,
+        "description": "(b) −0010001."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $X-Y=0010001$\n\n(b) $Y-X=-0010001$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 0010001."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "(b) −0010001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q19",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### Example 1.8\n\nRepeat Example 1.7, but this time using 1's complement.",
+    "hint": null,
+    "solution": "(a)\n$$\n\\begin{aligned}\nX-Y&=1010100-1000011\\\\\nX&=1010100\\\\\n\\text{1's complement of }Y&=0111100\\\\\n\\text{Sum}&=10010000\\\\\n\\text{End-around carry}&=1\\\\\nX-Y&=0010001\n\\end{aligned}\n$$\n\n(b)\n$$\n\\begin{aligned}\nY-X&=1000011-1010100\\\\\nY&=1000011\\\\\n\\text{1's complement of }X&=0101011\\\\\n\\text{Sum}&=1101110\n\\end{aligned}\n$$\n\nThere is no end carry. Therefore, the answer is $Y-X=-(\\text{1's complement of }1101110)=-0010001$.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 0010001."
+      },
+      {
+        "score": 4,
+        "description": "(b) −0010001."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $X-Y=0010001$\n\n(b) $Y-X=-0010001$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 0010001."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "(b) −0010001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q20",
+    "questionIndex": 21,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.6\n\nGive $X=(1101010)_2$ and $Y=(0101011)_2$, (a) find $X-Y$ and (b) find $Y-X$ using 2's complements.",
+    "hint": null,
+    "solution": "(a)\n$$\n\\begin{aligned}\nX&=(1101010)_2=106_{10},\\quad Y=(0101011)_2=43_{10}\\\\\nX-Y&=106_{10}-43_{10}=63_{10}\\\\\n\\text{2's complement of }Y&=1010101_2\\\\\nX-Y&=(1101010)_2+(1010101)_2\\\\\n&=(0111111)_2=63_{10}\n\\end{aligned}\n$$\n\n(b)\n$$\n\\begin{aligned}\nY-X&=43_{10}-106_{10}=-63_{10}\\\\\n\\text{2's complement of }X&=(0010110)_2\\\\\nY-X&=(0101011)_2+(0010110)_2=(1000001)_2\\\\\nY-X&=-(\\text{2's complement of }1000001)_2\\\\\n&=-(0111111)_2=-63_{10}\n\\end{aligned}\n$$\n\nNo carry",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 0111111, +63."
+      },
+      {
+        "score": 4,
+        "description": "(b) −0111111, −63."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $X-Y=(0111111)_2=63_{10}$\n\n(b) $Y-X=-(0111111)_2=-63_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 0111111, +63."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "(b) −0111111, −63."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q21",
+    "questionIndex": 22,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.7\n\nRepeat Practice Exercise 1.6 using 1's complements.",
+    "hint": null,
+    "solution": "(a)\n$$\n\\begin{aligned}\nX&=(1101010)_2=106_{10},\\quad Y=(0101011)_2=43_{10}\\\\\nX-Y&=106_{10}-43_{10}=63_{10}\\\\\n\\text{1's complement of }Y&=1010100_2\\\\\nX-Y&=(1101010)_2+(1010100)_2=(10111110)_2\\\\\nX-Y&=0111110_2+0000001_2=0111111_2=63_{10}\n\\end{aligned}\n$$\n\nEnd-around carry\n\n(b)\n$$\n\\begin{aligned}\nX&=(1101010)_2=106_{10},\\quad Y=(0101011)_2=43_{10}\\\\\nY-X&=43_{10}-106_{10}=-63_{10}\\\\\n\\text{1's complement of }X&=(0010101)_2\\\\\nY-X&=(0101011)_2+(0010101)_2=(1000000)_2\n\\end{aligned}\n$$\n\nNo end-around carry\n\n$Y-X=-(\\text{1's complement of }1000000)_2=-(0111111)_2=-63_{10}$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) 0111111, +63."
+      },
+      {
+        "score": 4,
+        "description": "(b) −0111111, −63."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $X-Y=(0111111)_2=63_{10}$\n\n(b) $Y-X=-(0111111)_2=-63_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) 0111111, +63."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "(b) −0111111, −63."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q22",
+    "questionIndex": 23,
+    "type": "calculation",
+    "prompt": "### Example\n\nFind the decimal number represented by the signed-magnitude representation 10001001 and its signed-1's-complement and signed-2's-complement representations.",
+    "hint": null,
+    "solution": "Signed-magnitude representation: 10001001\n\nSigned-1's-complement representation: 11110110\n\nSigned-2's-complement representation: 11110111",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Decimal value: −9."
+      },
+      {
+        "score": 1,
+        "description": "Signed magnitude: 10001001."
+      },
+      {
+        "score": 1,
+        "description": "Signed 1's complement: 11110110."
+      },
+      {
+        "score": 2,
+        "description": "Signed 2's complement: 11110111."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$-9$\n\nSigned-magnitude representation: 10001001\n\nSigned-1's-complement representation: 11110110\n\nSigned-2's-complement representation: 11110111",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Decimal value: −9."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Signed magnitude: 10001001."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "Signed 1's complement: 11110110."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "Signed 2's complement: 11110111."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q23",
+    "questionIndex": 24,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.19\n\nWhat unsigned binary number is represented by the string of bits 11001?",
+    "hint": null,
+    "solution": "$25_{10}$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "25 in decimal."
+      }
+    ],
+    "points": 2,
+    "referenceAnswer": "$25_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "25 in decimal."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q24",
+    "questionIndex": 25,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.8\n\nWhich bit of signed binary number represents the sign?",
+    "hint": null,
+    "solution": "The leftmost bit",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "The leftmost bit."
+      }
+    ],
+    "points": 2,
+    "referenceAnswer": "The leftmost bit",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "The leftmost bit."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q25",
+    "questionIndex": 26,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.10\n\nWhat decimal number does the signed-magnitude binary number N = 10011 represent?",
+    "hint": null,
+    "solution": "$N=-3_{10}$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "N = −3."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$N=-3_{10}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "N = −3."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q26",
+    "questionIndex": 27,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.11\n\nConvert the signed-magnitude binary number N = 01100 to a negative value having the same magnitude.",
+    "hint": null,
+    "solution": "N = 11100",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "N = 11100."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "N = 11100",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "N = 11100."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q27",
+    "questionIndex": 28,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.12\n\nRepresent $-5$ three ways with 8 bits: (a) signed-magnitude (b) signed 1's complement, and (c) signed 2's complement.",
+    "hint": null,
+    "solution": "(a) 10000101\n\n(b) 11111010\n\n(c) 11111011",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 10000101."
+      },
+      {
+        "score": 2,
+        "description": "(b) 11111010."
+      },
+      {
+        "score": 2,
+        "description": "(c) 11111011."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) 10000101\n\n(b) 11111010\n\n(c) 11111011",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 10000101."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 11111010."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 11111011."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q28",
+    "questionIndex": 29,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.13\n\nIn the signed-2's-complement system, negate the number $7_{10}$, represented with 8 bits.",
+    "hint": null,
+    "solution": "$N=0000\\ 0111_2$\n\n1's comp $=1111\\ 1000_2$\n\n2's comp $=1111\\ 1001_2$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "+7: 00000111."
+      },
+      {
+        "score": 3,
+        "description": "−7: 11111001."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$1111\\ 1001_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "+7: 00000111."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "−7: 11111001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q29",
+    "questionIndex": 30,
+    "type": "calculation",
+    "prompt": "### Example\n\nPerform the addition with 8 bits in signed-2's-complement form:\n\n(a) $(+6)+(+13)$\n\n(b) $(-6)+(+13)$\n\n(c) $(+6)+(-13)$\n\n(d) $(-6)+(-13)$",
+    "hint": null,
+    "solution": "(a) $00000110+00001101=00010011\\quad(+19)$\n\n(b) $11111010+00001101=00000111\\quad(+7)$\n\n(c) $00000110+11110011=11111001\\quad(-7)$\n\n(d) $11111010+11110011=11101101\\quad(-19)$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) +19, 00010011."
+      },
+      {
+        "score": 2,
+        "description": "(b) +7, 00000111."
+      },
+      {
+        "score": 2,
+        "description": "(c) −7, 11111001."
+      },
+      {
+        "score": 2,
+        "description": "(d) −19, 11101101."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $+19:\\ 00010011$\n\n(b) $+7:\\ 00000111$\n\n(c) $-7:\\ 11111001$\n\n(d) $-19:\\ 11101101$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) +19, 00010011."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) +7, 00000111."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) −7, 11111001."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) −19, 11101101."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q30",
+    "questionIndex": 31,
+    "type": "calculation",
+    "prompt": "### Example\n\nPerform $(-6)-(-13)$ in 2's-complement form.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\n(-6)-(-13)&\\\\\n(11111010-11110011)&\\\\\n(11111010+00001101)&\\\\\n00000111&\\quad(+7)\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "11111010 + 00001101."
+      },
+      {
+        "score": 2,
+        "description": "00000111, +7."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$00000111\\quad(+7)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "11111010 + 00001101."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "00000111, +7."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q31",
+    "questionIndex": 32,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.14\n\nPerform the addition with 8 bits in signed-2's-complement form:\n\n(a) $+4+(+11)$\n\n(b) $-4+(+11)$\n\n(c) $+4+(-11)$\n\n(d) $-4+(-11)$",
+    "hint": null,
+    "solution": "(a) $0000\\ 0100+0000\\ 1011=0000\\ 1111\\quad(+15)$\n\n(b) $1111\\ 1100+0000\\ 1011=0000\\ 0111\\quad(+7)$\n\n(c) $0000\\ 0100+1111\\ 0101=1111\\ 1001\\quad(-7)$\n\n(d) $1111\\ 1100+1111\\ 0101=1111\\ 0001\\quad(-15)$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) +15, 00001111."
+      },
+      {
+        "score": 2,
+        "description": "(b) +7, 00000111."
+      },
+      {
+        "score": 2,
+        "description": "(c) −7, 11111001."
+      },
+      {
+        "score": 2,
+        "description": "(d) −15, 11110001."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $+15:\\ 0000\\ 1111$\n\n(b) $+7:\\ 0000\\ 0111$\n\n(c) $-7:\\ 1111\\ 1001$\n\n(d) $-15:\\ 1111\\ 0001$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) +15, 00001111."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) +7, 00000111."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) −7, 11111001."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) −15, 11110001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q32",
+    "questionIndex": 33,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.15\n\nFind the BCD representation of $84_{10}$.",
+    "hint": null,
+    "solution": "$84_{10}=1000\\ 0100_{\\mathrm{BCD}}$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "1000 0100 in BCD."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$84_{10}=1000\\ 0100_{\\mathrm{BCD}}$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "1000 0100 in BCD."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q33",
+    "questionIndex": 34,
+    "type": "calculation",
+    "prompt": "### Example\n\nConsider decimal 185 and its corresponding value in BCD and binary:",
+    "hint": null,
+    "solution": "$(185)_{10}=(0001\\ 1000\\ 0101)_{\\mathrm{BCD}}=(10111001)_2$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "BCD: 0001 1000 0101."
+      },
+      {
+        "score": 2,
+        "description": "Binary: 10111001."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$(185)_{10}=(0001\\ 1000\\ 0101)_{\\mathrm{BCD}}=(10111001)_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "BCD: 0001 1000 0101."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Binary: 10111001."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q34",
+    "questionIndex": 35,
+    "type": "calculation",
+    "prompt": "### BCD Addition\n\nFind the BCD sum of (a) $4+5$, (b) $4+8$, and (c) $8+9$.",
+    "hint": null,
+    "solution": "(a) $0100+0101=1001$\n\n(b) $0100+1000=1100$; $1100+0110=0001\\ 0010$\n\n(c) $1000+1001=10001$; $10001+0110=0001\\ 0111$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 1001."
+      },
+      {
+        "score": 2,
+        "description": "(b) 0001 0010."
+      },
+      {
+        "score": 2,
+        "description": "(c) 0001 0111."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $1001$\n\n(b) $0001\\ 0010$\n\n(c) $0001\\ 0111$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 1001."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 0001 0010."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 0001 0111."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q35",
+    "questionIndex": 36,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.16\n\nFind the BCD sum of 4 + 6.",
+    "hint": null,
+    "solution": "$0001\\ 0000$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "0001 0000 in BCD."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$0001\\ 0000$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "0001 0000 in BCD."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q36",
+    "questionIndex": 37,
+    "type": "calculation",
+    "prompt": "### Example\n\nFind the sum of 184 + 576 in BCD.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{rccc}\n&1&1&\\\\\n\\mathrm{BCD}&0001&1000&0100\\\\\n+&0101&0111&0110\\\\\\hline\n\\text{Binary sum}&0111&10000&1010\\\\\n\\text{Add 6}&&0110&0110\\\\\\hline\n\\text{BCD sum}&0111&0110&0000\n\\end{array}\n$$\n\n$760$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Hundreds: 0111."
+      },
+      {
+        "score": 2,
+        "description": "Tens: 0110."
+      },
+      {
+        "score": 2,
+        "description": "Units: 0000; sum 760."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$0111\\ 0110\\ 0000\\quad(760)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Hundreds: 0111."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Tens: 0110."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "Units: 0000; sum 760."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q37",
+    "questionIndex": 38,
+    "type": "calculation",
+    "prompt": "### Example\n\nConsider the following two characters and their even and odd parity:\n\nASCII A = 1000001\n\nASCII T = 1010100",
+    "hint": null,
+    "solution": "With even parity:\n\nASCII A: 01000001\n\nASCII T: 11010100\n\nWith odd parity:\n\nASCII A: 11000001\n\nASCII T: 01010100",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "Even parity: A 01000001; T 11010100."
+      },
+      {
+        "score": 3,
+        "description": "Odd parity: A 11000001; T 01010100."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "With even parity:\n\nASCII A: 01000001\n\nASCII T: 11010100\n\nWith odd parity:\n\nASCII A: 11000001\n\nASCII T: 01010100",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "Even parity: A 01000001; T 11010100."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "Odd parity: A 11000001; T 01010100."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q38",
+    "questionIndex": 39,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 1.18\n\nWhat is the even parity bit of A = 0101100?",
+    "hint": null,
+    "solution": "1",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "1."
+      }
+    ],
+    "points": 2,
+    "referenceAnswer": "1",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "1."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q39",
+    "questionIndex": 41,
+    "type": "calculation",
+    "prompt": "### Example of binary signals\n\nIdentify the signal ranges for logic 0 and logic 1 and the transition limits.\n\n![](figures/binary-signals.svg)",
+    "hint": null,
+    "solution": "![](figures/binary-signals.svg)",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Logic 0: 0–1 V; logic 1: 2–3 V."
+      },
+      {
+        "score": 2,
+        "description": "Transition: between 1 V and 2 V."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "Signal range for logic 0: 0–1 Volts\n\nSignal range for logic 1: 2–3 Volts\n\nTransition occurs between these limits: 1–2 Volts",
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Logic 0: 0–1 V; logic 1: 2–3 V."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Transition: between 1 V and 2 V."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q40",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Binary Arithmetic\n\nPerform the binary arithmetic operations:\n\n(a) $101101+100111$\n\n(b) $101101-100111$\n\n(c) $1011\\times101$",
+    "hint": null,
+    "solution": "(a) $101101+100111=1010100$\n\n(b) $101101-100111=000110$\n\n(c)\n$$\n\\begin{array}{r}\n1011\\\\\n\\times\\ 101\\\\\\hline\n1011\\\\\n0000\\phantom{0}\\\\\n1011\\phantom{00}\\\\\\hline\n110111\n\\end{array}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 1010100."
+      },
+      {
+        "score": 2,
+        "description": "(b) 000110."
+      },
+      {
+        "score": 2,
+        "description": "(c) 110111."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $1010100$\n\n(b) $000110$\n\n(c) $110111$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 1010100."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 000110."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 110111."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q41",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Octal and Hexadecimal Numbers\n\nConvert:\n\n(a) $(10\\ 110\\ 001\\ 101\\ 011.111\\ 100\\ 000\\ 110)_2$ to octal.\n\n(b) $(10\\ 1100\\ 0110\\ 1011.1111\\ 0010)_2$ to hexadecimal.\n\n(c) $(673.124)_8$ to binary.\n\n(d) $(306.D)_{16}$ to binary.",
+    "hint": null,
+    "solution": "(a) $(26153.7406)_8$\n\n(b) $(2C6B.F2)_{16}$\n\n(c) $(110\\ 111\\ 011.001\\ 010\\ 100)_2$\n\n(d) $(0011\\ 0000\\ 0110.1101)_2$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) 26153.7406 in base 8."
+      },
+      {
+        "score": 2,
+        "description": "(b) 2C6B.F2 in base 16."
+      },
+      {
+        "score": 2,
+        "description": "(c) 110 111 011.001 010 100 in base 2."
+      },
+      {
+        "score": 2,
+        "description": "(d) 0011 0000 0110.1101 in base 2."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $(26153.7406)_8$\n\n(b) $(2C6B.F2)_{16}$\n\n(c) $(110\\ 111\\ 011.001\\ 010\\ 100)_2$\n\n(d) $(0011\\ 0000\\ 0110.1101)_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) 26153.7406 in base 8."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(b) 2C6B.F2 in base 16."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(c) 110 111 011.001 010 100 in base 2."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(d) 0011 0000 0110.1101 in base 2."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch1-textbook",
+    "revision": "2",
+    "questionId": "q42",
+    "questionIndex": 40,
+    "type": "calculation",
+    "prompt": "### Example of binary information processing\n\nFind the binary addition result in R3, its decimal value, and the contents of Sum after the transfer.\n\n![FIGURE 1.2](figures/figure-1-2.svg)",
+    "hint": null,
+    "solution": "![FIGURE 1.2](figures/figure-1-2.svg)",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "R1 = 0001000010 and R2 = 0011100001; R3 = 0100100011, decimal 291."
+      },
+      {
+        "score": 2,
+        "description": "R3 output transferred to memory Sum: 0100100011."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "R3 = 0100100011 = $291_{10}$\n\nSum = 0100100011",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "R1 = 0001000010 and R2 = 0011100001; R3 = 0100100011, decimal 291."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "R3 output transferred to memory Sum: 0100100011."
+      }
+    ]
+  },
+  {
     "quizId": "digital-systems-ch2-textbook",
     "revision": "1",
     "questionId": "q01",
@@ -2924,6 +4548,1129 @@ export const AI_QUIZ_CONTEXT = [
         "id": "r3",
         "points": 1,
         "description": "(b) 正確描述兩級實作（三個 AND 加一個 3-input OR）並指出兩者的級數。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Example\n\nFind the identity element with respect to + on the set of integers I and on the set of natural numbers N, and the inverse of an element a in I.",
+    "hint": null,
+    "solution": "The element 0 is an identity element with respect to the binary operator + on the set of integers I, since $x+0=0+x=x$ for any $x\\in I$.\n\nThe set of natural numbers, N, has no identity element, since 0 is excluded from the set.\n\nIn the set of integers, I, and the operator +, with $e=0$, the inverse of an element $a$ is $(-a)$, since $a+(-a)=0$.",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "Integers: identity 0."
+      },
+      {
+        "score": 1,
+        "description": "Natural numbers N: no identity."
+      },
+      {
+        "score": 2,
+        "description": "Inverse of a: −a."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "The element 0 is an identity element with respect to the binary operator + on the set of integers I, since $x+0=0+x=x$ for any $x\\in I$.\n\nThe set of natural numbers, N, has no identity element, since 0 is excluded from the set.\n\nIn the set of integers, I, and the operator +, with $e=0$, the inverse of an element $a$ is $(-a)$, since $a+(-a)=0$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "Integers: identity 0."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Natural numbers N: no identity."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "Inverse of a: −a."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### examples\n\nFind the operator precedence in (a) $xy'+z$ and (b) $(xy+z)'$.",
+    "hint": null,
+    "solution": "(a) NOT, AND, OR\n\n(b) Parentheses: AND, OR; NOT",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "(a) NOT → AND → OR."
+      },
+      {
+        "score": 1,
+        "description": "(b) Parentheses: AND → OR; then NOT."
+      }
+    ],
+    "points": 2,
+    "referenceAnswer": "(a) NOT, AND, OR\n\n(b) Parentheses: AND, OR; NOT",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "(a) NOT → AND → OR."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) Parentheses: AND → OR; then NOT."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.1\n\nUsing the basic theorems and postulates of Boolean algebra, simplfy the following Boolean expression: $F=x'y'z+xyz+x'yz+xy'z$.",
+    "hint": null,
+    "solution": "$F=z$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$F=z$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=z$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$F=z$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.2\n\nDevelop a truth table for the Boolean expression $F=x'y'z$.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&0\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&0\\\\\n1&1&1&0\n\\end{array}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "All eight x, y, z rows."
+      },
+      {
+        "score": 2,
+        "description": "F: 0, 1, 0, 0, 0, 0, 0, 0."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&0\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&0\\\\\n1&1&1&0\n\\end{array}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "All eight x, y, z rows."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "F: 0, 1, 0, 0, 0, 0, 0, 0."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Examples\n\nFor $F_1=x+y'z$ and $F_2=x'y'z+x'yz+xy'$:\n\n(a) Develop the truth table for $F_1$ and $F_2$.\n\n(b) Minimize $F_2$.\n\n(c) Draw the logic diagram for $F_1$.",
+    "hint": null,
+    "solution": "(a)\n\n$$\n\\begin{array}{ccc|cc}\nx & y & z & F_1 & F_2\\\\\\hline\n0&0&0&0&0\\\\\n0&0&1&1&1\\\\\n0&1&0&0&0\\\\\n0&1&1&0&1\\\\\n1&0&0&1&1\\\\\n1&0&1&1&1\\\\\n1&1&0&1&0\\\\\n1&1&1&1&0\n\\end{array}\n$$\n\n(b) $F_2=xy'+x'z$\n\n(c)\n\n![Figure 2.1](figures/figure-2-1.svg)",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) F1: 0, 1, 0, 0, 1, 1, 1, 1."
+      },
+      {
+        "score": 2,
+        "description": "(a) F2: 0, 1, 0, 1, 1, 1, 0, 0."
+      },
+      {
+        "score": 2,
+        "description": "(b) $F_2=xy'+x'z$."
+      },
+      {
+        "score": 2,
+        "description": "(c) NOT(y) → y'; AND(y', z) → y'z; OR(x, y'z) → F1."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a)\n\n$$\n\\begin{array}{ccc|cc}\nx & y & z & F_1 & F_2\\\\\\hline\n0&0&0&0&0\\\\\n0&0&1&1&1\\\\\n0&1&0&0&0\\\\\n0&1&1&0&1\\\\\n1&0&0&1&1\\\\\n1&0&1&1&1\\\\\n1&1&0&1&0\\\\\n1&1&1&1&0\n\\end{array}\n$$\n\n(b) $F_2=xy'+x'z$\n\n(c)\n\n![Figure 2.1](figures/figure-2-1.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) F1: 0, 1, 0, 0, 1, 1, 1, 1."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "(a) F2: 0, 1, 0, 1, 1, 1, 0, 0."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "(b) $F_2=xy'+x'z$."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "(c) NOT(y) → y'; AND(y', z) → y'z; OR(x, y'z) → F1."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### EXAMPLE 2.1\n\nSimplify the following Boolean functions to a minimum number of literals.\n\n1. $x(x'+y)$\n2. $x+x'y$\n3. $(x+y)(x+y')$\n4. $xy+x'z+yz$\n5. $(x+y)(x'+z)(y+z)$",
+    "hint": null,
+    "solution": "1. $x(x'+y)=xx'+xy=0+xy=xy$.\n\n2. $x+x'y=(x+x')(x+y)=1(x+y)=x+y$.\n\n3. $(x+y)(x+y')=x+xy+xy'+yy'=x(1+y+y')=x$.\n\n4.\n$$\n\\begin{aligned}\nxy+x'z+yz&=xy+x'z+yz(x+x')\\\\\n&=xy+x'z+xyz+x'yz\\\\\n&=xy(1+z)+x'z(1+y)\\\\\n&=xy+x'z.\n\\end{aligned}\n$$\n\n5. $(x+y)(x'+z)(y+z)=(x+y)(x'+z)$, by duality from function 4.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "1. $xy$."
+      },
+      {
+        "score": 2,
+        "description": "2. $x+y$."
+      },
+      {
+        "score": 2,
+        "description": "3. $x$."
+      },
+      {
+        "score": 2,
+        "description": "4. $xy+x'z$."
+      },
+      {
+        "score": 2,
+        "description": "5. $(x+y)(x'+z)$."
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "1. $xy$\n2. $x+y$\n3. $x$\n4. $xy+x'z$\n5. $(x+y)(x'+z)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "1. $xy$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "2. $x+y$."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "3. $x$."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "4. $xy+x'z$."
+      },
+      {
+        "id": "r5",
+        "points": 2,
+        "description": "5. $(x+y)(x'+z)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### EXAMPLE 2.2\n\nFind the complement of the functions $F_1=x'yz'+x'y'z$ and $F_2=x(y'z'+yz)$.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nF_1'&=(x'yz'+x'y'z)'\\\\\n&=(x'yz')'(x'y'z)'\\\\\n&=(x+y'+z)(x+y+z')\n\\end{aligned}\n$$\n\n$$\n\\begin{aligned}\nF_2'&=[x(y'z'+yz)]'\\\\\n&=x'+(y'z'+yz)'\\\\\n&=x'+(y'z')'(yz)'\\\\\n&=x'+(y+z)(y'+z')\\\\\n&=x'+yz'+y'z\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$F_1'=(x+y'+z)(x+y+z')$."
+      },
+      {
+        "score": 2,
+        "description": "$F_2'=x'+(y+z)(y'+z')$."
+      },
+      {
+        "score": 1,
+        "description": "$F_2'=x'+yz'+y'z$."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$F_1'=(x+y'+z)(x+y+z')$\n\n$F_2'=x'+yz'+y'z$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$F_1'=(x+y'+z)(x+y+z')$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F_2'=x'+(y+z)(y'+z')$."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "$F_2'=x'+yz'+y'z$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### EXAMPLE 2.3\n\nFind the complement of the functions $F_1$ and $F_2$ of Example 2.2 by taking their duals and complementing each literal.",
+    "hint": null,
+    "solution": "1. $F_1=x'yz'+x'y'z$.\n\nThe dual of $F_1$ is $(x'+y+z')(x'+y'+z)$.\n\nComplement each literal: $(x+y'+z)(x+y+z')=F_1'$.\n\n2. $F_2=x(y'z'+yz)$.\n\nThe dual of $F_2$ is $x+(y'+z')(y+z)$.\n\nComplement each literal: $x'+(y+z)(y'+z')=F_2'$.",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "Dual of $F_1$: $(x'+y+z')(x'+y'+z)$."
+      },
+      {
+        "score": 2,
+        "description": "$F_1'=(x+y'+z)(x+y+z')$."
+      },
+      {
+        "score": 1,
+        "description": "Dual of $F_2$: $x+(y'+z')(y+z)$."
+      },
+      {
+        "score": 2,
+        "description": "$F_2'=x'+(y+z)(y'+z')$."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "1. The dual of $F_1$ is $(x'+y+z')(x'+y'+z)$.\n\nComplement each literal: $(x+y'+z)(x+y+z')=F_1'$.\n\n2. The dual of $F_2$ is $x+(y'+z')(y+z)$.\n\nComplement each literal: $x'+(y+z)(y'+z')=F_2'$.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "Dual of $F_1$: $(x'+y+z')(x'+y'+z)$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F_1'=(x+y'+z)(x+y+z')$."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "Dual of $F_2$: $x+(y'+z')(y+z)$."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "$F_2'=x'+(y+z)(y'+z')$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.3\n\nDraw a logic diagram of the Boolean function $F=x'y+xy'$.",
+    "hint": null,
+    "solution": "![](figures/pe2-3.svg)",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "NOT(x) → x'; NOT(y) → y'."
+      },
+      {
+        "score": 2,
+        "description": "Upper AND(x, y') → xy'; lower AND(x', y) → x'y."
+      },
+      {
+        "score": 1,
+        "description": "OR(xy', x'y) → F."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "![](figures/pe2-3.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "NOT(x) → x'; NOT(y) → y'."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Upper AND(x, y') → xy'; lower AND(x', y) → x'y."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "OR(xy', x'y) → F."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.4\n\nWhat Boolean expression is implemented by the following logic diagram?\n\n![FIGURE PE2.4](figures/pe2-4.svg)",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nF&=(x'y+xy')'\\\\\n&=(x'y)'(xy')'\\\\\n&=(x+y')(x'+y)\\\\\n&=xx'+xy+y'x'+yy'\\\\\n&=xy+x'y'\n\\end{aligned}\n$$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$F=(x'y+xy')'$."
+      },
+      {
+        "score": 2,
+        "description": "$F=xy+x'y'$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=(x'y+xy')'=xy+x'y'$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$F=(x'y+xy')'$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F=xy+x'y'$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.5\n\nWhat truth table is implemented by the logic diagram in Fig.PE2.4?\n\n![FIGURE PE2.4](figures/pe2-4.svg)",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{cc|c}\nx & y & F\\\\\\hline\n0&0&1\\\\\n0&1&0\\\\\n1&0&0\\\\\n1&1&1\n\\end{array}\n$$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "All four x, y rows."
+      },
+      {
+        "score": 2,
+        "description": "F: 1, 0, 0, 1."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$$\n\\begin{array}{cc|c}\nx & y & F\\\\\\hline\n0&0&1\\\\\n0&1&0\\\\\n1&0&0\\\\\n1&1&1\n\\end{array}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "All four x, y rows."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "F: 1, 0, 0, 1."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.6\n\nFind the complement of the Boolean function $F=A'BC'+A'B'C$.",
+    "hint": null,
+    "solution": "$F'=A+BC+B'C'$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$F'=A+BC+B'C'$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F'=A+BC+B'C'$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$F'=A+BC+B'C'$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Canonical and Standard Forms\n\nExpress $f_1$ and $f_2$ as a sum of minterms and a product of maxterms, and find $f_1'$.\n\n$$\n\\begin{array}{ccc|cc}\nx & y & z & f_1 & f_2\\\\\\hline\n0&0&0&0&0\\\\\n0&0&1&1&0\\\\\n0&1&0&0&0\\\\\n0&1&1&0&1\\\\\n1&0&0&1&0\\\\\n1&0&1&0&1\\\\\n1&1&0&0&1\\\\\n1&1&1&1&1\n\\end{array}\n$$",
+    "hint": null,
+    "solution": "$f_1=x'y'z+xy'z'+xyz=m_1+m_4+m_7$\n\n$f_2=x'yz+xy'z+xyz'+xyz=m_3+m_5+m_6+m_7$\n\n$f_1'=m_0+m_2+m_3+m_5+m_6=x'y'z'+x'yz'+x'yz+xy'z+xyz'$\n\n$$\n\\begin{aligned}\nf_1&=(f_1')'\\\\\n&=(x+y+z)(x+y'+z)(x+y'+z')\\\\\n&\\quad(x'+y+z')(x'+y'+z)\\\\\n&=M_0M_2M_3M_5M_6\n\\end{aligned}\n$$\n\n$f_2=(x+y+z)(x+y+z')(x+y'+z)(x'+y+z)=M_0M_1M_2M_4$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "(a) f1: m1 + m4 + m7; f2: m3 + m5 + m6 + m7."
+      },
+      {
+        "score": 1,
+        "description": "(b) f1': m0 + m2 + m3 + m5 + m6."
+      },
+      {
+        "score": 3,
+        "description": "(c) f1: M0 M2 M3 M5 M6; f2: M0 M1 M2 M4."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "(a) $f_1=x'y'z+xy'z'+xyz=m_1+m_4+m_7$\n\n$f_2=x'yz+xy'z+xyz'+xyz=m_3+m_5+m_6+m_7$\n\n(b) $f_1'=m_0+m_2+m_3+m_5+m_6$\n\n(c) $f_1=M_0M_2M_3M_5M_6$\n\n$f_2=M_0M_1M_2M_4$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "(a) f1: m1 + m4 + m7; f2: m3 + m5 + m6 + m7."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "(b) f1': m0 + m2 + m3 + m5 + m6."
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "(c) f1: M0 M2 M3 M5 M6; f2: M0 M1 M2 M4."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### EXAMPLE 2.4\n\nExpress the Boolean function $F=A+B'C$ as a sum of minterms.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nF&=A+B'C\\\\\n&=A(B+B')+B'C\\\\\n&=AB+AB'+B'C\\\\\n&=AB(C+C')+AB'(C+C')+(A+A')B'C\\\\\n&=ABC+ABC'+AB'C+AB'C'+A'B'C\n\\end{aligned}\n$$\n\n$F=A'B'C+AB'C'+AB'C+ABC'+ABC$\n\n$=m_1+m_4+m_5+m_6+m_7$\n\n$F(A,B,C)=\\Sigma(1,4,5,6,7)$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$A'B'C+AB'C'+AB'C+ABC'+ABC$."
+      },
+      {
+        "score": 2,
+        "description": "$\\Sigma(1,4,5,6,7)$."
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "$F=A'B'C+AB'C'+AB'C+ABC'+ABC$\n\n$F(A,B,C)=\\Sigma(1,4,5,6,7)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$A'B'C+AB'C'+AB'C+ABC'+ABC$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$\\Sigma(1,4,5,6,7)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### EXAMPLE 2.5\n\nExpress the Boolean function $F=xy+x'z$ as a product of maxterms.",
+    "hint": null,
+    "solution": "$$\n\\begin{aligned}\nF&=xy+x'z\\\\\n&=(xy+x')(xy+z)\\\\\n&=(x+x')(y+x')(x+z)(y+z)\\\\\n&=(x'+y)(x+z)(y+z)\n\\end{aligned}\n$$\n\n$x'+y=x'+y+zz'=(x'+y+z)(x'+y+z')$\n\n$F=(x+y+z)(x+y'+z)(x'+y+z)(x'+y+z')$\n\n$=M_0M_2M_4M_5$\n\n$F(x,y,z)=\\Pi(0,2,4,5)$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$(x+y+z)(x+y'+z)(x'+y+z)(x'+y+z')$."
+      },
+      {
+        "score": 2,
+        "description": "$\\Pi(0,2,4,5)$."
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "$F=(x+y+z)(x+y'+z)(x'+y+z)(x'+y+z')$\n\n$=M_0M_2M_4M_5$\n\n$F(x,y,z)=\\Pi(0,2,4,5)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$(x+y+z)(x+y'+z)(x'+y+z)(x'+y+z')$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$\\Pi(0,2,4,5)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### Conversion between Canonical Forms\n\nFind $F'$ as a sum of minterms and express $F(A,B,C)=\\Sigma(1,4,5,6,7)$ as a product of maxterms.",
+    "hint": null,
+    "solution": "$F'(A,B,C)=\\Sigma(0,2,3)=m_0+m_2+m_3$\n\nBy DeMorgan's theorem\n\n$F=(m_0+m_2+m_3)'=m_0'\\cdot m_2'\\cdot m_3'=M_0M_2M_3=\\Pi(0,2,3)$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "$F'=\\Sigma(0,2,3)$."
+      },
+      {
+        "score": 2,
+        "description": "$F=\\Pi(0,2,3)$."
+      }
+    ],
+    "points": 3,
+    "referenceAnswer": "$F'(A,B,C)=\\Sigma(0,2,3)=m_0+m_2+m_3$\n\n$F=M_0M_2M_3=\\Pi(0,2,3)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "$F'=\\Sigma(0,2,3)$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F=\\Pi(0,2,3)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### Example\n\nDevelop the truth table for $F=xy+x'z$, express $F$ as a sum of minterms and a product of maxterms, and find $F'$.",
+    "hint": null,
+    "solution": "$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&1\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&1\\\\\n1&1&1&1\n\\end{array}\n$$\n\n$F(x,y,z)=\\Sigma(1,3,6,7)$\n\n$F(x,y,z)=\\Pi(0,2,4,5)$\n\n$F'=\\Sigma(0,2,4,5)$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "F: 0, 1, 0, 1, 0, 0, 1, 1."
+      },
+      {
+        "score": 1,
+        "description": "$F=\\Sigma(1,3,6,7)$."
+      },
+      {
+        "score": 2,
+        "description": "$F=\\Pi(0,2,4,5)$; $F'=\\Sigma(0,2,4,5)$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&1\\\\\n1&0&0&0\\\\\n1&0&1&0\\\\\n1&1&0&1\\\\\n1&1&1&1\n\\end{array}\n$$\n\n$F(x,y,z)=\\Sigma(1,3,6,7)$\n\n$F(x,y,z)=\\Pi(0,2,4,5)$\n\n$F'=\\Sigma(0,2,4,5)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "F: 0, 1, 0, 1, 0, 0, 1, 1."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "$F=\\Sigma(1,3,6,7)$."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "$F=\\Pi(0,2,4,5)$; $F'=\\Sigma(0,2,4,5)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.7\n\nFind a product of maxterms expression for $F(x,y,z)=\\Sigma(1,2,3,5,7)$.",
+    "hint": null,
+    "solution": "$F'=\\Sigma(0,4,6)$\n\n$F=(x+y+z)(x'+y+z)(x'+y'+z)$",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "$F'=\\Sigma(0,4,6)$."
+      },
+      {
+        "score": 3,
+        "description": "$F=(x+y+z)(x'+y+z)(x'+y'+z)$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F'=\\Sigma(0,4,6)$\n\n$F=(x+y+z)(x'+y+z)(x'+y'+z)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "$F'=\\Sigma(0,4,6)$."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "$F=(x+y+z)(x'+y+z)(x'+y'+z)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q19",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.8\n\nFind a sum of minterms expression for $F(x,y,z)=\\Pi(1,3,4,6)$.",
+    "hint": null,
+    "solution": "$F(x,y,z)=\\Sigma(0,2,5,7)=x'y'z'+x'yz'+xy'z+xyz$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$\\Sigma(0,2,5,7)$."
+      },
+      {
+        "score": 2,
+        "description": "$x'y'z'+x'yz'+xy'z+xyz$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F(x,y,z)=\\Sigma(0,2,5,7)=x'y'z'+x'yz'+xy'z+xyz$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$\\Sigma(0,2,5,7)$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$x'y'z'+x'yz'+xy'z+xyz$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q20",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.9\n\nIdentify the minterms and maxterms of the truth table for $F$ shown below.\n\n$$\n\\begin{array}{ccc|c}\nx & y & z & F\\\\\\hline\n0&0&0&0\\\\\n0&0&1&1\\\\\n0&1&0&0\\\\\n0&1&1&1\\\\\n1&0&0&1\\\\\n1&0&1&0\\\\\n1&1&0&1\\\\\n1&1&1&0\n\\end{array}\n$$",
+    "hint": null,
+    "solution": "$F=\\Sigma(1,3,4,6)=\\Pi(0,2,5,7)$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$\\Sigma(1,3,4,6)$."
+      },
+      {
+        "score": 2,
+        "description": "$\\Pi(0,2,5,7)$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=\\Sigma(1,3,4,6)=\\Pi(0,2,5,7)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$\\Sigma(1,3,4,6)$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$\\Pi(0,2,5,7)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q21",
+    "questionIndex": 21,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.10\n\nExpress the Boolean function $F=A+B'C+AD$ as a sum of minterms.",
+    "hint": null,
+    "solution": "$F=\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Minterms 8, 9, 10, 11, 12, 13, 14, 15."
+      },
+      {
+        "score": 1,
+        "description": "Minterms 2, 3."
+      },
+      {
+        "score": 1,
+        "description": "$\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Minterms 8, 9, 10, 11, 12, 13, 14, 15."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Minterms 2, 3."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "$\\Sigma(2,3,8,9,\\allowbreak 10,11,\\allowbreak 12,13,\\allowbreak 14,15)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q22",
+    "questionIndex": 22,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.11\n\nExpress the Boolean function $F=x'y+xz$ as a product of maxterms.",
+    "hint": null,
+    "solution": "$F=(x+y+z)(x+y+z')(x'+y+z)(x'+y'+z)$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$(x+y+z)(x+y+z')(x'+y+z)(x'+y'+z)$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F=(x+y+z)(x+y+z')(x'+y+z)(x'+y'+z)$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$(x+y+z)(x+y+z')(x'+y+z)(x'+y'+z)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q23",
+    "questionIndex": 23,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.12\n\nDraw a two-level logic diagram to implement the Boolean function $F=BC'+AB+ACD$.",
+    "hint": null,
+    "solution": "![](figures/pe2-12.svg)",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "NOT(C) → C'."
+      },
+      {
+        "score": 2,
+        "description": "AND(B,C') → BC'; AND(A,B) → AB; AND(A,C,D) → ACD."
+      },
+      {
+        "score": 1,
+        "description": "OR(BC',AB,ACD) → F."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "![](figures/pe2-12.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "NOT(C) → C'."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "AND(B,C') → BC'; AND(A,B) → AB; AND(A,C,D) → ACD."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "OR(BC',AB,ACD) → F."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q24",
+    "questionIndex": 24,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.13\n\nDraw the logic diagram corresponding to the following Boolean expression without simplifying it: $F=D+BC+(D+C')(A'+C)$.",
+    "hint": null,
+    "solution": "![](figures/pe2-13.svg)",
+    "rubric": [
+      {
+        "score": 1,
+        "description": "NOT(A) → A'; NOT(C) → C'; AND(B,C) → BC."
+      },
+      {
+        "score": 2,
+        "description": "OR(D,C') → D+C'; OR(A',C) → A'+C; AND(D+C',A'+C) → (D+C')(A'+C)."
+      },
+      {
+        "score": 2,
+        "description": "OR(D,BC,(D+C')(A'+C)) → F."
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "![](figures/pe2-13.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 1,
+        "description": "NOT(A) → A'; NOT(C) → C'; AND(B,C) → BC."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "OR(D,C') → D+C'; OR(A',C) → A'+C; AND(D+C',A'+C) → (D+C')(A'+C)."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "OR(D,BC,(D+C')(A'+C)) → F."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q25",
+    "questionIndex": 25,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 2.14\n\nImplement the Boolean function $F=xz+x'z'+x'y$ with (a) NAND and inverter gates, and (b) NOR and inverter gates.",
+    "hint": null,
+    "solution": "(a) NAND gates\n\n$F=xz+x'z'+x'y$\n\n$F'=(xz)'(x'z')'(x'y)'$\n\n$F=[(xz)'(x'z')'(x'y)']'$\n\n![](figures/pe2-14-nand.svg)\n\n(b) NOR gates\n\n$F'=(x'+z')(x+z)(x+y')$\n\n$F=(x'+z')'+(x+z)'+(x+y')'$\n\n![](figures/pe2-14-nor.svg)",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "NAND form: $F=[(xz)'(x'z')'(x'y)']'$."
+      },
+      {
+        "score": 2,
+        "description": "NOT(x) → x'; NOT(z) → z'; NAND(x,z), NAND(x',z'), NAND(x',y) → 3-input NAND → F."
+      },
+      {
+        "score": 2,
+        "description": "NOR form: $F'=(x'+z')(x+z)(x+y')$; $F=(x'+z')'+(x+z)'+(x+y')'$."
+      },
+      {
+        "score": 2,
+        "description": "NOT(x), NOT(y), NOT(z) supply x', y', z'; NOR(x',z'), NOR(x,z), NOR(x,y') → 3-input NOR → NOT → F."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) NAND gates\n\n$F=[(xz)'(x'z')'(x'y)']'$\n\n![](figures/pe2-14-nand.svg)\n\n(b) NOR gates\n\n$F'=(x'+z')(x+z)(x+y')$\n\n$F=(x'+z')'+(x+z)'+(x+y')'$\n\n![](figures/pe2-14-nor.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "NAND form: $F=[(xz)'(x'z')'(x'y)']'$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "NOT(x) → x'; NOT(z) → z'; NAND(x,z), NAND(x',z'), NAND(x',y) → 3-input NAND → F."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "NOR form: $F'=(x'+z')(x+z)(x+y')$; $F=(x'+z')'+(x+z)'+(x+y')'$."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "NOT(x), NOT(y), NOT(z) supply x', y', z'; NOR(x',z'), NOR(x,z), NOR(x,y') → 3-input NOR → NOT → F."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch2-textbook",
+    "revision": "2",
+    "questionId": "q26",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### Standard Forms\n\nExpress $F_3=AB+C(D+E)$ as a sum of products and draw its three- and two-level implementation.",
+    "hint": null,
+    "solution": "$F_3=AB+C(D+E)=AB+CD+CE$\n\n![FIGURE 2.4](figures/figure-2-4.svg)",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$F_3=AB+CD+CE$."
+      },
+      {
+        "score": 1,
+        "description": "Three levels: AND(A,B) → AB; OR(D,E) → D+E; AND(C,D+E) → C(D+E); OR(AB,C(D+E)) → F3."
+      },
+      {
+        "score": 1,
+        "description": "Two levels: AND(A,B) → AB; AND(C,D) → CD; AND(C,E) → CE; OR(AB,CD,CE) → F3."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$F_3=AB+CD+CE$\n\n![FIGURE 2.4](figures/figure-2-4.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$F_3=AB+CD+CE$."
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "Three levels: AND(A,B) → AB; OR(D,E) → D+E; AND(C,D+E) → C(D+E); OR(AB,C(D+E)) → F3."
+      },
+      {
+        "id": "r3",
+        "points": 1,
+        "description": "Two levels: AND(A,B) → AB; AND(C,D) → CD; AND(C,E) → CE; OR(AB,CD,CE) → F3."
       }
     ]
   },

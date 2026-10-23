@@ -10,7 +10,7 @@ import { bundledQuizSources, quizCatalog } from './quiz-loader'
 const id = 'digital-systems-ch1-textbook'
 // The later Chapter 2 family has its own full-baseline guard in digital-systems-ch2.test.tsx.
 const later = 'digital-systems-ch2-textbook'
-const quiz = quizCatalog.getCurrentQuiz(id)!
+const quiz = quizCatalog.getQuizRevision(id, '1')!
 const sha = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
 const question = (questionId: string) => {
   const result = quiz.questions.find(q => q.id === questionId)
@@ -22,7 +22,7 @@ afterEach(cleanup)
 
 describe('source-audited digital systems chapter 1 integration', () => {
   it('publishes the complete source order, scored rubric and v4 handwriting metadata', () => {
-    expect(quiz).toMatchObject({ id, revision: '1', current: true,
+    expect(quiz).toMatchObject({ id, revision: '1', current: false,
       title: '【課本題目】數位系統導論 - Chapter 1', subject: '數位系統導論', estimatedMinutes: 170 })
     expect(quizCatalog.current.filter(entry => entry.quiz.id === id)).toHaveLength(1)
     expect(quizCatalog.current.find(entry => entry.quiz.id === id))
@@ -52,7 +52,8 @@ describe('source-audited digital systems chapter 1 integration', () => {
     const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== later)
     expect(priorContexts).toHaveLength(263)
     expect(sha(priorContexts)).toBe('9898ee86b5422e9ce095a0e3f6972905dcebbce53dba4afb9ca1ec0fc6a14c41')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT.filter(c => !([id, later].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {
