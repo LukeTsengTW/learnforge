@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 510" role="img" aria-label="Practice Exercise 3.11">
+<title>Practice Exercise 3.11</title>
+<rect width="1000" height="510" fill="white"/>
+<g stroke="#17212b" stroke-width="2.5" fill="none" stroke-linejoin="round">
+<path d="M 180 40 Q 222 37 260 75 Q 222 113 180 110 Q 198 75 180 40 Z" fill="#e3f3fc"/>
+<circle cx="265" cy="75" r="5" fill="white"/>
+<path d="M 180 220 H 223 A 35 35 0 0 1 223 290 H 180 Z" fill="#e3f3fc"/>
+<circle cx="175" cy="235" r="5" fill="white"/>
+<circle cx="175" cy="275" r="5" fill="white"/>
+<path d="M 180 360 H 223 A 35 35 0 0 1 223 430 H 180 Z" fill="#e3f3fc"/>
+<circle cx="175" cy="375" r="5" fill="white"/>
+<circle cx="175" cy="415" r="5" fill="white"/>
+<path d="M 450 285 Q 492 282 530 320 Q 492 358 450 355 Q 468 320 450 285 Z" fill="#e3f3fc"/>
+<circle cx="535" cy="320" r="5" fill="white"/>
+<path d="M 760 165 H 803 A 35 35 0 0 1 803 235 H 760 Z" fill="#e3f3fc"/>
+<circle cx="755" cy="180" r="5" fill="white"/>
+<circle cx="755" cy="220" r="5" fill="white"/>
+<path d="M 95 55 H 187 M 95 95 H 187 M 95 235 H 170 M 95 275 H 170 M 95 375 H 170 M 95 415 H 170 M 270 75 H 665 V 180 H 750 M 258 255 H 365 V 300 H 457 M 258 395 H 390 V 340 H 457 M 540 320 H 690 V 220 H 750 M 838 200 H 900"/>
+<text x="50" y="61" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">y</text>
+<text x="50" y="101" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">z′</text>
+<text x="50" y="241" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">w</text>
+<text x="50" y="281" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">x′</text>
+<text x="50" y="381" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">w′</text>
+<text x="50" y="421" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">x</text>
+<text x="915" y="207" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">F</text>
+<text x="330" y="62" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">(y + z′)′</text>
+<text x="282" y="240" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">w′x</text>
+<text x="282" y="420" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">wx′</text>
+<text x="555" y="355" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">(w′x + wx′)′</text>
+</g>
+</svg>

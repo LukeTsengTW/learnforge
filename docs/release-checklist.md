@@ -1,5 +1,32 @@
 # Release checklist
 
+## v1.26.0 — Chapter 3 preparation and user-owned production acceptance
+
+Preparation snapshot dated 2026-10-23 Asia/Taipei; previous release v1.25.0,
+source baseline `9997e5675120da79ce219cb1bfc8e2a141046dad`. The user explicitly
+authorized all commits/pushes/deployments/tag/Release and forbade production-site
+testing. This release-specific exception supersedes the usual production smoke
+requirement; missing smoke is recorded as **not performed**, never PASS.
+Final exact commit/CI/Pages/tag identities and Stage 3/4 outcomes belong in the
+[v1.26.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.26.0),
+avoiding a self-referential source SHA. See [delivery](v1.26.0-delivery.md).
+
+- [x] Latest master/tag/Release/package checked: v1.25.0; choose minor 1.26.0 for the complete new Chapter 3 quiz.
+- [x] PowerPoint read-only rendering of all 58 slides; complete 13 Example / 11 PE crosswalk, all answers independently recalculated, three source-faithful SVGs.
+- [x] Source English prompts, Chinese answer/solution/rubric, 24 questions /152 points /135 minutes, all 1200×900 handwriting; PE 3.7/3.8/3.11 corrections documented.
+- [x] Official generator: 423 contexts/19 revisions/14 current/283 current questions; all 18 older sources/399 contexts and 29 existing test hash literals preserved.
+- [x] Ten working-tree gates, 1,962 tests; 510 math assertions, 336 strict formulas; actual local browser four-width typing/canvas/answer/figure verification; zero production dependency vulnerabilities.
+- [x] Independent Stage 1 and Stage 2 PASS; documentation nit and stale source-fingerprint evidence corrected and re-reviewed.
+- [x] Version 1.26.0 in package and both lock roots; scoped docs and final diff, no learner data, secrets, environment files or build evidence staged.
+- [ ] Before publishing: clean-tree full gates and independent Stage 3 PASS; then a new Stage 4 pre-release reviewer PASS.
+- [ ] Publish exact-SHA master CI; deploy only six AST-derived Edge consumers preserving JWT configuration; dispatch exact-SHA/version Pages and confirm successful deployment metadata/artifact identity.
+- [ ] Create matching annotated v1.26.0 tag and formal GitHub Release after CI/deployment success; include final evidence and limitations in the Release.
+- Production functional acceptance: intentionally assigned to the user, outside this preparation checklist. Do not run public smoke or any production browser/function/provider acceptance.
+
+The unchecked publication steps above are the requirements at preparation time;
+their executed outcomes are recorded in the linked Release rather than rewriting
+this snapshot after publication. No other release's smoke evidence is reused.
+
 ## v1.25.0 — candidate acceptance and final closure identity
 
 Executed candidate snapshot: `75e3015f714551098b8880cb77686f29427b4b4f`, 2026-10-23 Asia/Taipei; baseline v1.24.0 `4392333f4047d1829a38ef4609d3c83a4dfbcc9d`. For final closure, require the document commit's own CI/Pages/smoke, independent Stage 4 audit and matching annotated tag/Release. Its SHA and exact run links belong in the [v1.25.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.25.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json), avoiding a self-referential source hash. See [delivery](v1.25.0-delivery.md).

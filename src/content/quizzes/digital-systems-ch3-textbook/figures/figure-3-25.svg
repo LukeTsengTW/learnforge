@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" role="img" aria-label="FIGURE 3.25">
+<title>FIGURE 3.25</title>
+<rect width="880" height="430" fill="white"/>
+<g stroke="#17212b" stroke-width="2.5" fill="none" stroke-linejoin="round">
+<path d="M 180 50 H 223 A 35 35 0 0 1 223 120 H 180 Z" fill="#e3f3fc"/>
+<circle cx="175" cy="65" r="5" fill="white"/>
+<circle cx="175" cy="105" r="5" fill="white"/>
+<path d="M 180 180 H 223 A 35 35 0 0 1 223 250 H 180 Z" fill="#e3f3fc"/>
+<circle cx="175" cy="195" r="5" fill="white"/>
+<circle cx="175" cy="235" r="5" fill="white"/>
+<path d="M 180 310 Q 222 307 260 345 Q 222 383 180 380 Q 198 345 180 310 Z" fill="#e3f3fc"/>
+<circle cx="265" cy="345" r="5" fill="white"/>
+<path d="M 430 115 Q 472 112 510 150 Q 472 188 430 185 Q 448 150 430 115 Z" fill="#e3f3fc"/>
+<circle cx="515" cy="150" r="5" fill="white"/>
+<path d="M 690 195 H 733 A 35 35 0 0 1 733 265 H 690 Z" fill="#e3f3fc"/>
+<circle cx="685" cy="210" r="5" fill="white"/>
+<circle cx="685" cy="250" r="5" fill="white"/>
+<path d="M 95 65 H 170 M 95 105 H 170 M 95 195 H 170 M 95 235 H 170 M 95 325 H 187 M 95 365 H 187 M 258 85 H 350 V 130 H 437 M 258 215 H 375 V 170 H 437 M 520 150 H 610 V 210 H 680 M 270 345 H 635 V 250 H 680 M 768 230 H 810"/>
+<text x="50" y="71" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">A′</text>
+<text x="50" y="111" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">B</text>
+<text x="50" y="201" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">A</text>
+<text x="50" y="241" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">B′</text>
+<text x="50" y="331" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">C</text>
+<text x="50" y="371" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">D′</text>
+<text x="825" y="237" fill="#17212b" stroke="none" font-family="Georgia, serif" font-size="24">F</text>
+</g>
+</svg>

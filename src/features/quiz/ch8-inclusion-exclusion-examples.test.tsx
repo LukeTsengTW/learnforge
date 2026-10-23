@@ -113,10 +113,14 @@ describe('Chapter 8 inclusion-exclusion examples', () => {
     const midtermIds = new Set(['discrete-math-midterm-2021', 'discrete-math-midterm-2023', 'discrete-math-midterm-2024'])
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== 'digital-systems-ch1-textbook'
       && context.quizId !== 'digital-systems-ch2-textbook'
+      && context.quizId !== 'digital-systems-ch3-textbook'
       && context.quizId !== 'economics-ch1-4-exercises'
       && context.quizId !== id && !midtermIds.has(context.quizId))
-    expect(AI_QUIZ_CONTEXT.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook')
+    expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(beforeChapter3).toHaveLength(399)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
     expect(existing).toHaveLength(133)
     expect(AI_QUIZ_CONTEXT.filter((context) => context.quizId === id && context.revision === '1')).toHaveLength(12)
     expect(sha(existing)).toBe('8b45ac7c7f2eb147a88d34ec15d51dc3a80439458772b29d33e1e42e50328e7d')

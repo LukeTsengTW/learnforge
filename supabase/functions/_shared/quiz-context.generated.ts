@@ -5675,6 +5675,1008 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Example 3-1\n\n$F(x,y,z)=\\Sigma(2,3,4,5)$",
+    "hint": null,
+    "solution": "將 $m_2,m_3$ 配成一組，兩格中 $x=0$、$y=1$ 固定，因此得到 $x'y$。再將 $m_4,m_5$ 配成一組，兩格中 $x=1$、$y=0$ 固定，因此得到 $xy'$。兩組相加後為 $F=x'y+xy'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_2,m_3\\rightarrow x'y$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_4,m_5\\rightarrow xy'$，得到 $F=x'y+xy'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F=x'y+xy'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_2,m_3\\rightarrow x'y$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_4,m_5\\rightarrow xy'$，得到 $F=x'y+xy'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### Example 3-2\n\n$F(x,y,z)=\\Sigma(3,4,6,7)$",
+    "hint": null,
+    "solution": "將 $m_3,m_7$ 配成一組，固定 $y=1,z=1$，得到 $yz$。再利用 K-map 左右邊界相鄰的特性，將 $m_4,m_6$ 配成一組；固定 $x=1,z=0$，得到 $xz'$。因此 $F=yz+xz'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_3,m_7\\rightarrow yz$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_4,m_6\\rightarrow xz'$，得到 $F=yz+xz'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F=yz+xz'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_3,m_7\\rightarrow yz$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_4,m_6\\rightarrow xz'$，得到 $F=yz+xz'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Example 3-3\n\n$F(x,y,z)=\\Sigma(0,2,4,5,6)$",
+    "hint": null,
+    "solution": "將 $m_0,m_2,m_4,m_6$ 組成四格，四格皆有 $z=0$，因此化為 $z'$。剩餘的 $m_5$ 可與 $m_4$ 配成一組，固定 $x=1,y=0$，得到 $xy'$。所以 $F=z'+xy'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_0,m_2,m_4,m_6\\rightarrow z'$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_4,m_5\\rightarrow xy'$，得到 $F=z'+xy'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F=z'+xy'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_0,m_2,m_4,m_6\\rightarrow z'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_4,m_5\\rightarrow xy'$，得到 $F=z'+xy'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Example 3-4\n\n$F=A'C+A'B+AB'C+BC$\n\nexpress it in sum of minterms\n\nfind the minimal sum of products expression",
+    "hint": null,
+    "solution": "先依序列出各乘積項涵蓋的 minterm，可得函數為 $1$ 的輸入編號是 $1,2,3,5,7$，所以 $F(A,B,C)=\\Sigma(1,2,3,5,7)$。在 K-map 中，$m_1,m_3,m_5,m_7$ 可組成四格，固定 $C=1$，得到 $C$；$m_2,m_3$ 可組成兩格，固定 $A=0,B=1$，得到 $A'B$。因此最小 SOP 為 $F=C+A'B$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$F(A,B,C)=\\Sigma(1,2,3,5,7)$。"
+      },
+      {
+        "score": 3,
+        "description": "四格化簡得到 $C$。"
+      },
+      {
+        "score": 2,
+        "description": "兩格化簡得到 $A'B$，故 $F=C+A'B$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "以 minterm 表示為 $F(A,B,C)=\\Sigma(1,2,3,5,7)$；最小 sum-of-products 為 $F=C+A'B$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$F(A,B,C)=\\Sigma(1,2,3,5,7)$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "四格化簡得到 $C$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "兩格化簡得到 $A'B$，故 $F=C+A'B$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.1\n\nSimplify the Boolean function $F(x,y,z)=\\Sigma(0,1,6,7)$.",
+    "hint": null,
+    "solution": "$m_0,m_1$ 可配成一組，固定 $x=0,y=0$，得到 $x'y'$；$m_6,m_7$ 可配成另一組，固定 $x=1,y=1$，得到 $xy$。因此 $F=xy+x'y'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_0,m_1\\rightarrow x'y'$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_6,m_7\\rightarrow xy$，得到 $F=xy+x'y'$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F(x,y,z)=xy+x'y'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_0,m_1\\rightarrow x'y'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_6,m_7\\rightarrow xy$，得到 $F=xy+x'y'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.2\n\nSimplify the Boolean function $F(x,y,z)=\\Sigma(0,1,2,5)$.",
+    "hint": null,
+    "solution": "利用左右邊界相鄰，$m_0,m_2$ 可配成一組，固定 $x=0,z=0$，得到 $x'z'$。另外 $m_1,m_5$ 配成一組，固定 $y=0,z=1$，得到 $y'z$。因此 $F=x'z'+y'z$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_0,m_2\\rightarrow x'z'$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_1,m_5\\rightarrow y'z$，得到 $F=x'z'+y'z$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F(x,y,z)=x'z'+y'z$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_0,m_2\\rightarrow x'z'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_1,m_5\\rightarrow y'z$，得到 $F=x'z'+y'z$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.3\n\nSimplify the Boolean function $F(x,y,z)=\\Sigma(0,2,3,4,6)$.",
+    "hint": null,
+    "solution": "$m_0,m_2,m_4,m_6$ 組成四格，固定 $z=0$，得到 $z'$。$m_2,m_3$ 再配成一組，固定 $x=0,y=1$，得到 $x'y$。因此 $F=z'+x'y$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$m_0,m_2,m_4,m_6\\rightarrow z'$。"
+      },
+      {
+        "score": 2,
+        "description": "$m_2,m_3\\rightarrow x'y$，得到 $F=z'+x'y$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "正確解答為 $F(x,y,z)=z'+x'y$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$m_0,m_2,m_4,m_6\\rightarrow z'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$m_2,m_3\\rightarrow x'y$，得到 $F=z'+x'y$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.4\n\nFor the Boolean function $F(x,y,z)=xy'z+x'y+x'z+yz$, (a) express this function as a sum of minterms, and (b) find the minimal sum-of-products expression.",
+    "hint": null,
+    "solution": "將原式展開成 minterm，可得函數為 $1$ 的編號為 $1,2,3,5,7$。在 K-map 中，$m_1,m_3,m_5,m_7$ 組成四格，固定 $z=1$，得到 $z$；$m_2,m_3$ 組成兩格，固定 $x=0,y=1$，得到 $x'y$。因此 $F=z+x'y$。",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "(a) $\\Sigma(1,2,3,5,7)$。"
+      },
+      {
+        "score": 4,
+        "description": "(b) $F=z+x'y$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "(a) $F(x,y,z)=m_1+m_2+m_3+m_5+m_7=\\Sigma(1,2,3,5,7)$。\n\n(b) 最小 sum-of-products 為 $F=z+x'y$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "(a) $\\Sigma(1,2,3,5,7)$。"
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "(b) $F=z+x'y$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Example 3-5\n\n$F(w,x,y,z)=\\Sigma(0,1,2,4,5,6,8,9,12,13,14)$",
+    "hint": null,
+    "solution": "先將 $m_0,m_1,m_4,m_5,m_8,m_9,m_{12},m_{13}$ 組成八格，固定 $y=0$，得到 $y'$。再以 $m_0,m_2,m_4,m_6$ 組成四格，固定 $w=0,z=0$，得到 $w'z'$；以 $m_4,m_6,m_{12},m_{14}$ 組成四格，固定 $x=1,z=0$，得到 $xz'$。因此 $F=y'+w'z'+xz'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "八格得到 $y'$。"
+      },
+      {
+        "score": 2,
+        "description": "四格得到 $w'z'$。"
+      },
+      {
+        "score": 2,
+        "description": "四格得到 $xz'$，故 $F=y'+w'z'+xz'$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "正確解答為 $F=y'+w'z'+xz'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "八格得到 $y'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "四格得到 $w'z'$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "四格得到 $xz'$，故 $F=y'+w'z'+xz'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Example 3-6\n\nSimplify the Boolean function\n\n$F=A'B'C'+B'CD'+A'BCD'+AB'C'$",
+    "hint": null,
+    "solution": "將各乘積項對應到四變數 K-map。$B'D'$ 可由四格合併得到，$B'C'$ 也可由另一組四格得到；剩餘需要覆蓋的格子以 $A'CD'$ 表示。三個 implicant 合併後，得到最小化結果 $F=B'D'+B'C'+A'CD'$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$B'D'$。"
+      },
+      {
+        "score": 3,
+        "description": "$B'C'$。"
+      },
+      {
+        "score": 2,
+        "description": "$A'CD'$，故 $F=B'D'+B'C'+A'CD'$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "正確解答為 $F=B'D'+B'C'+A'CD'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$B'D'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "$B'C'$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "$A'CD'$，故 $F=B'D'+B'C'+A'CD'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.5\n\nSimplify the Boolean function $F(w,x,y,z)=\\Sigma(0,1,3,8,9,10,11,12,13,14,15)$.",
+    "hint": null,
+    "solution": "$m_8$ 到 $m_{15}$ 可組成八格，得到 $w$。$m_0,m_1,m_8,m_9$ 組成四格，固定 $x=0,y=0$，得到 $x'y'$；$m_1,m_3,m_9,m_{11}$ 組成四格，固定 $x=0,z=1$，得到 $x'z$。因此 $F=x'y'+x'z+w$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$w$。"
+      },
+      {
+        "score": 1,
+        "description": "$x'y'$。"
+      },
+      {
+        "score": 2,
+        "description": "$x'z$，故 $F=x'y'+x'z+w$。"
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "正確解答為 $F(w,x,y,z)=x'y'+x'z+w$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$w$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "$x'y'$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "$x'z$，故 $F=x'y'+x'z+w$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.6\n\nSimplify the Boolean function $F(w,x,y,z)=\\Sigma(0,2,4,6,8,10,11)$.",
+    "hint": null,
+    "solution": "$m_0,m_2,m_4,m_6$ 組成四格，得到 $w'z'$；$m_0,m_2,m_8,m_{10}$ 組成四格，得到 $x'z'$；$m_{10},m_{11}$ 組成兩格，得到 $wx'y$。所以 $F=w'z'+x'z'+wx'y$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$w'z'$。"
+      },
+      {
+        "score": 1,
+        "description": "$x'z'$。"
+      },
+      {
+        "score": 2,
+        "description": "$wx'y$，故 $F=w'z'+x'z'+wx'y$。"
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "正確解答為 $F(w,x,y,z)=w'z'+x'z'+wx'y$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$w'z'$。"
+      },
+      {
+        "id": "r2",
+        "points": 1,
+        "description": "$x'z'$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "$wx'y$，故 $F=w'z'+x'z'+wx'y$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.7\n\nFind the prime implicants of the Boolean function\n\n$F(w,x,y,z)=\\Sigma(0,2,4,5,6,7,8,10,13,14,15)$",
+    "hint": null,
+    "solution": "投影片答案誤植：第一項印為 $x'y'$，但它涵蓋原函數為 $0$ 的 $m_1,m_9$，因此不是 implicant；正確應為 $x'z'$，涵蓋 $m_0,m_2,m_8,m_{10}$。逐一枚舉所有可合併且無法再擴大的群組，另外五組為 $xz$（$5,7,13,15$）、$xy$（$6,7,14,15$）、$w'x$（$4,5,6,7$）、$w'z'$（$0,2,4,6$）、$yz'$（$2,6,10,14$）。題目要求所有 prime implicants，六項都必須列出，不能只列最小覆蓋。",
+    "rubric": [
+      {
+        "score": 6,
+        "description": "完整列出 $x'z', xz, xy, w'x, w'z', yz'$，每項 1 分。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "所有 prime implicants 為 $x'z',\\ xz,\\ xy,\\ w'x,\\ w'z',\\ yz'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 6,
+        "description": "完整列出 $x'z', xz, xy, w'x, w'z', yz'$，每項 1 分。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### Example 3-7\n\n$F=\\Sigma(0,1,2,5,8,9,10)$",
+    "hint": null,
+    "solution": "若以 K-map 的 0 進行分組，可先得到補數 $F'=AB+CD+BD'$。套用 DeMorgan 定理：\n\n$F=(F')'=(AB+CD+BD')'=(A'+B')(C'+D')(B'+D)$。\n\n若改由 1 進行分組，則可得到等價的 SOP：$B'D'+B'C'+A'C'D$。兩種形式皆實作同一個 $F$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$F'=AB+CD+BD'$。"
+      },
+      {
+        "score": 3,
+        "description": "$F=(A'+B')(C'+D')(B'+D)$。"
+      },
+      {
+        "score": 2,
+        "description": "等價 SOP：$B'D'+B'C'+A'C'D$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "由 0 的群組可得 $F'=AB+CD+BD'$，因此\n\n$F=(A'+B')(C'+D')(B'+D)$。\n\n同一函數的最小 SOP 可寫成 $F=B'D'+B'C'+A'C'D$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$F'=AB+CD+BD'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "$F=(A'+B')(C'+D')(B'+D)$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "等價 SOP：$B'D'+B'C'+A'C'D$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.8\n\nSimplify the Boolean function $F(w,x,y,z)=\\Sigma(0,2,8,10,12,13,14)$ into\n\n(a) sum-of-products form and (b) product-of-sums form. Derive the truth table of $F$.",
+    "hint": null,
+    "solution": "SOP 由 1 的群組取得：$x'z'$、$wz'$、$wxy'$，所以 $F=x'z'+wz'+wxy'$。POS 可先對 0 分組得到 $F'=w'x+yz+x'z$，再用 DeMorgan 定理取補數，得到 $F=(w+x')(y'+z')(x+z')$。真值表直接依 $\\Sigma(0,2,8,10,12,13,14)$ 填入：這七個 minterm 的 $F=1$，其餘為 $0$。投影片答案誤植：真值表左半部八列的輸入欄都印成 $0000$；上表依二進位順序修正為 $0000$ 至 $0111$，原有輸出值不變。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "(a) $F=x'z'+wz'+wxy'$。"
+      },
+      {
+        "score": 3,
+        "description": "(b) $F=(w+x')(y'+z')(x+z')$。"
+      },
+      {
+        "score": 4,
+        "description": "16 列真值表與 $\\Sigma(0,2,8,10,12,13,14)$ 一致。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "(a) $F(w,x,y,z)=x'z'+wz'+wxy'$。\n\n(b) $F'(w,x,y,z)=w'x+yz+x'z$，因此 $F(w,x,y,z)=(w+x')(y'+z')(x+z')$。\n\n真值表為：\n\n$$\n\\begin{array}{c|c}\nwxyz & F\\\\\\hline\n0000&1\\\\\n0001&0\\\\\n0010&1\\\\\n0011&0\\\\\n0100&0\\\\\n0101&0\\\\\n0110&0\\\\\n0111&0\\\\\n1000&1\\\\\n1001&0\\\\\n1010&1\\\\\n1011&0\\\\\n1100&1\\\\\n1101&1\\\\\n1110&1\\\\\n1111&0\n\\end{array}\n$$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "(a) $F=x'z'+wz'+wxy'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "(b) $F=(w+x')(y'+z')(x+z')$。"
+      },
+      {
+        "id": "r3",
+        "points": 4,
+        "description": "16 列真值表與 $\\Sigma(0,2,8,10,12,13,14)$ 一致。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q16",
+    "questionIndex": 15,
+    "type": "calculation",
+    "prompt": "### Example 3-8\n\n$F(w,x,y,z)=\\Sigma(1,3,7,11,15)$\n\n$d(w,x,y,z)=\\Sigma(0,2,5)$",
+    "hint": null,
+    "solution": "don't-care 格可視需要當作 0 或 1。共同的四格 $m_3,m_7,m_{11},m_{15}$ 化為 $yz$。若將 $m_0,m_2$ 連同 $m_1,m_3$ 使用，可形成 $w'x'$，得到 $F=yz+w'x'$；若改用 $m_1,m_3,m_5,m_7$，則形成 $w'z$，得到 $F=yz+w'z$。兩種化簡都只在 don't-care 輸入上可能不同，因此都符合原函數。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "共同群組 $m_3,m_7,m_{11},m_{15}$ 得到 $yz$。"
+      },
+      {
+        "score": 3,
+        "description": "使用 don't-care 得到 $w'x'$ 或 $w'z$，任一完整結果皆可得滿分，且不改變指定輸入的函數值。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "投影片給出的兩個可接受化簡結果為 $F=yz+w'x'$ 或 $F=yz+w'z$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "共同群組 $m_3,m_7,m_{11},m_{15}$ 得到 $yz$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "使用 don't-care 得到 $w'x'$ 或 $w'z$，任一完整結果皆可得滿分，且不改變指定輸入的函數值。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q17",
+    "questionIndex": 16,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.9\n\nSimplify the Boolean function $F(w,x,y,z)=\\Sigma(4,5,6,7,12)$ with don't care\n\nfunction $d(w,x,y,z)=\\Sigma(0,8,13)$.",
+    "hint": null,
+    "solution": "$m_4,m_5,m_6,m_7$ 可組成四格，固定 $w=0,x=1$，得到 $xw'$。為了覆蓋 $m_{12}$，可使用 don't-care $m_{13}$，把 $m_4,m_5,m_{12},m_{13}$ 組成四格，固定 $x=1,y=0$，得到 $xy'$。因此 $F=xy'+xw'$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$xw'$。"
+      },
+      {
+        "score": 3,
+        "description": "利用 $m_{13}$ 的 don't-care 得到 $xy'$，故 $F=xy'+xw'$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "正確解答為 $F(w,x,y,z)=xy'+xw'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$xw'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "利用 $m_{13}$ 的 don't-care 得到 $xy'$，故 $F=xy'+xw'$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q18",
+    "questionIndex": 17,
+    "type": "calculation",
+    "prompt": "### Example:\n\n$F=AB+CD$",
+    "hint": null,
+    "solution": "第一級分別以 NAND 產生 $(AB)'$ 與 $(CD)'$。第二級再以 NAND 對這兩個結果取反相乘積：\n\n$((AB)'(CD)')'=(AB)+(CD)$，\n\n因此輸出仍為 $F=AB+CD$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "第一級產生 $(AB)'$ 與 $(CD)'$。"
+      },
+      {
+        "score": 2,
+        "description": "第二級 NAND 得到 $F=((AB)'(CD)')'=AB+CD$。"
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "以兩級 NAND-NAND 實作時，$F=((AB)'(CD)')'=AB+CD$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "第一級產生 $(AB)'$ 與 $(CD)'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "第二級 NAND 得到 $F=((AB)'(CD)')'=AB+CD$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q19",
+    "questionIndex": 18,
+    "type": "calculation",
+    "prompt": "### Example 3-9\n\n$F(x,y,z)=\\Sigma(1,2,3,4,5,7)$",
+    "hint": null,
+    "solution": "K-map 中可分別形成 $xy'$、$x'y$ 與 $z$ 三個 implicant，因此 $F=xy'+x'y+z$。NAND-NAND 實作時，第一級產生 $(xy')'$、$(x'y)'$，而單一 literal $z$ 先反相成 $z'$；第二級 NAND 得到\n\n$[(xy')'(x'y)'z']'=xy'+x'y+z$。",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$F=xy'+x'y+z$。"
+      },
+      {
+        "score": 4,
+        "description": "正確兩級 NAND-NAND 實作。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "K-map 化簡後為 $F(x,y,z)=xy'+x'y+z$，並可用兩級 NAND-NAND 實作。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$F=xy'+x'y+z$。"
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "正確兩級 NAND-NAND 實作。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q20",
+    "questionIndex": 19,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.10\n\nImplement the Boolean function $F(x,y,z)=\\Sigma(0,1,3,5,6,7)$ with NAND\n\ngates, and draw the logic diagram of the implementation.",
+    "hint": null,
+    "solution": "K-map 化簡得到三項 $x'y'$、$xy$、$z$。第一級用 NAND 產生 $(x'y')'$ 與 $(xy)'$，單一 literal $z$ 先反相成 $z'$；第二級以三輸入 NAND 合併：\n\n$[(x'y')'(xy)'z']'=x'y'+xy+z$。\n\n因此可完全以 NAND gates 完成。",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$F=x'y'+xy+z$。"
+      },
+      {
+        "score": 4,
+        "description": "邏輯圖與 NAND-NAND 實作等價。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "先化簡得 $F(x,y,z)=x'y'+xy+z$，再以 NAND-NAND 結構實作。\n\n![](figures/pe3-10.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$F=x'y'+xy+z$。"
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "邏輯圖與 NAND-NAND 實作等價。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q21",
+    "questionIndex": 20,
+    "type": "calculation",
+    "prompt": "### Example:\n\n$F=(A+B)(C+D)E$",
+    "hint": null,
+    "solution": "先用 NOR 分別得到 $(A+B)'$ 與 $(C+D)'$，並取得 $E'$。最後再用 NOR 對三個反相信號做和後反相：\n\n$[(A+B)'+(C+D)'+E']'=(A+B)(C+D)E$。\n\n這正是 POS 對應的 NOR-NOR 實作。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "第一級得到 $(A+B)'$、$(C+D)'$、$E'$。"
+      },
+      {
+        "score": 3,
+        "description": "第二級 NOR 得到 $F=(A+B)(C+D)E$。"
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "可用 NOR 結構實作：\n\n$F=[(A+B)'+(C+D)'+E']'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "第一級得到 $(A+B)'$、$(C+D)'$、$E'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "第二級 NOR 得到 $F=(A+B)(C+D)E$。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q22",
+    "questionIndex": 21,
+    "type": "calculation",
+    "prompt": "### Example:\n\n$F=(AB'+A'B)(C+D')$",
+    "hint": null,
+    "solution": "依來源接線，前兩個 invert-AND（NOR alternate symbol）分別接 $A',B$ 與 $A,B'$，輸出 $(A')'B'=AB'$ 與 $A' (B')'=A'B$；兩者送入 NOR 得到 $(AB'+A'B)'$。另一支路以 NOR 得到 $(C+D')'$。最後 invert-AND 對這兩個訊號各取反再相乘，輸出 $[(AB'+A'B)'+(C+D')']'=(AB'+A'B)(C+D')$。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "正確形成 $AB'$ 與 $A'B$。"
+      },
+      {
+        "score": 2,
+        "description": "得到 $(AB'+A'B)'$ 與 $(C+D')'$。"
+      },
+      {
+        "score": 3,
+        "description": "最後輸出等價於原函數。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "以 NOR gates 可先形成 $(AB'+A'B)'$ 與 $(C+D')'$，再由最後一級的等價 NOR 結構得到\n\n$F=(AB'+A'B)(C+D')$。\n\n![FIGURE 3.25](figures/figure-3-25.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "正確形成 $AB'$ 與 $A'B$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "得到 $(AB'+A'B)'$ 與 $(C+D')'$。"
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "最後輸出等價於原函數。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q23",
+    "questionIndex": 22,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 3.11\n\nImplement the Boolean function $F(W,x,y,z)=(y+z')(wx'+w'x)$ with\n\nNOR gates.",
+    "hint": null,
+    "solution": "第一支路用 NOR 形成 $(y+z')'$。第二支路依來源以 invert-AND（NOR alternate symbol）分別接 $w,x'$ 與 $w',x$，輸出 $w'x$ 與 $wx'$，再經 NOR 得到 $(w'x+wx')'$。投影片特別註明原書圖中少了加號；正確標示是 $(w'x+wx')'$。最後 invert-AND 輸出 $[(y+z')'+(w'x+wx')']'=(y+z')(wx'+w'x)$。題目函數參數的 $W$ 大寫與式內的 $w$ 小寫均保留來源原文；運算以式內的 $w,x,y,z$ 為準。",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "形成 $(y+z')'$。"
+      },
+      {
+        "score": 3,
+        "description": "形成更正後的 $(w'x+wx')'$。"
+      },
+      {
+        "score": 4,
+        "description": "最後 NOR 等價結構輸出原函數。"
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "依投影片更正後，內部 NOR 輸出應為 $(w'x+wx')'$。完整 NOR 實作可由 $(y+z')'$ 與 $(w'x+wx')'$ 經最後一級等價 NOR／invert-AND 結構得到\n\n$F=(y+z')(wx'+w'x)$。\n\n![](figures/pe3-11.svg)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "形成 $(y+z')'$。"
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "形成更正後的 $(w'x+wx')'$。"
+      },
+      {
+        "id": "r3",
+        "points": 4,
+        "description": "最後 NOR 等價結構輸出原函數。"
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch3-textbook",
+    "revision": "1",
+    "questionId": "q24",
+    "questionIndex": 23,
+    "type": "calculation",
+    "prompt": "### Example 3-10\n\n$F'=x'y+xy'+z$ $\\qquad$ $(F':\\ \\text{sum of products})$",
+    "hint": null,
+    "solution": "由給定的 $F'$ 直接取補數，可得 AOI 形式 $F=(x'y+xy'+z)'$。再將 $F$ 寫成 SOP，可得 $F=x'y'z'+xyz'$。對此 SOP 取補數並用 DeMorgan 定理，可得 $F'=(x+y+z)(x'+y'+z)$；再取補數即得到 OAI 形式 $F=((x+y+z)(x'+y'+z))'$。",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$F=(x'y+xy'+z)'$。"
+      },
+      {
+        "score": 2,
+        "description": "$F=x'y'z'+xyz'$。"
+      },
+      {
+        "score": 2,
+        "description": "$F'=(x+y+z)(x'+y'+z)$。"
+      },
+      {
+        "score": 2,
+        "description": "$F=((x+y+z)(x'+y'+z))'$。"
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "對應的 AOI 表示為 $F=(x'y+xy'+z)'$。\n\n等價地，$F=x'y'z'+xyz'$，因此\n\n$F'=(x+y+z)(x'+y'+z)$，\n\n對應的 OAI 表示為\n\n$F=((x+y+z)(x'+y'+z))'$。",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$F=(x'y+xy'+z)'$。"
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "$F=x'y'z'+xyz'$。"
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "$F'=(x+y+z)(x'+y'+z)$。"
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "$F=((x+y+z)(x'+y'+z))'$。"
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-ch1-counting-examples",
     "revision": "1",
     "questionId": "q01",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.26.0 — Source-audited digital systems Chapter 3
+
+- Publish `digital-systems-ch3-textbook/1`, **【課本題目】數位系統導論 - Chapter 3**: 24 calculation questions, 152 points, 135 minutes, all with text entry and 1200×900 handwriting. Independently inspect all 58 source slides: 13 Examples and 11 Practice Exercises, including every continuation.
+- Preserve the slides' English prompts and Boolean notation; provide Traditional Chinese answers, solutions and scored rubrics. Correct PE 3.7's first prime implicant to x′z′, PE 3.8's repeated truth-table input labels, and apply PE 3.11's explicitly corrected `(w′x + wx′)′`. Document the source W/w case inconsistency without changing its prompt.
+- Add three safe same-quiz SVG answer diagrams with source wiring. Regenerate 24 contexts: **399 → 423**, **18 → 19 revisions**, **13 → 14 current quizzes / 283 current questions**. All 18 older source revisions and 399 older serialized contexts remain unchanged; existing historical hash assertions are preserved.
+- Local integration evidence: 1,962 tests / 136 files, ten release gates, 510 mathematical assertions, 336 strict KaTeX formulas and actual local Chromium checks at 1440/768/390/345 px. Independent Stage 1/2 reviews PASS after remediation. Clean candidate and final publication evidence are bound by [delivery](docs/v1.26.0-delivery.md) and the [v1.26.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.26.0).
+- This release has explicit user authorization to deploy and publish **without production-site functional verification**. Production smoke, login, quiz submission, handwriting, learner-data writes and provider canaries are not performed by Codex; the user owns production acceptance. This is a release-specific exception, not a relaxation of permanent release tooling or CI.
+
 ## 1.25.0 — Source-faithful digital systems revisions and quiz figures
 
 - Publish Chapter 1 and Chapter 2 revision 2 using the slides' English wording, source derivations and concise English scored rubrics. Preserve metadata, IDs/order, 206/122 points and handwriting; archive revision 1 without changing its question content.

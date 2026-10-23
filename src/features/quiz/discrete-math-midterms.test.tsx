@@ -128,10 +128,14 @@ describe('Discrete Mathematics midterm context integration', () => {
   it('adds 25 canonical contexts while preserving all 145 previously shipped contexts byte-for-byte', () => {
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== 'digital-systems-ch1-textbook'
       && context.quizId !== 'digital-systems-ch2-textbook'
+      && context.quizId !== 'digital-systems-ch3-textbook'
       && context.quizId !== 'economics-ch1-4-exercises'
       && !midtermIds.has(context.quizId))
-    expect(AI_QUIZ_CONTEXT.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook')
+    expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
+    expect(beforeChapter3).toHaveLength(399)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
     expect(existing).toHaveLength(145)
     expect(sha(existing)).toBe('8719200237f249a46e43a20a92050db6ab0ed3aa84405485147c3af6976fb368')
     for (const spec of midterms) {

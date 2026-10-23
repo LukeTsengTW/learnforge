@@ -25,11 +25,14 @@ const rows = (bits: number, f: (values: boolean[]) => boolean) =>
 
 describe('source-only digital systems revision 2', () => {
   it('preserves every historical canonical entry byte for byte', () => {
-    const historical = AI_QUIZ_CONTEXT.filter(c => !(ids.includes(c.quizId) && c.revision === '2'))
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook')
+    const historical = beforeChapter3.filter(c => !(ids.includes(c.quizId) && c.revision === '2'))
     expect(historical).toHaveLength(331)
     expect(createHash('sha256').update(JSON.stringify(historical)).digest('hex'))
       .toBe('8b4d344d0c6cbc4c31b7c48a8210ac466b7d7cf7d9688a6ae90561192c6b0090')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(399)
+    expect(beforeChapter3).toHaveLength(399)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
   })
 
   it.each([0, 1])('keeps Chapter %i metadata, IDs, points and drawing dimensions', index => {

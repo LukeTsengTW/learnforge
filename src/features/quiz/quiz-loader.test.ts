@@ -11,16 +11,16 @@ import { fixtureQuizSources } from '../../test-fixtures/fixture-quizzes.test-hel
 const sources = { ...bundledQuizSources, ...fixtureQuizSources }
 const fixtureCatalog = createQuizCatalog(sources)
 describe('bundled quiz catalog', () => {
-  it('publishes exactly the thirteen current quizzes and none of the removed ones', () => {
+  it('publishes exactly the fourteen current quizzes and none of the removed ones', () => {
     expect(quizCatalog.errors).toEqual([])
-    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook', 'discrete-math',
+    expect(quizCatalog.current.map(({ quiz }) => quiz.id).sort()).toEqual(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook', 'digital-systems-ch3-textbook', 'discrete-math',
       'discrete-math-ch1-counting-examples', 'discrete-math-ch3-set-theory-examples', 'discrete-math-ch5-relations-functions-examples',
       'discrete-math-ch7-relations-second-examples',
       'discrete-math-ch8-inclusion-exclusion-examples',
       'discrete-math-exercises-2026', 'discrete-math-midterm-2021', 'discrete-math-midterm-2023',
       'discrete-math-midterm-2024', 'economics-ch1-4-exercises'])
-    // discrete-math, Chapter 5 and both digital-systems families retain revision 1.
-    expect(Object.keys(bundledQuizSources)).toHaveLength(18)
+    // discrete-math, Chapter 5 and digital-systems Chapters 1/2 retain revision 1; Chapter 3 adds one revision.
+    expect(Object.keys(bundledQuizSources)).toHaveLength(19)
     for (const id of ['demo', 'boolean-algebra', 'relations']) {
       expect(quizCatalog.getCurrentQuiz(id)).toBeNull()
       expect(fixtureCatalog.getCurrentQuiz(id)).not.toBeNull()
