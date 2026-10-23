@@ -39,7 +39,7 @@ with equivalent KaTeX Σ/prime notation and ordinary whitespace is normalized.
 | q07 | Practice Exercise 3.3 | 15 | Σ(0,2,3,4,6) |
 | q08 | Practice Exercise 3.4 | 15 | Original (a)/(b) wording and expression |
 | q09 | Example 3-5 | 17 | Figure 3.9; eight-square and four-square groups |
-| q10 | Example 3-6 | 18 | Figure 3.10, all corrected red minterm labels |
+| q10 | Example 3-6 | 18 | Figure 3.10 and red grouping annotations |
 | q11 | Practice Exercise 3.5 | 19 | Σ(0,1,3,8,9,10,11,12,13,14,15) |
 | q12 | Practice Exercise 3.6 | 19 | Σ(0,2,4,6,8,10,11) |
 | q13 | Practice Exercise 3.7 | 22 | All six prime implicants; corrected answer below |
