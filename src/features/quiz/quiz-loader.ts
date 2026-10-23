@@ -1,6 +1,7 @@
 import type { Quiz } from '../../models/quiz'
 import { parseQuiz, QuizParseError } from '../../lib/quiz-parser'
 import { gradeQuiz } from '../../lib/grading'
+import { figuresForQuiz } from './quiz-figures'
 
 export type QuizLoadResult = { ok: true; quiz: Quiz } | { ok: false; error: string }
 export interface QuizCatalogEntry {
@@ -29,7 +30,10 @@ export function createQuizCatalog(sources: Record<string, string>): QuizCatalog 
   const errors: QuizCatalog['errors'] = []
   for (const [file, source] of Object.entries(sources).sort(([a], [b]) => a.localeCompare(b))) {
     let quiz: Quiz
-    try { quiz = parseQuiz(source, true) }
+    try {
+      quiz = parseQuiz(source, true)
+      if (source.includes('![')) quiz = parseQuiz(source, true, Object.keys(figuresForQuiz(quiz.id)))
+    }
     catch (error) { errors.push({ file, message: error instanceof Error ? error.message : '未知解析錯誤' }); continue }
     const known = revisions.get(quiz.id) ?? new Map<string, Quiz>()
     if (known.has(quiz.revision)) throw new Error(`${file}: duplicate quiz id + revision ${quiz.id}/${quiz.revision}`)

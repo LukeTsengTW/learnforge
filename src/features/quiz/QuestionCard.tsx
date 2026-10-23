@@ -7,8 +7,10 @@ import { QuestionInput } from './QuestionInput'
 import type { AnswerOutcome, PendingInputFlush } from './attempt-context'
 import { AiTutorControls } from '../ai/AiTutorControls'
 import type { AiTutorState } from '../ai/use-ai-tutor'
+import { figuresForQuiz } from './quiz-figures'
 
-export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint, draftSchema = 1, registerPendingFlush }: {
+export function QuestionCard({ question, index, answer, onChange, aiTutor, beforeAiHint, draftSchema = 1, registerPendingFlush, quizId }: {
+  quizId?: string
   question: Question; index: number; answer: PracticeAnswerV5 | undefined; onChange: (answer: PracticeAnswerV5) => AnswerOutcome
   aiTutor?: AiTutorState; beforeAiHint?: () => Promise<void>
   draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
@@ -21,12 +23,12 @@ export function QuestionCard({ question, index, answer, onChange, aiTutor, befor
       <div className="question-meta-right"><span>{question.points} 分{!isObjectiveQuestion(question) && '・AI 自動評分'}</span>
         {hasAnswer(answer) && <span className="answered-mark">✓ 已作答</span>}</div>
     </div>
-    <div id={`prompt-${question.id}`} className="question-prompt"><Markdown>{question.prompt}</Markdown></div>
-    <QuestionInput question={question} answer={answer} onChange={onChange} draftSchema={draftSchema}
+    <div id={`prompt-${question.id}`} className="question-prompt"><Markdown figures={figuresForQuiz(quizId ?? '')}>{question.prompt}</Markdown></div>
+    <QuestionInput figures={figuresForQuiz(quizId ?? '')} question={question} answer={answer} onChange={onChange} draftSchema={draftSchema}
       registerPendingFlush={registerPendingFlush} />
     {question.hint && <div className="hint-area"><button type="button" className="hint-button" aria-expanded={hintOpen}
       aria-controls={`hint-${question.id}`} onClick={() => setHintOpen(!hintOpen)}><span aria-hidden="true">{hintOpen ? '−' : '+'}</span> {hintOpen ? '收起提示' : '需要一點提示？'}</button>
-      {hintOpen && <div id={`hint-${question.id}`} className="hint-content"><Markdown>{question.hint}</Markdown></div>}
+      {hintOpen && <div id={`hint-${question.id}`} className="hint-content"><Markdown figures={figuresForQuiz(quizId ?? '')}>{question.hint}</Markdown></div>}
     </div>}
     {question.type !== 'drawing' && !handwriting && aiTutor && <AiTutorControls tutor={aiTutor} questionId={question.id}
       features={['hint']} beforeRun={beforeAiHint} />}

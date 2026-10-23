@@ -56,8 +56,8 @@ export function ReviewPage() {
             </div>
             <div id="review-question" className="review-question" tabIndex={-1}>
               {grade ? <><div role="status" aria-live="polite" className={`review-feedback status-${grade.status}`}>{grade.status === 'correct' ? '答對' : '答錯，請查看正確答案與解題說明。'}</div>
-                <ResultQuestion question={item.question} answer={answer} grade={grade} index={0} idPrefix="review-" /></>
-                : <QuestionCard key={`${item.key}:${trial}`} question={item.question} index={0} answer={answer}
+                <ResultQuestion quizId={item.quizId} question={item.question} answer={answer} grade={grade} index={0} idPrefix="review-" /></>
+                : <QuestionCard quizId={item.quizId} key={`${item.key}:${trial}`} question={item.question} index={0} answer={answer}
                   onChange={(next) => { if (!isLegacyQuestionAnswerV5(next)) return 'rejected'; setAnswer(next); return 'accepted' }} />}
             </div>
             <div className="review-actions">

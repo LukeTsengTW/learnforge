@@ -8,6 +8,7 @@ import type { Quiz } from '../../models/quiz'
 import { requiresV4Draft } from '../../lib/draft-v4'
 import { requiresV5Draft } from '../../lib/draft-v5'
 import { isLegacyQuestionAnswerV5 } from '../../lib/draft-v5'
+import { figuresForQuiz } from '../quiz/quiz-figures'
 
 export function AuthorPreview({ quiz, mode, answers, onAnswer }: {
   quiz: Quiz
@@ -27,14 +28,14 @@ export function AuthorPreview({ quiz, mode, answers, onAnswer }: {
   const grades = mode === 'answer' ? gradeQuiz(quiz, gradingAnswers).questions : []
   return <div className="author-preview-content">
     <header className="page-heading"><span className="subject-label">{quiz.subject}</span>
-      <h2>{quiz.title}</h2><Markdown>{quiz.description}</Markdown></header>
+      <h2>{quiz.title}</h2><Markdown figures={figuresForQuiz(quiz.id)}>{quiz.description}</Markdown></header>
     <div className="question-stack">
       {quiz.questions.map((question, index) => <div id={`author-question-${question.id}`} key={question.id}>
         {mode === 'student'
-          ? <QuestionCard question={question} index={index} answer={answers[question.id]} draftSchema={draftSchema}
+          ? <QuestionCard quizId={quiz.id} question={question} index={index} answer={answers[question.id]} draftSchema={draftSchema}
             // The preview keeps every answer in local state and has no stored-answer limits.
             onChange={(answer) => { onAnswer(question.id, answer); return 'accepted' }} />
-          : <ResultQuestion question={question} index={index} answer={answers[question.id]}
+          : <ResultQuestion quizId={quiz.id} question={question} index={index} answer={answers[question.id]}
             grade={grades[index]} idPrefix="author-" />}
       </div>)}
     </div>

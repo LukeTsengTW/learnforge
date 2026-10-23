@@ -11,6 +11,7 @@ import { quizCatalog } from '../features/quiz/quiz-loader'
 import { usePracticeRepository } from '../features/quiz/practice-context'
 import { AiQuotaStatus } from '../features/ai/AiTutorControls'
 import { useAiTutor } from '../features/ai/use-ai-tutor'
+import { figuresForQuiz } from '../features/quiz/quiz-figures'
 
 export function QuizPage() {
   const { quiz, attempt, attemptId, answerQuestion, submit, restart, storageNotice, syncing, submitting, submitProgress, pendingSubmission, retry,
@@ -62,7 +63,7 @@ export function QuizPage() {
   }
   return <>
     <div className="breadcrumb"><Link to="/library">題庫</Link><span aria-hidden="true">/</span><span>正在練習</span></div>
-    <header className="page-heading"><span className="subject-label">基礎練習</span><h1>{quiz.title}</h1><Markdown>{quiz.description}</Markdown></header>
+    <header className="page-heading"><span className="subject-label">基礎練習</span><h1>{quiz.title}</h1><Markdown figures={figuresForQuiz(quiz.id)}>{quiz.description}</Markdown></header>
     {quizCatalog.getCurrentQuiz(quiz.id)?.revision !== quiz.revision && <div className="notice warning" role="status">此未完成練習使用舊版題目（{quiz.revision}）。你可以繼續完成，或捨棄草稿並使用最新版重新開始。</div>}
     {storageNotice && <div className="notice warning" role="status">{storageNotice} <Link to="/recovery">查看本機練習備份</Link></div>}
     <AiQuotaStatus tutor={tutor} />
@@ -90,7 +91,7 @@ export function QuizPage() {
       if (unanswered) setConfirmIncomplete(true); else submitQuiz()
     }}>
       <fieldset disabled={submitting} className="submission-lock">
-      {quiz.questions.map((question, index) => <QuestionCard key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
+      {quiz.questions.map((question, index) => <QuestionCard quizId={quiz.id} key={`${attempt.startedAt}-${question.id}`} question={question} index={index}
         answer={attempt.answers[question.id]} onChange={(answer) => {
           const outcome = answerQuestion(question.id, answer)
           if (outcome === 'accepted') { setConfirmIncomplete(false); setSubmitStopped(false) }

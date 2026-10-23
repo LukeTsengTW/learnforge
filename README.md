@@ -412,6 +412,22 @@ v0.1/v0.2 的 `@quiz id="..."` 格式仍可由 parser 讀取；bundled catalog �
 - 題目之間只能有空白行。未知屬性、未知區塊、題型不適用的區塊與缺少結尾均報錯，不默默忽略。
 - 正常 Markdown 支援標題、段落、列表、引用、連結、程式碼及數學。Markdown code fence（至少 3 個反引號或波浪號）中的 directive 會保留為文字；未關閉的 fence 報錯。要在 prose 中展示 directive，請放入 code fence。
 
+### 題庫內圖片
+
+圖片使用 CommonMark 語法，例如 `![FIGURE PE2.4](figures/pe2-4.svg)`。
+檔案放在同一個 `src/content/quizzes/<quiz-id>/figures/`；可用 SVG、PNG、JPG、JPEG、WebP，
+檔名只接受英數字、連字號與底線，第一字元須為英數字。alt 使用來源原有圖號或圖說。
+不接受外部 URL、data/blob URL、絕對路徑、`../`、百分比編碼、query/fragment、巢狀目錄或符號連結。
+inline 與 reference-style Markdown 圖片都會驗證；code fence、inline code 與數學中的文字不當作圖片。
+parser 拒絕非法路徑；`check:quizzes` 額外檢查缺檔與檔案連結並立即失敗。
+
+Vite 以 `?url&no-inline` 匯入圖片，產生帶 hash 且符合 `/learnforge/` base 的資產 URL；
+圖片以 `<img>` 顯示，限制在內容寬度內。raw HTML 與 KaTeX trust 仍然停用，CSP 不變。
+Author 匯入的 `.quiz.md` 不會上傳或讀取鄰近圖片：非法路徑顯示解析錯誤；合法但沒有 bundled
+資產的引用顯示「圖片無法使用：圖說」，不發出圖片請求，其他預覽仍可使用。
+下載 Markdown 不含圖片檔。圖片只供顯示，AI 仍收到原有文字欄位，不會讀取圖片內容；
+電路題必須有足夠的英文文字 rubric。學生答案與 AI 回覆不解析題庫圖片。
+
 ### 六種題型
 
 | `type` | 額外內容 | 正確性／參考答案 |

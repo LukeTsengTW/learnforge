@@ -37,7 +37,7 @@ export function MistakesPage() {
       <div className="mistake-meta"><div><span className="subject-label">{record.quiz?.subject}</span><h2>{record.quiz?.title}</h2>
         <p>版本 {record.row.quiz_revision} · {formatAttemptDate(record.row.submitted_at)}</p></div>
         <div className="inline-actions"><Link to={`/result/${record.id}`}>查看完整作答</Link><Link to={`/quiz/${record.row.quiz_id}`}>重新練習此題庫</Link></div></div>
-      <ResultQuestion question={question} answer={answer} grade={grade} index={index} idPrefix={`${record.id}-`}
+      <ResultQuestion quizId={record.row.quiz_id} question={question} answer={answer} grade={grade} index={index} idPrefix={`${record.id}-`}
         gradingVersion={record.row.grading_version as GradingVersion} />
     </article>)}</div>
     {nextOffset !== null && <button className="button secondary load-more" disabled={loading} onClick={() => { void loadMore() }}>{loading ? '載入中…' : '載入更多'}</button>}

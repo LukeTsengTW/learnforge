@@ -2,6 +2,7 @@ import { createServer } from 'vite'
 import { readdir, readFile } from 'node:fs/promises'
 import { resolve, relative, dirname, basename } from 'node:path'
 import console from 'node:console'
+import { quizFigureFiles } from './quiz-figure-files.mjs'
 
 const root = resolve(import.meta.dirname, '..')
 const quizRoot = resolve(root, 'src/content/quizzes')
@@ -28,7 +29,7 @@ try {
   for (const file of files) {
     const name = relative(root, file).replaceAll('\\', '/')
     const source = await readFile(file, 'utf8')
-    const quiz = parseQuiz(source, true)
+    const quiz = parseQuiz(source, true, await quizFigureFiles(file))
     if (basename(dirname(file)) !== quiz.id) throw new Error(`${name}: folder must match quiz id ${quiz.id}`)
     sources[name] = source
     questionCount += quiz.questions.length

@@ -57,7 +57,7 @@ export function ResultPage() {
       </>}
     </section>
     <div className="results-heading"><h2>作答回顧</h2><Link className="button secondary" to={`/quiz/${quiz.id}`}>再次練習</Link></div>
-    <div className="result-stack">{quiz.questions.map((question, index) => <ResultQuestion key={question.id} question={question}
+    <div className="result-stack">{quiz.questions.map((question, index) => <ResultQuestion quizId={quiz.id} key={question.id} question={question}
       answer={attempt.answers[question.id]} grade={result.questions[index]} index={index} aiTutor={tutor}
       gradingVersion={record.row.grading_version as GradingVersion} />)}</div>
     <div className="result-footer"><p>每一次作答都已保留在練習紀錄。</p><Link className="button secondary" to="/history">查看練習紀錄</Link></div>

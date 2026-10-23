@@ -13,6 +13,7 @@ import { CalculationAnswerEditor, type CalculationAnswerEditorHandle } from './C
 import { PagedCalculationAnswerEditor, type PagedCalculationAnswerEditorHandle } from './PagedCalculationAnswerEditor'
 import { DrawingCanvas } from './DrawingCanvas'
 import type { AnswerOutcome, PendingInputFlush } from './attempt-context'
+import type { QuizFigures } from '../../lib/quiz-figures'
 
 export const MANUAL_NOTICE = '畫圖題不納入自動分數；提交後可自行對照評分規準，符合條件時可使用 AI 圖像參考分析。'
 const V3_RUBRIC_NOTICE = '提交後會依評分規準由 AI 自動評分並納入本次練習得分。AI 自動評分僅供學習參考，可能存在誤判。'
@@ -69,7 +70,8 @@ function CalculationV5Input({ id, question, answer, onChange, registerPendingFlu
   </div>
 }
 
-export function QuestionInput({ question, answer, onChange, draftSchema = 1, registerPendingFlush }: {
+export function QuestionInput({ question, answer, onChange, draftSchema = 1, registerPendingFlush, figures }: {
+  figures?: QuizFigures
   question: Question; answer: PracticeAnswerV5 | undefined; onChange: (answer: PracticeAnswerV5) => AnswerOutcome
   draftSchema?: DraftSchemaVersion; registerPendingFlush?: (flush: PendingInputFlush) => () => void
 }) {
@@ -91,7 +93,7 @@ export function QuestionInput({ question, answer, onChange, draftSchema = 1, reg
                 }
               }} />
             <span className="option-letter" aria-hidden="true">{String.fromCharCode(65 + index)}</span>
-            <Markdown inline>{option.content}</Markdown>
+            <Markdown inline figures={figures}>{option.content}</Markdown>
           </label>
         })}
       </fieldset>

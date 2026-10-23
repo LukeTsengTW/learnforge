@@ -2,6 +2,7 @@ import {
   QUESTION_TYPE, type ChoiceOption, type DrawingConfig, type Question,
   type Quiz, type RubricCriterion,
 } from '../models/quiz'
+import { quizFigureReferences, isQuizFigurePath } from './quiz-figures'
 
 export class QuizParseError extends Error {
   readonly line: number
@@ -57,8 +58,19 @@ function sectionText(block: Block, name: string, required = false): string {
   return text
 }
 
-function parseOptions(block: Block): { options: ChoiceOption[]; correct: string[] } {
+function validateFigureLines(lines: SourceLine[], available?: ReadonlySet<string>) {
+  const first = lines.findIndex(item => item.text.trim())
+  if (first < 0) return
+  const source = lines.slice(first).map(item => item.text).join('\n').trim()
+  for (const { url, line } of quizFigureReferences(source)) {
+    if (!isQuizFigurePath(url)) throw new QuizParseError(`Invalid quiz figure: ${url}`, lines[first].line + line - 1)
+    if (available && !available.has(url)) throw new QuizParseError(`Missing quiz figure at line ${lines[first].line + line - 1}: ${url}`, lines[first].line + line - 1)
+  }
+}
+
+function parseOptions(block: Block, figures?: ReadonlySet<string>): { options: ChoiceOption[]; correct: string[] } {
   const options: ChoiceOption[] = []
+  const starts: number[] = []
   const correct: string[] = []
   for (const { text, line } of block.sections.get('options') ?? []) {
     if (!text.trim()) {
@@ -71,6 +83,7 @@ function parseOptions(block: Block): { options: ChoiceOption[]; correct: string[
       if (!validId(id) || options.some((option) => option.id === id)) fail('選項 id 無效或重複。', block, line)
       if (!content.trim()) fail('選項不可空白。', block, line)
       options.push({ id, content: content.trim() })
+      starts.push(line)
       if (checked.toLowerCase() === 'x') correct.push(id)
     } else if (/^ {2}/.test(text) && options.length) {
       options[options.length - 1].content += `\n${text.slice(2)}`
@@ -79,16 +92,19 @@ function parseOptions(block: Block): { options: ChoiceOption[]; correct: string[
     }
   }
   if (options.length < 2) fail('選擇題至少需要兩個選項。', block)
+  options.forEach((option, index) => validateFigureLines(option.content.split('\n')
+    .map((text, offset) => ({ text, line: starts[index] + offset })), figures))
   return { options: options.map((option) => ({ ...option, content: option.content.trim() })), correct }
 }
 
-function parseRubric(block: Block, points: number): RubricCriterion[] {
+function parseRubric(block: Block, points: number, figures?: ReadonlySet<string>): RubricCriterion[] {
   const rubric: RubricCriterion[] = []
   if (block.sections.has('rubric')) sectionText(block, 'rubric', true)
   for (const { text, line } of block.sections.get('rubric') ?? []) {
     if (!text.trim()) continue
     const match = /^-\s*(\d+(?:\.\d+)?)?\s*\|\s*(.+)$/.exec(text)
     if (!match || !match[2].trim()) fail('rubric 格式應為 - 分數 | 說明，或 - | 說明。', block, line)
+    validateFigureLines([{ text: match[2].trim(), line }], figures)
     rubric.push({ score: match[1] === undefined ? null : Number(match[1]), description: match[2].trim() })
   }
   const scored = rubric.filter((criterion) => criterion.score !== null)
@@ -114,7 +130,8 @@ function parseDrawing(block: Block): DrawingConfig {
   return { width: values.width, height: values.height }
 }
 
-function toQuestion(block: Block): Question {
+function toQuestion(block: Block, figures?: ReadonlySet<string>): Question {
+  for (const name of ['prompt', 'hint', 'solution', 'answer']) validateFigureLines(block.sections.get(name) ?? [], figures)
   const { id, type, points: rawPoints, match } = block.attributes
   if (!validId(id)) fail('缺少或無效的 question id。', block)
   if (!Object.values(QUESTION_TYPE).some((known) => known === type)) fail(`未知題型「${type ?? ''}」。`, block)
@@ -126,7 +143,7 @@ function toQuestion(block: Block): Question {
   try { tags = parseTags(block.attributes.tags) } catch { return fail('tags 格式無效。', block) }
   const common = { id, tags, points, prompt: sectionText(block, 'prompt', true),
     hint: sectionText(block, 'hint') || null, solution: sectionText(block, 'solution', true),
-    rubric: parseRubric(block, points) }
+    rubric: parseRubric(block, points, figures) }
   const allowed = new Set(['prompt', 'solution', 'hint', 'rubric'])
   const choice = type === QUESTION_TYPE.single || type === QUESTION_TYPE.multiple
   allowed.add(choice ? 'options' : 'answer')
@@ -135,12 +152,12 @@ function toQuestion(block: Block): Question {
   if (match !== undefined && type !== QUESTION_TYPE.fill) fail('match 屬性只適用於填空題。', block)
   switch (type) {
     case QUESTION_TYPE.single: {
-      const { options, correct } = parseOptions(block)
+      const { options, correct } = parseOptions(block, figures)
       if (correct.length !== 1) fail('單選題必須恰好有一個正確答案。', block)
       return { ...common, type, options, correctOptionId: correct[0] }
     }
     case QUESTION_TYPE.multiple: {
-      const { options, correct } = parseOptions(block)
+      const { options, correct } = parseOptions(block, figures)
       if (!correct.length) fail('多選題至少需要一個正確答案。', block)
       return { ...common, type, options, correctOptionIds: correct }
     }
@@ -169,8 +186,9 @@ function sourceRevision(source: string): string {
 }
 
 /** Pure line-aware parser. Directives inside fenced code are ordinary Markdown. */
-export function parseQuiz(raw: string, requireCatalogMetadata = false): Quiz {
+export function parseQuiz(raw: string, requireCatalogMetadata = false, figureFiles?: Iterable<string>): Quiz {
   const source = raw.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n')
+  const figures = figureFiles === undefined ? undefined : new Set(figureFiles)
   const lines = source.split('\n')
   const header: SourceLine[] = []
   const questions: Question[] = []
@@ -193,7 +211,7 @@ export function parseQuiz(raw: string, requireCatalogMetadata = false): Quiz {
         section = 'prompt'
       } else if (text === ':::end') {
         if (!block) throw new QuizParseError(':::end 前沒有 question。', line)
-        const question = toQuestion(block)
+        const question = toQuestion(block, figures)
         if (questions.some((existing) => existing.id === question.id)) fail('重複的 question id。', block)
         questions.push(question)
         block = null
@@ -234,6 +252,7 @@ export function parseQuiz(raw: string, requireCatalogMetadata = false): Quiz {
   const title = nonempty[1]
   if (!title || !/^#\s+\S/.test(title.text)) throw new QuizParseError('quiz metadata 之後必須有 # 測驗標題。', title?.line ?? meta.line + 1)
   if (!questions.length) throw new QuizParseError('測驗至少需要一題。', lines.length)
+  validateFigureLines(header.filter(item => item.line > title.line), figures)
   return { id, title: title.text.replace(/^#\s+/, '').trim(),
     description: header.filter((item) => item.line > title.line).map((item) => item.text).join('\n').trim(),
     subject: subject?.trim() ?? '一般', tags, estimatedMinutes: rawMinutes ? Number(rawMinutes) : 1,

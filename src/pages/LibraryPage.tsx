@@ -5,6 +5,7 @@ import { filterLibraryEntries, getLibraryFilterOptions, type LibraryFilters } fr
 import { quizCatalog } from '../features/quiz/quiz-loader'
 import { useDrafts } from '../features/quiz/use-drafts'
 import { QUESTION_LABEL, QUESTION_TYPE, type QuestionType } from '../models/quiz'
+import { figuresForQuiz } from '../features/quiz/quiz-figures'
 
 const initialFilters: LibraryFilters = { search: '', tag: '', subject: '', questionType: '' }
 
@@ -63,7 +64,7 @@ export function LibraryPage() {
     </div>
     {entries.length > 0 ? <div className="library-grid">{entries.map(({ quiz, questionCount, totalPoints }) => <article className="library-card" key={quiz.id}>
       <span className="subject-label">{quiz.subject}</span><h2>{quiz.title}</h2>
-      <div className="library-description"><Markdown>{quiz.description}</Markdown></div>
+      <div className="library-description"><Markdown figures={figuresForQuiz(quiz.id)}>{quiz.description}</Markdown></div>
       <ul className="tag-list" aria-label="題庫標籤">{quiz.tags.map((tag) => <li key={tag}>{tag}</li>)}</ul>
       <div className="quiz-facts"><span>{questionCount} 題</span><span>總分 {totalPoints} 分</span><span>約 {quiz.estimatedMinutes} 分鐘</span></div>
       <Link className="button primary" to={`/quiz/${quiz.id}`}>{active.has(quiz.id) ? '繼續作答' : '開始練習'}<span aria-hidden="true">↗</span></Link>

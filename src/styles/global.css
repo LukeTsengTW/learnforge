@@ -548,3 +548,5 @@
   }
 }
 .submission-lock { border: 0; padding: 0; margin: 0; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
+.markdown .quiz-figure { display: inline-block; max-width: 100%; height: auto; vertical-align: middle; }
+.quiz-figure-unavailable { overflow-wrap: anywhere; }
