@@ -31,8 +31,9 @@ describe('source-only digital systems revision 2', () => {
     expect(createHash('sha256').update(JSON.stringify(historical)).digest('hex'))
       .toBe('8b4d344d0c6cbc4c31b7c48a8210ac466b7d7cf7d9688a6ae90561192c6b0090')
     expect(beforeChapter3).toHaveLength(399)
-    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook')).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '1')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '2')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
   })
 
   it.each([0, 1])('keeps Chapter %i metadata, IDs, points and drawing dimensions', index => {

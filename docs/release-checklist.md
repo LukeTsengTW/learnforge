@@ -1,5 +1,26 @@
 # Release checklist
 
+## v1.26.1 — Chapter 3 revision 2 task clarification
+
+Preparation snapshot, 2026-10-23 Asia/Taipei. Latest master, package, annotated
+tag and formal Release were rechecked: v1.26.0 remains the prior release, so this
+published-quiz wording correction uses patch 1.26.1. The source-only Draft PR #1
+is integrated through a new revision rather than changing released question data.
+Final execution results belong in the [v1.26.1 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.26.1)
+and [delivery](v1.26.1-delivery.md); unchecked items here describe publication
+requirements at this preparation snapshot, not the eventual closure status.
+
+- [x] Re-render and inspect all 58 source slides; independently review all 13 Examples/11 Practice Exercises and continuations. Stage 1 reviewer PASS with all 11 candidate instructions retained.
+- [x] Preserve revision 1 exactly from v1.26.0 except current=false; publish revision 2 current=true with identical 24 IDs/order, formulas, Practice Exercise wording, answers/solutions/rubrics/points/images and handwriting metadata.
+- [x] Official generator adds 24 contexts; all 423 historical contexts and existing hash assertions retained exactly. Catalog: 14 current/20 revisions/447 contexts/283 current questions.
+- [x] Both revisions retain 510 math assertions each; expected original q13 negative control, 674 strict formulas, 121 targeted tests and local browser at 1440/768/390/345 px PASS. Stage 2 independent reviewer PASS with no findings.
+- [x] Prepare package/lock roots 1.26.1, changelog, README, delivery, source crosswalk and this checklist. Permanent release tooling and CI remain unchanged.
+- [ ] Run every mandatory local release gate on the final clean commit; source-fingerprint report and independent Stage 3 PASS required.
+- [ ] Obtain a new Stage 4 pre-release reviewer PASS; push/update/ready PR #1, verify fresh exact-head CI, merge with expected head and verify exact merge-SHA CI.
+- [ ] Deploy only the six AST-derived context consumers, retaining JWT/configuration; verify management-plane versions/settings. Deploy Pages for the exact merge SHA/version and verify workflow/artifact/manifest identity.
+- [ ] Publish annotated v1.26.1 tag and GitHub Release targeting that same SHA; retain final evidence and limitations in the formal Release.
+- Production functional verification is intentionally not performed by Codex. No public smoke, production UI/attempt/login/submission, function runtime probe, learner-data write or provider canary. The user's explicit release-specific exception supersedes usual smoke/canary requirements without weakening tooling or CI.
+
 ## v1.26.0 — Chapter 3 preparation and user-owned production acceptance
 
 Preparation snapshot dated 2026-10-23 Asia/Taipei; previous release v1.25.0,

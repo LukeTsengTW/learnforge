@@ -7,7 +7,11 @@ import { log } from 'node:console'
 import { fileURLToPath, URL } from 'node:url'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-const file = 'src/content/quizzes/digital-systems-ch3-textbook/v1.quiz.md'
+const revisionIndex = process.argv.indexOf('--revision')
+const revision = process.argv.includes('--baseline') ? '1'
+  : revisionIndex < 0 ? '2' : process.argv[revisionIndex + 1]
+assert.ok(['1', '2'].includes(revision), 'Expected --revision 1 or --revision 2')
+const file = `src/content/quizzes/digital-systems-ch3-textbook/v${revision}.quiz.md`
 const source = process.argv.includes('--baseline')
   ? execFileSync('git', ['show', `9997e5675120da79ce219cb1bfc8e2a141046dad:${file}`], { cwd: root, encoding: 'utf8' })
   : fs.readFileSync(new URL(`../${file}`, import.meta.url), 'utf8')
@@ -148,4 +152,4 @@ for(const [id,vars,gate,expected] of [
   check(fields.get(id).solution.replaceAll('[','(').replaceAll(']',')').includes(gate),`${id}: saved gate expression`)
   for(let row=0;row<2**vars.length;row++) check(value(gate,vars,row)===value(expected,vars,row),`${id}: gate topology ${row}`)
 }
-log(JSON.stringify({status:'PASS',checks,questions:questions.length,primeImplicants:pi,source:'58 rendered slides; source inventory documented separately'},null,2))
+log(JSON.stringify({status:'PASS',revision,checks,questions:questions.length,primeImplicants:pi,source:'58 rendered slides; source inventory documented separately'},null,2))

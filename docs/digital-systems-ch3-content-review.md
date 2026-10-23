@@ -20,13 +20,53 @@ The repeated PE 3.10 caption on slide 37 names the same question and is not a
 second exercise. Slide 48's title “Tabular Summary and Examples” introduces a
 generic implementation lookup table, not another concrete Example question.
 
-Publication remains `digital-systems-ch3-textbook`, revision 1, current,
+Publication is `digital-systems-ch3-textbook`, revision 2, current; revision 1
+is the historical source released in `v1.26.0` and changes only `current` to false.
+Both retain
 `【課本題目】數位系統導論 - Chapter 3`, subject `數位系統導論`:
 **24 questions, 152 points, estimatedMinutes 135**. All questions retain
-calculation type, text entry and 1200×900 handwriting. Prompts retain source
-English/math without added hints; answers, solutions and rubrics use Traditional
+calculation type, text entry and 1200×900 handwriting. Revision 2 retains source
+English/math and adds the source-context-derived task instructions below without
+solution hints; answers, solutions and rubrics use Traditional
 Chinese. Heading labels are source labels. Formula typography is represented
 with equivalent KaTeX Σ/prime notation and ordinary whitespace is normalized.
+
+## Revision 2 task clarification audit (2026-10-23)
+
+The supplied PPT was rendered again read-only with macros disabled: 58 PNGs at
+1600×1200, the same SHA256 as above, under ignored
+`output/release/v1.26.1/ch3/`. The implementer inspected all 15 contact sheets
+(all 58 pages) and full-resolution slides 24, 25, 35, 49 and 50. All 13 Examples
+and 11 Practice Exercises, including continuations, were rechecked.
+
+Exactly 11 expression-only Examples receive an English task instruction. These
+sentences are **source-context-derived clarifications, not verbatim source
+quotes**. They state the task without revealing groupings, terms or answers.
+
+| ID | Added instruction | PPT workflow evidence |
+| --- | --- | --- |
+| q01 | Using a K-map, simplify the Boolean function. | 8–9: three-variable map and Figure 3.4 simplification. |
+| q02 | Using a K-map, simplify the Boolean function. | 10–11: adjacency and Figure 3.5 simplification. |
+| q03 | Using a K-map, simplify the Boolean function. | 12–13: four-square groups and Figure 3.6 simplification. |
+| q09 | Using a K-map, simplify the Boolean function. | 16–17: four-variable map and Figure 3.9 simplified expression. |
+| q14 | Using a K-map, obtain the simplified sum-of-products and product-of-sums forms of the Boolean function. | 23–24: zero-group/complement POS derivation; 24 caption and 25 Figure 3.13(a)/(b) explicitly give both SOP and POS. Both forms are supported; no added gate-diagram deliverable. |
+| q16 | Using a K-map and the don't-care conditions, simplify the Boolean function. | 29–30: given on-set and don't-cares, Figure 3.15(a)/(b), either simplified expression acceptable. |
+| q18 | Implement the Boolean function using two-level NAND-NAND logic. | 33–34: NAND alternate symbol, two-level NAND-NAND and Figure 3.18(b)/(c). |
+| q19 | Using a K-map, simplify the Boolean function and implement it using two-level NAND-NAND logic. | 35 Figure 3.19(a) K-map plus (b)/(c) NAND circuits; 36 states the two-level procedure. |
+| q21 | Implement the Boolean function using NOR gates. | 40–41: NOR universal/alternate symbols and Figure 3.24, including supplied E-prime rail. |
+| q22 | Implement the Boolean function using NOR gates. | 41–42: Figure 3.25 explicitly implements the factored expression with NOR gates; it is multilevel, so no two-level requirement is added. |
+| q24 | Using the given form of F', derive equivalent AOI and OAI implementations of F. | 46–49: AOI/OAI context and complement derivations; 50 Figure 3.29(a) map and (b)/(c) equivalent gate implementations. No requirement for extra unrelated forms or all four diagram variants. |
+
+Example 3-4 (q04, slide 14) already says to express minterms and find minimal SOP;
+Example 3-6 (q10, slide 18) already says to simplify. Their prompts and all 11
+Practice Exercise prompts are unchanged. No other labelled Example lacks wording.
+The repeated PE 3.10 caption and slide 48 summary table add no question.
+
+Revision 2 copies every question ID/order, formula, answer, solution, rubric,
+point value, tag, image reference and handwriting setting from the immutable
+`v1.26.0` revision-1 source. Only its revision/current header, short description
+and the 11 task sentences differ. Revision 1's description and question content
+remain unchanged. Existing PE 3.7, PE 3.8 and PE 3.11 source corrections remain.
 
 | ID | Source unit | Actual PPT slide(s) | Audit scope |
 | --- | --- | --- | --- |
@@ -89,7 +129,9 @@ They are not silently substituted for, or counted as, labelled questions.
 - All other included answers were independently recomputed. Source prompts and
   minterm sets were never modified to accommodate answer corrections.
 
-`node scripts/audit-digital-systems-ch3.mjs` binds checks to saved question fields,
+`node scripts/audit-digital-systems-ch3.mjs` audits current revision 2;
+`--revision 1` audits historical revision 1. Each retains all **510 assertions**.
+The script binds checks to saved question fields,
 enumerates truth tables, all maximal cubes and minimum SOP/POS cover costs,
 verifies don't-care off-sets and NAND/NOR expressions, and validates all 16 PE 3.8
 rows. `--baseline` reads the original commit and fails specifically at the wrong

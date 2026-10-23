@@ -61,8 +61,9 @@ describe('source-audited digital systems chapter 2 integration', () => {
     const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== later)
     expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', id].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
-    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === later)).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === later && c.revision === '1')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === later && c.revision === '2')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

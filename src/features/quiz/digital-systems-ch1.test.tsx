@@ -56,8 +56,9 @@ describe('source-audited digital systems chapter 1 integration', () => {
     const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== newest)
     expect(beforeChapter3.filter(c => !([id, later].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
-    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === newest)).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === newest && c.revision === '1')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === newest && c.revision === '2')).toHaveLength(24)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

@@ -11,8 +11,22 @@ import { figuresForQuiz } from './quiz-figures'
 import { bundledQuizSources, quizCatalog } from './quiz-loader'
 
 const id = 'digital-systems-ch3-textbook'
-const quiz = quizCatalog.getQuizRevision(id, '1')!
+const historical = quizCatalog.getQuizRevision(id, '1')!
+const quiz = quizCatalog.getQuizRevision(id, '2')!
 const sha = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex')
+const tasks: Record<string, string> = {
+  q01: 'Using a K-map, simplify the Boolean function.',
+  q02: 'Using a K-map, simplify the Boolean function.',
+  q03: 'Using a K-map, simplify the Boolean function.',
+  q09: 'Using a K-map, simplify the Boolean function.',
+  q14: 'Using a K-map, obtain the simplified sum-of-products and product-of-sums forms of the Boolean function.',
+  q16: "Using a K-map and the don't-care conditions, simplify the Boolean function.",
+  q18: 'Implement the Boolean function using two-level NAND-NAND logic.',
+  q19: 'Using a K-map, simplify the Boolean function and implement it using two-level NAND-NAND logic.',
+  q21: 'Implement the Boolean function using NOR gates.',
+  q22: 'Implement the Boolean function using NOR gates.',
+  q24: "Using the given form of $F'$, derive equivalent AOI and OAI implementations of $F$.",
+}
 const labels = [
   'Example 3-1','Example 3-2','Example 3-3','Example 3-4',
   'Practice Exercise 3.1','Practice Exercise 3.2','Practice Exercise 3.3','Practice Exercise 3.4',
@@ -26,13 +40,15 @@ afterEach(cleanup)
 describe('source-audited digital systems chapter 3 integration', () => {
   it('publishes the source inventory in order with v4 scored handwriting metadata', () => {
     expect(quizCatalog.errors).toEqual([])
-    expect(quiz).toMatchObject({ id, revision: '1', current: true,
+    expect(historical).toMatchObject({ id, revision: '1', current: false })
+    expect(quiz).toMatchObject({ id, revision: '2', current: true,
       title: '【課本題目】數位系統導論 - Chapter 3', subject: '數位系統導論', estimatedMinutes: 135 })
     expect(quizCatalog.current).toHaveLength(14)
-    expect(Object.keys(bundledQuizSources)).toHaveLength(19)
+    expect(Object.keys(bundledQuizSources)).toHaveLength(20)
+    expect(quizCatalog.current.reduce((total, entry) => total + entry.questionCount, 0)).toBe(283)
     expect(quizCatalog.current.filter(entry => entry.quiz.id === id)).toHaveLength(1)
     expect(quizCatalog.current.find(entry => entry.quiz.id === id))
-      .toMatchObject({ questionCount: 24, totalPoints: 152, maxPoints: 0 })
+      .toMatchObject({ quiz: { revision: '2' }, questionCount: 24, totalPoints: 152, maxPoints: 0 })
     expect(quiz.questions.map(q => q.id)).toEqual(Array.from({ length: 24 }, (_, i) => `q${String(i + 1).padStart(2, '0')}`))
     expect(quiz.questions.map(q => q.prompt.split('\n')[0])).toEqual(labels.map(label => `### ${label}`))
     expect(validateV4Publication(quiz)).toEqual([])
@@ -42,6 +58,8 @@ describe('source-audited digital systems chapter 3 integration', () => {
       expect(q.drawing).toEqual({ width: 1200, height: 900 })
       expect(q.referenceAnswer.trim().length).toBeGreaterThan(0)
       expect(q.solution.trim().length).toBeGreaterThan(0)
+      expect(q.rubric.length).toBeGreaterThan(0)
+      for (const criterion of q.rubric) expect(criterion.description.trim().length).toBeGreaterThan(0)
       expect(q.rubric.reduce((sum, criterion) => sum + (criterion.score ?? 0), 0)).toBe(q.points)
       expect(q.prompt).not.toMatch(/[\u3400-\u9fff]/)
     }
@@ -56,24 +74,56 @@ describe('source-audited digital systems chapter 3 integration', () => {
     const prior = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id)
     expect(prior).toHaveLength(399)
     expect(sha(prior)).toBe('0139dcc36ac51cca4d15296a22b55fff06975636be4eef7a1a6a3a8c990470ea')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(423)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
   })
 
-  it('binds all 24 new contexts to the exact published content and source index', () => {
-    const contexts = AI_QUIZ_CONTEXT.filter(c => c.quizId === id && c.revision === '1')
+  it('pins the released v1.26.0 historical source and all 423 historical contexts exactly', () => {
+    const source = Object.entries(bundledQuizSources).find(([file]) => file.endsWith(`/${id}/v1.quiz.md`))![1]
+      .replaceAll('\r\n', '\n').replace('current="false"', 'current="true"')
+    expect(createHash('sha256').update(source).digest('hex'))
+      .toBe('da4edd16d61b2b970f6f7e93efb504d43cc5eab83f8d4928e34799410ea8c938')
+    const contexts = AI_QUIZ_CONTEXT.filter(c => !(c.quizId === id && c.revision === '2'))
+    expect(contexts).toHaveLength(423)
+    expect(sha(contexts)).toBe('628792f2df6d3572b2c86d37ab6fb6e8717bdce7660b203f0884678da383ca07')
+    const original = contexts.filter(c => c.quizId === id && c.revision === '1')
+    expect(original).toHaveLength(24)
+    expect(sha(original)).toBe('048bd08a86b2cfb838e985786daad905a88e3bae2d0d57025bfbcd5d86fb6b86')
+    expect(validateV4Publication(historical)).toEqual([])
+  })
+
+  it('adds only the eleven source-derived tasks and preserves every other question field exactly', () => {
+    expect(quiz.questions).toHaveLength(24)
+    expect(historical.questions).toHaveLength(24)
+    expect(Object.keys(tasks)).toEqual(['q01','q02','q03','q09','q14','q16','q18','q19','q21','q22','q24'])
+    for (const [index, question] of quiz.questions.entries()) {
+      const original = historical.questions[index]
+      const task = tasks[question.id]
+      expect(question.prompt).toBe(task
+        ? original.prompt.replace('\n\n', `\n\n${task}\n\n`)
+        : original.prompt)
+      expect({ ...question, prompt: original.prompt }).toEqual(original)
+    }
+  })
+
+  it.each(['1', '2'])('binds every revision %s context to its own exact quiz content and index', revision => {
+    const selected = quizCatalog.getQuizRevision(id, revision)!
+    const contexts = AI_QUIZ_CONTEXT.filter(c => c.quizId === id && c.revision === revision)
     expect(contexts).toHaveLength(24)
-    for (const [index, q] of quiz.questions.entries()) {
+    expect(new Set(contexts.map(c => c.questionId)).size).toBe(24)
+    for (const [index, q] of selected.questions.entries()) {
       if (q.type !== 'calculation') throw new Error('Expected calculation')
-      expect(contexts.find(c => c.questionId === q.id)).toMatchObject({ questionIndex: index,
+      expect(contexts.find(c => c.questionId === q.id)).toMatchObject({ quizId: id, revision, questionIndex: index,
         prompt: q.prompt, referenceAnswer: q.referenceAnswer, solution: q.solution,
         rubric: q.rubric, points: q.points, drawing: q.drawing })
     }
   })
 
   it('recomputes saved answers, all prime implicants, minimum covers, dont-cares and gate equations', () => {
-    const result = JSON.parse(execFileSync(process.execPath, ['scripts/audit-digital-systems-ch3.mjs'], { encoding: 'utf8' }))
-    expect(result).toMatchObject({ status: 'PASS', questions: 24, checks: 510,
-      primeImplicants: ["w'x", "w'z'", "x'z'", 'xy', 'xz', "yz'"] })
+    for (const revision of ['1', '2']) {
+      const result = JSON.parse(execFileSync(process.execPath, ['scripts/audit-digital-systems-ch3.mjs', '--revision', revision], { encoding: 'utf8' }))
+      expect(result).toMatchObject({ status: 'PASS', revision, questions: 24, checks: 510,
+        primeImplicants: ["w'x", "w'z'", "x'z'", 'xy', 'xz', "yz'"] })
+    }
     expect(quiz.questions[12].solution).toContain('投影片答案誤植')
     expect(quiz.questions[14].solution).toContain('0000')
     expect(quiz.questions[22].solution).toContain("(w'x+wx')'")
