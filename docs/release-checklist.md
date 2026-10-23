@@ -1,5 +1,23 @@
 # Release checklist
 
+## v1.25.0 — candidate acceptance and final closure identity
+
+Executed candidate snapshot: `75e3015f714551098b8880cb77686f29427b4b4f`, 2026-10-23 Asia/Taipei; baseline v1.24.0 `4392333f4047d1829a38ef4609d3c83a4dfbcc9d`. For final closure, require the document commit's own CI/Pages/smoke, independent Stage 4 audit and matching annotated tag/Release. Its SHA and exact run links belong in the [v1.25.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.25.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json), avoiding a self-referential source hash. See [delivery](v1.25.0-delivery.md).
+
+- [x] Safe baseline at latest master with Node 24.21.0/npm 11.19.0; existing worktrees/branches/stash/local configuration preserved; normal candidate push.
+- [x] Same-quiz figure resolver, Vite hashed URLs under `/learnforge/`, unsafe/missing-path validation, safe external Author import behavior and DSL documentation; CSP unchanged.
+- [x] All 50+66 actual source pages inspected; Chapter 1 revision 2 has 42 questions/206 points, Chapter 2 has 26/122. Metadata, IDs/order, point architecture and handwriting preserved; revision 1 archived without content changes.
+- [x] Source English prompts/answers/derivations and concise scored rubrics; ten clean SVGs with original wiring and source corrections. All 68 answers calculated/enumerated; 516 implementer and 405 independent content checks, 361 strict KaTeX formulas pass. Both content-review crosswalks include every question and figure.
+- [x] Official context generation: 399 contexts/18 revisions/13 current/259 current questions. All 331 old serialized entries unchanged; all original v1 answer assertions remain, bound to id+revision.
+- [x] Version 1.25.0 in package and both lock roots; ten local gates/1,955 tests, zero production dependency vulnerabilities; no test/assertion/timeout weakening. Four dev-only advisories remain outside the production audit.
+- [x] Independent Stages 1–3 PASS after all initial findings were fixed and re-reviewed. Stage 1 field-local Markdown references and Stage 2 evidence-status/EOF corrections are recorded in delivery.
+- [x] Exact candidate [CI 39897730135](https://github.com/LukeTsengTW/learnforge/actions/runs/39897730135) completed-success; formal Risk C/canary=false; no migration, Auth or provider/grading/raster/prompt implementation change.
+- [x] Exactly six AST consumers deployed before Pages: drawing 33→34, grade 33→34, responses 35→36, tutor 31→32, draft 20→21, submit 22→23. All ACTIVE with changed bundle digests; JWT draft=true/other five=false preserved; five unrelated metadata records identical. Tutor seven-file source readback matches; other five full downloads unverified due CLI safe-extraction refusal, without bypass.
+- [x] Exact candidate [Pages 39898441865](https://github.com/LukeTsengTW/learnforge/actions/runs/39898441865) completed-success; canonical smoke passed exact version/SHA/base/project and five static assets. Source-bound candidate report passed.
+- [x] Local actual Library/practice/Author and production public Library/Author at 1440/768/360/345: all 68 questions/solutions, loaded images, source hashes, no overflow/KaTeX error/raw syntax. Real local typing/canvas input; production ten SVG HTTP byte hashes match. No production learner-data writes or provider call.
+
+Closure acceptance contract: the subsequent commit must be docs-only with runtime identical to the candidate. Before publication, verify its own clean gates, CI, Pages, smoke and Stage 4 review; bind its annotated tag and formal Release to that exact SHA. Completion is evidenced by the external final identity links above, never by reusing the candidate's CI or manifest. Existing release sections retain their historical meaning.
+
 ## v1.24.0 — production acceptance snapshot before closure
 
 This dated **2026-10-23, Asia/Taipei** snapshot ends after Stage 3 acceptance of runtime candidate `210c1d2a7ee246a09cb914af3b3a8423f016b357`. Source: `835cdb0185844226c69514e153a23b7d85e9cdac`. Prior immutable v1.23.0 closure: `3438788015f9a32ab38d9672e9781508bad58680`. Package and both lock roots are 1.24.0; dependencies are unchanged. Final closure SHA, exact CI/Pages/smoke, annotated tag, formal publication and final independent audit are carried by the [v1.24.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.24.0) and [live manifest](https://luketsengtw.github.io/learnforge/release.json). See [delivery](v1.24.0-delivery.md) and [PPT audit](digital-systems-ch2-content-review.md).
