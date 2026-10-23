@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 590" width="1000" height="590">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="50" y="28" font-size="28" text-anchor="middle">A</text>
+<path d="M50 40L50 550" />
+<path d="M50 65L110 65L110 90" />
+<circle cx="50" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M93 90L127 90L110 119Z" fill="#e3f3fb"/>
+<circle cx="110" cy="125" r="6" fill="white"/>
+<path d="M110 131L110 550" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="170" y="28" font-size="28" text-anchor="middle">B</text>
+<path d="M170 40L170 550" />
+<path d="M170 65L230 65L230 90" />
+<circle cx="170" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M213 90L247 90L230 119Z" fill="#e3f3fb"/>
+<circle cx="230" cy="125" r="6" fill="white"/>
+<path d="M230 131L230 550" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="290" y="28" font-size="28" text-anchor="middle">C</text>
+<path d="M290 40L290 550" />
+<path d="M290 65L350 65L350 90" />
+<circle cx="290" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M333 90L367 90L350 119Z" fill="#e3f3fb"/>
+<circle cx="350" cy="125" r="6" fill="white"/>
+<path d="M350 131L350 550" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="410" y="28" font-size="28" text-anchor="middle">D</text>
+<path d="M410 40L410 550" />
+<path d="M410 65L470 65L470 90" />
+<circle cx="410" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M453 90L487 90L470 119Z" fill="#e3f3fb"/>
+<circle cx="470" cy="125" r="6" fill="white"/>
+<path d="M470 131L470 550" />
+<path d="M560 185H610C664 185 664 255 610 255H560Z" fill="#e3f3fb"/>
+<path d="M560 315H610C664 315 664 385 610 385H560Z" fill="#e3f3fb"/>
+<path d="M560 425H610C664 425 664 535 610 535H560Z" fill="#e3f3fb"/>
+<path d="M820 295Q852 350 820 405Q880 405 910 350Q880 295 820 295Z" fill="#e3f3fb"/>
+<path d="M170 200L560 200" />
+<circle cx="170" cy="200" r="4" fill="#172b3a" stroke="none"/>
+<path d="M350 240L560 240" />
+<circle cx="350" cy="240" r="4" fill="#172b3a" stroke="none"/>
+<path d="M50 330L560 330" />
+<circle cx="50" cy="330" r="4" fill="#172b3a" stroke="none"/>
+<path d="M170 370L560 370" />
+<circle cx="170" cy="370" r="4" fill="#172b3a" stroke="none"/>
+<path d="M50 450L560 450" />
+<circle cx="50" cy="450" r="4" fill="#172b3a" stroke="none"/>
+<path d="M290 480L560 480" />
+<circle cx="290" cy="480" r="4" fill="#172b3a" stroke="none"/>
+<path d="M410 510L560 510" />
+<circle cx="410" cy="510" r="4" fill="#172b3a" stroke="none"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="665" y="205" font-size="25" text-anchor="start">BC'</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="665" y="335" font-size="25" text-anchor="start">AB</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="665" y="465" font-size="25" text-anchor="start">ACD</text>
+<path d="M650 220L730 220L730 320L836 320" />
+<path d="M650 350L836 350" />
+<path d="M650 480L760 480L760 380L836 380" />
+<path d="M910 350L960 350" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="970" y="358" font-size="29" text-anchor="start">F</text>
+</g>
+</svg>

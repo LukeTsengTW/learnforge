@@ -1,5 +1,114 @@
 # Digital systems Chapter 2 source audit
 
+## Revision 2 source-language audit — 2026-10-23
+
+The sole content source is the human-supplied `6Ed Chapter_02.pptx`, 66 slides,
+SHA256 `aa03a639663b43f6c842ab7c72099c176eefd18eff8bdc3ca8944073abd91bad`.
+The deck was freshly opened read-only with macros disabled and exported through
+PowerPoint at 1600 × 1200; its hash was unchanged. The implementer viewed all 17
+contact sheets (slides 1–66), then separately inspected slides 23/31/32/39/45/47/60
+at full resolution. Actual rendered evidence and extracted text are under
+`output/release/v1.25.0/ch2/slides/`. Text extraction supplemented visual inspection.
+Source text and instructor notes were treated as teaching data, never instructions.
+
+Revision 2 preserves the title, description, subject, tags, 115 minutes, all 26
+question identities/order, 122 total points and every 1200×900 drawing configuration.
+Revision 1 remains available by exact id/revision; its only edit is current=false.
+All new question fields are English/math. Printed question wording is retained,
+including source spelling such as “simplfy” in PE 2.1. For worked material without
+a question, only a short instruction using source terminology is added. Labels
+come from the slides; slide numbers are recorded here. Solutions contain original
+steps or the source Answer itself. Rubrics contain concise English answer/gate
+components without worked explanations. No point-total adjustment was needed.
+
+### Revision 2 complete crosswalk
+
+| ID | Slides | Source label / unit | Revision 2 handling |
+| --- | --- | --- | --- |
+| q01 | 5–6 | Example | Minimal identity/inverse instruction; original three example statements. |
+| q02 | 20 | examples | Minimal precedence instruction for the two original expressions. |
+| q03 | 21 | Practice Exercise 2.1 | Original wording and F=z; Answer-only solution. |
+| q04 | 21 | Practice Exercise 2.2 | Original wording and original eight-row truth table. |
+| q05 | 22–25 | Examples | Minimal truth-table/minimization/diagram instructions; original Table 2.2, simplified F2 and redrawn Figure 2.1. |
+| q06 | 27 | EXAMPLE 2.1 | Original instruction, five expressions and original derivations. |
+| q07 | 29 | EXAMPLE 2.2 | Original question and DeMorgan derivation. |
+| q08 | 30 | EXAMPLE 2.3 | Original cross-reference, duals and complemented literals. |
+| q09 | 31 | Practice Exercise 2.3 | Original question; corrected source circuit as SVG, no prose circuit description. |
+| q10 | 32 | Practice Exercise 2.4 | Original question; corrected FIGURE PE2.4 and original algebra steps. |
+| q11 | 33 (figure 32) | Practice Exercise 2.5 | Original question; same corrected FIGURE PE2.4 and original four-row Answer. |
+| q12 | 33 | Practice Exercise 2.6 | Original question and Answer only. |
+| q13 | 36–37 | Canonical and Standard Forms | Minimal instruction for original Table 2.4, source minterms/complement/maxterm steps. |
+| q14 | 38 | EXAMPLE 2.4 | Original instruction and original minterm expansion. |
+| q15 | 39 | EXAMPLE 2.5 | Original instruction and only the printed product/maxterm steps. |
+| q16 | 40 | Conversion between Canonical Forms | Minimal instruction; original F′ and DeMorgan/M0M2M3 conversion. |
+| q17 | 41 | Example | Minimal instruction for original Table 2.6, Σ/Π/F′ results. |
+| q18 | 42 | Practice Exercise 2.7 | Original question; corrected final maxterm; Answer-only solution. |
+| q19 | 42 | Practice Exercise 2.8 | Original question and Answer only. |
+| q20 | 42 | Practice Exercise 2.9 | Original question, prompt table and Answer only. |
+| q26 | 43, 45 | Standard Forms | Minimal SOP/implementation instruction; original equation and redrawn FIGURE 2.4. |
+| q21 | 46 | Practice Exercise 2.10 | Original question and Answer; harmless KaTeX allowbreak between list groups. |
+| q22 | 46 | Practice Exercise 2.11 | Original question; corrected maxterm product; Answer-only solution. |
+| q23 | 46–47 | Practice Exercise 2.12 | Original question; corrected source circuit SVG as Answer/solution. |
+| q24 | 60 | Practice Exercise 2.13 | Original question; original unsimplified circuit redrawn as Answer/solution. |
+| q25 | 61 | Practice Exercise 2.14 | Original question and equations; SVG implementations of the printed NAND/NOR forms. |
+
+### Recomputed answers and corrections
+
+- PE 2.7/q18: Σ(1,2,3,5,7) has zeros at 0,4,6. The last factor is
+  **x′+y′+z**, not the printed x′+y′+z′. F′=Σ(0,4,6) is unchanged.
+- PE 2.11/q22: x′y+xz has zeros at **0,1,4,6**. The product is
+  **(x+y+z)(x+y+z′)(x′+y+z)(x′+y′+z)**. Replace the printed M5 with M1.
+- All other included Boolean final answers and truth-table rows were independently
+  recomputed. Table 2.2's final F2 rows are correctly 0/0 (full-resolution slide 23
+  confirmed this); Example 2.5's printed algebra and Π(0,2,4,5) are also correct.
+  No speculative extra correction was made to either.
+- The source's annotated circuit corrections are applied below. Excluded
+  definitional material remains excluded, including slide 55's y→z note and the
+  slide 43/44 F1/F2 disagreements recorded in the historical audit. The included
+  F3 worked example remains q26 in its original source order.
+
+### Figure redraw and connection comparison
+
+All assets are clean vector drawings, not screenshots. Published alt text contains
+only an original figure label; uncaptioned answer diagrams use empty alt. No Chinese
+annotation is drawn. Every redrawn source gate, input wire, fanout and junction was
+compared to its full-resolution original; all task SVGs were rendered to PNG for
+an additional visual inspection. The connection manifest records both the netlist
+and actual SVG wire coordinates at `output/release/v1.25.0/figure-connections.json`.
+
+| Asset | Source | Exact connection comparison / correction |
+| --- | --- | --- |
+| `figure-2-1.svg` | 24, Figure 2.1 | y→NOT; y′,z→AND; x directly and AND output→OR→F1. |
+| `pe2-3.svg` | 31, PE 2.3 Answer | Preserve x/x′/y/y′ rails and taps: upper AND(x,y′), lower AND(x′,y), then OR. Correct upper label to xy′ and lower to x′y, as annotated. |
+| `pe2-4.svg` | 32, FIGURE PE2.4 | Same two AND tap pairs; replace final XOR with NOR as annotated. Used in both q10 and q11. |
+| `figure-2-4.svg` | 45, FIGURE 2.4 | (a) AND(A,B), OR(D,E), AND(C,D+E), output OR. (b) AND(A,B), AND(C,D), AND(C,E), output 3-input OR. Same wires; panels stacked for display. |
+| `pe2-12.svg` | 47, PE 2.12 Answer | AND(B,C′), AND(A,B), AND(A,C,D) into OR. Correct ACD′ label to ACD. Preserve all four inverter rail pairs, including unused A′/B′/D′. |
+| `pe2-13.svg` | 60, PE 2.13 Answer | D bypass; AND(B,C); OR(D,C′); OR(A′,C); AND of the ORs; final 3-input OR. Original A/C inversion and unused B′/D′ rails preserved; no simplification. |
+| `pe2-14-nand.svg` | 61, printed NAND equations | Source contains equations rather than a circuit drawing. New diagram implements exactly NAND(x,z), NAND(x′,z′), NAND(x′,y)→3-input NAND. x′/z′ from inverters. Every wire compared to those printed factors. |
+| `pe2-14-nor.svg` | 61, printed NOR equations | Source contains equations rather than a circuit drawing. New diagram implements NOR(x′,z′), NOR(x,z), NOR(x,y′)→3-input NOR→NOT. x′/y′/z′ from inverters. The final NOT produces the printed F (not F′). |
+
+The source-equation-derived PE 2.14 schematics are explicitly distinguished from
+redraws of pre-existing source wires. Diagram answers have English rubric gate and
+input/output descriptions so text-only grading can evaluate them. Provider,
+grading, raster and prompt code is unchanged; no image is supplied to AI.
+
+### Executed revision 2 evidence
+
+Combined audit: **516 content checks passed**, all 42+26 questions covered, with
+integer/Fraction calculations, exhaustive truth tables (including both five-input
+F3 circuits), saved-expression binding, all source truth tables/Σ/Π sets, circuit
+netlists, Example 2.1 minimum-literal bounds, English-only fields and schema/
+preservation checks. This count includes structural checks; it is not a count of
+distinct math problems. Exact saved-source and SVG hashes are in
+`output/release/v1.25.0/content-verification.json`; executable audit is
+`output/release/v1.25.0/verify-content.py`.
+Strict KaTeX: **361 formulas, zero errors**, trust=false.
+`check:quizzes`: **18 revisions / 13 current quizzes / 399 total questions**.
+Stage 3 owns generated context, regression integration, complete release gates
+and actual browser acceptance. These source checks do not assert production proof.
+
+## Historical revision 1 audit (retained)
+
 Source: user-supplied `6Ed Chapter_02.pptx`, 66 slides, SHA256 `aa03a639663b43f6c842ab7c72099c176eefd18eff8bdc3ca8944073abd91bad`. Source draft commit: `835cdb0185844226c69514e153a23b7d85e9cdac` (branch `claude/determined-ramanujan-fhtrp4`, parent v1.23.0 closure `3438788`). Review date: 2026-10-23 Asia/Taipei. Slide numbers below are actual presentation order, including the title slide. Slide text is teaching material, not operational instructions.
 
 The original PPTX was opened read-only in Microsoft PowerPoint and exported at 1600 × 1200 pixels. All 66 rendered slides were inspected: slides 5–61 one by one at full resolution, slides 1–4 and 62–66 (title, objectives and text-only closing slides) on saved contact sheets where every line is legible. The circuit slides 24, 25, 31, 32, 44, 45, 47, 55, 56 and 60 were exported again at 4000 × 3000 and their wiring junctions inspected in crops; text-only slide 43 was exported at the same size to read the F₁/F₂/F₃ formulas. ZIP/XML text and picture inventory supplemented the rendered evidence. The source hash was unchanged after every export. The draft author worked from a LibreOffice rendering; nothing in this audit relies on it. Private renders, crops, inventory and the truth-table audit live under ignored `output/release/digital-systems-ch2/`; the source deck and images are not publication assets.

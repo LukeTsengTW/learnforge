@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 600" width="1060" height="600">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="50" y="28" font-size="28" text-anchor="middle">x</text>
+<path d="M50 40L50 550" />
+<path d="M50 65L110 65L110 90" />
+<circle cx="50" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M93 90L127 90L110 119Z" fill="#e3f3fb"/>
+<circle cx="110" cy="125" r="6" fill="white"/>
+<path d="M110 131L110 550" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="170" y="28" font-size="28" text-anchor="middle">y</text>
+<path d="M170 40L170 550" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="290" y="28" font-size="28" text-anchor="middle">z</text>
+<path d="M290 40L290 550" />
+<path d="M290 65L350 65L350 90" />
+<circle cx="290" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M333 90L367 90L350 119Z" fill="#e3f3fb"/>
+<circle cx="350" cy="125" r="6" fill="white"/>
+<path d="M350 131L350 550" />
+<path d="M480 165H530C584 165 584 235 530 235H480Z" fill="#e3f3fb"/>
+<circle cx="576" cy="200" r="6" fill="white"/>
+<path d="M480 295H530C584 295 584 365 530 365H480Z" fill="#e3f3fb"/>
+<circle cx="576" cy="330" r="6" fill="white"/>
+<path d="M480 425H530C584 425 584 495 530 495H480Z" fill="#e3f3fb"/>
+<circle cx="576" cy="460" r="6" fill="white"/>
+<path d="M740 275H790C844 275 844 385 790 385H740Z" fill="#e3f3fb"/>
+<circle cx="836" cy="330" r="6" fill="white"/>
+<path d="M50 180L480 180" />
+<circle cx="50" cy="180" r="4" fill="#172b3a" stroke="none"/>
+<path d="M290 220L480 220" />
+<circle cx="290" cy="220" r="4" fill="#172b3a" stroke="none"/>
+<path d="M582 200L660 200L660 300L740 300" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="525" y="150" font-size="23" text-anchor="middle">(xz)'</text>
+<path d="M110 310L480 310" />
+<circle cx="110" cy="310" r="4" fill="#172b3a" stroke="none"/>
+<path d="M350 350L480 350" />
+<circle cx="350" cy="350" r="4" fill="#172b3a" stroke="none"/>
+<path d="M582 330L675 330L675 330L740 330" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="525" y="280" font-size="23" text-anchor="middle">(x'z')'</text>
+<path d="M110 440L480 440" />
+<circle cx="110" cy="440" r="4" fill="#172b3a" stroke="none"/>
+<path d="M170 480L480 480" />
+<circle cx="170" cy="480" r="4" fill="#172b3a" stroke="none"/>
+<path d="M582 460L690 460L690 360L740 360" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="525" y="410" font-size="23" text-anchor="middle">(x'y)'</text>
+<path d="M842 330L1010 330" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="1020" y="338" font-size="29" text-anchor="start">F</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="530" y="585" font-size="26" text-anchor="middle">(a) NAND gates</text>
+</g>
+</svg>

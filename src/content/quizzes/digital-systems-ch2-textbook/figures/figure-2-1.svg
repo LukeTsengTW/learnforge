@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 850 450" width="850" height="450">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M160 262L190 280L160 298Z" fill="#e3f3fb"/>
+<circle cx="196" cy="280" r="6" fill="white"/>
+<path d="M370 265H420C474 265 474 335 420 335H370Z" fill="#e3f3fb"/>
+<path d="M650 155Q682 190 650 225Q710 225 740 190Q710 155 650 155Z" fill="#e3f3fb"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="35" y="128" font-size="30" text-anchor="start">x</text>
+<path d="M60 120L590 120L590 170L666 170" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="35" y="288" font-size="30" text-anchor="start">y</text>
+<path d="M60 280L160 280" />
+<path d="M202 280L370 280" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="275" y="268" font-size="25" text-anchor="start">y'</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="35" y="328" font-size="30" text-anchor="start">z</text>
+<path d="M60 320L370 320" />
+<path d="M460 300L570 300L570 210L666 210" />
+<path d="M740 190L795 190" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="805" y="198" font-size="29" text-anchor="start">F₁</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="30" y="395" font-size="25" text-anchor="start">Figure 2.1</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="30" y="430" font-size="23" text-anchor="start">Logic diagram for the Boolean function F₁ = x + y'z</text>
+</g>
+</svg>

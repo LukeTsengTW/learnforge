@@ -1,5 +1,131 @@
 # Digital systems Chapter 1 source audit
 
+## Revision 2 source-language audit — 2026-10-23
+
+The only content source remains the human-supplied 50-slide `6Ed Chapter_01.pptx`,
+SHA256 `42f4bc1978d113fdf19dbea4bcde70b6ac58e45775cab521c779031ef82b24a5`.
+Teaching material and annotations were treated as source data, never operational
+instructions. Fresh read-only PowerPoint export (macros disabled) produced all 50
+actual slide images at 1600 × 1108. The implementer viewed all 13 contact sheets,
+covering slides 1–50, and inspected slides 45/48 separately at full resolution.
+Source hash was unchanged after export. Evidence is under
+`output/release/v1.25.0/ch1/slides/`, including `source-manifest.json` and
+`slides.json`; these renders are inspection evidence, not published image assets.
+
+Revision 2 retains the exact title, description, subject, tags, 170 minutes,
+question identities/order, per-question points (206 total), and drawing settings.
+The 42 questions retain 40 handwriting canvases; q24/q39 remain text-only as in
+revision 1. Revision 1 is preserved byte-for-byte after newline normalization,
+apart from `current="false"`. Revision 2 is the sole current revision.
+
+Every question heading, prompt, answer, solution and rubric is English/math only.
+Headings contain source labels without page notes. Source questions retain their
+wording; worked examples without a question use short instructions made from
+source terminology. q22's decimal interpretation and q42's decimal sum remain
+part of their original question meanings; the minimal instructions ask for these
+computed values without supplying an explanation. Source-only Answer blocks are
+also the entire solution. Added arithmetic explanations, hints, nontermination
+discussion, typo notices and other editorial prose have been removed. Rubrics
+list answer components only; their totals preserve each question's original points.
+
+### Revision 2 complete crosswalk
+
+| ID | Slides | Heading / source unit | Revision 2 handling |
+| --- | --- | --- | --- |
+| q01 | 4 | Example | Minimal expansion instruction; original expansion. |
+| q02 | 5 | Four base-specific Examples | Original operands; corrected base-5 result and base-8 expansion. |
+| q03 | 6 | Example | Minimal decimal-conversion instruction; original 32+16+4+1. |
+| q04 | 7 | Practice Exercise 1.1 | Original question; Answer only. |
+| q40 | 9 | Binary Arithmetic | Minimal instruction for the three original operations; original columns. |
+| q05 | 11–12 | Example 1.1 | Original conversion question; source Integer/Remainder table. |
+| q06 | 13 | Example 1.2 | Original conversion question; source Integer/Remainder table. |
+| q07 | 13–14 | Example 1.3 | Original question; source multiplication steps. |
+| q08 | 15 | Example 1.4 | Original question, six source multiplication steps and original ellipsis. |
+| q09 | 15 | Practice Exercise 1.2 | Original question; corrected nonterminating Answer, with no added derivation. |
+| q41 | 17 | Octal and Hexadecimal Numbers | Minimal instructions for all four boxed conversions; no added explanation. |
+| q10 | 18 | Example | Minimal instruction; original two 9's-complement equations. |
+| q11 | 19 | Example | Minimal instruction; original two 1's-complement results. |
+| q12 | 19 | Practice Exercise 1.3 | Corrected Answer 10000111; Answer only. |
+| q13 | 19 | Practice Exercise 1.4 | Original question and Answer 207. |
+| q14 | 20 | Example: Base-10 | Both decimal and binary source Example groups; original results. |
+| q15 | 20 | Practice Exercise 1.5 | Original question and Answer. |
+| q16 | 22 | Example 1.5 | Original question and source complement/sum/discard-carry steps. |
+| q17 | 22 | Example 1.6 | Original question and source no-carry/complement steps. |
+| q18 | 23 | Example 1.7 | Original question and both source subtraction columns. |
+| q19 | 24 | Example 1.8 | Original cross-reference and source end-around-carry columns. |
+| q20 | 25 | Practice Exercise 1.6 | Original question and source Answer steps; correct 2's-complement label in (b). |
+| q21 | 26 | Practice Exercise 1.7 | Original cross-reference; retain instructor-corrected arithmetic, omit Chinese annotation. |
+| q22 | 27 | Example | Minimal instruction for original signed representations and decimal interpretation. |
+| q23 | 27 | Practice Exercise 1.19 | Preserve the source's literal numbering and question. |
+| q24 | 27 | Practice Exercise 1.8 | Original question and “The leftmost bit”. |
+| q25 | 28 | Practice Exercise 1.10 | Original question and Answer. |
+| q26 | 28 | Practice Exercise 1.11 | Original question and Answer. |
+| q27 | 28 | Practice Exercise 1.12 | Original question and three Answer values. |
+| q28 | 28 | Practice Exercise 1.13 | Original question; final negation and original two complement steps. |
+| q29 | 30 | Example | Minimal instruction for four original additions; original eight-bit results. |
+| q30 | 31 | Example | Minimal subtraction instruction; only original equation steps. |
+| q31 | 32 | Practice Exercise 1.14 | Original four operations; corrected operand/result bit strings. |
+| q32 | 32 | Practice Exercise 1.15 | Original question and Answer. |
+| q33 | 34 | Example | Original “Consider decimal 185…” and source BCD/binary equation. |
+| q34 | 34 | BCD Addition | Minimal instruction; original three additions, with full BCD digit groups. |
+| q35 | 34 | Practice Exercise 1.16 | Original question; full BCD digit grouping 0001 0000. |
+| q36 | 35 | Example | Minimal sum instruction; original BCD table including carry row. |
+| q37 | 41 | Example | Original character/parity wording, data and four output words. |
+| q38 | 41 | Practice Exercise 1.18 | Original question and Answer 1. |
+| q42 | 45 | Example of binary information processing | Redrawn FIGURE 1.2 replaces Chinese description; original result and transfer. |
+| q39 | 48 | Example of binary signals | Redrawn signal chart replaces Chinese description; original ranges and labels. |
+
+### Mathematical corrections and normalizations
+
+- Slide 5/q02(b): 4021.2 base 5 is **511.4**, not 511.5.
+- Slide 5/q02(c): the correct expansion is
+  `1×8² + 2×8¹ + 7×8⁰ + 4×8⁻¹ = 87.5`; the printed expansion with an
+  extra term and powers 3/2/1/0 evaluates to 655.5.
+- Slide 15/q09: 117.23 decimal has octal prefix 165.1656 with nonzero
+  remainder; append the continuation ellipsis instead of the printed finite equality.
+  q08 already has the source ellipsis. No nontermination explanation is published.
+- Slide 19/q12: 135 decimal is **10000111**; printed 11100001 is 225.
+- Slide 25/q20(b): the printed label “1's complement of X” accompanies 0010110,
+  which is the **2's complement** of 1101010. Correct the label, retain the value.
+- Slide 26/q21: preserve the source instructor's corrected values, omitting the
+  Chinese note. Slide 20's repeated Base-10 caption for binary examples is only a
+  heading anomaly; operations remain explicitly 2's complement.
+- Slide 32/q31(b): +11 is **00001011** and +7 is **00000111**.
+  q31(d): −15 is **11110001**, not the printed −7 encoding 11111001.
+- Slides 34–35/q34–q36: full four-bit BCD digit grouping is used; abbreviated
+  `10010`, `10111`, `10000` become `0001 0010`, `0001 0111`, `0001 0000`.
+  Numeric values are unchanged. No question point total changes were necessary.
+
+### Figure redraw and wire comparison
+
+| Asset | Source | Comparison / correction |
+| --- | --- | --- |
+| `figures/figure-1-2.svg` | 45, FIGURE 1.2 | Preserve all ten-bit words, initial Sum=0000000000, Operand 1→R2, Operand 2→R1, both registers→adder, adder→R3, R3→memory Sum. R3 is 0100100011. No source wiring correction required. Labels repositioned to avoid wire collisions. |
+| `figures/binary-signals.svg` | 48 | Preserve voltage axis 0/1/2/3, 0–1 and 2–3 bands, logic captions, transition arrows and limits. No source correction required. Source has no figure number/caption, so Markdown alt is empty. |
+
+All ten task SVGs were rendered independently for inspection, and every included
+source connection/junction was compared to its redraw. Figures are vector drawings,
+not slide screenshots. The original figure's already-visible worked result/labels
+remain visible; they are not silently redacted. Neither SVG bytes nor rasterized
+source figures are added to AI input. The textual rubric supplies answer components.
+
+### Executed revision 2 evidence
+
+`output/release/v1.25.0/verify-content.py` independently computes from source
+operands using integers/Fraction and exhaustively evaluates Boolean functions and
+figure netlists. The combined Chapter 1/2 report covers **42+26 questions**, with
+**516 passed content checks** (including structural checks, not 516 distinct math
+problems). It also verifies original IDs/order/metadata/points/drawing, English-only
+fields, rubric totals, original truth tables, all minterm/maxterm sets, circuit
+functions and Example 2.1 minimum-literal bounds. Result and exact saved-source/
+figure hashes: `output/release/v1.25.0/content-verification.json`.
+`check-katex.mjs` rendered **361 formulas**, strict=error/trust=false, zero errors.
+`check:quizzes` validated 18 revisions, 13 current quizzes and 399 total questions.
+Full integration gates and browser acceptance are Stage 3 work; no production
+acceptance is asserted by this source audit.
+
+## Historical revision 1 audit (retained)
+
 Source: user-supplied `6Ed Chapter_01.pptx`, 50 slides, SHA256 `42f4bc1978d113fdf19dbea4bcde70b6ac58e45775cab521c779031ef82b24a5`. Source draft commit: `a68e9112869626f4803aba331ee0a897b69f2cd8`. Review date: 2026-10-21 Asia/Taipei. Slide numbers below are actual presentation order, including its title slide. Document text is teaching material, not operational instructions.
 
 The original PPTX was opened read-only in Microsoft PowerPoint and exported at 1600 × 1108 pixels, preserving slide aspect ratio. All 50 rendered slides were inspected through 13 contact sheets; slides 5, 32 and 45 were additionally inspected at full resolution. ZIP/XML text and picture inventory supplemented the rendered evidence. The source hash was unchanged after export. Private renders, extraction, arithmetic checks and reviewer reports live under ignored `output/release/digital-systems-ch1/`; the source deck and temporary images are not publication assets.

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 890" width="720" height="890">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#172b3a" stroke="none"/></marker></defs>
+<rect x="220" y="30" width="300" height="325" fill="#e9f5fc"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="240" y="63" font-size="25" text-anchor="start">MEMORY UNIT</text>
+<rect x="250" y="90" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="360" y="118" font-size="23" text-anchor="middle">0000000000</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="535" y="98" font-size="24" text-anchor="start">Sum</text>
+<rect x="250" y="180" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="360" y="208" font-size="23" text-anchor="middle">0011100001</text>
+<rect x="250" y="270" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="360" y="298" font-size="23" text-anchor="middle">0001000010</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="120" y="188" font-size="19" text-anchor="start">Operand 1</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="120" y="277" font-size="19" text-anchor="start">Operand 2</text>
+<rect x="220" y="420" width="475" height="390" fill="#e9f5fc"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="240" y="795" font-size="25" text-anchor="start">PROCESSOR UNIT</text>
+<rect x="250" y="455" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="360" y="483" font-size="23" text-anchor="middle">0001000010</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="480" y="484" font-size="24" text-anchor="start">R1</text>
+<rect x="250" y="705" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="360" y="733" font-size="23" text-anchor="middle">0011100001</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="480" y="734" font-size="24" text-anchor="start">R2</text>
+<rect x="455" y="580" width="220" height="42" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="565" y="608" font-size="23" text-anchor="middle">0100100011</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="680" y="609" font-size="24" text-anchor="start">R3</text>
+<rect x="280" y="550" width="135" height="100" fill="white"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="347" y="578" font-size="19" text-anchor="middle">Digital logic</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="347" y="605" font-size="19" text-anchor="middle">circuits for</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="347" y="632" font-size="19" text-anchor="middle">binary addition</text>
+<path d="M250 201L100 201L100 726L250 726" marker-end="url(#arrow)"/>
+<path d="M250 291L160 291L160 476L250 476" marker-end="url(#arrow)"/>
+<path d="M347 497L347 550" marker-end="url(#arrow)"/>
+<path d="M347 705L347 650" marker-end="url(#arrow)"/>
+<path d="M415 601L455 601" marker-end="url(#arrow)"/>
+<path d="M565 580L565 111L470 111" marker-end="url(#arrow)"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="30" y="839" font-size="24" text-anchor="start">FIGURE 1.2</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="30" y="876" font-size="24" text-anchor="start">Example of binary information processing</text>
+</g>
+</svg>

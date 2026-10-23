@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 530" width="900" height="530">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="50" y="28" font-size="28" text-anchor="middle">x</text>
+<path d="M50 40L50 480" />
+<path d="M50 65L110 65L110 90" />
+<circle cx="50" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M93 90L127 90L110 119Z" fill="#e3f3fb"/>
+<circle cx="110" cy="125" r="6" fill="white"/>
+<path d="M110 131L110 480" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="170" y="28" font-size="28" text-anchor="middle">y</text>
+<path d="M170 40L170 480" />
+<path d="M170 65L230 65L230 90" />
+<circle cx="170" cy="65" r="4" fill="#172b3a" stroke="none"/>
+<path d="M213 90L247 90L230 119Z" fill="#e3f3fb"/>
+<circle cx="230" cy="125" r="6" fill="white"/>
+<path d="M230 131L230 480" />
+<path d="M420 185H470C524 185 524 255 470 255H420Z" fill="#e3f3fb"/>
+<path d="M420 365H470C524 365 524 435 470 435H420Z" fill="#e3f3fb"/>
+<path d="M680 275Q712 310 680 345Q740 345 770 310Q740 275 680 275Z" fill="#e3f3fb"/>
+<path d="M50 200L420 200" />
+<circle cx="50" cy="200" r="4" fill="#172b3a" stroke="none"/>
+<path d="M230 240L420 240" />
+<circle cx="230" cy="240" r="4" fill="#172b3a" stroke="none"/>
+<path d="M110 380L420 380" />
+<circle cx="110" cy="380" r="4" fill="#172b3a" stroke="none"/>
+<path d="M170 420L420 420" />
+<circle cx="170" cy="420" r="4" fill="#172b3a" stroke="none"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="520" y="205" font-size="25" text-anchor="start">xy'</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="520" y="386" font-size="25" text-anchor="start">x'y</text>
+<path d="M510 220L610 220L610 290L696 290" />
+<path d="M510 400L640 400L640 330L696 330" />
+<path d="M770 310L850 310" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="860" y="318" font-size="29" text-anchor="start">F</text>
+</g>
+</svg>

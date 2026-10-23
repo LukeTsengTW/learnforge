@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 650" width="740" height="650">
+<rect width="100%" height="100%" fill="white"/>
+<g fill="none" stroke="#172b3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#172b3a" stroke="none"/></marker></defs>
+<path d="M95 595V40" marker-end="url(#arrow)"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="50" y="27" font-size="29" text-anchor="start">Volts</text>
+<rect x="95" y="80" width="320" height="160" fill="#d2eaf4"/><rect x="95" y="400" width="320" height="160" fill="#d2eaf4"/>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="80" y="88" font-size="28" text-anchor="end">3</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="80" y="248" font-size="28" text-anchor="end">2</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="80" y="408" font-size="28" text-anchor="end">1</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="80" y="568" font-size="28" text-anchor="end">0</text>
+<path d="M435 80Q445 80 445 105V145Q445 160 455 160Q445 160 445 175V215Q445 240 435 240" />
+<path d="M435 400Q445 400 445 425V465Q445 480 455 480Q445 480 445 495V535Q445 560 435 560" />
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="125" font-size="28" text-anchor="start">Signal</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="160" font-size="28" text-anchor="start">range for</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="195" font-size="28" text-anchor="start">logic 1</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="445" font-size="28" text-anchor="start">Signal</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="480" font-size="28" text-anchor="start">range for</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="485" y="515" font-size="28" text-anchor="start">logic 0</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="255" y="306" font-size="26" text-anchor="middle">Transition occurs</text>
+<text fill="#172b3a" stroke="none" font-family="Arial, sans-serif" x="255" y="341" font-size="26" text-anchor="middle">between these limits</text>
+<path d="M255 282V245" marker-end="url(#arrow)"/>
+<path d="M255 358V395" marker-end="url(#arrow)"/>
+</g>
+</svg>
