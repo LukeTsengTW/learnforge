@@ -1,5 +1,18 @@
 # Release checklist
 
+## v1.28.0 — Chapter 1–4 selected textbook exercises
+
+Preparation snapshot, 2026-10-24 Asia/Taipei: actual master and annotated v1.27.0 both resolve to `ccdfbb7c903bc4e3135ea680387d6badeb352abd`; package/lock and latest formal GitHub Release are 1.27.0. The new quiz family advances the minor version to **1.28.0**. Exact post-preparation execution and closure evidence is recorded in the [formal Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.28.0); this snapshot is not a claim that later operations already passed.
+
+- [x] Correct initial handoff artifacts, inspect all 14 crosswalk PDF pages/two figures and independently audit all 42 selected problems; Stage 1 bounded reviewer PASS after restoring 3.20's source equation without an outer prime.
+- [x] Preserve English source, IDs/order/types, 411 points and drawing metadata. Correct authored answers/complete solutions/scored rubrics, explicitly handle 2.27/4.5/4.6 ambiguities, and retain source figure wiring in high-resolution crops.
+- [x] Official generator, publication/rubric/Markdown/KaTeX/figure/context checks, all previous source/context hashes, 20 files /410 targeted tests and narrow localhost preview; Stage 2 bounded reviewer PASS after a documentation NIT.
+- [x] Calculate actual 16 quiz IDs /22 revisions /340 current questions /504 contexts; preserve 21 prior sources and 462 contexts and every historical assertion/hash.
+
+Required execution after this snapshot: clean stable-candidate official full gates and one bounded final reviewer; exact-head PR CI and exact-merge CI; actual six AST-derived Edge consumers before exact-SHA/version Pages; management-plane settings and downloaded Pages artifact identity; annotated tag and GitHub Release at the same final SHA. Restore only evidence invalidated by actual source/base/identity changes. The release tools bind checks to exact SHA, so an unchanged-tree merge still requires its own identity-bound report/gates. Preserve the source branch and previous tags/releases.
+
+The current user request authorizes all release mutations and explicitly prohibits production functional testing. Usual production smoke/canary acceptance is excepted for this release and remains **not performed**, never PASS. CI, deployment success and saved-artifact integrity are separate from the user's production acceptance. See [delivery](v1.28.0-delivery.md) and [source review](digital-systems-ch1-ch4-textbook-exercises-review.md).
+
 ## v1.27.0 — Chapter 4 source-faithful quiz
 
 Preparation snapshot, 2026-10-24 Asia/Taipei. Verified master `48ecd44`, package/lock 1.26.1, latest annotated tag and formal Release v1.26.1. The new quiz family uses minor **1.27.0**. Final exact commit/CI/Pages/Edge/tag outcomes belong in the [v1.27.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.27.0) and [delivery](v1.27.0-delivery.md); pending requirements below are not success claims.

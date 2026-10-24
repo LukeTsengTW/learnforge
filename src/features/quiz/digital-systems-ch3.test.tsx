@@ -43,9 +43,9 @@ describe('source-audited digital systems chapter 3 integration', () => {
     expect(historical).toMatchObject({ id, revision: '1', current: false })
     expect(quiz).toMatchObject({ id, revision: '2', current: true,
       title: '【課本題目】數位系統導論 - Chapter 3', subject: '數位系統導論', estimatedMinutes: 135 })
-    expect(quizCatalog.current).toHaveLength(15)
-    expect(Object.keys(bundledQuizSources)).toHaveLength(21)
-    expect(quizCatalog.current.reduce((total, entry) => total + entry.questionCount, 0)).toBe(298)
+    expect(quizCatalog.current).toHaveLength(16)
+    expect(Object.keys(bundledQuizSources)).toHaveLength(22)
+    expect(quizCatalog.current.reduce((total, entry) => total + entry.questionCount, 0)).toBe(340)
     expect(quizCatalog.current.filter(entry => entry.quiz.id === id)).toHaveLength(1)
     expect(quizCatalog.current.find(entry => entry.quiz.id === id))
       .toMatchObject({ quiz: { revision: '2' }, questionCount: 24, totalPoints: 152, maxPoints: 0 })
@@ -66,15 +66,15 @@ describe('source-audited digital systems chapter 3 integration', () => {
   })
 
   it('preserves all eighteen prior source revisions and every one of 399 canonical contexts', () => {
-    const sources = Object.entries(bundledQuizSources).filter(([file]) => !file.includes(`/${id}/`) && !file.includes('/digital-systems-ch4-textbook/'))
+    const sources = Object.entries(bundledQuizSources).filter(([file]) => !file.includes(`/${id}/`) && !file.includes('/digital-systems-ch4-textbook/') && !file.includes('/digital-systems-ch1-ch4-textbook-exercises/'))
       .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')])
       .sort(([a], [b]) => a.localeCompare(b))
     expect(sources).toHaveLength(18)
     expect(sha(sources)).toBe('e53a0ddc129d3bf1d7191794e5c84d5d0023da1f1c642025c59441087acfd2f7')
-    const prior = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== 'digital-systems-ch4-textbook')
+    const prior = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== 'digital-systems-ch4-textbook' && c.quizId !== 'digital-systems-ch1-ch4-textbook-exercises')
     expect(prior).toHaveLength(399)
     expect(sha(prior)).toBe('0139dcc36ac51cca4d15296a22b55fff06975636be4eef7a1a6a3a8c990470ea')
-    expect(AI_QUIZ_CONTEXT).toHaveLength(462)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(504)
   })
 
   it('pins the released v1.26.0 historical source and all 423 historical contexts exactly', () => {
@@ -82,7 +82,7 @@ describe('source-audited digital systems chapter 3 integration', () => {
       .replaceAll('\r\n', '\n').replace('current="false"', 'current="true"')
     expect(createHash('sha256').update(source).digest('hex'))
       .toBe('da4edd16d61b2b970f6f7e93efb504d43cc5eab83f8d4928e34799410ea8c938')
-    const contexts = AI_QUIZ_CONTEXT.filter(c => !(c.quizId === id && c.revision === '2') && c.quizId !== 'digital-systems-ch4-textbook')
+    const contexts = AI_QUIZ_CONTEXT.filter(c => !(c.quizId === id && c.revision === '2') && c.quizId !== 'digital-systems-ch4-textbook' && c.quizId !== 'digital-systems-ch1-ch4-textbook-exercises')
     expect(contexts).toHaveLength(423)
     expect(sha(contexts)).toBe('628792f2df6d3572b2c86d37ab6fb6e8717bdce7660b203f0884678da383ca07')
     const original = contexts.filter(c => c.quizId === id && c.revision === '1')
