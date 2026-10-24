@@ -7679,6 +7679,576 @@ export const AI_QUIZ_CONTEXT = [
     ]
   },
   {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q01",
+    "questionIndex": 0,
+    "type": "calculation",
+    "prompt": "### Analysis example\n\nAnalyze the logic diagram in Fig. 4.2. Derive the Boolean expressions for $F_1$ and $F_2$, construct the truth table, and identify the circuit function.\n\n![](figures/figure-4-2.png)",
+    "hint": null,
+    "solution": "$F_1=T_3+T_2=F_2'T_1+ABC$\n\n$=(AB+AC+BC)'(A+B+C)+ABC$\n\n$=(A'+B')(A'+C')(B'+C')(A+B+C)+ABC$\n\n$=(A'+B'C')(AB'+AC'+BC'+B'C)+ABC$\n\n$=A'BC'+A'B'C+AB'C'+ABC$\n\n$$\n\\begin{array}{ccc|cccccc}\nA&B&C&F_2&F_2'&T_1&T_2&T_3&F_1\\\\\n\\hline\n0&0&0&0&1&0&0&0&0\\\\\n0&0&1&0&1&1&0&1&1\\\\\n0&1&0&0&1&1&0&1&1\\\\\n0&1&1&1&0&1&0&0&0\\\\\n1&0&0&0&1&1&0&1&1\\\\\n1&0&1&1&0&1&0&0&0\\\\\n1&1&0&1&0&1&0&0&0\\\\\n1&1&1&1&0&1&1&0&1\n\\end{array}\n$$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$F_2=AB+AC+BC$."
+      },
+      {
+        "score": 3,
+        "description": "$F_1=A'BC'+A'B'C+AB'C'+ABC$."
+      },
+      {
+        "score": 2,
+        "description": "Truth table."
+      },
+      {
+        "score": 2,
+        "description": "A full-adder; $F_1$ is the sum and $F_2$ is the carry."
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "$F_2=AB+AC+BC$\n\n$T_1=A+B+C$\n\n$T_2=ABC$\n\n$T_3=F_2'T_1$\n\n$F_1=T_3+T_2=A'BC'+A'B'C+AB'C'+ABC$\n\nA full-adder\n\n$F_1$: the sum\n\n$F_2$: the carry",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$F_2=AB+AC+BC$."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "$F_1=A'BC'+A'B'C+AB'C'+ABC$."
+      },
+      {
+        "id": "r3",
+        "points": 2,
+        "description": "Truth table."
+      },
+      {
+        "id": "r4",
+        "points": 2,
+        "description": "A full-adder; $F_1$ is the sum and $F_2$ is the carry."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q02",
+    "questionIndex": 1,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.1\n\nAnalyze the logic diagram in Fig. PE4.1 and find the Boolean expression for $F_1$ and $F_2$.\n\n![](figures/pe4-1.png)",
+    "hint": null,
+    "solution": "$T_1=A+B+C$\n\n$T_2=ABC$\n\n$F_2=AB+A+B+BC=A+B+BC=A+B$\n\n$F_2'=A'B'$\n\n$T_3=(ABC)(A'B')=0$\n\n$F_1=T_1=A+B+C$\n\nSource discrepancy: the printed answer above uses $A+B$ for gate $G_4$, but Fig. PE4.1 connects $G_4$ to $A$ and $C$. Reading the diagram gives $F_2=AB+A+C+BC=A+C+BC$ and still gives $F_1=A+B+C$. Both the printed source answer and the diagram-derived expression are accepted.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "Accept the printed source answer $F_2=A+B$ or the diagram-derived $F_2=A+C+BC$ (including equivalent forms); Fig. PE4.1 connects $G_4$ to $A$ and $C$."
+      },
+      {
+        "score": 4,
+        "description": "$F_1=A+B+C$."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$T_1=A+B+C$\n\n$T_2=ABC$\n\n$F_2=AB+A+B+BC=A+B+BC=A+B$\n\n$F_2'=A'B'$\n\n$T_3=(ABC)(A'B')=0$\n\n$F_1=T_1=A+B+C$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "Accept the printed source answer $F_2=A+B$ or the diagram-derived $F_2=A+C+BC$ (including equivalent forms); Fig. PE4.1 connects $G_4$ to $A$ and $C$."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "$F_1=A+B+C$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q03",
+    "questionIndex": 2,
+    "type": "calculation",
+    "prompt": "### Code conversion example\n\nDesign a BCD-to-excess-3 code converter.",
+    "hint": null,
+    "solution": "The simplified functions:\n\n$z=D'$\n\n$y=CD+C'D'$\n\n$x=B'C+B'D+BC'D'$\n\n$w=A+BC+BD$\n\nAnother implementation:\n\n$z=D'$\n\n$y=CD+C'D'=CD+(C+D)'$\n\n$x=B'C+B'D+BC'D'=B'(C+D)+B(C+D)'$\n\n$w=A+BC+BD$",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "$z=D'$ and $y=CD+C'D'$."
+      },
+      {
+        "score": 3,
+        "description": "$x=B'C+B'D+BC'D'$."
+      },
+      {
+        "score": 3,
+        "description": "$w=A+BC+BD$."
+      },
+      {
+        "score": 3,
+        "description": "Logic diagram consistent with the simplified functions."
+      }
+    ],
+    "points": 12,
+    "referenceAnswer": "$z=D'$\n\n$y=CD+C'D'$\n\n$x=B'C+B'D+BC'D'$\n\n$w=A+BC+BD$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "$z=D'$ and $y=CD+C'D'$."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "$x=B'C+B'D+BC'D'$."
+      },
+      {
+        "id": "r3",
+        "points": 3,
+        "description": "$w=A+BC+BD$."
+      },
+      {
+        "id": "r4",
+        "points": 3,
+        "description": "Logic diagram consistent with the simplified functions."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q04",
+    "questionIndex": 3,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.2\n\nExplain how a half adder and a full adder differ in their functionality.",
+    "hint": null,
+    "solution": "A half adder adds only two (data) bits to produce a sum and carry-out bit. A full adder adds three input bits (two data bits and a carry-in bit) to produce a sum and carry-out bit.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Half adder: two (data) bits, sum and carry-out."
+      },
+      {
+        "score": 2,
+        "description": "Full adder: three input bits including carry-in, sum and carry-out."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "A half adder adds only two (data) bits to produce a sum and carry-out bit. A full adder adds three input bits (two data bits and a carry-in bit) to produce a sum and carry-out bit.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Half adder: two (data) bits, sum and carry-out."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Full adder: three input bits including carry-in, sum and carry-out."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q05",
+    "questionIndex": 4,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.3\n\nWhat is the main drawback of a ripple adder?",
+    "hint": null,
+    "solution": "The time required to add long data words may be prohibitive, because the carry has to propagate from the least significant bit to the most significant bit.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "Identifies carry propagation from the least significant bit to the most significant bit as the time limitation."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "The time required to add long data words may be prohibitive, because the carry has to propagate from the least significant bit to the most significant bit.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "Identifies carry propagation from the least significant bit to the most significant bit as the time limitation."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q06",
+    "questionIndex": 5,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.4\n\nWhat is the main drawback of a lookahead adder?",
+    "hint": null,
+    "solution": "Its hardware is more complex than the hardware for a ripple carry adder.",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "Its hardware is more complex than the hardware for a ripple carry adder."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "Its hardware is more complex than the hardware for a ripple carry adder.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "Its hardware is more complex than the hardware for a ripple carry adder."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q07",
+    "questionIndex": 6,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.5\n\nAdd the following two binary words and find the sum and carry bit:\n\n$A=1100\\_0101$, $B=1010\\_1010$.",
+    "hint": null,
+    "solution": "Sum = $0110\\_1111$, Carry = 1",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "Sum = $0110\\_1111$."
+      },
+      {
+        "score": 2,
+        "description": "Carry = 1."
+      }
+    ],
+    "points": 5,
+    "referenceAnswer": "Sum = $0110\\_1111$, Carry = 1",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "Sum = $0110\\_1111$."
+      },
+      {
+        "id": "r2",
+        "points": 2,
+        "description": "Carry = 1."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q08",
+    "questionIndex": 7,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.6\n\nFind $A-B$ with $A=1001_2$ and $B=0110_2$;",
+    "hint": null,
+    "solution": "$A-B=1\\_0011_2$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$A-B=1\\_0011_2$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$A-B=1\\_0011_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$A-B=1\\_0011_2$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q09",
+    "questionIndex": 8,
+    "type": "calculation",
+    "prompt": "### Example\n\nDetermine whether overflow occurs in the following signed additions.\n\n$$\n\\begin{array}{rcr}\n\\text{carries:}&&0\\quad1\\\\\n&+70&0\\ 1000110\\\\\n&+80&0\\ 1010000\\\\\n\\hline\n&+150&1\\ 0010110\n\\end{array}\n\\qquad\n\\begin{array}{rcr}\n\\text{carries:}&&1\\quad0\\\\\n&-70&1\\ 0111010\\\\\n&-80&1\\ 0110000\\\\\n\\hline\n&-150&0\\ 1101010\n\\end{array}\n$$",
+    "hint": null,
+    "solution": "$V=0$, no overflow; $V=1$, overflow.\n\nFor $+70+80$, the carries into and out of the sign position differ.\n\nFor $-70+(-80)$, the carries into and out of the sign position differ.\n\nTherefore $V=1$ in both cases.",
+    "rubric": [
+      {
+        "score": 3,
+        "description": "Identifies overflow for $+70+80$."
+      },
+      {
+        "score": 3,
+        "description": "Identifies overflow for $-70+(-80)$."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$V=1$, overflow, for both additions.",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 3,
+        "description": "Identifies overflow for $+70+80$."
+      },
+      {
+        "id": "r2",
+        "points": 3,
+        "description": "Identifies overflow for $-70+(-80)$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q10",
+    "questionIndex": 9,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.7\n\nFind the product $(0101)_2\\times(1001)_2$.",
+    "hint": null,
+    "solution": "$0101101_2$",
+    "rubric": [
+      {
+        "score": 4,
+        "description": "$0101101_2$."
+      }
+    ],
+    "points": 4,
+    "referenceAnswer": "$0101101_2$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 4,
+        "description": "$0101101_2$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q11",
+    "questionIndex": 10,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.8\n\nDraw a logic diagram constructing a $3\\times8$ decoder with active-low enable, using a pair of $2\\times4$ decoders; also draw a truth table for the configuration.",
+    "hint": null,
+    "solution": "![](figures/pe4-8.png)\n\nThe source diagram sends $x$ and $y$ to both decoders, $E'$ to the upper enable, and $E$ to the lower enable.\n\n$$\n\\begin{array}{ccc|cccccccc}\nE&x&y&D_0&D_1&D_2&D_3&D_4&D_5&D_6&D_7\\\\\n\\hline\n0&0&0&1&0&0&0&0&0&0&0\\\\\n0&0&1&0&1&0&0&0&0&0&0\\\\\n0&1&0&0&0&1&0&0&0&0&0\\\\\n0&1&1&0&0&0&1&0&0&0&0\\\\\n1&0&0&0&0&0&0&1&0&0&0\\\\\n1&0&1&0&0&0&0&0&1&0&0\\\\\n1&1&0&0&0&0&0&0&0&1&0\\\\\n1&1&1&0&0&0&0&0&0&0&1\n\\end{array}\n$$\n\nSource discrepancy: the wording says “active-low enable”, while the printed diagram/table use $E$ as the third selection input and show no independent global enable or all-disabled row. The source configuration is preserved; a consistent implementation of the stated active-low-enable task is also accepted.",
+    "rubric": [
+      {
+        "score": 5,
+        "description": "Accept the source configuration (shared $x,y$; upper enable $E'$, lower enable $E$) or a consistent pair of $2\\times4$ decoders implementing the stated active-low-enable task. Do not penalize the documented source wording/diagram discrepancy."
+      },
+      {
+        "score": 5,
+        "description": "Truth table matches the submitted configuration. For the source configuration, exactly $D_{4E+2x+y}$ is 1 for each $Exy$ row; all other outputs are 0."
+      }
+    ],
+    "points": 10,
+    "referenceAnswer": "![](figures/pe4-8.png)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 5,
+        "description": "Accept the source configuration (shared $x,y$; upper enable $E'$, lower enable $E$) or a consistent pair of $2\\times4$ decoders implementing the stated active-low-enable task. Do not penalize the documented source wording/diagram discrepancy."
+      },
+      {
+        "id": "r2",
+        "points": 5,
+        "description": "Truth table matches the submitted configuration. For the source configuration, exactly $D_{4E+2x+y}$ is 1 for each $Exy$ row; all other outputs are 0."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q12",
+    "questionIndex": 11,
+    "type": "calculation",
+    "prompt": "### an example\n\n$F(A,B,C)=\\Sigma(1,2,6,7)$\n\nImplement the Boolean function with a $4\\times1$ multiplexer.",
+    "hint": null,
+    "solution": "Use $y$ as $S_0$ and $x$ as $S_1$.\n\nThe source heading uses $A,B,C$ while Fig. 4.27 uses $x,y,z$, respectively. Equivalent $A,B,C$ labels are accepted.\n\nFor $xy=00$, $F=z$.\n\nFor $xy=01$, $F=z'$.\n\nFor $xy=10$, $F=0$.\n\nFor $xy=11$, $F=1$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$S_0=y$, $S_1=x$, or $S_0=B$, $S_1=A$ using the heading's variables."
+      },
+      {
+        "score": 4,
+        "description": "Inputs $I_0=z$, $I_1=z'$, $I_2=0$, $I_3=1$, or the equivalent $C,C',0,1$ using the heading's variables."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "$S_0=y,\\ S_1=x$\n\n$I_0=z,\\ I_1=z',\\ I_2=0,\\ I_3=1$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$S_0=y$, $S_1=x$, or $S_0=B$, $S_1=A$ using the heading's variables."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "Inputs $I_0=z$, $I_1=z'$, $I_2=0$, $I_3=1$, or the equivalent $C,C',0,1$ using the heading's variables."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q13",
+    "questionIndex": 12,
+    "type": "calculation",
+    "prompt": "### Example\n\n$F(A,B,C,D)=\\Sigma(1,3,4,11,12,13,14,15)$\n\nImplement the Boolean function with an $8\\times1$ multiplexer.",
+    "hint": null,
+    "solution": "Use $C$ as $S_0$, $B$ as $S_1$, and $A$ as $S_2$.\n\n$I_0=D,\\ I_1=D,\\ I_2=D',\\ I_3=0,\\ I_4=0,\\ I_5=D,\\ I_6=1,\\ I_7=1$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$S_0=C$, $S_1=B$, $S_2=A$."
+      },
+      {
+        "score": 6,
+        "description": "$I_0=D,\\ I_1=D,\\ I_2=D',\\ I_3=0,\\ I_4=0,\\ I_5=D,\\ I_6=1,\\ I_7=1$."
+      }
+    ],
+    "points": 8,
+    "referenceAnswer": "$S_0=C,\\ S_1=B,\\ S_2=A$\n\n$I_0=D,\\ I_1=D,\\ I_2=D',\\ I_3=0,\\ I_4=0,\\ I_5=D,\\ I_6=1,\\ I_7=1$",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$S_0=C$, $S_1=B$, $S_2=A$."
+      },
+      {
+        "id": "r2",
+        "points": 6,
+        "description": "$I_0=D,\\ I_1=D,\\ I_2=D',\\ I_3=0,\\ I_4=0,\\ I_5=D,\\ I_6=1,\\ I_7=1$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q14",
+    "questionIndex": 13,
+    "type": "calculation",
+    "prompt": "### Practice Exercise 4.9\n\nImplement the Boolean function $F(A,B,C)=\\Sigma(3,5,6,7)$ with a multiplexer.",
+    "hint": null,
+    "solution": "$S_0=B,\\ S_1=A$\n\n$I_0=0,\\ I_1=C,\\ I_2=C,\\ I_3=1$",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "$S_0=B$, $S_1=A$."
+      },
+      {
+        "score": 4,
+        "description": "$I_0=0,\\ I_1=C,\\ I_2=C,\\ I_3=1$."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "![](figures/pe4-9.png)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "$S_0=B$, $S_1=A$."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "$I_0=0,\\ I_1=C,\\ I_2=C,\\ I_3=1$."
+      }
+    ]
+  },
+  {
+    "quizId": "digital-systems-ch4-textbook",
+    "revision": "1",
+    "questionId": "q15",
+    "questionIndex": 14,
+    "type": "calculation",
+    "prompt": "### Example: Four-to-one-line multiplexer\n\nConstruct a four-to-one-line multiplexer using three-state gates.",
+    "hint": null,
+    "solution": "![](figures/figure-4-30.png)\n\nIn Fig. 4.30(b), $S_1,S_0$ connect to Select and $EN$ connects to Enable on the $2\\times4$ decoder. Outputs $0,1,2,3$ control the three-state gates for $I_0,I_1,I_2,I_3$, respectively, and their outputs join at $Y$.",
+    "rubric": [
+      {
+        "score": 2,
+        "description": "Selection $S_1,S_0$ is decoded by a $2\\times4$ decoder with Enable connected to $EN$."
+      },
+      {
+        "score": 4,
+        "description": "The four decoder outputs control the four three-state gates connected to the common output $Y$."
+      }
+    ],
+    "points": 6,
+    "referenceAnswer": "![](figures/figure-4-30.png)",
+    "drawing": {
+      "width": 1200,
+      "height": 900
+    },
+    "gradingRubric": [
+      {
+        "id": "r1",
+        "points": 2,
+        "description": "Selection $S_1,S_0$ is decoded by a $2\\times4$ decoder with Enable connected to $EN$."
+      },
+      {
+        "id": "r2",
+        "points": 4,
+        "description": "The four decoder outputs control the four three-state gates connected to the common output $Y$."
+      }
+    ]
+  },
+  {
     "quizId": "discrete-math-ch1-counting-examples",
     "revision": "1",
     "questionId": "q01",

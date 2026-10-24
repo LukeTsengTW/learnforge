@@ -118,15 +118,16 @@ describe('Chapter 7 relations, second examples', () => {
     const existing = AI_QUIZ_CONTEXT.filter((context) => context.quizId !== 'digital-systems-ch1-textbook'
       && context.quizId !== 'digital-systems-ch2-textbook'
       && context.quizId !== 'digital-systems-ch3-textbook'
+      && context.quizId !== 'digital-systems-ch4-textbook'
       && context.quizId !== 'economics-ch1-4-exercises'
       && context.quizId !== id && context.quizId !== chapter8Id
       && !midtermIds.has(context.quizId))
-    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook')
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook' && c.quizId !== 'digital-systems-ch4-textbook')
     expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '1')).toHaveLength(24)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '2')).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(462)
     expect(existing).toHaveLength(112)
     expect(AI_QUIZ_CONTEXT.filter((context) => context.quizId === id && context.revision === '1')).toHaveLength(21)
     expect(sha(existing)).toBe('f3e9710df4a12ddf38ce4b395a92d72f8fb5779c3ba11f93f24fe0c6aad8f065')

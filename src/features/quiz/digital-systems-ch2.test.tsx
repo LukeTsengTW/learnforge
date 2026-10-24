@@ -46,7 +46,7 @@ describe('source-audited digital systems chapter 2 integration', () => {
 
   it('preserves all fifteen prior source revisions and all 305 prior canonical contexts', () => {
     const priorSources = Object.entries(bundledQuizSources)
-      .filter(([file]) => !file.includes(`/${id}/`) && !file.includes(`/${later}/`)
+      .filter(([file]) => !file.includes(`/${id}/`) && !file.includes(`/${later}/`) && !file.includes('/digital-systems-ch4-textbook/')
         && !file.endsWith('/digital-systems-ch1-textbook/v2.quiz.md'))
       // The original baseline contained Chapter 1 revision 1 as current.
       .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')
@@ -54,16 +54,16 @@ describe('source-audited digital systems chapter 2 integration', () => {
       .sort(([a], [b]) => a.localeCompare(b))
     expect(priorSources).toHaveLength(15)
     expect(sha(priorSources)).toBe('6b840830fe31f2edcdebabc3feb374d77dff9820d3bc952675f47dc590a3cfa8')
-    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== later
+    const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== later && c.quizId !== 'digital-systems-ch4-textbook'
       && !(c.quizId === 'digital-systems-ch1-textbook' && c.revision === '2'))
     expect(priorContexts).toHaveLength(305)
     expect(sha(priorContexts)).toBe('e840396c9f3d8cc3a43664b24fa7ad83762b902b764d31b5c0ff663adaa46db4')
-    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== later)
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== later && c.quizId !== 'digital-systems-ch4-textbook')
     expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', id].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === later && c.revision === '1')).toHaveLength(24)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === later && c.revision === '2')).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(462)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

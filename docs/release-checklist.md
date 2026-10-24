@@ -1,5 +1,20 @@
 # Release checklist
 
+## v1.27.0 — Chapter 4 source-faithful quiz
+
+Preparation snapshot, 2026-10-24 Asia/Taipei. Verified master `48ecd44`, package/lock 1.26.1, latest annotated tag and formal Release v1.26.1. The new quiz family uses minor **1.27.0**. Final exact commit/CI/Pages/Edge/tag outcomes belong in the [v1.27.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.27.0) and [delivery](v1.27.0-delivery.md); pending requirements below are not success claims.
+
+- [x] Inspect the 19 crosswalk slides, six Examples, nine PE prompts/answers and five source figures; Stage 1 bounded reviewer PASS.
+- [x] Preserve original English tasks/answers/formulas, 15 IDs/order, 97 points, 105 minutes and handwriting metadata; replace inaccurate redraws with source exports and document three source discrepancies.
+- [x] Official generator, catalog/publication/rubrics/figure validation, complete historical source/context hashes, targeted tests, 170 audit checks /159 strict formulas, local 1280/390px figure/table checks; Stage 2 bounded reviewer PASS after the exact-MUX-input audit correction.
+- [x] Calculate repository totals: 15 current quizzes, 21 revisions, 298 current questions, 462 contexts; keep prior historical count/hash protections unchanged.
+- [x] Prepare package/lock roots 1.27.0, README, changelog, crosswalk, delivery and this checklist without changing release tooling/CI/provider behavior.
+- [ ] Run full official gates once on the stable candidate and obtain the single bounded Stage 3 final reviewer PASS; restore invalidated evidence only as required.
+- [ ] Commit/push PR, verify exact-head CI, merge with expected head and verify merge-SHA CI; preserve the source branch.
+- [ ] Deploy the actual AST-derived Edge context consumers before exact-SHA/version Pages, preserving JWT/configuration; verify management metadata and downloaded Pages artifact identity.
+- [ ] Publish the annotated v1.27.0 tag and GitHub Release at the same release SHA with the final closure evidence.
+- Production functional acceptance is explicitly assigned to the user. Usual production smoke/canary acceptance is excepted for this release by the current request, recorded as not performed, never PASS. No production website or function invocation is authorized.
+
 ## v1.26.1 — Chapter 3 revision 2 task clarification
 
 Preparation snapshot, 2026-10-23 Asia/Taipei. Latest master, package, annotated
