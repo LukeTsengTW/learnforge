@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.27.0 — Source-faithful digital systems Chapter 4
+
+- Publish `digital-systems-ch4-textbook/1`, **【課本題目】數位系統導論 - Chapter 4**: six worked examples and PE4.1–4.9, 15 calculations /97 points /105 minutes, with 1200×900 handwriting metadata.
+- Independently inspect the 19 crosswalk source slides and all five figures. Retain English PE wording, source answers/formulas and all six concise candidate Example tasks. Remove one source-absent comma and restore the source overflow carry rows. No translated questions or extra prompt hints.
+- Replace five initial SVG redraws with proportional source PNG exports, preserving actual gates, connections, inverter/enable polarity, truth tables, select labels and the PE4.9 output/F overlay. Use equivalent KaTeX arrays for the source tables supported by the existing renderer.
+- Preserve and document source discrepancies in PE4.1, PE4.8 and the three-variable MUX example; solutions/rubrics accommodate the source-supported interpretations without altering the original questions or printed answers.
+- Official generator adds 15 exact-revision contexts. All 20 prior sources and 447 contexts remain identical: **15 current quizzes /21 revisions /298 current questions /462 contexts**. Existing historical hash/count assertions remain intact.
+- Targeted integration: 18 files /287 tests, affected rerun 28 tests, corrected-audit rerun six tests; 170 source/math/figure checks and 159 strict KaTeX formulas PASS. Actual localhost rendering at 1280/390px passes for the six questions with figure/table risks. Stage 1–2 independent reviewers PASS. Final full gates, exact-SHA CI, deployments, tag and closure are recorded in [delivery](docs/v1.27.0-delivery.md) and the [formal Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.27.0).
+- Production functional acceptance belongs to the user. Codex performs no production public/browser smoke, login, quiz attempt, input/submission, learner-data write, Edge runtime probe or provider canary. The release-specific exception is recorded without changing permanent tooling or CI.
+
 ## 1.26.1 — Explicit Chapter 3 Example tasks in revision 2
 
 - Preserve published `digital-systems-ch3-textbook/1` from v1.26.0 as historical, changing only `current` to false. Publish revision 2 as the sole current revision: the same 24 questions, IDs/order, 152 points, 135 minutes and 1200×900 handwriting metadata.

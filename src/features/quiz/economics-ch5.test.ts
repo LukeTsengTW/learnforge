@@ -27,14 +27,15 @@ describe('reviewed economics chapter 5 integration', () => {
     // Preserve this release's historical cohort; the later digital-systems families have their own full-baseline guards.
     const old = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch1-textbook' && c.quizId !== 'digital-systems-ch2-textbook'
       && c.quizId !== 'digital-systems-ch3-textbook'
+      && c.quizId !== 'digital-systems-ch4-textbook'
       && !(c.quizId === quiz.id && c.revision === '2'))
     const added = AI_QUIZ_CONTEXT.filter(c => c.quizId === quiz.id && c.revision === '2')
-    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook')
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== 'digital-systems-ch3-textbook' && c.quizId !== 'digital-systems-ch4-textbook')
     expect(beforeChapter3.filter(c => !(['digital-systems-ch1-textbook', 'digital-systems-ch2-textbook'].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '1')).toHaveLength(24)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === 'digital-systems-ch3-textbook' && c.revision === '2')).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(447)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(462)
     expect(old).toHaveLength(211)
     expect(createHash('sha256').update(JSON.stringify(old)).digest('hex'))
       .toBe('bdaeada2f602763420ac69034aac12fb86c0c442bc1313daab65cb791fb7bfd2')
