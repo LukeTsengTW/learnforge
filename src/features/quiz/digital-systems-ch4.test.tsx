@@ -46,12 +46,12 @@ describe('source-audited Chapter 4 revision 1 integration', () => {
   })
 
   it('preserves the complete master baseline of 20 revisions and 447 contexts byte for byte', () => {
-    const sources=Object.entries(bundledQuizSources).filter(([file])=>!file.includes(`/${id}/`))
+    const sources=Object.entries(bundledQuizSources).filter(([file])=>!file.includes(`/${id}/`) && !file.includes('/digital-systems-ch1-ch4-textbook-exercises/'))
       .map(([file,source])=>[file.split('/quizzes/')[1],source.replaceAll('\r\n','\n')])
       .sort(([a],[b])=>a.localeCompare(b))
     expect(sources).toHaveLength(20)
     expect(sha(sources)).toBe('8aadb623a360643c7aef675f2b436fae81a58bd3ba99a34f07f1a075d3444c24')
-    const prior=AI_QUIZ_CONTEXT.filter(c=>c.quizId!==id)
+    const prior=AI_QUIZ_CONTEXT.filter(c=>c.quizId!==id && c.quizId!=='digital-systems-ch1-ch4-textbook-exercises')
     expect(prior).toHaveLength(447)
     expect(sha(prior)).toBe('1bf47d3047acd7488399668e59a9ddd8376ecf517a4ee52db391abf43d698fb8')
     // Derive the complete inventory from canonical sources; never guess a global count.
@@ -60,8 +60,8 @@ describe('source-audited Chapter 4 revision 1 integration', () => {
       .toEqual(all.filter(q=>q.current).map(q=>`${q.id}/${q.revision}`).sort())
     expect(quizCatalog.current.reduce((sum,entry)=>sum+entry.questionCount,0))
       .toBe(all.filter(q=>q.current).reduce((sum,q)=>sum+q.questions.length,0))
-    expect(all).toHaveLength(sources.length+1)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(prior.length+quiz.questions.length)
+    expect(all).toHaveLength(sources.length+1+all.filter(q=>q.id==='digital-systems-ch1-ch4-textbook-exercises').length)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(prior.length+quiz.questions.length+AI_QUIZ_CONTEXT.filter(c=>c.quizId==='digital-systems-ch1-ch4-textbook-exercises').length)
   })
 
   it('binds every generated context to the exact revision, source index and canonical fields', () => {

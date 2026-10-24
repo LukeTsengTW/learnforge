@@ -46,21 +46,21 @@ describe('source-audited digital systems chapter 1 integration', () => {
   it('preserves all fourteen prior source revisions and all 263 prior canonical contexts', () => {
     const priorSources = Object.entries(bundledQuizSources)
       .filter(([file]) => !file.includes(`/${id}/`) && !file.includes(`/${later}/`) && !file.includes(`/${newest}/`)
-        && !file.includes('/digital-systems-ch4-textbook/'))
+        && !file.includes('/digital-systems-ch4-textbook/') && !file.includes('/digital-systems-ch1-ch4-textbook-exercises/'))
       .map(([file, source]) => [file.split('/quizzes/')[1], source.replaceAll('\r\n', '\n')])
       .sort(([a], [b]) => a.localeCompare(b))
     expect(priorSources).toHaveLength(14)
     expect(sha(priorSources)).toBe('5c6047807151b538788521a5dbc13ec5227a5e88e6ea40d0bdd39096d6ac2e14')
     const priorContexts = AI_QUIZ_CONTEXT.filter(c => c.quizId !== id && c.quizId !== later && c.quizId !== newest
-      && c.quizId !== 'digital-systems-ch4-textbook')
+      && c.quizId !== 'digital-systems-ch4-textbook' && c.quizId !== 'digital-systems-ch1-ch4-textbook-exercises')
     expect(priorContexts).toHaveLength(263)
     expect(sha(priorContexts)).toBe('9898ee86b5422e9ce095a0e3f6972905dcebbce53dba4afb9ca1ec0fc6a14c41')
-    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== newest && c.quizId !== 'digital-systems-ch4-textbook')
+    const beforeChapter3 = AI_QUIZ_CONTEXT.filter(c => c.quizId !== newest && c.quizId !== 'digital-systems-ch4-textbook' && c.quizId !== 'digital-systems-ch1-ch4-textbook-exercises')
     expect(beforeChapter3.filter(c => !([id, later].includes(c.quizId) && c.revision === '2'))).toHaveLength(331)
     expect(beforeChapter3).toHaveLength(399)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === newest && c.revision === '1')).toHaveLength(24)
     expect(AI_QUIZ_CONTEXT.filter(c => c.quizId === newest && c.revision === '2')).toHaveLength(24)
-    expect(AI_QUIZ_CONTEXT).toHaveLength(462)
+    expect(AI_QUIZ_CONTEXT).toHaveLength(504)
   })
 
   it('binds one generated context to every exact question and its actual source index', () => {

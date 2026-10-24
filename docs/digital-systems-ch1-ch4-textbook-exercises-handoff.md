@@ -2,6 +2,8 @@
 
 This source branch is an initial authoring handoff for independent Codex validation before release. The learner-facing problem statements, subparts, equations, and source tables are transcribed from the supplied PDF. Codex must validate all 42 prompts against the PDF crosswalk before integration.
 
+Audit continuation, 2026-10-24 Asia/Taipei: initial source commit `b2be38ac3ab5d8769c26eca719e34d651ab8f2d6` was checked out exactly. The artifacts listed below are now corrected; the initial list is retained as provenance, not as unresolved work. Current audit decisions/evidence are in [the source review](digital-systems-ch1-ch4-textbook-exercises-review.md), including the corrected 2.17(c) minterm, 1.20 arithmetic, 2.18 literal minimum, source ambiguities and full-credit alternatives.
+
 Known answer/parser-side artifacts to correct during Stage 1 (they are not source-text changes):
 
 - q12 / Problem 2.17: rebuild the authored truth-table answer from the verified canonical minterm/maxterm sets; the initial uploaded answer table has malformed early rows.

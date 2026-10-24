@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.28.0 — Selected digital systems Chapter 1–4 textbook exercises
+
+- Publish `digital-systems-ch1-ch4-textbook-exercises/1`, **【課本習題】數位系統導論 Ch1 ~ Ch4**: 42 selected problems /411 points /360 minutes, with typed/handwritten answers. Inspect only the 14 crosswalk PDF pages; preserve source English, numerical data, subparts and notation.
+- Correct initial mechanical artifacts and the extra source-absent prime in Problem 3.20; repair 2.17(c)'s minterm/truth table, represent all 1.20 signed sums without overflow, and give 2.18's five-literal minimum. Complete all authored solutions and scored partial-credit rubrics.
+- Preserve 2.27's seven-row source table, accepting every supported completion. Label the minimum don't-care circuit as an answer-side assumption. Preserve 4.5's exact half-input wording; accept a justified exact-specification impossibility answer, and label integer/right-shift design as conditional. Label 4.6's three-input example because the source does not specify input count.
+- Replace two low-resolution crops with lossless direct PDF crops, typeset six unchanged tables as KaTeX arrays, and use the official generator for 42 new contexts. Preserve all 21 prior sources and 462 contexts byte/content-for-byte; actual totals: 16 quizzes /22 revisions /340 current questions /504 contexts.
+- Stage 1–2 bounded reviews PASS; 1,528 audit assertions, 635 strict formulas, 410 targeted tests and focused localhost figure/table checks pass. Final exact release identity, full gates, CI, affected Edge deployment, Pages artifact, annotated tag and publication are recorded in the [v1.28.0 Release](https://github.com/LukeTsengTW/learnforge/releases/tag/v1.28.0) and [delivery](docs/v1.28.0-delivery.md). Production functional acceptance is assigned to the user; no production smoke/runtime/provider test is claimed.
+
 ## 1.27.0 — Source-faithful digital systems Chapter 4
 
 - Publish `digital-systems-ch4-textbook/1`, **【課本題目】數位系統導論 - Chapter 4**: six worked examples and PE4.1–4.9, 15 calculations /97 points /105 minutes, with 1200×900 handwriting metadata.
